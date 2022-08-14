@@ -1,0 +1,91 @@
+﻿@page "/"
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="ShowChart">ShowChart</button>
+    <button type="button" class="btn btn-primary" @onclick="AddData">AddData</button>
+</div>
+
+<div class="w-75">
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig"></ChartComponent>
+</div>
+
+@code {
+    ChartComponent? chartComponent;
+    ChartJsConfig chartJsConfig = null!;
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = new()
+            {
+                Type = "bar",
+                Data = new ChartData()
+                {
+                    Labels = new List<string>()
+                    {
+                        "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
+                    },
+                    Datasets = new List<Dataset>()
+                    {
+                        new Dataset()
+                        {
+                            Label = "# of Votes",
+                            Data = new List<double>() { 12, 19, 3, 5, 2, 3 },
+                            BackgroundColor = new List<string>()
+                            {
+                                "rgba(255, 99, 132, 0.2)",
+                                "rgba(54, 162, 235, 0.2)",
+                                "rgba(255, 206, 86, 0.2)",
+                                "rgba(75, 192, 192, 0.2)",
+                                "rgba(153, 102, 255, 0.2)",
+                                "rgba(255, 159, 64, 0.2)",
+                            },
+                            BorderColor = new List<string>()
+                            {
+                                "rgba(255, 99, 132, 1)",
+                                "rgba(54, 162, 235, 1)",
+                                "rgba(255, 206, 86, 1)",
+                                "rgba(75, 192, 192, 1)",
+                                "rgba(153, 102, 255, 1)",
+                                "rgba(255, 159, 64, 1)",
+                            },
+                            BorderWidth = 1
+                        }
+                    }
+                },
+                //Options = new()
+                //{
+                //    Scales = new()
+                //    {
+                //        Y = new()
+                //        {
+                //            BeginAtZero = true
+                //        }
+                //    }
+                //}
+            };
+        base.OnInitialized();
+    }
+
+
+    public void ShowChart()
+    {
+        chartComponent?.ShowChart();
+    }
+
+    public async Task AddData()
+    {
+        if (chartComponent != null)
+        {
+            var dataSet = chartJsConfig.Data.Datasets.First();
+            await chartComponent.AddDataToDataset(chartJsConfig, dataSet, "Sommer");
+        }
+    }
+}
