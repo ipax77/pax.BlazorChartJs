@@ -21,17 +21,36 @@ public class ChartJsInterop : IAsyncDisposable
 {
     private readonly Lazy<Task<IJSObjectReference>> moduleTask;
     private readonly ILogger<ChartJsInterop> logger;
+    private readonly JsonSerializerOptions jsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     /// <summary>
     /// ChartJsInterop
     /// </summary>
     public ChartJsInterop(IJSRuntime jsRuntime, ILogger<ChartJsInterop> logger)
     {
-        moduleTask = new (() => jsRuntime.InvokeAsync<IJSObjectReference>(
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
             "import", "./_content/pax.BlazorChartJs/chartJsInterop.js").AsTask());
 
         this.logger = logger;
         // this.logger.LogInformation("init");
+    }
+
+    /// <summary>
+    /// (Re-)initializes chart
+    /// </summary>
+    public async ValueTask InitChart(ChartJsConfig config, DotNetObjectReference<ChartComponent> dotnetRef)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(dotnetRef);
+
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("initChart", config.ChartJsConfigGuid, SerializeConfig(config), dotnetRef)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -51,6 +70,18 @@ public class ChartJsInterop : IAsyncDisposable
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
         await module.InvokeVoidAsync("addDataToDataset", chartId, datasetId, label).ConfigureAwait(false);
+    }
+
+    private JsonObject? SerializeConfig(ChartJsConfig config)
+    {
+        var json = JsonSerializer.Serialize(config, jsonOptions);
+
+        if (json == null)
+        {
+            throw new ArgumentNullException(nameof(config));
+        }
+
+        return JsonSerializer.Deserialize<JsonObject>(json);
     }
 
     /// <summary>

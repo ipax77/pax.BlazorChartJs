@@ -17,8 +17,8 @@
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <LangVersion>latest</LangVersion>
     <WarningsNotAsErrors></WarningsNotAsErrors>
-    <DisabledWarnings></DisabledWarnings>
-    <NoWarn></NoWarn>
+    <DisabledWarnings>1591</DisabledWarnings>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
 

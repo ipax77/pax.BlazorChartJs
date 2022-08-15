@@ -12,7 +12,7 @@ public partial class LineChartPage : ComponentBase
     {
         chartJsConfig = new()
         {
-            Type = "line",
+            Type = ChartType.line,
             Data = new ChartData()
             {
                 Labels = new List<string>()

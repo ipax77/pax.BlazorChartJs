@@ -15,7 +15,6 @@ public partial class ChartComponent : ComponentBase, IDisposable
 {
     private bool isDisposed;
     private DotNetObjectReference<ChartComponent>? dotNetHelper;
-    private ElementReference? elementReference;
 
     /// <summary>
     /// ChartGuid - chart canvas id
@@ -34,11 +33,12 @@ public partial class ChartComponent : ComponentBase, IDisposable
     /// OnAfterRenderAsync
     /// </summary>
     /// <param name="firstRender"></param>
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             dotNetHelper = DotNetObjectReference.Create(this);
+            await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
         }
         base.OnAfterRender(firstRender);
     }
@@ -49,10 +49,7 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
     public async Task ShowChart()
     {
-        if (elementReference != null && ChartJsInterop != null)
-        {
-            await ChartJsInterop.ShowChart(ChartJsConfig).ConfigureAwait(false);
-        }
+        await ChartJsInterop.ShowChart(ChartJsConfig).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -63,11 +60,7 @@ public partial class ChartComponent : ComponentBase, IDisposable
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(dataset);
-
-        if (elementReference != null && ChartJsInterop != null)
-        {
-            await ChartJsInterop.AddDataToDataset(config.ChartJsConfigGuid.ToString(), dataset.Id, label).ConfigureAwait(false);
-        }
+        await ChartJsInterop.AddDataToDataset(config.ChartJsConfigGuid.ToString(), dataset.Id, label).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -89,13 +82,11 @@ public partial class ChartComponent : ComponentBase, IDisposable
             return;
         }
 
-//        if (disposing)
-//        {
-//#pragma warning disable CA2012 // Use ValueTasks correctly
-//            _ = ChartJsInterop?.DisposeAsync();
-//#pragma warning restore CA2012 // Use ValueTasks correctly
-//            dotNetHelper?.Dispose();
-//        }
+        if (disposing)
+        {
+            dotNetHelper?.Dispose();
+            // todo: cleanup js chart?
+        }
 
         isDisposed = true;
     }

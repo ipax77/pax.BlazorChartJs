@@ -6,7 +6,65 @@
 // import { Chart, registerables } from './chart.min.js';
 import './chart.min.js';
 
+export function initChart(chartId, dotnetConfig, dotnetRef)
+{
+    if (window.charts == undefined) {
+        window.charts = {};
+    }
 
+    if (window.dotnetrefs == undefined) {
+        window.dotnetrefs = {};
+    }
+
+    window.dotnetrefs[chartId] = dotnetRef;
+
+    if (dotnetConfig.options == undefined) {
+        dotnetConfig.options = {};
+    }
+
+    //if (dotnetConfig.option == undefined && dotnetConfig.option.plugins == undefined && dotnetConfig.option.plugins.arbitraryLines != undefined)
+    //{
+    //    const arbitaryLines = arbitaryLinesPlugin();
+
+    //    config = {
+    //        type: dotnetConfig.type,
+    //        data: dotnetConfig.data,
+    //        option: dotnetConfig.option,
+    //        plugins: [arbitaryLines]
+    //    }
+    
+    const config = {
+        type: dotnetConfig.type,
+        data: dotnetConfig.data,
+        options: dotnetConfig.options
+    }        
+    
+
+    config.options.onClick = (e) => {
+        const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+
+        if (points.length) {
+            const firstPoint = points[0];
+            const label = window.charts[chartId].data.labels[firstPoint.index];
+            const value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+            reportChartClick(chartId, label);
+        }
+    }
+
+    async function reportChartClick(chartid, label) {
+        if (window.dotnetref[chartid])
+        {
+            await window.dotnetref[chartid].invokeMethodAsync("ChartClicked", label);
+        }
+    }
+
+    if (window.charts[chartId]) {
+        window.charts[chartId].clear();
+    }
+
+    const ctx = document.getElementById(chartId).getContext('2d');
+    window.charts[chartId] = new Chart(ctx, config);
+}
 
 export function showChart(chartId, config) {
 
@@ -80,4 +138,43 @@ export function addDataToDataset(chartId, datasetId, data) {
 
 export function removeDataset() {
 
+}
+
+function arbitaryLinesPlugin() {
+    return {
+        id: 'arbitraryLines',
+        // beforeDraw(chart, args, options) {
+        afterDraw(chart, args, options) {
+            const { ctx, chartArea: { top, right, bottom, left, width, height }, scales: { x, y } } = chart;
+
+            ctx.save();
+
+            for (let i = 0; i < options.length; i++) {
+                var option = options[i];
+                ctx.fillStyle = option.arbitraryLineColor;
+                const xWidth = option.xWidth;
+                x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
+                y0 = top;
+                x1 = xWidth;
+                y1 = height;
+                ctx.fillRect(x0, y0, x1, y1);
+            }
+
+            for (let i = 0; i < options.length; i++) {
+                var option = options[i];
+                ctx.fillStyle = option.arbitraryLineColor;
+                const xWidth = option.xWidth;
+                x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
+                y0 = top;
+                x1 = xWidth;
+                y1 = height;
+
+                ctx.fillStyle = 'white';
+                ctx.font = '14px arial';
+                ctx.fillText(option.text, x0 + 4, y0 + 10 * (i + 1));
+            }
+
+            ctx.restore();
+        }
+    };
 }
