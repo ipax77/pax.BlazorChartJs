@@ -31,13 +31,14 @@ public class Dataset
     /// </summary>            
     public ICollection<double> Data { get; set; }
     /// <summary>
-    /// BackgroundColor (css color)
-    /// </summary>                
-    public ICollection<string> BackgroundColor { get; set; }
+    /// BackgroundColor can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
+    /// </summary>       
+     //[JsonConverter(typeof(UnsafeRawJsonConverter))]         
+    public object BackgroundColor { get; set; }
     /// <summary>
-    /// BorderColor (css color)
+    /// BorderColor can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>                
-    public ICollection<string> BorderColor { get; set; }
+    public object BorderColor { get; set; }
     /// <summary>
     /// BorderWidth
     /// </summary>                

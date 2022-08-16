@@ -56,11 +56,15 @@ public partial class ChartComponent : ComponentBase, IDisposable
     /// ShowChart
     /// </summary>
 
-    public async Task AddDataToDataset(ChartJsConfig config, Dataset dataset, string label)
+    public async Task AddDataToDataset(ChartJsConfig config, object dataset, string label)
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(dataset);
-        await ChartJsInterop.AddDataToDataset(config.ChartJsConfigGuid.ToString(), dataset.Id, label).ConfigureAwait(false);
+
+        var chartDataset = dataset as ChartJsDataset;
+        ArgumentNullException.ThrowIfNull(chartDataset);
+
+        await ChartJsInterop.AddDataToDataset(config.ChartJsConfigGuid.ToString(), chartDataset.Id, label).ConfigureAwait(false);
     }
 
     /// <summary>

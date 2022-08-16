@@ -13,25 +13,29 @@ public class ChartJsConfig
     {
     }
 
+    /// <summary>
+    /// ChartJsConfigGuid - used for canvas id and to track the dotnetobjectreference
+    /// </summary>
     [JsonIgnore]
     public Guid ChartJsConfigGuid { get; private set; } = Guid.NewGuid();
 
     public ChartType? Type { get; set; }
-    public ChartData Data { get; set; } = new();
+    public ChartJsData Data { get; set; } = new();
     public ChartJsOptions? Options { get; set; }
 }
 
-public class ChartData
+
+public class ChartJsData
 {
-    public ChartData()
+    public ChartJsData()
     {
         Labels = new List<string>();
-        Datasets = new List<Dataset>();
+        Datasets = new List<object>();
 
     }
 
     public ICollection<string> Labels { get; set; }
-    public ICollection<Dataset> Datasets { get; set; }
+    public virtual ICollection<object> Datasets { get; set; }
 
 }
 
@@ -41,5 +45,7 @@ public enum ChartType
 {
     none = 0,
     line = 1,
-    bar = 2
+    bar = 2,
+    doughnut = 3,
+    pie = 4,
 }

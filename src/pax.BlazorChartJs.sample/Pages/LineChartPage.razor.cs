@@ -13,19 +13,19 @@ public partial class LineChartPage : ComponentBase
         chartJsConfig = new()
         {
             Type = ChartType.line,
-            Data = new ChartData()
+            Data = new ChartJsData()
             {
                 Labels = new List<string>()
                 {
                     "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
                 },
-                Datasets = new List<Dataset>()
+                Datasets = new List<object>()
                 {
-                    new Dataset()
+                    new LineDataset()
                     {
                         Label = "Team 1",
                         Data = new List<double>() { 1, 2, 3, 4, 5, 6 },
-                        BackgroundColor = new List<string>() { "lightblue" },
+                        BackgroundColor = "lightblue",
                         BorderColor = new List<string>() { "lightblue" },
                         BorderWidth = 5,
                         Fill = false,
@@ -36,11 +36,11 @@ public partial class LineChartPage : ComponentBase
                         PointHitRadius = 6,
                         Tension = 0
                     },
-                    new Dataset()
+                    new LineDataset()
                     {
                         Label = "Team 2",
                         Data = new List<double>() { 6, 5, 4, 3, 2, 1 },
-                        BackgroundColor = new List<string>() { "lightgreen" },
+                        BackgroundColor = "lightgreen",
                         BorderColor = new List<string>() { "lightgreen" },
                         BorderWidth= 5,
                         Fill = false,
