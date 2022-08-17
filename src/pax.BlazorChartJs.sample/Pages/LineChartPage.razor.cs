@@ -42,7 +42,7 @@ public partial class LineChartPage : ComponentBase
                         Data = new List<double>() { 6, 5, 4, 3, 2, 1 },
                         BackgroundColor = "lightgreen",
                         BorderColor = new List<string>() { "lightgreen" },
-                        BorderWidth= 5,
+                        BorderWidth = 5,
                         Fill = false,
                         PointBackgroundColor = "green",
                         PointBorderColor = "green",
@@ -83,10 +83,11 @@ public partial class LineChartPage : ComponentBase
                 // },
                 Scales = new ChartJsOptionsScales()
                 {
-                    X = new ChartJsOptionsScalesX()
+                    XAxis = new LinearAxis()
                     {
                         Display = true,
                         Position = "bottom",
+                        BeginAtZero = true,
                         Title = new Title()
                         {
                             Display = true,
@@ -102,19 +103,18 @@ public partial class LineChartPage : ComponentBase
                                 Bottom = 4
                             }
                         },
-                        Ticks = new Ticks()
+                        Ticks = new LinearAxisTick()
                         {
                             Color = "red",
-                            BeginAtZero = true,
                             Padding = 3,
                             AutoSkipPadding = 3,
                             BackdropColor = "rgba(255, 255, 255, 0.75)",
                             Align = "center",
                             CrossAlign = "near",
                             ShowLabelBackdrop = false,
-                            BackdropPadding = 2
+                            BackdropPadding = new Padding(2)
                         },
-                        Grid = new Grid()
+                        Grid = new ChartJsGrid()
                         {
                             Display = true,
                             Color = "lightgrey",
@@ -129,9 +129,10 @@ public partial class LineChartPage : ComponentBase
                             BorderColor = "rgba(0,0,0,0.1)"
                         }
                     },
-                    Y = new ChartJsOptionsScalesY()
+                    YAxis = new LinearAxis()
                     {
                         Display = true,
+                        BeginAtZero = true,
                         Title = new Title()
                         {
                             Display = true,
@@ -147,19 +148,18 @@ public partial class LineChartPage : ComponentBase
                                 Bottom = 4
                             }
                         },
-                        Ticks = new Ticks()
+                        Ticks = new LinearAxisTick()
                         {
                             Color = "red",
-                            BeginAtZero = true,
                             Padding = 3,
                             AutoSkipPadding = 3,
                             BackdropColor = "rgba(255, 255, 255, 0.75)",
                             Align = "center",
                             CrossAlign = "near",
                             ShowLabelBackdrop = false,
-                            BackdropPadding = 2
+                            BackdropPadding = new Padding(2)
                         },
-                        Grid = new Grid()
+                        Grid = new ChartJsGrid()
                         {
                             Display = true,
                             Color = "lightgrey",

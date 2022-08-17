@@ -7,7 +7,7 @@ namespace pax.BlazorChartJs;
 /// <summary>
 /// Configuration Options
 /// </summary>
-public class ChartJsOptions
+public record ChartJsOptions
 {
     /// <summary>
     /// Resizes the chart canvas when its container does (<see href="https://www.chartjs.org/docs/latest/configuration/responsive.html#important-note">important note...</see>).
@@ -25,109 +25,270 @@ public class ChartJsOptions
     /// Delay the resize update by the given amount of milliseconds. This can ease the resize process by debouncing the update of the elements.
     /// </summary>    
     public int? ResizeDelay { get; set; }
-
-    // public Plugins? Plugins { get; set; }
+    /// <summary>
+    /// a string with a BCP 47 language tag, leveraging on <see href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat">INTL NumberFormat</see>
+    /// </summary>        
+    public string? Locale { get; set; }
+    public Layout? Layout { get; set; }
+    public Plugins? Plugins { get; set; }
     public ChartJsOptionsScales? Scales { get; set; }
 }
 
-public class ChartJsOptionsScales
+public record Plugins
 {
-    public ChartJsOptionsScalesX? X { get; set; }
-    public ChartJsOptionsScalesY? Y { get; set; }
-}
-
-public class ChartJsOptionsScalesX
-{
-    public string? Axis { get; set; }
-    public bool? Display { get; set; }
+    public Legend? Legend { get; set; }
     public Title? Title { get; set; }
-    public Ticks? Ticks { get; set; }
-    public Grid? Grid { get; set; }
-    public string? Type { get; set; }
-    public bool? Offset { get; set; }
-    public bool? Reverse { get; set; }
-    public bool? BeginAtZero { get; set; }
-    public string? Bounds { get; set; }
-    public int? Grace { get; set; }
-    public string? Id { get; set; }
+    public Title? Subtitle { get; set; }
+    public Tooltip? Tooltip { get; set; }
+}
+
+public record Tooltip
+{
+    public bool? Enabled { get; set; }
+    // public object? External { get; set; }
+    /// <summary>
+    /// Modes
+    /// When configuring the interaction with the graph via interaction, hover or tooltips, a number of different modes are available.
+    /// 
+    /// options.hover and options.plugins.tooltip extend from options.interaction. So if mode, intersect or any other common settings are configured only in options.interaction, both hover and tooltips obey that.
+    /// 
+    /// The modes are detailed below and how they behave in conjunction with the intersect setting.
+    /// 
+    /// See how different modes work with the tooltip in <see href="https://www.chartjs.org/docs/latest/samples/tooltip/interactions.html">tooltip interactions sample</see> 
+    /// </summary>      
+    public string? Mode { get; set; }
+    public bool? Intersect { get; set; }
     public string? Position { get; set; }
-
-}
-
-public class Ticks
-{
-    public string? Color { get; set; }
-    public bool? BeginAtZero { get; set; }
-    public int? MinRotation { get; set; }
-    public int? MaxRotation { get; set; }
-    public bool? Mirror { get; set; }
-    public int? TextStrokeWidth { get; set; }
-    public string? TextStrokeColor { get; set; }
-    public int? Padding { get; set; }
-    public bool? Display { get; set; }
-    public bool? AutoSkip { get; set; }
-    public int? AutoSkipPadding { get; set; }
-    public int? LabelOffset { get; set; }
-    public string? Align { get; set; }
-    public string? CrossAlign { get; set; }
-    public bool? ShowLabelBackdrop { get; set; }
-    public string? BackdropColor { get; set; }
-    public int? BackdropPadding { get; set; }
-}
-
-public class Grid
-{
-    public string? Color { get; set; }
-    public bool? Display { get; set; }
-    public int? LineWidth { get; set; }
-    public bool? DrawBorder { get; set; }
-    public bool? DrawOnChartArea { get; set; }
-    public bool? DrawTicks { get; set; }
-    public int? TickLength { get; set; }
-    public int? TickWidth { get; set; }
-    public string? TickColor { get; set; }
-    public bool? Offset { get; set; }
-    public ICollection<object>? BorderDash { get; set; }
-    public int? BorderDashOffset { get; set; }
+    // public object? Callbacks { get; set; }
+    // public object? ItemSort { get; set; }
+    // public object? Filter { get; set; }
+    public object? BackgroundColor { get; set; }
+    public object? TitleColor { get; set; }
+    public Font? TitleFont { get; set; }
+    public string? TitleAlign { get; set; }
+    public int? TitleSpacing { get; set; }
+    public int? TitleMarginBottom { get; set; }
+    public object? BodyColor { get; set; }
+    public Font? BodyFont { get; set; }
+    public string? BodyAlign { get; set; }
+    public int? BodySpacing { get; set; }
+    public object? FooterColor { get; set; }
+    public Font? FooterFont { get; set; }
+    public string? FooterAlign { get; set; }
+    public int? FooterSpacing { get; set; }
+    public int? FooterMarginTop { get; set; }
+    public Padding? Padding { get; set; }
+    public int? CaretPadding { get; set; }
+    public int? CaretSize { get; set; }
+    public int? CornerRadius { get; set; }
+    public object? MultiKeyBackground { get; set; }
+    public bool? DisplayColors { get; set; }
+    public int? BoxWidth { get; set; }
+    public int? BoxHeight { get; set; }
+    public int? BoxPadding { get; set; }
+    public bool? UsePointStyle { get; set; }
+    public object? BorderColor { get; set; }
     public int? BorderWidth { get; set; }
-    public string? BorderColor { get; set; }
+    public bool? Rtl { get; set; }
+    public string? TextDirection { get; set; }
+    /// <summary>
+    /// Tooltip Alignment
+    /// The xAlign and yAlign options define the position of the tooltip caret. If these parameters are unset, the optimal caret position is determined.
+    /// 
+    /// The following values for the xAlign setting are supported.
+    /// 
+    /// 'left'
+    /// 'center'
+    /// 'right'
+    /// </summary>   
+    public string? XAlign { get; set; }
+    /// <summary>
+    /// Tooltip Alignment
+    /// The xAlign and yAlign options define the position of the tooltip caret. If these parameters are unset, the optimal caret position is determined.
+    /// 
+    /// The following values for the yAlign setting are supported.
+    /// 
+    /// 'top'
+    /// 'center'
+    /// 'bottom' 
+    /// </summary>     
+    public string? YAlign { get; set; }
 }
 
-
-public class Title
+public record Legend
 {
     public bool? Display { get; set; }
-    public string? Text { get; set; }
-    public string? Color { get; set; }
+    /// <summary>
+    /// Position
+    /// Position of the legend. Options are:
+    /// 
+    /// 'top'
+    /// 'left'
+    /// 'bottom'
+    /// 'right'
+    /// 'chartArea'
+    /// When using the 'chartArea' option the legend position is at the moment not configurable, it will always be on the left side of the chart in the middle.    
+    /// <see href="https://www.chartjs.org/docs/latest/configuration/legend.html#position">ChartJs docs</see>
+    /// </summary>
+    public string? Position { get; set; }
+    /// <summary>
+    /// Align
+    /// Alignment of the legend. Options are:
+    /// 
+    /// 'start'
+    /// 'center'
+    /// 'end'
+    /// Defaults to 'center' for unrecognized values   
+    /// <see href="https://www.chartjs.org/docs/latest/configuration/legend.html#align">ChartJs docs</see>
+    /// </summary>    
+    public string? Align { get; set; }
+    public int? MaxHeight { get; set; }
+    public int? MaxWidth { get; set; }
+    public bool? FullSize { get; set; }
+    // public object? OnClick { get; set; }
+    // public object? OnHover { get; set; }
+    // public object? OnLeave { get; set; }
+    public bool? Reverse { get; set; }
+    public Labels? Labels { get; set; }
+    /// <summary>
+    /// true for rendering the legends from right to left.
+    /// </summary>        
+    public bool? Rtl { get; set; }
+    /// <summary>
+    /// This will force the text direction 'rtl' or 'ltr' on the canvas for rendering the legend, regardless of the css specified on the canvas
+    /// </summary>       
+    public string? TextDirection { get; set; }
+    public Title? Title { get; set; }
+}
+
+public record Labels
+{
+    public int? BoxWidth { get; set; }
+    public int? BoxHeight { get; set; }
+    /// <summary>
+    /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
+    /// </summary>         
+    public object? Color { get; set; }
+    public Font? Font { get; set; }
+    public int? Padding { get; set; }
+    // public object? GenerateLabels { get; set; }
+    // public object? Filter { get; set; }
+    // public object? Sort { get; set; }
+    /// <summary>
+    /// Types
+    /// The pointStyle argument accepts the following type of inputs: string, Image and HTMLCanvasElement
+    /// 
+    /// #Info
+    /// When a string is provided, the following values are supported:
+    /// 
+    /// 'circle'
+    /// 'cross'
+    /// 'crossRot'
+    /// 'dash'
+    /// 'line'
+    /// 'rect'
+    /// 'rectRounded'
+    /// 'rectRot'
+    /// 'star'
+    /// 'triangle'
+    /// If the value is an image or a canvas element, that image or canvas element is drawn on the canvas using drawImage .
+    /// </summary>    
+    public string? PointStyle { get; set; }
+    /// <summary>
+    /// Horizontal alignment of the label text. Options are: 'left', 'right' or 'center'.
+    /// </summary>
+    public string? TextAlign { get; set; }
+    public bool? UsePointStyle { get; set; }
+    public string? PointStyleWidth { get; set; }
+}
+
+public record Layout
+{
+    public bool? AutoPadding { get; set; }
+    public Padding? Padding { get; set; }
+}
+
+public record ChartJsOptionsScales
+{
+    public object? XAxis { get; set; }
+    public object? YAxis { get; set; }
+    public object? RAxis { get; set; }
+}
+
+public record Title
+{
+    /// <summary>
+    /// Align
+    /// Alignment of the title. Options are:
+    /// 
+    /// 'start'
+    /// 'center'
+    /// 'end'    
+    /// </summary>
+    public string? Align { get; set; }
+    public object? Color { get; set; }
+    public bool? Display { get; set; }
+    public bool? FullSize { get; set; }
+    /// <summary>
+    /// Position
+    /// Possible title position values are:
+    /// 
+    /// 'top'
+    /// 'left'
+    /// 'bottom'
+    /// 'right'
+    /// </summary>    
+    public string? Position { get; set; }
     public Font? Font { get; set; }
     public Padding? Padding { get; set; }
-
+    public string? Text { get; set; }
 }
 
-public class Font
+public record Font
 {
+    public string? Family { get; set; }
     public int? Size { get; set; }
+    /// <summary>
+    /// Default font style. Does not apply to tooltip title or footer. Does not apply to chart title. Follows CSS font-style options (i.e. normal, italic, oblique, initial, inherit).
+    /// </summary>
+    public string? Style { get; set; }
+    /// <summary>
+    /// Weight - css property
+    /// </summary>    
+    public string? Weight { get; set; }
+    /// <summary>
+    /// LineHeight - css property
+    /// e.g.:
+    /// normal
+    /// 2.5
+    /// 3em
+    /// 150%
+    /// 32px
+    /// </summary>      
+    public object? LineHeight { get; set; }
+
 }
 
-public class Padding
+public record Padding
 {
-    public int Top { get; set; }
-    public int Bottom { get; set; }
+    public Padding()
+    {
+
+    }
+
+    public Padding(double allSides)
+    {
+        Left = allSides;
+        Top = allSides;
+        Right = allSides;
+        Bottom = allSides;
+    }
+
+    public double? Left { get; set; }
+    public double? Top { get; set; }
+    public double? Right { get; set; }
+    public double? Bottom { get; set; }
+    public double? Z { get; set; }
 }
 
-public class ChartJsOptionsScalesY
-{
-    public string? Axis { get; set; }
-    public bool? Display { get; set; }
-    public Title? Title { get; set; }
-    public Ticks? Ticks { get; set; }
-    public Grid? Grid { get; set; }
-    public string? Type { get; set; }
-    public bool? Offset { get; set; }
-    public bool? Reverse { get; set; }
-    public bool? BeginAtZero { get; set; }
-    public string? Bounds { get; set; }
-    public int? Grace { get; set; }
-    public string? Id { get; set; }
-    public string? Position { get; set; }
-}
+
