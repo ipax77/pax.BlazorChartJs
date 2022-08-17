@@ -10,12 +10,22 @@
 </div>
 
 <div class="w-75">
-    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig"></ChartComponent>
+    <ChartComponent @ref="chartComponent" OnLabelClicked="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
+</div>
+
+<div>
+    @if (!String.IsNullOrEmpty(labelClicked))
+    {
+        <p>
+            Label clicked: @labelClicked
+        </p>
+    }
 </div>
 
 @code {
-        ChartComponent? chartComponent;
+    ChartComponent? chartComponent;
     ChartJsConfig chartJsConfig = null!;
+    private string? labelClicked;
 
     protected override void OnInitialized()
     {
@@ -56,24 +66,24 @@
                         }
                     }
                 },
-                //Options = new()
-                //{
-                //    Scales = new()
-                //    {
-                //        Y = new()
-                //        {
-                //            BeginAtZero = true
-                //        }
-                //    }
-                //}
+                Options = new ChartJsOptions()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = true
+                }
             };
         base.OnInitialized();
     }
 
 
-    public void ShowChart()
+    private void ShowChart()
     {
-        chartComponent?.ShowChart();
+        chartComponent?.DrawChart();
+    }
+
+    private void LabelClicked(KeyValuePair<Guid, string> report)
+    {
+        labelClicked = report.Value;
     }
 
     public async Task AddData()

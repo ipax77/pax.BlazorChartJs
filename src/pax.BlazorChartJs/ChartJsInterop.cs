@@ -54,13 +54,16 @@ public class ChartJsInterop : IAsyncDisposable
     }
 
     /// <summary>
-    /// ChartJsInterop
+    /// Update Chart options
     /// </summary>
-    public async ValueTask ShowChart(ChartJsConfig chart)
+    public async ValueTask UpdateChartOptions(ChartJsConfig config, DotNetObjectReference<ChartComponent> dotnetRef)
     {
-        ArgumentNullException.ThrowIfNull(chart);
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(dotnetRef);
+
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("showChart", chart.ChartJsConfigGuid, chart).ConfigureAwait(false);
+        await module.InvokeVoidAsync("updateChartOptions", config.ChartJsConfigGuid, SerializeConfigOptions(config), dotnetRef)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -75,6 +78,18 @@ public class ChartJsInterop : IAsyncDisposable
     private JsonObject? SerializeConfig(ChartJsConfig config)
     {
         var json = JsonSerializer.Serialize(config, jsonOptions);
+
+        if (json == null)
+        {
+            throw new ArgumentNullException(nameof(config));
+        }
+
+        return JsonSerializer.Deserialize<JsonObject>(json);
+    }
+
+    private JsonObject? SerializeConfigOptions(ChartJsConfig config)
+    {
+        var json = JsonSerializer.Serialize(config.Options, jsonOptions);
 
         if (json == null)
         {

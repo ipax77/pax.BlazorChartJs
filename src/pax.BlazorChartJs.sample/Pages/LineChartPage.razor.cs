@@ -56,34 +56,13 @@ public partial class LineChartPage : ComponentBase
             Options = new ChartJsOptions()
             {
                 Responsive = true,
-                // Plugins = new Plugins()
-                // {
-                //     Legend = new Legend()
-                //     {
-                //         Position = "top"
-                //     },
-                //     Title = new Title()
-                //     {
-                //         Display = true,
-                //         Text = "Middle",
-                //         Color = "red",
-                //         Font = new Font()
-                //         {
-                //             Size = 16
-                //         }
-                //     },
-                //     ArbitraryLines = new List<ArbitraryLine>() {
-                //         new ArbitraryLine()
-                //         {
-                //             ArbitraryLineColor = "blue",
-                //             XPosition = 0,
-                //             XWidth = 3
-                //         }
-                //     }
-                // },
+                Plugins = new Plugins()
+                {
+                    ArbitraryLines = new List<ArbitraryLineConfig>()
+                },
                 Scales = new ChartJsOptionsScales()
                 {
-                    XAxis = new LinearAxis()
+                    X = new LinearAxis()
                     {
                         Display = true,
                         Position = "bottom",
@@ -129,7 +108,7 @@ public partial class LineChartPage : ComponentBase
                             BorderColor = "rgba(0,0,0,0.1)"
                         }
                     },
-                    YAxis = new LinearAxis()
+                    Y = new LinearAxis()
                     {
                         Display = true,
                         BeginAtZero = true,
@@ -183,7 +162,32 @@ public partial class LineChartPage : ComponentBase
 
     public void ShowChart()
     {
-        chartComponent?.ShowChart();
+        chartComponent?.DrawChart();
+    }
+
+    public void AddArbitraryLine()
+    {
+        if (chartJsConfig.Options == null)
+        {
+            chartJsConfig.Options = new();
+        }
+
+        if (chartJsConfig.Options.Plugins == null)
+        {
+            chartJsConfig.Options.Plugins = new();
+        }
+
+        chartJsConfig.Options.Plugins.ArbitraryLines = new List<ArbitraryLineConfig>()
+        {
+            new ArbitraryLineConfig()
+            {
+                ArbitraryLineColor = "blue",
+                XPosition = 2,
+                XWidth = 3,
+                Text = "Plugin Test"
+            }
+        };
+        chartComponent?.UpdateChartOptions();
     }
 
     public async Task AddData()

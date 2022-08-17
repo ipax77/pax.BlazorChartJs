@@ -24,6 +24,12 @@ public partial class ChartComponent : ComponentBase, IDisposable
     public ChartJsConfig ChartJsConfig { get; set; } = default!;
 
     /// <summary>
+    /// OnLabelClicked - reports click on chart and returns the chartConfig.Guid and the nearest label to that click
+    /// </summary>
+    [Parameter]
+    public EventCallback<KeyValuePair<Guid, string>> OnLabelClicked { get; set; }
+
+    /// <summary>
     /// ChartJsInterop
     /// </summary>
     [Inject]
@@ -44,18 +50,28 @@ public partial class ChartComponent : ComponentBase, IDisposable
     }
 
     /// <summary>
-    /// ShowChart
+    /// (Re-)Draws the chart
     /// </summary>
 
-    public async Task ShowChart()
+    public async Task DrawChart()
     {
-        await ChartJsInterop.ShowChart(ChartJsConfig).ConfigureAwait(false);
+        if (dotNetHelper != null)
+        {
+            await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+        }
+    }
+
+    public async Task UpdateChartOptions()
+    {
+        if (dotNetHelper != null)
+        {
+            await ChartJsInterop.UpdateChartOptions(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+        }
     }
 
     /// <summary>
     /// ShowChart
     /// </summary>
-
     public async Task AddDataToDataset(ChartJsConfig config, object dataset, string label)
     {
         ArgumentNullException.ThrowIfNull(config);
@@ -65,6 +81,15 @@ public partial class ChartComponent : ComponentBase, IDisposable
         ArgumentNullException.ThrowIfNull(chartDataset);
 
         await ChartJsInterop.AddDataToDataset(config.ChartJsConfigGuid.ToString(), chartDataset.Id, label).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Javascript call
+    /// </summary>
+    [JSInvokable]
+    public void ChartClicked(string label)
+    {
+        OnLabelClicked.InvokeAsync(new KeyValuePair<Guid, string>(ChartJsConfig.ChartJsConfigGuid, label));
     }
 
     /// <summary>

@@ -22,23 +22,26 @@ export function initChart(chartId, dotnetConfig, dotnetRef)
         dotnetConfig.options = {};
     }
 
-    //if (dotnetConfig.option == undefined && dotnetConfig.option.plugins == undefined && dotnetConfig.option.plugins.arbitraryLines != undefined)
-    //{
-    //    const arbitaryLines = arbitaryLinesPlugin();
+    let config;
+    if (dotnetConfig.options != undefined
+        && dotnetConfig.options.plugins != undefined
+        && dotnetConfig.options.plugins.arbitraryLines != undefined) {
+        const arbitraryLines = arbitaryLinesPlugin();
 
-    //    config = {
-    //        type: dotnetConfig.type,
-    //        data: dotnetConfig.data,
-    //        option: dotnetConfig.option,
-    //        plugins: [arbitaryLines]
-    //    }
-    
-    const config = {
-        type: dotnetConfig.type,
-        data: dotnetConfig.data,
-        options: dotnetConfig.options
-    }        
-    
+        config = {
+            type: dotnetConfig.type,
+            data: dotnetConfig.data,
+            options: dotnetConfig.options,
+            plugins: [arbitraryLines]
+        }
+    }
+    else {
+        config = {
+            type: dotnetConfig.type,
+            data: dotnetConfig.data,
+            options: dotnetConfig.options
+        }        
+    }
 
     config.options.onClick = (e) => {
         const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
@@ -52,68 +55,25 @@ export function initChart(chartId, dotnetConfig, dotnetRef)
     }
 
     async function reportChartClick(chartid, label) {
-        if (window.dotnetref[chartid])
+        if (window.dotnetrefs[chartid])
         {
-            await window.dotnetref[chartid].invokeMethodAsync("ChartClicked", label);
+            await window.dotnetrefs[chartid].invokeMethodAsync("ChartClicked", label);
         }
     }
 
     if (window.charts[chartId]) {
-        window.charts[chartId].clear();
+        window.charts[chartId].destroy();
     }
 
     const ctx = document.getElementById(chartId).getContext('2d');
     window.charts[chartId] = new Chart(ctx, config);
 }
 
-export function showChart(chartId, config) {
-
-    if (window.charts == undefined) {
-        window.charts = {};
+export function updateChartOptions(chartId, options) {
+    if (window.charts[chartId]) {
+        window.charts[chartId].options = options;
+        window.charts[chartId].update();
     }
-
-    console.log("indahouse1");
-    const ctx = document.getElementById(chartId).getContext('2d');
-
-    // const chartJson = JSON.parse(config);
-    window.charts[chartId] = new Chart(ctx, config);
-
-    //const myChart = new Chart(ctx, {
-    //    type: 'bar',
-    //    data: {
-    //        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    //        datasets: [{
-    //            label: '# of Votes',
-    //            data: [12, 19, 3, 5, 2, 3],
-    //            backgroundColor: [
-    //                'rgba(255, 99, 132, 0.2)',
-    //                'rgba(54, 162, 235, 0.2)',
-    //                'rgba(255, 206, 86, 0.2)',
-    //                'rgba(75, 192, 192, 0.2)',
-    //                'rgba(153, 102, 255, 0.2)',
-    //                'rgba(255, 159, 64, 0.2)'
-    //            ],
-    //            borderColor: [
-    //                'rgba(255, 99, 132, 1)',
-    //                'rgba(54, 162, 235, 1)',
-    //                'rgba(255, 206, 86, 1)',
-    //                'rgba(75, 192, 192, 1)',
-    //                'rgba(153, 102, 255, 1)',
-    //                'rgba(255, 159, 64, 1)'
-    //            ],
-    //            borderWidth: 1
-    //        }]
-    //    },
-    //    options: {
-    //        scales: {
-    //            y: {
-    //                beginAtZero: true
-    //            }
-    //        }
-    //    }
-    //});
-
-    console.log("indahouse3");
 }
 
 export function addDataToDataset(chartId, datasetId, data) {
@@ -153,10 +113,10 @@ function arbitaryLinesPlugin() {
                 var option = options[i];
                 ctx.fillStyle = option.arbitraryLineColor;
                 const xWidth = option.xWidth;
-                x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
-                y0 = top;
-                x1 = xWidth;
-                y1 = height;
+                let x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
+                let y0 = top;
+                let x1 = xWidth;
+                let y1 = height;
                 ctx.fillRect(x0, y0, x1, y1);
             }
 
@@ -164,10 +124,10 @@ function arbitaryLinesPlugin() {
                 var option = options[i];
                 ctx.fillStyle = option.arbitraryLineColor;
                 const xWidth = option.xWidth;
-                x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
-                y0 = top;
-                x1 = xWidth;
-                y1 = height;
+                let x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
+                let y0 = top;
+                let x1 = xWidth;
+                let y1 = height;
 
                 ctx.fillStyle = 'white';
                 ctx.font = '14px arial';

@@ -40,6 +40,7 @@ public record Plugins
     public Title? Title { get; set; }
     public Title? Subtitle { get; set; }
     public Tooltip? Tooltip { get; set; }
+    public ICollection<ArbitraryLineConfig>? ArbitraryLines { get; set; }
 }
 
 public record Tooltip
@@ -210,9 +211,9 @@ public record Layout
 
 public record ChartJsOptionsScales
 {
-    public object? XAxis { get; set; }
-    public object? YAxis { get; set; }
-    public object? RAxis { get; set; }
+    public object? X { get; set; }
+    public object? Y { get; set; }
+    public object? R { get; set; }
 }
 
 public record Title
