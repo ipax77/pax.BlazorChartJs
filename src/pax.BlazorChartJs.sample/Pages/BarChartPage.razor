@@ -10,6 +10,13 @@
     <button type="button" class="btn btn-primary" @onclick="ShowImages">ShowImages</button>
     <button type="button" class="btn btn-primary" @onclick="ShowDataLabels">ShowLabels</button>
 </div>
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="AddData">Add Data</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataset">Remove Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
+</div>
 
 <div class="w-75">
     <ChartComponent @ref="chartComponent" OnLabelClicked="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
@@ -45,7 +52,7 @@
                         new BarDataset()
                         {
                             Label = "# of Votes",
-                            Data = new List<double>() { 12, 19, 3, 5, 2, 3 },
+                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
                             BackgroundColor = new List<string>()
                             {
                                 "rgba(255, 99, 132, 0.2)",
@@ -183,12 +190,64 @@
         _ = chartComponent?.DrawChart();
     }
 
-    public async Task AddData()
+    private void AddData()
     {
-        if (chartComponent != null)
+        ChartUtils.AddRandomData(chartJsConfig);
+        chartComponent?.AddLastDatasToDatasets();
+    }
+
+    private void Randomize()
+    {
+        ChartUtils.RandomizeData(chartJsConfig);
+        chartComponent?.UpdateChartDatasets();
+    }
+
+    private void AddDataset()
+    {
+        ChartUtils.AddRandomDataset(chartJsConfig);
+        chartComponent?.AddLastDataset();
+    }
+
+    private void RemoveLastDataset()
+    {
+        if (chartJsConfig.Data.Datasets.Any())
         {
-            var dataSet = chartJsConfig.Data.Datasets.First();
-            await chartComponent.AddDataToDataset(chartJsConfig, dataSet, "Sommer");
+            chartJsConfig.Data.Datasets.Remove(chartJsConfig.Data.Datasets.Last());
+            chartComponent?.RemoveLastDataset();
+        }
+    }
+
+    private void RemoveLastDataFromDatasets()
+    {
+        if (chartJsConfig.Data.Datasets.Any())
+        {
+            if (chartJsConfig.Type == ChartType.bar)
+            {
+                foreach (BarDataset dataset in chartJsConfig.Data.Datasets.Cast<BarDataset>())
+                {
+                    if (dataset.Data.Any())
+                    {
+                        dataset.Data.Remove(dataset.Data.Last());
+                    }
+
+                    if (dataset.BackgroundColor != null && dataset.BackgroundColor.GetType() == typeof(List<string>))
+                    {
+                        if (((List<string>)dataset.BackgroundColor).Any())
+                        {
+                            ((List<string>)dataset.BackgroundColor).Remove(((List<string>)dataset.BackgroundColor).Last());
+                        }
+                    }
+                    if (dataset.BorderColor != null && dataset.BorderColor.GetType() == typeof(List<string>))
+                    {
+                        if (((List<string>)dataset.BorderColor).Any())
+                        {
+                            ((List<string>)dataset.BorderColor).Remove(((List<string>)dataset.BorderColor).Last());
+                        }
+                    }
+                }
+            }
+
+            chartComponent?.RemoveLastDataFromDatasets();
         }
     }
 }

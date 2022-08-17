@@ -1,6 +1,7 @@
 
 namespace pax.BlazorChartJs;
 
+# pragma warning disable CA2227
 /// <summary>
 /// ChartJsDataset
 /// </summary>
@@ -13,5 +14,6 @@ public record ChartJsDataset
     /// <summary>
     /// can be object|object[]| number[]|string[]
     /// </summary>    
-    public object Data { get; set; } = new List<int> { 1, 2, 3 };
+    public ICollection<object> Data { get; set; } = new List<object> { 1, 2, 3 };
 }
+# pragma warning restore CA2227

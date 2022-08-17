@@ -1,5 +1,6 @@
 ﻿namespace pax.BlazorChartJs;
 
+#pragma warning disable CA2227
 /// <summary>
 /// chartjs-plugin-labels - <see href="https://github.com/emn178/chartjs-plugin-labels">GitHub</see> and <see href="https://github.com/DavideViolante/chartjs-plugin-labels">GitHub</see>
 /// </summary>
@@ -88,6 +89,7 @@ public record LabelsConfig
     /// </summary>
     public double? TextMargin { get; set; }
 }
+#pragma warning restore CA2227
 
 public record LabelsConfigImage
 {

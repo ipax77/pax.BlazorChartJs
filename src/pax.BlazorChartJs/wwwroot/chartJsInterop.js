@@ -108,28 +108,69 @@ export function updateChartOptions(chartId, options) {
     }
 }
 
-export function addDataToDataset(chartId, datasetId, data) {
-    // var datasetIndex = (window.charts[chartId].data).map(object => object.id).indexOf(datasetId);
-
-    //var datasetIndex = window.charts[chartId].data.findIndex(function (item, i) {
-    //    return item.id === datasetId;
-    //});
-
-    var datasetMetas = window.charts[chartId].getSortedVisibleDatasetMetas();
-
-    var datasetIndex = datasetMetas.findIndex(obj => obj._dataset.id === datasetId);
-    console.log(datasetIndex);
-
-    window.charts[chartId].data.datasets[datasetIndex].data.push(77);
-    window.charts[chartId].data.datasets[datasetIndex].backgroundColor.push('rgba(255, 206, 86, 1)');
-    window.charts[chartId].data.datasets[datasetIndex].borderColor.push('rgba(255, 206, 86, 1)');
-
-    window.charts[chartId].data.labels.push(data);
-    window.charts[chartId].update();
+export function updateChartDatasets(chartId, datasets) {
+    if (window.charts[chartId]) {
+        window.charts[chartId].data.datasets = datasets;
+        window.charts[chartId].update();
+    }
 }
 
-export function removeDataset() {
+export function addChartDataset(chartId, dataset) {
+    if (window.charts[chartId]) {
+        window.charts[chartId].data.datasets.push(dataset);
+        window.charts[chartId].update();
+    }
+}
 
+export function addChartDataToDatasets(chartId, label, data, backgroundColors, borderColors) {
+    if (window.charts[chartId]) {
+        window.charts[chartId].data.labels.push(label);
+        for (var index = 0; index < data.length; ++index) {
+            window.charts[chartId].data.datasets[index].data.push(data[index]);
+
+            if (backgroundColors.length >= index) {
+                window.charts[chartId].data.datasets[index].backgroundColor.push(backgroundColors[index]);
+            }
+
+            if (borderColors.length >= index) {
+                window.charts[chartId].data.datasets[index].borderColor.push(borderColors[index]);
+            }
+        }
+        window.charts[chartId].update();
+    }
+}
+
+export function removeLastDataset(chartId) {
+    if (window.charts[chartId]) {
+        window.charts[chartId].data.datasets.pop();
+        window.charts[chartId].update();
+    }
+}
+
+export function removeLastData(chartId) {
+    if (window.charts[chartId]) {
+        window.charts[chartId].data.labels.splice(-1, 1);
+        window.charts[chartId].data.datasets.forEach(dataset => {
+            dataset.data.pop();
+            if (dataset.borderColor.length > 0) {
+                dataset.borderColor.pop();
+            }
+            if (dataset.backgroundColor.length > 0) {
+                dataset.backgroundColor.pop();
+            }
+        });
+        window.charts[chartId].update();
+    }
+}
+
+export function testChart(canvasId) {
+    if (window.charts == undefined) {
+        return false;
+    }
+    if (window.charts[canvasId] == undefined) {
+        return false;
+    }
+    return true;
 }
 
 function arbitaryLinesPlugin() {

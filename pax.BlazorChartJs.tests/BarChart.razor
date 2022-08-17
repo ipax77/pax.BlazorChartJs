@@ -1,0 +1,25 @@
+﻿
+<div style="width: 1000px; height: 1000px;">
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig" OnLabelClicked="LabelClicked"></ChartComponent>
+</div>
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public ChartJsConfig chartJsConfig { get; set; } = default!;
+
+    public ChartComponent? chartComponent;
+
+    public string? labelClicked;
+
+    protected override void OnInitialized()
+    {
+
+        base.OnInitialized();
+    }
+
+    public void LabelClicked(KeyValuePair<Guid, string> report)
+    {
+        labelClicked = report.Value;
+    }
+}

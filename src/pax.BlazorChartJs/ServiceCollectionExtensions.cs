@@ -12,6 +12,6 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddChartJs(this IServiceCollection services)
     {
-        return services.AddScoped<ChartJsInterop>();
+        return services.AddScoped<ChartJsInterop, ChartJsInterop>();
     }
 }

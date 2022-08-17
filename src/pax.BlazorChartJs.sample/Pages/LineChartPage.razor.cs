@@ -24,7 +24,7 @@ public partial class LineChartPage : ComponentBase
                     new LineDataset()
                     {
                         Label = "Team 1",
-                        Data = new List<double>() { 1, 2, 3, 4, 5, 6 },
+                        Data = new List<object>() { 1, 2, 3, 4, 5, 6 },
                         BackgroundColor = "lightblue",
                         BorderColor = new List<string>() { "lightblue" },
                         BorderWidth = 5,
@@ -39,7 +39,7 @@ public partial class LineChartPage : ComponentBase
                     new LineDataset()
                     {
                         Label = "Team 2",
-                        Data = new List<double>() { 6, 5, 4, 3, 2, 1 },
+                        Data = new List<object>() { 6, 5, 4, 3, 2, 1 },
                         BackgroundColor = "lightgreen",
                         BorderColor = new List<string>() { "lightgreen" },
                         BorderWidth = 5,
@@ -192,10 +192,5 @@ public partial class LineChartPage : ComponentBase
 
     public async Task AddData()
     {
-        if (chartComponent != null)
-        {
-            var dataSet = chartJsConfig.Data.Datasets.First();
-            await chartComponent.AddDataToDataset(chartJsConfig, dataSet, "Sommer");
-        }
     }    
 }

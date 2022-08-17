@@ -32,7 +32,7 @@
                     {
                         new PieDataset()
                         {
-                            Data = new List<double>() { 12, 19, 3, 5, 2, 3 },
+                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
                             BackgroundColor = new List<string>()
                             {
                                 "rgba(255, 99, 132, 0.2)",
@@ -77,10 +77,5 @@
 
     public async Task AddData()
     {
-        if (chartComponent != null)
-        {
-            var dataSet = chartJsConfig.Data.Datasets.First();
-            await chartComponent.AddDataToDataset(chartJsConfig, dataSet, "Sommer");
-        }
     }
 }

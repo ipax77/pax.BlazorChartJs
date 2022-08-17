@@ -16,6 +16,13 @@ public partial class ChartComponent : ComponentBase, IDisposable
     private bool isDisposed;
     private DotNetObjectReference<ChartComponent>? dotNetHelper;
 
+#pragma warning disable CA1024
+    public DotNetObjectReference<ChartComponent>? GetTestReference()
+    {
+        return dotNetHelper;
+    }
+#pragma warning restore CA1024    
+
     /// <summary>
     /// ChartGuid - chart canvas id
     /// </summary>
@@ -52,7 +59,6 @@ public partial class ChartComponent : ComponentBase, IDisposable
     /// <summary>
     /// (Re-)Draws the chart
     /// </summary>
-
     public async Task DrawChart()
     {
         if (dotNetHelper != null)
@@ -61,6 +67,9 @@ public partial class ChartComponent : ComponentBase, IDisposable
         }
     }
 
+    /// <summary>
+    /// Update Chart Options
+    /// </summary>
     public async Task UpdateChartOptions()
     {
         if (dotNetHelper != null)
@@ -70,17 +79,49 @@ public partial class ChartComponent : ComponentBase, IDisposable
     }
 
     /// <summary>
+    /// Update Chart Datasets
+    /// </summary>
+    public async Task UpdateChartDatasets()
+    {
+        if (dotNetHelper != null)
+        {
+            await ChartJsInterop.UpdateChartDatasets(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>
+    /// AddLastDataset
+    /// </summary>
+    public async Task AddLastDataset()
+    {
+        if (dotNetHelper != null)
+        {
+            await ChartJsInterop.AddLastDataset(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>
     /// ShowChart
     /// </summary>
-    public async Task AddDataToDataset(ChartJsConfig config, object dataset, string label)
+    public async Task AddLastDatasToDatasets()
     {
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(dataset);
+        await ChartJsInterop.AddDataToDataset(ChartJsConfig).ConfigureAwait(false);
+    }
 
-        var chartDataset = dataset as ChartJsDataset;
-        ArgumentNullException.ThrowIfNull(chartDataset);
+    /// <summary>
+    /// ShowChart
+    /// </summary>
+    public async Task RemoveLastDataset()
+    {
+        await ChartJsInterop.RemoveLastDataset(ChartJsConfig).ConfigureAwait(false);
+    }
 
-        await ChartJsInterop.AddDataToDataset(config.ChartJsConfigGuid.ToString(), chartDataset.Id, label).ConfigureAwait(false);
+    /// <summary>
+    /// ShowChart
+    /// </summary>
+    public async Task RemoveLastDataFromDatasets()
+    {
+        await ChartJsInterop.RemoveLastDataFromDatasets(ChartJsConfig).ConfigureAwait(false);
     }
 
     /// <summary>

@@ -1,0 +1,118 @@
+﻿@using Microsoft.Extensions.Logging
+@using Microsoft.Extensions.Logging.Abstractions
+@using System.Text.Json.Nodes
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@code {
+    // private Lazy<Task<IJSObjectReference>>? moduleTask;
+
+    [Fact]
+    public void BarChartCanvasTest()
+    {
+        // Arrange
+        using var ctx = new TestContext();
+        var logger = NullLogger<ChartJsInterop>.Instance;
+        var chartJsConfig = GetBarTestConfig();
+        ctx.JSInterop.Mode = JSRuntimeMode.Strict;
+
+
+
+        var chartJsInterop = ctx.JSInterop.SetupModule("./_content/pax.BlazorChartJs/chartJsInterop.js");
+        var initChart = chartJsInterop.SetupVoid("initChart", _ => true);
+
+        ctx.Services.AddSingleton<ChartJsInterop>(new ChartJsInterop(ctx.JSInterop.JSRuntime, logger));
+
+        // Act
+        BarChart? barChart = null;
+        var cut = ctx.Render(@<BarChart @ref="barChart" chartJsConfig="chartJsConfig" />);
+        initChart.SetVoidResult();
+
+        // Assert
+        Assert.NotNull(barChart);
+        Assert.NotNull(barChart?.chartComponent);
+        var canvas = cut.Find("canvas");
+        Assert.NotNull(canvas);
+        Assert.Equal(chartJsConfig.ChartJsConfigGuid.ToString(), canvas?.Id);
+
+    }
+
+    private ChartJsConfig GetBarTestConfig()
+    {
+        return new ChartJsConfig()
+            {
+                Type = ChartType.bar,
+                Data = new ChartJsData()
+                {
+                    Labels = new List<string>()
+                    {
+                        "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
+                    },
+                    Datasets = new List<object>()
+                    {
+                        new BarDataset()
+                        {
+                            Label = "# of Votes",
+                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
+                            BackgroundColor = new List<string>()
+                            {
+                                "rgba(255, 99, 132, 0.2)",
+                                "rgba(54, 162, 235, 0.2)",
+                                "rgba(255, 206, 86, 0.2)",
+                                "rgba(75, 192, 192, 0.2)",
+                                "rgba(153, 102, 255, 0.2)",
+                                "rgba(255, 159, 64, 0.2)",
+                            },
+                            BorderColor = new List<string>()
+                            {
+                                "rgba(255, 99, 132, 1)",
+                                "rgba(54, 162, 235, 1)",
+                                "rgba(255, 206, 86, 1)",
+                                "rgba(75, 192, 192, 1)",
+                                "rgba(153, 102, 255, 1)",
+                                "rgba(255, 159, 64, 1)",
+                            },
+                            BorderWidth = 1
+                        }
+                    }
+                },
+                Options = new ChartJsOptions()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = true,
+                    Plugins = new Plugins()
+                    {
+                        Labels = new LabelsConfig()
+                        {
+                            Render = "image"
+                        }
+                    },
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        Y = new LinearAxis()
+                        {
+                            SuggestedMax = 25
+                        }
+                    }
+                }
+            };
+    }
+
+    private readonly JsonSerializerOptions jsonOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters = { new JsonStringEnumConverter() },
+        };
+
+    private JsonObject? SerializeConfig(ChartJsConfig config)
+    {
+        var json = JsonSerializer.Serialize(config, jsonOptions);
+
+        if (json == null)
+        {
+            throw new ArgumentNullException(nameof(config));
+        }
+
+        return JsonSerializer.Deserialize<JsonObject>(json);
+    }
+}
