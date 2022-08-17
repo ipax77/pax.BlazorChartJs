@@ -8,74 +8,97 @@
 import './chart.min.js';
 //import './chartjs-plugin-labels.min.js';
 
+// todo: this only stops the first call which might not be good enough
+class AsyncLock {
+    constructor() {
+        this.disable = () => { }
+        this.promise = Promise.resolve()
+    }
+
+    enable() {
+        this.promise = new Promise(resolve => this.disable = resolve)
+    }
+}
+
+const lock = new AsyncLock()
+
 export async function initChart(chartId, dotnetConfig, dotnetRef) {
-    if (window.charts == undefined) {
-        window.charts = {};
-    }
 
-    if (window.dotnetrefs == undefined) {
-        window.dotnetrefs = {};
-    }
+    await lock.promise
+    lock.enable();
 
-    window.dotnetrefs[chartId] = dotnetRef;
-
-    if (dotnetConfig.options == undefined) {
-        dotnetConfig.options = {};
-    }
-
-    // todo: dynamic loading of plugins
-    let plugins = [];
-    if (dotnetConfig.options != undefined
-        && dotnetConfig.options.plugins != undefined) {
-
-        if (dotnetConfig.options.plugins.arbitraryLines != undefined) {
-            const arbitraryLines = arbitaryLinesPlugin();
-
-            plugins.push(arbitraryLines);
+    try {
+        if (window.charts == undefined) {
+            window.charts = {};
         }
 
-        if (dotnetConfig.options.plugins.labels != undefined) {
-            await import('./chartjs-plugin-labels.min.js');
-            // require('./chartjs-plugin-labels.min.js');
+        if (window.dotnetrefs == undefined) {
+            window.dotnetrefs = {};
         }
 
-        if (dotnetConfig.options.plugins.datalabels != undefined) {
-            await import('./chartjs-plugin-datalabels.min.js');
-            // require('./chartjs-plugin-datalabels.min.js');
-            plugins.push(ChartDataLabels);
+        window.dotnetrefs[chartId] = dotnetRef;
+
+        if (dotnetConfig.options == undefined) {
+            dotnetConfig.options = {};
         }
-    }
 
-    const config = {
-        type: dotnetConfig.type,
-        data: dotnetConfig.data,
-        options: dotnetConfig.options,
-        plugins: plugins
-    }
+        // todo: dynamic loading of plugins
+        let plugins = [];
+        if (dotnetConfig.options != undefined
+            && dotnetConfig.options.plugins != undefined) {
 
-    config.options.onClick = (e) => {
-        const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+            if (dotnetConfig.options.plugins.arbitraryLines != undefined) {
+                const arbitraryLines = arbitaryLinesPlugin();
 
-        if (points.length) {
-            const firstPoint = points[0];
-            const label = window.charts[chartId].data.labels[firstPoint.index];
-            const value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
-            reportChartClick(chartId, label);
+                plugins.push(arbitraryLines);
+            }
+
+            if (dotnetConfig.options.plugins.labels != undefined) {
+                await import('./chartjs-plugin-labels.min.js');
+                // require('./chartjs-plugin-labels.min.js');
+            }
+
+            if (dotnetConfig.options.plugins.datalabels != undefined) {
+                await import('./chartjs-plugin-datalabels.min.js');
+                // require('./chartjs-plugin-datalabels.min.js');
+                plugins.push(ChartDataLabels);
+            }
         }
-    }
 
-    async function reportChartClick(chartid, label) {
-        if (window.dotnetrefs[chartid]) {
-            await window.dotnetrefs[chartid].invokeMethodAsync("ChartClicked", label);
+        const config = {
+            type: dotnetConfig.type,
+            data: dotnetConfig.data,
+            options: dotnetConfig.options,
+            plugins: plugins
         }
-    }
 
-    if (window.charts[chartId]) {
-        window.charts[chartId].destroy();
-    }
+        config.options.onClick = (e) => {
+            const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
 
-    const ctx = document.getElementById(chartId).getContext('2d');
-    window.charts[chartId] = new Chart(ctx, config);
+            if (points.length) {
+                const firstPoint = points[0];
+                const label = window.charts[chartId].data.labels[firstPoint.index];
+                const value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+                reportChartClick(chartId, label);
+            }
+        }
+
+        async function reportChartClick(chartid, label) {
+            if (window.dotnetrefs[chartid]) {
+                await window.dotnetrefs[chartid].invokeMethodAsync("ChartClicked", label);
+            }
+        }
+
+        if (window.charts[chartId]) {
+            window.charts[chartId].destroy();
+        }
+
+        const ctx = document.getElementById(chartId).getContext('2d');
+        window.charts[chartId] = new Chart(ctx, config);
+    } catch { }
+    finally {
+        lock.disable();
+    }
 }
 
 export function updateChartOptions(chartId, options) {
@@ -173,3 +196,4 @@ function barAvatarPlugin() {
         }
     }
 }
+

@@ -1,6 +1,6 @@
 ﻿@page "/piechart"
 
-<PageTitle>barchart</PageTitle>
+<PageTitle>PieChart</PageTitle>
 
 <h3>BarChartPage</h3>
 
@@ -9,12 +9,12 @@
     <button type="button" class="btn btn-primary" @onclick="AddData">AddData</button>
 </div>
 
-<div class="w-75">
+<div class="w-50">
     <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig"></ChartComponent>
 </div>
 
 @code {
-        ChartComponent? chartComponent;
+    ChartComponent? chartComponent;
     ChartJsConfig chartJsConfig = null!;
 
     protected override void OnInitialized()
@@ -55,20 +55,20 @@
                         }
                     }
                 },
-                //Options = new()
-                //{
-                //    Scales = new()
-                //    {
-                //        Y = new()
-                //        {
-                //            BeginAtZero = true
-                //        }
-                //    }
-                //}
+                Options = new ChartJsOptions()
+                {
+                    Plugins = new Plugins()
+                    {
+                        Legend = new Legend()
+                        {
+                            Position = "right"
+                        }
+                    }
+                }
+
             };
         base.OnInitialized();
     }
-
 
     public void ShowChart()
     {
