@@ -4,10 +4,11 @@
 // import * as Chart from './dist/chart.js';
 // import Chart from './dist/chart.js/auto';
 // import { Chart, registerables } from './chart.min.js';
-import './chart.min.js';
 
-export function initChart(chartId, dotnetConfig, dotnetRef)
-{
+import './chart.min.js';
+//import './chartjs-plugin-labels.min.js';
+
+export async function initChart(chartId, dotnetConfig, dotnetRef) {
     if (window.charts == undefined) {
         window.charts = {};
     }
@@ -22,25 +23,34 @@ export function initChart(chartId, dotnetConfig, dotnetRef)
         dotnetConfig.options = {};
     }
 
-    let config;
+    // todo: dynamic loading of plugins
+    let plugins = [];
     if (dotnetConfig.options != undefined
-        && dotnetConfig.options.plugins != undefined
-        && dotnetConfig.options.plugins.arbitraryLines != undefined) {
-        const arbitraryLines = arbitaryLinesPlugin();
+        && dotnetConfig.options.plugins != undefined) {
 
-        config = {
-            type: dotnetConfig.type,
-            data: dotnetConfig.data,
-            options: dotnetConfig.options,
-            plugins: [arbitraryLines]
+        if (dotnetConfig.options.plugins.arbitraryLines != undefined) {
+            const arbitraryLines = arbitaryLinesPlugin();
+
+            plugins.push(arbitraryLines);
+        }
+
+        if (dotnetConfig.options.plugins.labels != undefined) {
+            await import('./chartjs-plugin-labels.min.js');
+            // require('./chartjs-plugin-labels.min.js');
+        }
+
+        if (dotnetConfig.options.plugins.datalabels != undefined) {
+            await import('./chartjs-plugin-datalabels.min.js');
+            // require('./chartjs-plugin-datalabels.min.js');
+            plugins.push(ChartDataLabels);
         }
     }
-    else {
-        config = {
-            type: dotnetConfig.type,
-            data: dotnetConfig.data,
-            options: dotnetConfig.options
-        }        
+
+    const config = {
+        type: dotnetConfig.type,
+        data: dotnetConfig.data,
+        options: dotnetConfig.options,
+        plugins: plugins
     }
 
     config.options.onClick = (e) => {
@@ -55,8 +65,7 @@ export function initChart(chartId, dotnetConfig, dotnetRef)
     }
 
     async function reportChartClick(chartid, label) {
-        if (window.dotnetrefs[chartid])
-        {
+        if (window.dotnetrefs[chartid]) {
             await window.dotnetrefs[chartid].invokeMethodAsync("ChartClicked", label);
         }
     }
@@ -137,4 +146,30 @@ function arbitaryLinesPlugin() {
             ctx.restore();
         }
     };
+}
+
+function barAvatarPlugin() {
+    const barAvatar = {
+        id: 'barAvatar',
+        afterDatasetDraw(chart, args, options) {
+            const { ctx, chartArea: { top, right, bottom, left, width, height }, scales: { x, y } } = chart;
+
+            ctx.save();
+
+            for (let i = 0; i < options.length; i++) {
+                var option = options[i];
+                // const xWidth = option.xWidth;
+                let barWidth = chart.getDatasetMeta(1).data[0]._model.width;
+                let x0 = x.getPixelForValue(option.xPosition) - (barWidth / 2);
+                let y0 = y.getPixelForValue(option.yPosition);
+                let x1 = barWidth;
+                let y1 = height;
+
+                let img1 = new Image();
+                img1.src = options.image;
+                ctx.drawImage(img1, x0, y0, x1, y1);
+            }
+
+        }
+    }
 }

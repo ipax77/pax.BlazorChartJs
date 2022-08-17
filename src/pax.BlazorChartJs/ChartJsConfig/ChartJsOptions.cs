@@ -41,6 +41,8 @@ public record Plugins
     public Title? Subtitle { get; set; }
     public Tooltip? Tooltip { get; set; }
     public ICollection<ArbitraryLineConfig>? ArbitraryLines { get; set; }
+    public LabelsConfig? Labels { get; set; }
+    public DataLabelsConfig? Datalabels { get; set; }
 }
 
 public record Tooltip

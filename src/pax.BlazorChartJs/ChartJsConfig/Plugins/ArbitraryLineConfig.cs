@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace pax.BlazorChartJs;
 
-public class ArbitraryLineConfig
+public record ArbitraryLineConfig
 {
     public string ArbitraryLineColor { get; set; } = "blue";
     public int XPosition { get; set; }

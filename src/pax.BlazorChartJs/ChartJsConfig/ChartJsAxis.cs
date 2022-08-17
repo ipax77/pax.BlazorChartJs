@@ -16,8 +16,8 @@ public record ChartJsAxis
     public string? Max { get; set; }
     public bool? Reverse { get; set; }
     public string? Stacked { get; set; }
-    public string? SuggestedMax { get; set; }
-    public string? SuggestedMin { get; set; }
+    public double? SuggestedMax { get; set; }
+    public double? SuggestedMin { get; set; }
     public object? Ticks { get; set; }
     public string? Weight { get; set; }
     public Title? Title { get; set; }

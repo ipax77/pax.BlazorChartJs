@@ -7,6 +7,8 @@
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="ShowChart">ShowChart</button>
     <button type="button" class="btn btn-primary" @onclick="AddData">AddData</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowImages">ShowImages</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowDataLabels">ShowLabels</button>
 </div>
 
 <div class="w-75">
@@ -69,7 +71,21 @@
                 Options = new ChartJsOptions()
                 {
                     Responsive = true,
-                    MaintainAspectRatio = true
+                    MaintainAspectRatio = true,
+                    Plugins = new Plugins()
+                    {
+                        Labels = new LabelsConfig()
+                        {
+                            Render = "image"
+                        }
+                    },
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        Y = new LinearAxis() 
+                        {
+                            SuggestedMax = 25
+                        }
+                    }
                 }
             };
         base.OnInitialized();
@@ -84,6 +100,87 @@
     private void LabelClicked(KeyValuePair<Guid, string> report)
     {
         labelClicked = report.Value;
+    }
+
+    private void ShowImages()
+    {
+        if (chartJsConfig.Options == null)
+        {
+            chartJsConfig.Options = new();
+        }
+
+        if (chartJsConfig.Options.Plugins == null)
+        {
+            chartJsConfig.Options.Plugins = new();
+        }
+
+        chartJsConfig.Options.Plugins.Labels = new LabelsConfig()
+        {
+            Render = "image",
+            ShowZero = true,
+            Images = new List<LabelsConfigImage>()
+            {
+                new LabelsConfigImage()
+                {
+                    Src = "./images/abathur-min.png",
+                    Width = 45,
+                    Height = 45
+                },
+                new LabelsConfigImage()
+                {
+                    Src = "./images/alarak-min.png",
+                    Width = 45,
+                    Height = 45
+                },
+                new LabelsConfigImage()
+                {
+                    Src = "./images/artanis-min.png",
+                    Width = 45,
+                    Height = 45
+                },
+                new LabelsConfigImage()
+                {
+                    Src = "./images/alarak-min.png",
+                    Width = 45,
+                    Height = 45
+                },
+                new LabelsConfigImage()
+                {
+                    Src = "./images/alarak-min.png",
+                    Width = 45,
+                    Height = 45
+                }
+            }
+        };
+        // _ = chartComponent?.UpdateChartOptions();
+        _ = chartComponent?.DrawChart();
+    }
+
+    private void ShowDataLabels()
+    {
+        if (chartJsConfig.Options == null)
+        {
+            chartJsConfig.Options = new();
+        }
+
+        if (chartJsConfig.Options.Plugins == null)
+        {
+            chartJsConfig.Options.Plugins = new();
+        }
+
+        chartJsConfig.Options.Plugins.Datalabels = new DataLabelsConfig()
+        {
+            Display = "auto",
+            Color = "#0a050c",
+            BackgroundColor = "#cdc7ce",
+            BorderColor = "#491756",
+            BorderRadius = 4,
+            BorderWidth = 1,
+            Anchor = "end",
+            Align = "start",
+            Clip = true
+        };
+        _ = chartComponent?.DrawChart();
     }
 
     public async Task AddData()
