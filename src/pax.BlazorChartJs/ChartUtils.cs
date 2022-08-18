@@ -44,21 +44,20 @@ public static class ChartUtils
         "#000080",
     };
 
-    public static void RandomizeData(ChartJsConfig config, int min = -100, int max = 100)
+    public static ICollection<List<object>> GetRandomData(int length, int count, int min = -100, int max = 100)
     {
-        ArgumentNullException.ThrowIfNull(config);
         if (min >= max)
         {
             throw new ArgumentOutOfRangeException(nameof(max));
         }
 
-        var data = config.Data.Datasets.ToList().Cast<ChartJsDataset>();
-        var count = config.Data.Labels.Count;
+        List<List<object>> data = new List<List<object>>();
 
-        foreach (var dataset in data)
+        for (int i = 0; i < length; i++)
         {
-            dataset.Data = GetRandomNumbers(count, min, max);           
+            data.Add(GetRandomNumbers(count, min, max));
         }
+        return data;
     }
 
     public static object GetRandomDataset(ChartType chartType, int id, int count, int min = -100, int max = 100)

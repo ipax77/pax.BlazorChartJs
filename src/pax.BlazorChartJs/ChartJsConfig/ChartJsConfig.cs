@@ -32,6 +32,7 @@ public class ChartJsConfig
     internal event EventHandler<DatasetRemoveEventArgs>? DatasetRemove;
     internal event EventHandler<DataAddEventArgs>? DataAdd;
     internal event EventHandler<DataRemoveEventArgs>? DataRemove;
+    internal event EventHandler<DataSetEventArgs>? DataSet;
 
     internal virtual void OnDatasetAdd(DatasetAddEventArgs e)
     {
@@ -54,6 +55,12 @@ public class ChartJsConfig
     internal virtual void OnDataRemove(DataRemoveEventArgs e)
     {
         EventHandler<DataRemoveEventArgs>? handler = DataRemove;
+        handler?.Invoke(this, e);
+    }
+
+    internal virtual void OnDataSet(DataSetEventArgs e)
+    {
+        EventHandler<DataSetEventArgs>? handler = DataSet;
         handler?.Invoke(this, e);
     }
 
@@ -86,6 +93,8 @@ public class ChartJsConfig
     /// <param name="dataset"></param>
     public void RemoveDataset(object dataset)
     {
+        ArgumentNullException.ThrowIfNull(dataset);
+
         Data.Datasets.Remove(dataset);
         OnDatasetRemove(new DatasetRemoveEventArgs(((ChartJsDataset)dataset).Id));
     }
@@ -115,6 +124,8 @@ public class ChartJsConfig
     /// <param name="atPosition"></param>
     public void AddData(string label, IList<object> data, IList<string>? backgroundColors = null, IList<string>? borderColors = null, int? atPosition = null)
     {
+        ArgumentNullException.ThrowIfNull(data);
+
         int pos = atPosition == null ? -1 : atPosition.Value;
 
         if (pos < 0)
@@ -212,6 +223,35 @@ public class ChartJsConfig
         }
         OnDataRemove(new DataRemoveEventArgs(atPosition));
     }
+
+    /// <summary>
+    /// Sets the data and updates the chart
+    /// </summary>
+    /// <param name="dataset"></param>
+    /// <param name="data"></param>
+    public void SetData(object dataset, IList<object> data)
+    {
+        SetData(new Dictionary<object, IList<object>>() { { dataset, data } });
+    }
+
+    /// <summary>
+    /// Sets the dataset (=key) data (=value) and updates the chart
+    /// </summary>
+    /// <param name="data"></param>
+    public void SetData(Dictionary<object, IList<object>> data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        
+        foreach (var ent in data)
+        {
+            var dataset = Data.Datasets.FirstOrDefault(f => f.Equals(ent.Key)) as ChartJsDataset;
+            if (dataset != null)
+            {
+                dataset.Data = ent.Value;
+            }
+        }
+        OnDataSet(new DataSetEventArgs(data));
+    }
 }
 
 
@@ -233,7 +273,7 @@ public class ChartJsConfig
 
     public enum ChartType
     {
-        none = 0,
+        None = 0,
         line = 1,
         bar = 2,
         doughnut = 3,

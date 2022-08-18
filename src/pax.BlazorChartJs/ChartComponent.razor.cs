@@ -48,12 +48,18 @@ public partial class ChartComponent : ComponentBase, IDisposable
         ChartJsConfig.DatasetRemove += ChartJsConfig_DatasetRemove;
         ChartJsConfig.DataAdd += ChartJsConfig_DataAdd;
         ChartJsConfig.DataRemove += ChartJsConfig_DataRemove;
+        ChartJsConfig.DataSet += ChartJsConfig_DataSet;
         base.OnInitialized();
+    }
+
+    private async void ChartJsConfig_DataSet(object? sender, DataSetEventArgs e)
+    {
+        await ChartJsInterop.SetDatasetsData(ChartJsConfig.ChartJsConfigGuid, e.Data).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DataRemove(object? sender, DataRemoveEventArgs e)
     {
-        await ChartJsInterop.RemoveDataFromDatasets(ChartJsConfig.ChartJsConfigGuid, e.AtPosition);
+        await ChartJsInterop.RemoveDataFromDatasets(ChartJsConfig.ChartJsConfigGuid, e.AtPosition).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DataAdd(object? sender, DataAddEventArgs e)
@@ -64,17 +70,17 @@ public partial class ChartComponent : ComponentBase, IDisposable
             e.Data,
             e.BackgroundColors,
             e.BorderColors,
-            e.AtPostion);
+            e.AtPostion).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DatasetRemove(object? sender, DatasetRemoveEventArgs e)
     {
-        await ChartJsInterop.RemoveDataset(ChartJsConfig.ChartJsConfigGuid, e.DatasetId);
+        await ChartJsInterop.RemoveDataset(ChartJsConfig.ChartJsConfigGuid, e.DatasetId).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DatasetAdd(object? sender, DatasetAddEventArgs e)
     {
-        await ChartJsInterop.AddDataset(ChartJsConfig.ChartJsConfigGuid, e.Dataset, e.AfterDatasetId);
+        await ChartJsInterop.AddDataset(ChartJsConfig.ChartJsConfigGuid, e.Dataset, e.AfterDatasetId).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -158,6 +164,7 @@ public partial class ChartComponent : ComponentBase, IDisposable
             ChartJsConfig.DatasetRemove -= ChartJsConfig_DatasetRemove;
             ChartJsConfig.DataAdd -= ChartJsConfig_DataAdd;
             ChartJsConfig.DataRemove -= ChartJsConfig_DataRemove;
+            ChartJsConfig.DataSet -= ChartJsConfig_DataSet;
             dotNetHelper?.Dispose();
             // todo: cleanup js chart?
         }

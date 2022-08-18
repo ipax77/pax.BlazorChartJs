@@ -57,3 +57,12 @@ public class DataRemoveEventArgs : EventArgs
     }
     public int? AtPosition { get; init; }
 }
+
+public class DataSetEventArgs : EventArgs
+{
+    public DataSetEventArgs(Dictionary<object, IList<object>> data)
+    {
+        Data = data;
+    }
+    public Dictionary<object, IList<object>> Data { get; init; }
+}

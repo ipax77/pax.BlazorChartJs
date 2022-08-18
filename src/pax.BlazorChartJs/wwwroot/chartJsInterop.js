@@ -115,6 +115,18 @@ export function updateChartDatasets(chartId, datasets) {
     }
 }
 
+export function setDatasetsData(chartId, data) {
+    if (window.charts[chartId]) {
+        var chart = window.charts[chartId];
+        const datasetMetas = window.charts[chartId].getSortedVisibleDatasetMetas();
+        for (var index = 0; index < data.length; ++index) {
+            var datasetIndex = datasetMetas.findIndex(obj => obj._dataset.id === data[index].datasetId);
+            window.charts[chartId].data.datasets[datasetIndex].data = data[index].data;
+        }
+        chart.update();
+    }
+}
+
 export function addChartDataset(chartId, dataset, afterDatasetId) {
     if (window.charts[chartId]) {
         if (afterDatasetId == undefined) {

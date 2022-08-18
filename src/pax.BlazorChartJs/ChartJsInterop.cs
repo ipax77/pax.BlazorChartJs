@@ -82,6 +82,29 @@ public class ChartJsInterop : IAsyncDisposable
     }
 
     /// <summary>
+    /// SetDatasetsData
+    /// </summary>
+    public async ValueTask SetDatasetsData(Guid configGuid, Dictionary<object, IList<object>> data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+
+        var module = await moduleTask.Value.ConfigureAwait(false);
+
+        List<object> jsData = new();
+        foreach (var ent in data)
+        {
+            jsData.Add(new
+            {
+                datasetId = ((ChartJsDataset)ent.Key).Id,
+                data = ent.Value
+            });
+        }
+
+        await module.InvokeVoidAsync("setDatasetsData", configGuid, jsData)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Add last data to all datasets
     /// </summary>
     public async ValueTask AddDataToDataset(Guid configGuid, string label, IList<object> data, IList<string>? backgroundColors, IList<string>? borderColors, int? atPosition)
