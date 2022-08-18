@@ -190,7 +190,7 @@ public partial class LineChartPage : ComponentBase
         chartComponent?.UpdateChartOptions();
     }
 
-    public async Task AddData()
+    public void AddData()
     {
     }    
 }

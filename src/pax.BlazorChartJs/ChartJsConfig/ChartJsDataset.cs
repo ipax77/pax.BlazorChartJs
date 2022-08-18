@@ -14,6 +14,6 @@ public record ChartJsDataset
     /// <summary>
     /// can be object|object[]| number[]|string[]
     /// </summary>    
-    public ICollection<object> Data { get; set; } = new List<object> { 1, 2, 3 };
+    public IList<object> Data { get; set; } = new List<object> { 1, 2, 3 };
 }
 # pragma warning restore CA2227

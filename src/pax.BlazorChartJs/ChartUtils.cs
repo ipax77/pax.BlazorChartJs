@@ -61,77 +61,75 @@ public static class ChartUtils
         }
     }
 
-    public static void AddRandomDataset(ChartJsConfig config, int min = -100, int max = 100)
+    public static object GetRandomDataset(ChartType chartType, int id, int count, int min = -100, int max = 100)
     {
-        ArgumentNullException.ThrowIfNull(config);
         if (min >= max)
         {
             throw new ArgumentOutOfRangeException(nameof(max));
         }
 
-        int count = config.Data.Labels.Count;
-
-        if (config.Type == ChartType.bar)
+        return chartType switch
         {
-            var dataset = new BarDataset()
-            {
-                Label = $"Dataset {config.Data.Datasets.Count + 1}",
-                BackgroundColor = GetRandomColors(count),
-                BorderColor = GetRandomColors(count),
-                BorderWidth = 1,
-                Data = GetRandomNumbers(count, min, max)
-            };
-            config.Data.Datasets.Add(dataset);
-        } else if (config.Type == ChartType.line)
-        {
-            var dataset = new LineDataset()
-            {
-                Label = $"Dataset {config.Data.Datasets.Count + 1}",
-                BackgroundColor = GetRandomColors(count),
-                BorderColor = GetRandomColors(count),
-                BorderWidth = 1,
-                Data = GetRandomNumbers(count, min, max)
-            };
-            config.Data.Datasets.Add(dataset);
-        } else if (config.Type == ChartType.pie)
-        {
-            var dataset = new PieDataset()
-            {
-                BackgroundColor = GetRandomColors(count),
-                BorderColor = "red",
-                BorderWidth = 1,
-                Data = GetRandomNumbers(count, min, max)
-            };
-            config.Data.Datasets.Add(dataset);
-        }
+            ChartType.bar => GetRandomBarDataset(id, count, min, max),
+            ChartType.line => GetRandomLineDataset(id, count, min, max),
+            ChartType.pie => GetRandomPieDataset(id, count, min, max),
+            _ => throw new NotImplementedException(nameof(chartType))
+        };
     }
 
-    public static void AddRandomData(ChartJsConfig config, int min = -100, int max = 100)
+    private static BarDataset GetRandomBarDataset(int id, int count, int min, int max)
     {
-        ArgumentNullException.ThrowIfNull(config);
+        return new BarDataset()
+        {
+            Label = $"Dataset {id}",
+            BackgroundColor = GetRandomColors(count),
+            BorderColor = GetRandomColors(count),
+            BorderWidth = 1,
+            Data = GetRandomNumbers(count, min, max)
+        };
+    }
+    private static LineDataset GetRandomLineDataset(int id, int count, int min, int max)
+    {
+        return new LineDataset()
+        {
+            Label = $"Dataset {id}",
+            BackgroundColor = GetRandomColors(count),
+            BorderColor = GetRandomColors(count),
+            BorderWidth = 1,
+            Data = GetRandomNumbers(count, min, max)
+        };
+    }
+    private static PieDataset GetRandomPieDataset(int id, int count, int min, int max)
+    {
+        return new PieDataset()
+        {
+            BackgroundColor = GetRandomColors(count),
+            BorderColor = GetRandomColors(count),
+            BorderWidth = 1,
+            Data = GetRandomNumbers(count, min, max)
+        };
+    }
+
+    public static DataAddEventArgs GetRandomData(int count, int min = -100, int max = 100)
+    {
         if (min >= max)
         {
             throw new ArgumentOutOfRangeException(nameof(max));
         }
 
         var label = Labels[random.Next(Labels.Count)];
-        config.Data.Labels.Add(label);
+        List<object> data = new();
+        List<string> backgroundColors = new();
+        List<string> borderColors = new();
 
-        if (config.Type == ChartType.bar)
+        for (int i = 0; i < count; i++)
         {
-            foreach (BarDataset dataset in config.Data.Datasets.Cast<BarDataset>())
-            {
-                dataset.Data.Add(random.Next(min, max));
-                if (dataset.BackgroundColor != null && dataset.BackgroundColor.GetType() == typeof(List<string>))
-                {
-                    ((List<string>)dataset.BackgroundColor).Add(Colors[random.Next(Colors.Count)]);
-                }
-                if (dataset.BorderColor != null && dataset.BorderColor.GetType() == typeof(List<string>))
-                {
-                    ((List<string>)dataset.BorderColor).Add(Colors[random.Next(Colors.Count)]);
-                }
-            }
+            data.Add(random.Next(min, max));
+            backgroundColors.Add(Colors[random.Next(Colors.Count)]);
+            borderColors.Add(Colors[random.Next(Colors.Count)]);
         }
+
+        return new DataAddEventArgs(label, data, backgroundColors, borderColors, null);
     }
 
     private static List<string> GetRandomColors(int count)

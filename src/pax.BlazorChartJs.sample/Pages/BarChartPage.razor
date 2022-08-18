@@ -192,8 +192,8 @@
 
     private void AddData()
     {
-        ChartUtils.AddRandomData(chartJsConfig);
-        chartComponent?.AddLastDatasToDatasets();
+        var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
+        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data, dataAddEventArgs.BackgroundColors, dataAddEventArgs.BorderColors);
     }
 
     private void Randomize()
@@ -204,50 +204,20 @@
 
     private void AddDataset()
     {
-        ChartUtils.AddRandomDataset(chartJsConfig);
-        chartComponent?.AddLastDataset();
+        var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
+        chartJsConfig.AddDataset(dataset);
     }
 
     private void RemoveLastDataset()
     {
         if (chartJsConfig.Data.Datasets.Any())
         {
-            chartJsConfig.Data.Datasets.Remove(chartJsConfig.Data.Datasets.Last());
-            chartComponent?.RemoveLastDataset();
+            chartJsConfig.RemoveDataset(chartJsConfig.Data.Datasets.Last());
         }
     }
 
     private void RemoveLastDataFromDatasets()
     {
-        if (chartJsConfig.Data.Datasets.Any())
-        {
-            if (chartJsConfig.Type == ChartType.bar)
-            {
-                foreach (BarDataset dataset in chartJsConfig.Data.Datasets.Cast<BarDataset>())
-                {
-                    if (dataset.Data.Any())
-                    {
-                        dataset.Data.Remove(dataset.Data.Last());
-                    }
-
-                    if (dataset.BackgroundColor != null && dataset.BackgroundColor.GetType() == typeof(List<string>))
-                    {
-                        if (((List<string>)dataset.BackgroundColor).Any())
-                        {
-                            ((List<string>)dataset.BackgroundColor).Remove(((List<string>)dataset.BackgroundColor).Last());
-                        }
-                    }
-                    if (dataset.BorderColor != null && dataset.BorderColor.GetType() == typeof(List<string>))
-                    {
-                        if (((List<string>)dataset.BorderColor).Any())
-                        {
-                            ((List<string>)dataset.BorderColor).Remove(((List<string>)dataset.BorderColor).Last());
-                        }
-                    }
-                }
-            }
-
-            chartComponent?.RemoveLastDataFromDatasets();
-        }
+        chartJsConfig.RemoveData();
     }
 }

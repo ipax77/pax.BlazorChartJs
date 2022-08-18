@@ -42,6 +42,41 @@ public partial class ChartComponent : ComponentBase, IDisposable
     [Inject]
     protected ChartJsInterop ChartJsInterop { get; set; } = default!;
 
+    protected override void OnInitialized()
+    {
+        ChartJsConfig.DatasetAdd += ChartJsConfig_DatasetAdd;
+        ChartJsConfig.DatasetRemove += ChartJsConfig_DatasetRemove;
+        ChartJsConfig.DataAdd += ChartJsConfig_DataAdd;
+        ChartJsConfig.DataRemove += ChartJsConfig_DataRemove;
+        base.OnInitialized();
+    }
+
+    private async void ChartJsConfig_DataRemove(object? sender, DataRemoveEventArgs e)
+    {
+        await ChartJsInterop.RemoveDataFromDatasets(ChartJsConfig.ChartJsConfigGuid, e.AtPosition);
+    }
+
+    private async void ChartJsConfig_DataAdd(object? sender, DataAddEventArgs e)
+    {
+        await ChartJsInterop.AddDataToDataset(
+            ChartJsConfig.ChartJsConfigGuid,
+            e.Label,
+            e.Data,
+            e.BackgroundColors,
+            e.BorderColors,
+            e.AtPostion);
+    }
+
+    private async void ChartJsConfig_DatasetRemove(object? sender, DatasetRemoveEventArgs e)
+    {
+        await ChartJsInterop.RemoveDataset(ChartJsConfig.ChartJsConfigGuid, e.DatasetId);
+    }
+
+    private async void ChartJsConfig_DatasetAdd(object? sender, DatasetAddEventArgs e)
+    {
+        await ChartJsInterop.AddDataset(ChartJsConfig.ChartJsConfigGuid, e.Dataset, e.AfterDatasetId);
+    }
+
     /// <summary>
     /// OnAfterRenderAsync
     /// </summary>
@@ -90,41 +125,6 @@ public partial class ChartComponent : ComponentBase, IDisposable
     }
 
     /// <summary>
-    /// AddLastDataset
-    /// </summary>
-    public async Task AddLastDataset()
-    {
-        if (dotNetHelper != null)
-        {
-            await ChartJsInterop.AddLastDataset(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-        }
-    }
-
-    /// <summary>
-    /// ShowChart
-    /// </summary>
-    public async Task AddLastDatasToDatasets()
-    {
-        await ChartJsInterop.AddDataToDataset(ChartJsConfig).ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// ShowChart
-    /// </summary>
-    public async Task RemoveLastDataset()
-    {
-        await ChartJsInterop.RemoveLastDataset(ChartJsConfig).ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// ShowChart
-    /// </summary>
-    public async Task RemoveLastDataFromDatasets()
-    {
-        await ChartJsInterop.RemoveLastDataFromDatasets(ChartJsConfig).ConfigureAwait(false);
-    }
-
-    /// <summary>
     /// Javascript call
     /// </summary>
     [JSInvokable]
@@ -154,6 +154,10 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
         if (disposing)
         {
+            ChartJsConfig.DatasetAdd -= ChartJsConfig_DatasetAdd;
+            ChartJsConfig.DatasetRemove -= ChartJsConfig_DatasetRemove;
+            ChartJsConfig.DataAdd -= ChartJsConfig_DataAdd;
+            ChartJsConfig.DataRemove -= ChartJsConfig_DataRemove;
             dotNetHelper?.Dispose();
             // todo: cleanup js chart?
         }

@@ -82,84 +82,44 @@ public class ChartJsInterop : IAsyncDisposable
     }
 
     /// <summary>
-    /// Add last Dataset
-    /// </summary>
-    public async ValueTask AddLastDataset(ChartJsConfig config, DotNetObjectReference<ChartComponent> dotnetRef)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(dotnetRef);
-
-        var module = await moduleTask.Value.ConfigureAwait(false);
-        var data = SerializeLastConfigDataset(config);
-        await module.InvokeVoidAsync("addChartDataset", config.ChartJsConfigGuid, data)
-            .ConfigureAwait(false);
-    }
-
-    /// <summary>
     /// Add last data to all datasets
     /// </summary>
-    public async ValueTask AddDataToDataset(ChartJsConfig config)
+    public async ValueTask AddDataToDataset(Guid configGuid, string label, IList<object> data, IList<string>? backgroundColors, IList<string>? borderColors, int? atPosition)
     {
-        if (config.Data.Labels.Any())
-        {
-            var module = await moduleTask.Value.ConfigureAwait(false);
-            (var data, var backgourndColors, var borderColors) = GetAddData(config);
-            await module.InvokeVoidAsync("addChartDataToDatasets", config.ChartJsConfigGuid, config.Data.Labels.Last(), data, backgourndColors, borderColors)
+        var module = await moduleTask.Value.ConfigureAwait(false);
+            await module.InvokeVoidAsync("addChartDataToDatasets", configGuid , label, data, backgroundColors, borderColors, atPosition)
                 .ConfigureAwait(false);
-        }
     }
 
     /// <summary>
-    /// RemoveLastDataset
+    /// AddDataset
     /// </summary>
-    public async ValueTask RemoveLastDataset(ChartJsConfig config)
+    public async ValueTask AddDataset(Guid configGuid, object dataset, string? afterDatasetId)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("removeLastDataset", config.ChartJsConfigGuid)
+        await module.InvokeVoidAsync("addChartDataset", configGuid, SerializeConfigDataset(dataset), afterDatasetId)
+                .ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// RemoveDataset
+    /// </summary>
+    public async ValueTask RemoveDataset(Guid configGuid, string datasetId)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("removeDataset", configGuid, datasetId)
                 .ConfigureAwait(false);
     }
 
     /// <summary>
     /// Removes last data from all datasets
     /// </summary>
-    public async ValueTask RemoveLastDataFromDatasets(ChartJsConfig config)
+    public async ValueTask RemoveDataFromDatasets(Guid configGuid, int? atPosition)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("removeLastData", config.ChartJsConfigGuid)
-                .ConfigureAwait(false);
-    }
-
-    private (List<object>, List<string>, List<string>) GetAddData(ChartJsConfig config)
-    {
-        List<object> datas = new();
-        List<string> backgroundColors = new();
-        List<string> borderColors = new();
-
-        if (config.Type == ChartType.bar)
-        {
-            foreach (BarDataset dataset in config.Data.Datasets.Cast<BarDataset>())
-            {
-                if (dataset.Data.Any())
-                {
-                    datas.Add(dataset.Data.Last());
-                    if (dataset.BackgroundColor != null && dataset.BackgroundColor.GetType() == typeof(List<string>))
-                    {
-                        if (((List<string>)dataset.BackgroundColor).Any())
-                        {
-                            backgroundColors.Add(((List<string>)dataset.BackgroundColor).Last());
-                        }
-                    }
-                    if (dataset.BorderColor != null && dataset.BorderColor.GetType() == typeof(List<string>))
-                    {
-                        if (((List<string>)dataset.BorderColor).Any())
-                        {
-                            borderColors.Add(((List<string>)dataset.BorderColor).Last());
-                        }
-                    }
-                }
-            }
-        }
-        return (datas, backgroundColors, borderColors);
+        await module.InvokeVoidAsync("removeData", configGuid, atPosition)
+            .ConfigureAwait(false);
     }
 
     private JsonObject? SerializeConfig(ChartJsConfig config)
@@ -197,9 +157,9 @@ public class ChartJsInterop : IAsyncDisposable
         return jsonObjects;
     }
 
-    private JsonObject? SerializeLastConfigDataset(ChartJsConfig config)
+    private JsonObject? SerializeConfigDataset(object dataset)
     {
-        var json = JsonSerializer.Serialize(config.Data.Datasets.Last(), jsonOptions);
+        var json = JsonSerializer.Serialize(dataset, jsonOptions);
         return JsonSerializer.Deserialize<JsonObject>(json);
     }
 

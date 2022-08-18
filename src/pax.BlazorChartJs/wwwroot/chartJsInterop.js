@@ -115,51 +115,74 @@ export function updateChartDatasets(chartId, datasets) {
     }
 }
 
-export function addChartDataset(chartId, dataset) {
+export function addChartDataset(chartId, dataset, afterDatasetId) {
     if (window.charts[chartId]) {
-        window.charts[chartId].data.datasets.push(dataset);
-        window.charts[chartId].update();
-    }
-}
-
-export function addChartDataToDatasets(chartId, label, data, backgroundColors, borderColors) {
-    if (window.charts[chartId]) {
-        window.charts[chartId].data.labels.push(label);
-        for (var index = 0; index < data.length; ++index) {
-            window.charts[chartId].data.datasets[index].data.push(data[index]);
-
-            if (backgroundColors.length >= index) {
-                window.charts[chartId].data.datasets[index].backgroundColor.push(backgroundColors[index]);
-            }
-
-            if (borderColors.length >= index) {
-                window.charts[chartId].data.datasets[index].borderColor.push(borderColors[index]);
-            }
+        if (afterDatasetId == undefined) {
+            window.charts[chartId].data.datasets.push(dataset);
+        } else {
+            const datasetMetas = window.charts[chartId].getSortedVisibleDatasetMetas();
+            var datasetIndex = datasetMetas.findIndex(obj => obj._dataset.id === datasetId);
+            window.charts[chartId].data.datasets.splice(datasetIndex + 1, 0, dataset);
         }
         window.charts[chartId].update();
     }
 }
 
-export function removeLastDataset(chartId) {
+export function addChartDataToDatasets(chartId, label, data, backgroundColors, borderColors, pos) {
     if (window.charts[chartId]) {
-        window.charts[chartId].data.datasets.pop();
+
+        var chart = window.charts[chartId];
+
+        if (pos == undefined) {
+            pos = chart.data.labels.length;
+        }
+
+        chart.data.labels.splice(pos, 0, label);
+
+        for (var index = 0; index < data.length; ++index) {
+            let dataset = window.charts[chartId].data.datasets[index];
+            dataset.data.splice(pos, 0, data[index]);
+
+            if (backgroundColors != undefined && backgroundColors.length >= index) {
+                dataset.backgroundColor.splice(pos, 0, backgroundColors[index]);
+            }
+
+            if (borderColors != undefined && borderColors.length >= index) {
+                dataset.borderColor.splice(pos, 0, borderColors[index]);
+            }
+        }
+        chart.update();
+    }
+}
+
+export function removeDataset(chartId, datasetId) {
+    if (window.charts[chartId]) {
+        const datasetMetas = window.charts[chartId].getSortedVisibleDatasetMetas();
+        var datasetIndex = datasetMetas.findIndex(obj => obj._dataset.id === datasetId);
+        window.charts[chartId].data.datasets.splice(datasetIndex, 1);
         window.charts[chartId].update();
     }
 }
 
-export function removeLastData(chartId) {
+export function removeData(chartId, pos) {
     if (window.charts[chartId]) {
-        window.charts[chartId].data.labels.splice(-1, 1);
-        window.charts[chartId].data.datasets.forEach(dataset => {
-            dataset.data.pop();
-            if (dataset.borderColor.length > 0) {
-                dataset.borderColor.pop();
+        var chart = window.charts[chartId];
+
+        if (pos == undefined) {
+            pos = chart.data.labels.length - 1;
+        }
+
+        chart.data.labels.splice(pos, 1);
+        chart.data.datasets.forEach(dataset => {
+            dataset.data.splice(pos, 1);
+            if (dataset.borderColor.length >= pos) {
+                dataset.borderColor.splice(pos, 1);
             }
-            if (dataset.backgroundColor.length > 0) {
-                dataset.backgroundColor.pop();
+            if (dataset.backgroundColor.length >= pos) {
+                dataset.backgroundColor.splice(pos, 1);
             }
         });
-        window.charts[chartId].update();
+        chart.update();
     }
 }
 
