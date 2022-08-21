@@ -192,6 +192,10 @@ public class ChartJsConfig
         OnDataAdd(new DataAddEventArgs(label, data, backgroundColors, borderColors, atPosition));
     }
 
+    /// <summary>
+    /// Removes label and data from ALL datasets at last or given position
+    /// </summary>
+    /// <param name="atPosition"></param>
     public void RemoveData(int? atPosition = null)
     {
         int pos = atPosition == null ? Data.Labels.Count - 1 : atPosition.Value;
@@ -241,7 +245,7 @@ public class ChartJsConfig
     public void SetData(Dictionary<object, IList<object>> data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        
+
         foreach (var ent in data)
         {
             var dataset = Data.Datasets.FirstOrDefault(f => f.Equals(ent.Key)) as ChartJsDataset;

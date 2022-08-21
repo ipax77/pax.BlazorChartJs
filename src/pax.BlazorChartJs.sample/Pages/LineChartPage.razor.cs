@@ -190,7 +190,44 @@ public partial class LineChartPage : ComponentBase
         chartComponent?.UpdateChartOptions();
     }
 
-    public void AddData()
+    private void AddData()
     {
-    }    
+        var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
+        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
+    }
+
+    private void Randomize()
+    {
+        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
+
+        Dictionary<object, IList<object>> chartData = new();
+
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
+            var dataList = data.ElementAt(i);
+            chartData.Add(dataset, dataList);
+        }
+        chartJsConfig.SetData(chartData);
+    }
+
+    private void AddDataset()
+    {
+        var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
+        ((LineDataset)dataset).BorderWidth = 3;
+        chartJsConfig.AddDataset(dataset);
+    }
+
+    private void RemoveLastDataset()
+    {
+        if (chartJsConfig.Data.Datasets.Any())
+        {
+            chartJsConfig.RemoveDataset(chartJsConfig.Data.Datasets.Last());
+        }
+    }
+
+    private void RemoveLastDataFromDatasets()
+    {
+        chartJsConfig.RemoveData();
+    }
 }

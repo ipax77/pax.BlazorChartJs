@@ -187,10 +187,10 @@ export function removeData(chartId, pos) {
         chart.data.labels.splice(pos, 1);
         chart.data.datasets.forEach(dataset => {
             dataset.data.splice(pos, 1);
-            if (dataset.borderColor.length >= pos) {
+            if (Array.isArray(dataset.borderColor) && dataset.borderColor.length >= pos) {
                 dataset.borderColor.splice(pos, 1);
             }
-            if (dataset.backgroundColor.length >= pos) {
+            if (Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length >= pos) {
                 dataset.backgroundColor.splice(pos, 1);
             }
         });
