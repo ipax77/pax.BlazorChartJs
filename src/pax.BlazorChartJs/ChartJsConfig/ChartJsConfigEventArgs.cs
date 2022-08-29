@@ -69,10 +69,10 @@ public class DataSetEventArgs : EventArgs
 
 public class LabelsSetEventArgs : EventArgs
 {
-    public LabelsSetEventArgs(List<string> labels)
+    public LabelsSetEventArgs(IList<string> labels)
     {
         Labels = labels;
     }
 
-    public List<string> Labels { get; init; }
+    public IList<string> Labels { get; init; }
 }

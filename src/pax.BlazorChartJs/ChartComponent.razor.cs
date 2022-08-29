@@ -55,7 +55,7 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
     private async void ChartJsConfig_LabelsSet(object? sender, LabelsSetEventArgs e)
     {
-        await ChartJsInterop.SetLabels(ChartJsConfig.ChartJsConfigGuid, e.Labels);
+        await ChartJsInterop.SetLabels(ChartJsConfig.ChartJsConfigGuid, e.Labels).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DataSet(object? sender, DataSetEventArgs e)

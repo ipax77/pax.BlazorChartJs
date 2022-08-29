@@ -148,7 +148,7 @@ public class ChartJsInterop : IAsyncDisposable
     /// <summary>
     /// Set chart labels
     /// </summary>
-    public async ValueTask SetLabels(Guid configGuid, List<string> labels)
+    public async ValueTask SetLabels(Guid configGuid, IList<string> labels)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
         await module.InvokeVoidAsync("setLabels", configGuid, labels)

@@ -160,3 +160,44 @@ public record LinearAxisTick : CartesianAxisTick
     /// </summary>      
     public double? StepSize { get; set; }
 }
+
+/// <summary>
+/// LinearRadialAxis <see href="https://www.chartjs.org/docs/latest/axes/radial/linear.html">ChartJs Docs</see>
+/// </summary>
+public record LinearRadialAxis : ChartJsAxis
+{
+    public bool Animate { get; set; }
+    public AngelLines? AngelLines { get; set; }
+    public bool BeginAtZero { get; set; }
+    public PointLabels? PointLabels { get; set; }
+    public double? StartAngel { get; set; }
+}
+
+/// <summary>
+/// AngelLines <see href="https://www.chartjs.org/docs/latest/axes/radial/linear.html#angle-line-options">ChartJs Docs</see>
+/// </summary>
+public record AngelLines
+{
+    public bool? Display { get; set; }
+    public object? Color { get; set; }
+    public double? LineWidth { get; set; }
+#pragma warning disable CA2227    
+    public IList<double>? BorderDash { get; set; }
+#pragma warning restore CA2227    
+    public double? BorderDashOffset { get; set; }
+}
+
+/// <summary>
+/// PointLabels <see href="https://www.chartjs.org/docs/latest/axes/radial/linear.html#point-label-options">ChartJs Docs</see>
+/// </summary>
+public record PointLabels
+{
+    public object? BackdropColor { get; set; }
+    public Padding? BackdropPadding { get; set; }
+    public object? BorderRadius { get; set; }
+    public bool? Display { get; set; }
+    public object? Color { get; set; }
+    public Font? Font { get; set; }
+    public Padding? Padding { get; set; }
+    public bool? CenterPointLabels { get; set; }
+}

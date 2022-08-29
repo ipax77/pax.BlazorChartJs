@@ -119,13 +119,24 @@ Program.cs:
 
 # Known Limitations / ToDo
 
-* RadarCharts
+* BubbleChart
+* ScatterChart
+* PolarAreaChart
+* DoughnutChart
+
 * Events
 * Objects to Interfaces and Json handling
 
 # ChangeLog
 
-<details open="open"><summary>v0.1.1</summary>
+<details open="open"><summary>v0.1.2</summary>
+
+>- RadarChart
+
+</details>
+
+
+<details><summary>v0.1.1</summary>
 
 >- Readme
 

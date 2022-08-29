@@ -58,7 +58,7 @@ public class ChartJsConfig
         EventHandler<DataAddEventArgs>? handler = DataAdd;
         handler?.Invoke(this, e);
     }
-    
+
     internal virtual void OnDataRemove(DataRemoveEventArgs e)
     {
         EventHandler<DataRemoveEventArgs>? handler = DataRemove;
@@ -268,7 +268,7 @@ public class ChartJsConfig
     /// Sets the chart labels
     /// </summary>
     /// <param name="labels"></param>
-    public void SetLabels(List<string> labels)
+    public void SetLabels(IList<string> labels)
     {
         ArgumentNullException.ThrowIfNull(labels);
 
@@ -278,27 +278,28 @@ public class ChartJsConfig
 }
 
 
-    public class ChartJsData
+public class ChartJsData
+{
+    public ChartJsData()
     {
-        public ChartJsData()
-        {
-            Labels = new List<string>();
-            Datasets = new List<object>();
-
-        }
-
-        public IList<string> Labels { get; set; }
-        public virtual IList<object> Datasets { get; set; }
+        Labels = new List<string>();
+        Datasets = new List<object>();
 
     }
+
+    public IList<string> Labels { get; set; }
+    public virtual IList<object> Datasets { get; set; }
+
+}
 
 #pragma warning restore CA2227
 
-    public enum ChartType
-    {
-        None = 0,
-        line = 1,
-        bar = 2,
-        doughnut = 3,
-        pie = 4,
-    }
+public enum ChartType
+{
+    None = 0,
+    line = 1,
+    bar = 2,
+    doughnut = 3,
+    pie = 4,
+    radar = 5
+}

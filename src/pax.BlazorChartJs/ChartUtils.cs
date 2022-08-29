@@ -72,6 +72,7 @@ public static class ChartUtils
             ChartType.bar => GetRandomBarDataset(id, count, min, max),
             ChartType.line => GetRandomLineDataset(id, count, min, max),
             ChartType.pie => GetRandomPieDataset(id, count, min, max),
+            ChartType.radar => GetRandomRadarDataset(id, count, min, max),
             _ => throw new NotImplementedException(nameof(chartType))
         };
     }
@@ -104,6 +105,20 @@ public static class ChartUtils
         {
             BackgroundColor = GetRandomColors(count),
             BorderColor = GetRandomColors(count),
+            BorderWidth = 1,
+            Data = GetRandomNumbers(count, min, max)
+        };
+    }
+
+    private static RadarDataset GetRandomRadarDataset(int id, int count, int min, int max)
+    {
+        var borderColor = GetRandomColors(1).First();
+        var backgroundColor = $"{borderColor}80";
+        return new RadarDataset()
+        {
+            Label = $"Dataset {id}",
+            BackgroundColor = backgroundColor,
+            BorderColor = borderColor,
             BorderWidth = 1,
             Data = GetRandomNumbers(count, min, max)
         };

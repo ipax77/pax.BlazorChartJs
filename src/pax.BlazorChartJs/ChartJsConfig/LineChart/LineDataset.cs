@@ -16,14 +16,14 @@ public record LineDataset : ChartJsDataset
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
     public object? BorderColor { get; set; }
-    public ICollection<int>? BorderDash { get; set; }
-    public int? BorderDashOffset { get; set; }
+    public IList<double>? BorderDash { get; set; }
+    public double? BorderDashOffset { get; set; }
     /// <summary>
     /// BorderJoinStyle options: 'round'|'bevel'|'miter'
     /// </summary>    
     public string? BorderJoinStyle { get; set; }
     // todo: can be object
-    public int? BorderWidth { get; set; }
+    public double? BorderWidth { get; set; }
     /// <summary>
     /// Clip - number|object|false
     /// How to clip relative to chartArea. Positive value allows overflow, negative value clips that many pixels inside chartArea. 0 = clip at chartArea. Clipping can also be configured per side: clip: {left: 5, top: false, right: -2, bottom: 0}
@@ -75,13 +75,13 @@ public record LineDataset : ChartJsDataset
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
     public object? HoverBorderColor { get; set; }
-    public ICollection<int>? HoverBorderDash { get; set; }
-    public int? HoverBorderDashOffset { get; set; }
+    public IList<double>? HoverBorderDash { get; set; }
+    public double? HoverBorderDashOffset { get; set; }
     /// <summary>
     /// HoverBorderJoinStyle - 'round'|'bevel'|'miter'
     /// </summary>          
     public string? HoverBorderJoinStyle { get; set; }
-    public int? HoverBorderWidth { get; set; }
+    public double? HoverBorderWidth { get; set; }
     public string? IndexAxis { get; set; }
     /// <summary>
     /// number|'auto'
@@ -89,17 +89,17 @@ public record LineDataset : ChartJsDataset
     /// <see href="https://www.chartjs.org/docs/latest/charts/bar.html#inflateamount">ChartJs docs</see>
     /// </summary>      
     public string? Label { get; set; }
-    public int? Order { get; set; }
+    public double? Order { get; set; }
     public object? PointBackgroundColor { get; set; }
     public object? PointBorderColor { get; set; }
-    public int? PointBorderWidth { get; set; }
-    public int? PointHitRadius { get; set; }
+    public double? PointBorderWidth { get; set; }
+    public double? PointHitRadius { get; set; }
     public object? PointHoverBackgroundColor { get; set; }
     public object? PointHoverBorderColor { get; set; }
-    public int? PointHoverBorderWidth { get; set; }
-    public int? PointHoverRadius { get; set; }
-    public int? PointRadius { get; set; }
-    public int? PointRotation { get; set; }
+    public double? PointHoverBorderWidth { get; set; }
+    public double? PointHoverRadius { get; set; }
+    public double? PointRadius { get; set; }
+    public double? PointRotation { get; set; }
     /// <summary>
     /// Types
     ///    The pointStyle argument accepts the following type of inputs: string, Image and HTMLCanvasElement
@@ -160,7 +160,7 @@ public record LineDataset : ChartJsDataset
     /// <see href="https://www.chartjs.org/docs/latest/charts/line.html#stepped">ChartJs docs</see>
     /// </summary>    
     public object? Stepped { get; set; }
-    public int? Tension { get; set; }
+    public double? Tension { get; set; }
     public string? XAxisID { get; set; }
     public string? YAxisID { get; set; }
 }

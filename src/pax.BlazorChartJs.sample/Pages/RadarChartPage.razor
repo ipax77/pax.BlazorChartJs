@@ -1,0 +1,140 @@
+﻿@page "/radarchart"
+
+<PageTitle>RadarChart</PageTitle>
+
+<h3>RadarChartPage</h3>
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="AddData">Add Data</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataset">Remove Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
+</div>
+
+<div class="w-50">
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig"></ChartComponent>
+</div>
+
+@code {
+    ChartComponent? chartComponent;
+    ChartJsConfig chartJsConfig = null!;
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = new()
+            {
+                Type = ChartType.radar,
+                Data = new ChartJsData()
+                {
+                    Labels = new List<string>()
+                    {
+                        "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
+                    },
+                    Datasets = new List<object>()
+                    {
+                        new RadarDataset()
+                        {
+                            Label = "Sommer",
+                            Data = new List<object>() { 12, 19, 10, 15, 12, 13 },
+                            BackgroundColor = "#6495ED80",
+                            BorderColor = "#6495ED",
+                            BorderWidth = 2
+                        }
+                    }
+                },
+                Options = new ChartJsOptions()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = true,
+                    Plugins = new Plugins()
+                    {
+                        Legend = new Legend()
+                        {
+                            Position = "right",
+                            Labels = new Labels()
+                            {
+                                Color = "darkblue",
+                            }
+                        },
+                        Title = new Title()
+                        {
+                            Display = true,
+                            Padding = new Padding(5),
+                            Font = new Font()
+                            {
+                                Size = 20,
+                            },
+                            Text = "Synergy",
+                            Color = "darkblue"
+                        }
+                    },
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        R = new LinearRadialAxis()
+                        {
+                            AngelLines = new AngelLines()
+                            {
+                                // Color = "yellow"
+                            },
+                            Grid = new ChartJsGrid()
+                            {
+                                // Color = "yellow"
+                            },
+                            PointLabels = new PointLabels()
+                            {
+                                Font = new Font()
+                                {
+                                    Size = 12
+                                },
+                                Color = "darkblue"
+                            },
+                            BeginAtZero = true
+                        }
+                    }
+                }
+
+            };
+        base.OnInitialized();
+    }
+
+    private void AddData()
+    {
+        var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
+        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
+    }
+
+    private void Randomize()
+    {
+        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
+
+        Dictionary<object, IList<object>> chartData = new();
+
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
+            var dataList = data.ElementAt(i);
+            chartData.Add(dataset, dataList);
+        }
+        chartJsConfig.SetData(chartData);
+    }
+
+    private void AddDataset()
+    {
+        var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
+        chartJsConfig.AddDataset(dataset);
+    }
+
+    private void RemoveLastDataset()
+    {
+        if (chartJsConfig.Data.Datasets.Any())
+        {
+            chartJsConfig.RemoveDataset(chartJsConfig.Data.Datasets.Last());
+        }
+    }
+
+    private void RemoveLastDataFromDatasets()
+    {
+        chartJsConfig.RemoveData();
+    }
+}
