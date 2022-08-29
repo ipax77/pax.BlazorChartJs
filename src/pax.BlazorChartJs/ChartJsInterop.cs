@@ -145,6 +145,17 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Set chart labels
+    /// </summary>
+    public async ValueTask SetLabels(Guid configGuid, List<string> labels)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("setLabels", configGuid, labels)
+            .ConfigureAwait(false);
+    }
+
+
     private JsonObject? SerializeConfig(ChartJsConfig config)
     {
         var json = JsonSerializer.Serialize(config, jsonOptions);

@@ -66,3 +66,13 @@ public class DataSetEventArgs : EventArgs
     }
     public Dictionary<object, IList<object>> Data { get; init; }
 }
+
+public class LabelsSetEventArgs : EventArgs
+{
+    public LabelsSetEventArgs(List<string> labels)
+    {
+        Labels = labels;
+    }
+
+    public List<string> Labels { get; init; }
+}

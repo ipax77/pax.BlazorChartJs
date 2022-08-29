@@ -33,6 +33,13 @@ public class ChartJsConfig
     internal event EventHandler<DataAddEventArgs>? DataAdd;
     internal event EventHandler<DataRemoveEventArgs>? DataRemove;
     internal event EventHandler<DataSetEventArgs>? DataSet;
+    internal event EventHandler<LabelsSetEventArgs>? LabelsSet;
+
+    internal virtual void OnLabelsSet(LabelsSetEventArgs e)
+    {
+        EventHandler<LabelsSetEventArgs>? handler = LabelsSet;
+        handler?.Invoke(this, e);
+    }
 
     internal virtual void OnDatasetAdd(DatasetAddEventArgs e)
     {
@@ -255,6 +262,18 @@ public class ChartJsConfig
             }
         }
         OnDataSet(new DataSetEventArgs(data));
+    }
+
+    /// <summary>
+    /// Sets the chart labels
+    /// </summary>
+    /// <param name="labels"></param>
+    public void SetLabels(List<string> labels)
+    {
+        ArgumentNullException.ThrowIfNull(labels);
+
+        Data.Labels = labels;
+        OnLabelsSet(new(labels));
     }
 }
 

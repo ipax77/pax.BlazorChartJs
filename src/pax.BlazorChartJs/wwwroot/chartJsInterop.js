@@ -83,12 +83,6 @@ export async function initChart(chartId, dotnetConfig, dotnetRef) {
             }
         }
 
-        async function reportChartClick(chartid, label) {
-            if (window.dotnetrefs[chartid]) {
-                await window.dotnetrefs[chartid].invokeMethodAsync("ChartClicked", label);
-            }
-        }
-
         if (window.charts[chartId]) {
             window.charts[chartId].destroy();
         }
@@ -101,10 +95,27 @@ export async function initChart(chartId, dotnetConfig, dotnetRef) {
     }
 }
 
+async function reportChartClick(chartid, label) {
+    if (window.dotnetrefs[chartid]) {
+        await window.dotnetrefs[chartid].invokeMethodAsync("ChartClicked", label);
+    }
+}
+
 export function updateChartOptions(chartId, options) {
     if (window.charts[chartId]) {
         window.charts[chartId].options = options;
         window.charts[chartId].update();
+
+        window.charts[chartId].options.onClick = (e) => {
+            const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+
+            if (points.length) {
+                const firstPoint = points[0];
+                const label = window.charts[chartId].data.labels[firstPoint.index];
+                const value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+                reportChartClick(chartId, label);
+            }
+        }        
     }
 }
 
@@ -194,6 +205,14 @@ export function removeData(chartId, pos) {
                 dataset.backgroundColor.splice(pos, 1);
             }
         });
+        chart.update();
+    }
+}
+
+export function setLabels(chartId, labels) {
+    if (window.charts[chartId]) {
+        var chart = window.charts[chartId];
+        chart.data.labels = labels;
         chart.update();
     }
 }

@@ -49,7 +49,13 @@ public partial class ChartComponent : ComponentBase, IDisposable
         ChartJsConfig.DataAdd += ChartJsConfig_DataAdd;
         ChartJsConfig.DataRemove += ChartJsConfig_DataRemove;
         ChartJsConfig.DataSet += ChartJsConfig_DataSet;
+        ChartJsConfig.LabelsSet += ChartJsConfig_LabelsSet;
         base.OnInitialized();
+    }
+
+    private async void ChartJsConfig_LabelsSet(object? sender, LabelsSetEventArgs e)
+    {
+        await ChartJsInterop.SetLabels(ChartJsConfig.ChartJsConfigGuid, e.Labels);
     }
 
     private async void ChartJsConfig_DataSet(object? sender, DataSetEventArgs e)
@@ -165,6 +171,7 @@ public partial class ChartComponent : ComponentBase, IDisposable
             ChartJsConfig.DataAdd -= ChartJsConfig_DataAdd;
             ChartJsConfig.DataRemove -= ChartJsConfig_DataRemove;
             ChartJsConfig.DataSet -= ChartJsConfig_DataSet;
+            ChartJsConfig.LabelsSet -= ChartJsConfig_LabelsSet;
             dotNetHelper?.Dispose();
             // todo: cleanup js chart?
         }
