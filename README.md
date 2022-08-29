@@ -1,10 +1,7 @@
 
 Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js) (v3.9.1)
 
-## Plugins
-* [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
-* [chartjs-plugin-labels](https://github.com/DavideViolante/chartjs-plugin-labels)
-* [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
+
 
 # Getting started
 ## Prerequisites
@@ -103,7 +100,7 @@ Program.cs:
         base.OnInitialized();
     }
 
-private void AddData()
+    private void AddData()
     {
         var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
         chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data, dataAddEventArgs.BackgroundColors, dataAddEventArgs.BorderColors);
@@ -149,6 +146,10 @@ private void AddData()
     }    
 }
 ```
+## Supported Plugins
+* [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
+* [chartjs-plugin-labels](https://github.com/DavideViolante/chartjs-plugin-labels)
+* [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
 
 ## Known Limitations / ToDo
 
