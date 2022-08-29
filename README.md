@@ -1,5 +1,10 @@
 
-# Blazor dotnet wrapper library for ChartJs (v3.9.1)
+Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js) (v3.9.1)
+
+## Plugins
+* [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
+* [chartjs-plugin-labels](https://github.com/DavideViolante/chartjs-plugin-labels)
+* [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
 
 # Getting started
 ## Prerequisites
@@ -15,7 +20,7 @@ Program.cs:
 
 ## Usage
 
-```
+```cs
 
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
@@ -24,60 +29,84 @@ Program.cs:
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataset">Remove Dataset</button>
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
 </div>
+
 <div class="w-75">
     <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig"></ChartComponent>
 </div>
+
+<div>
+    @if (!String.IsNullOrEmpty(labelClicked))
+    {
+        <p>
+            Label clicked: @labelClicked
+        </p>
+    }
+</div>
+
 @code {
-    private ChartJsConfig chartJsConfig = null!;
-    private ChartComponent? chartComponent;
+    ChartComponent? chartComponent;
+    ChartJsConfig chartJsConfig = null!;
+    private string? labelClicked;
 
     protected override void OnInitialized()
     {
         chartJsConfig = new()
             {
-                Type = ChartType.line,
+                Type = ChartType.bar,
                 Data = new ChartJsData()
                 {
-                    Labels = labels,
+                    Labels = new List<string>()
+                    {
+                        "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
+                    },
                     Datasets = new List<object>()
                     {
-                        new LineDataset()
+                        new BarDataset()
                         {
-                            Label = "Team 1",
-                            Data = team1mid,
-                            BorderColor = winnerTeam == 1 ? "green" : "red",
-                            BorderWidth = 3,
-                            Fill = false,
-                            PointBackgroundColor = "white",
-                            PointBorderColor = "yellow",
-                            PointRadius = 1,
-                            PointBorderWidth = 1,
-                            PointHitRadius = 1,
-                            Tension = 0
-                        },
-                        new LineDataset()
-                        {
-                            Label = "Team 2",
-                            Data = team2mid,
-                            BorderColor = winnerTeam == 2 ? "green" : "red",
-                            BorderWidth = 3,
-                            Fill = false,
-                            PointBackgroundColor = "white",
-                            PointBorderColor = "yellow",
-                            PointRadius = 1,
-                            PointBorderWidth = 1,
-                            PointHitRadius = 1,
-                            Tension = 0
+                            Label = "# of Votes",
+                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
+                            BackgroundColor = new List<string>()
+                            {
+                                "rgba(255, 99, 132, 0.2)",
+                                "rgba(54, 162, 235, 0.2)",
+                                "rgba(255, 206, 86, 0.2)",
+                                "rgba(75, 192, 192, 0.2)",
+                                "rgba(153, 102, 255, 0.2)",
+                                "rgba(255, 159, 64, 0.2)",
+                            },
+                            BorderColor = new List<string>()
+                            {
+                                "rgba(255, 99, 132, 1)",
+                                "rgba(54, 162, 235, 1)",
+                                "rgba(255, 206, 86, 1)",
+                                "rgba(75, 192, 192, 1)",
+                                "rgba(153, 102, 255, 1)",
+                                "rgba(255, 159, 64, 1)",
+                            },
+                            BorderWidth = 1
                         }
                     }
+                },
+                Options = new ChartJsOptions()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = true,
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        Y = new LinearAxis() 
+                        {
+                            SuggestedMax = 25
+                        }
+                    }
+                }
             };
         base.OnInitialized();
     }
 
-    private void AddData()
+private void AddData()
     {
         var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
-        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
+        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data, dataAddEventArgs.BackgroundColors, dataAddEventArgs.BorderColors);
     }
 
     private void Randomize()
@@ -98,7 +127,6 @@ Program.cs:
     private void AddDataset()
     {
         var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
-        ((LineDataset)dataset).BorderWidth = 3;
         chartJsConfig.AddDataset(dataset);
     }
 
@@ -114,10 +142,15 @@ Program.cs:
     {
         chartJsConfig.RemoveData();
     }    
+
+    private void LabelClicked(KeyValuePair<Guid, string> report)
+    {
+        labelClicked = report.Value;
+    }    
 }
 ```
 
-# Known Limitations / ToDo
+## Known Limitations / ToDo
 
 * BubbleChart
 * ScatterChart
@@ -127,7 +160,7 @@ Program.cs:
 * Events
 * Objects to Interfaces and Json handling
 
-# ChangeLog
+## ChangeLog
 
 <details open="open"><summary>v0.1.2</summary>
 

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace pax.BlazorChartJs;
 
 /// <summary>
-/// DataLabelsConfig <see href="/>https://chartjs-plugin-datalabels.netlify.app/guide/">ChartJs datalabels plugin</see>
+/// DataLabelsConfig <see href="https://chartjs-plugin-datalabels.netlify.app/guide/">ChartJs datalabels plugin</see>
 /// </summary>
 public record DataLabelsConfig
 {
