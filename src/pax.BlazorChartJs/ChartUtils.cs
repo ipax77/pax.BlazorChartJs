@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -60,6 +61,34 @@ public static class ChartUtils
         return data;
     }
 
+    public static ICollection<List<object>> GetRandomPointData(int length, int count, int min = -100, int max = 100)
+    {
+        if (min >= max)
+        {
+            throw new ArgumentOutOfRangeException(nameof(max));
+        }
+
+        List<List<object>> data = new List<List<object>>();
+
+        for (int i = 0; i < length; i++)
+        {
+            data.Add(new());
+
+            var x = GetRandomNumbers(count, min, max);
+            var y = GetRandomNumbers(count, min, max);
+
+            for (int j = 0; j < x.Count; j++)
+            {
+                data[i].Add(new PointData()
+                {
+                    X = (int)x[j],
+                    Y = (int)y[j]
+                });
+            }
+        }
+        return data;
+    }
+
     public static object GetRandomDataset(ChartType chartType, int id, int count, int min = -100, int max = 100)
     {
         if (min >= max)
@@ -73,6 +102,7 @@ public static class ChartUtils
             ChartType.line => GetRandomLineDataset(id, count, min, max),
             ChartType.pie => GetRandomPieDataset(id, count, min, max),
             ChartType.radar => GetRandomRadarDataset(id, count, min, max),
+            ChartType.scatter => GetRandomScatterDataset(id, count, min, max),
             _ => throw new NotImplementedException(nameof(chartType))
         };
     }
@@ -124,6 +154,18 @@ public static class ChartUtils
         };
     }
 
+    private static ScatterDataset GetRandomScatterDataset(int id, int count, int min, int max)
+    {
+        var backgroundColor = GetRandomColors(1).First();
+        var data = GetRandomPointData(1, count, min, max);
+        return new ScatterDataset()
+        {
+            Label = $"Dataset {id}",
+            BackgroundColor = backgroundColor,
+            Data = data.First().Select(s => (PointData)s).ToList()
+        };
+    }
+
     public static DataAddEventArgs GetRandomData(int count, int min = -100, int max = 100)
     {
         if (min >= max)
@@ -144,6 +186,20 @@ public static class ChartUtils
         }
 
         return new DataAddEventArgs(label, data, backgroundColors, borderColors, null);
+    }
+
+    public static ICollection<PointData> GetRandomPointDatas(int count, int min = -100, int max = 100)
+    {
+        List<PointData> data = new();
+        for (int i = 0; i < count; i++)
+        {
+            data.Add(new()
+            {
+                X = random.Next(min, max),
+                Y = random.Next(min, max)
+            });
+        }
+        return data;
     }
 
     private static List<string> GetRandomColors(int count)

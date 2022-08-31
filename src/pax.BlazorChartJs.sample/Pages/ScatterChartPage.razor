@@ -1,0 +1,175 @@
+﻿@page "/scatterchart"
+
+<PageTitle>ScatterChart</PageTitle>
+
+<h3>ScatterChartPage</h3>
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="AddData">Add Data</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataset">Remove Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
+</div>
+
+<div class="w-75">
+    <ChartComponent @ref="chartComponent" OnLabelClicked="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
+</div>
+
+<div>
+    @if (!String.IsNullOrEmpty(labelClicked))
+    {
+        <p>
+            Label clicked: @labelClicked
+        </p>
+    }
+</div>
+
+@code {
+    ChartComponent? chartComponent;
+    ChartJsConfig chartJsConfig = null!;
+    private string? labelClicked;
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = new()
+            {
+                Type = ChartType.scatter,
+                Data = new ChartJsData()
+                {
+                    Datasets = new List<object>()
+                    {
+                        new ScatterDataset()
+                        {
+                            Label = "Scatter Dataset",
+                            Data = new List<PointData>()
+                            {
+                                new PointData()
+                                {
+                                    X = -10,
+                                    Y = 0
+                                },
+                                new PointData()
+                                {
+                                    X = 0,
+                                    Y = 10
+                                },
+                                new PointData()
+                                {
+                                    X = 10,
+                                    Y = 5
+                                },
+                                new PointData()
+                                {
+                                    X = 0.5,
+                                    Y = 5.5
+                                },
+                                new PointData()
+                                {
+                                    X = 7,
+                                    Y = 7
+                                },
+                            },
+                            BackgroundColor = "rgb(255, 99, 132)"
+                        }
+                    }
+                },
+                Options = new ChartJsOptions()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = true,
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        X = new LinearAxis()
+                        {
+                            Type = "linear",
+                            Position = "bottom",
+                            SuggestedMin = -100,
+                            SuggestedMax = 100
+                        },
+                        Y = new LinearAxis()
+                        {
+                            SuggestedMin = -100,
+                            SuggestedMax = 100
+                        }
+                    }
+                }
+            };
+        base.OnInitialized();
+    }
+
+
+    private void ShowChart()
+    {
+        chartComponent?.DrawChart();
+    }
+
+    private void LabelClicked(KeyValuePair<Guid, string> report)
+    {
+        labelClicked = report.Value;
+    }
+
+    private void AddData()
+    {
+        var dataPoints = ChartUtils.GetRandomPointDatas(chartJsConfig.Data.Datasets.Count);
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            var scatterDataset = chartJsConfig.Data.Datasets[i] as ScatterDataset;
+            if (scatterDataset != null)
+            {
+                var data = new List<object>(scatterDataset.Data);
+                data.Add(dataPoints.ElementAt(i));
+                chartJsConfig.SetData(scatterDataset, data);
+            }
+        }
+    }
+
+    private void Randomize()
+    {
+        if (chartJsConfig.Data.Datasets.Any())
+        {
+            var dataCount = ((ChartJsDataset)chartJsConfig.Data.Datasets.First()).Data.Count;
+            var data = ChartUtils.GetRandomPointData(chartJsConfig.Data.Datasets.Count, dataCount, -100, 100);
+
+            for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+            {
+                var scatterDataset = chartJsConfig.Data.Datasets[i] as ScatterDataset;
+                if (scatterDataset != null)
+                {
+                    chartJsConfig.SetData(scatterDataset, data.ElementAt(i));
+                }
+            }
+        }
+    }
+
+    private void AddDataset()
+    {
+        var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
+        chartJsConfig.AddDataset(dataset);
+    }
+
+    private void RemoveLastDataset()
+    {
+        if (chartJsConfig.Data.Datasets.Any())
+        {
+            chartJsConfig.RemoveDataset(chartJsConfig.Data.Datasets.Last());
+        }
+    }
+
+    private void RemoveLastDataFromDatasets()
+    {
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            var scatterDataset = chartJsConfig.Data.Datasets[i] as ScatterDataset;
+            if (scatterDataset != null)
+            {
+                var data = new List<object>(scatterDataset.Data);
+                if (data.Any())
+                {
+                    data.Remove(data.Last());
+                    chartJsConfig.SetData(scatterDataset, data);
+                }
+            }
+        }
+    }
+}

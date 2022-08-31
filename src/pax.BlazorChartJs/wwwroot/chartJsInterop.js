@@ -115,7 +115,7 @@ export function updateChartOptions(chartId, options) {
                 const value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
                 reportChartClick(chartId, label);
             }
-        }        
+        }
     }
 }
 
@@ -195,7 +195,10 @@ export function removeData(chartId, pos) {
             pos = chart.data.labels.length - 1;
         }
 
-        chart.data.labels.splice(pos, 1);
+        if (chart.data.label.length >= pos) {
+            chart.data.labels.splice(pos, 1);
+        }
+
         chart.data.datasets.forEach(dataset => {
             dataset.data.splice(pos, 1);
             if (Array.isArray(dataset.borderColor) && dataset.borderColor.length >= pos) {
