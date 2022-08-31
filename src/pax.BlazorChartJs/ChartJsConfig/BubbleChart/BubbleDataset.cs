@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 namespace pax.BlazorChartJs;
 public record BubbleDataset : ChartJsDataset
 {
-    public new IList<BubbleDataPoint> Data { get; set; } = new List<BubbleDataPoint> { new BubbleDataPoint() { X = 10, Y = 20, R = 4 }, new BubbleDataPoint() { X = 15, Y = 10, R = 6 } };
-
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>           

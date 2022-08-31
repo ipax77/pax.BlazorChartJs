@@ -166,11 +166,13 @@ export function addChartDataToDatasets(chartId, label, data, backgroundColors, b
             let dataset = window.charts[chartId].data.datasets[index];
             dataset.data.splice(pos, 0, data[index]);
 
-            if (backgroundColors != undefined && backgroundColors.length >= index) {
+            if (backgroundColors != undefined && backgroundColors.length >= index
+                && Array.isArray(Array.isArray) && dataset.backgroundColor.length >= index) {
                 dataset.backgroundColor.splice(pos, 0, backgroundColors[index]);
             }
 
-            if (borderColors != undefined && borderColors.length >= index) {
+            if (borderColors != undefined && borderColors.length >= index
+                && Array.isArray(dataset.borderColor) && dataset.borderColor.length >= index) {
                 dataset.borderColor.splice(pos, 0, borderColors[index]);
             }
         }
@@ -195,7 +197,7 @@ export function removeData(chartId, pos) {
             pos = chart.data.labels.length - 1;
         }
 
-        if (chart.data.label.length >= pos) {
+        if (Array.isArray(chart.data.labels) && chart.data.labels.length >= pos) {
             chart.data.labels.splice(pos, 1);
         }
 

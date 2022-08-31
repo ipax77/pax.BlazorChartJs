@@ -45,6 +45,11 @@ public static class ChartUtils
         "#000080",
     };
 
+    public static string GetRandomColor()
+    {
+        return Colors[random.Next(Colors.Count)];
+    }
+
     public static ICollection<List<object>> GetRandomData(int length, int count, int min = -100, int max = 100)
     {
         if (min >= max)
@@ -57,34 +62,6 @@ public static class ChartUtils
         for (int i = 0; i < length; i++)
         {
             data.Add(GetRandomNumbers(count, min, max));
-        }
-        return data;
-    }
-
-    public static ICollection<List<object>> GetRandomPointData(int length, int count, int min = -100, int max = 100)
-    {
-        if (min >= max)
-        {
-            throw new ArgumentOutOfRangeException(nameof(max));
-        }
-
-        List<List<object>> data = new List<List<object>>();
-
-        for (int i = 0; i < length; i++)
-        {
-            data.Add(new());
-
-            var x = GetRandomNumbers(count, min, max);
-            var y = GetRandomNumbers(count, min, max);
-
-            for (int j = 0; j < x.Count; j++)
-            {
-                data[i].Add(new PointData()
-                {
-                    X = (int)x[j],
-                    Y = (int)y[j]
-                });
-            }
         }
         return data;
     }
@@ -158,12 +135,21 @@ public static class ChartUtils
     private static ScatterDataset GetRandomScatterDataset(int id, int count, int min, int max)
     {
         var backgroundColor = GetRandomColors(1).First();
-        var data = GetRandomPointData(1, count, min, max);
+        var data = new List<object>();
+
+        for (int i = 0; i < count; i++)
+        {
+            data.Add(new DataPoint() {
+                X = random.Next(min, max),
+                Y = random.Next(min, max)
+            });
+        }
+
         return new ScatterDataset()
         {
             Label = $"Dataset {id}",
             BackgroundColor = backgroundColor,
-            Data = data.First().Select(s => (PointData)s).ToList()
+            Data = data
         };
     }
 
@@ -171,7 +157,7 @@ public static class ChartUtils
     {
         var backgroundColor = GetRandomColors(1).First();
 
-        List<BubbleDataPoint> data = new();
+        List<object> data = new();
         for (int i = 0; i < count; i++)
         {
             data.Add(new BubbleDataPoint()
@@ -210,20 +196,6 @@ public static class ChartUtils
         }
 
         return new DataAddEventArgs(label, data, backgroundColors, borderColors, null);
-    }
-
-    public static ICollection<PointData> GetRandomPointDatas(int count, int min = -100, int max = 100)
-    {
-        List<PointData> data = new();
-        for (int i = 0; i < count; i++)
-        {
-            data.Add(new()
-            {
-                X = random.Next(min, max),
-                Y = random.Next(min, max)
-            });
-        }
-        return data;
     }
 
     private static List<string> GetRandomColors(int count)
