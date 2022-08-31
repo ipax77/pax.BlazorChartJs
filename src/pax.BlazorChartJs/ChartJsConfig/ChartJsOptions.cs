@@ -32,6 +32,67 @@ public record ChartJsOptions
     public Layout? Layout { get; set; }
     public Plugins? Plugins { get; set; }
     public ChartJsOptionsScales? Scales { get; set; }
+    /// <summary>
+    /// false or new Animation()
+    /// </summary>
+    public object? Animation { get; set; }
+    public Animations? Animations { get; set; }
+    /// <summary>
+    /// The core transitions are 'active', 'hide', 'reset', 'resize', 'show'.
+    /// A custom transition can be used by passing a custom mode to <see href="https://www.chartjs.org/docs/latest/developers/api.html#updatemode">update</see>.
+    /// Transition extends the main animation configuration and <see href="https://www.chartjs.org/docs/latest/configuration/animations.html#animation-configuration">animations configuration</see>.
+    /// </summary>
+    public Dictionary<string, object>? Transitions { get; set; }
+}
+
+public record Animation
+{
+    /// <summary>
+    /// The number of milliseconds an animation takes.
+    /// </summary>
+    public int? Duration { get; set; }
+    /// <summary>
+    /// Easing function <see href="https://www.chartjs.org/docs/latest/configuration/animations.html#easing">ChartJs Docs</see>
+    /// </summary>
+    public string? Easing { get; set; }
+    /// <summary>
+    /// Delay before starting the animations.
+    /// </summary>
+    public int? Delay { get; set; }
+    /// <summary>
+    /// If set to true, the animations loop endlessly.
+    /// </summary>
+    public bool? Loop { get; set; }
+}
+
+public record Animations
+{
+    /// <summary>
+    /// The property names this configuration applies to. Defaults to the key name of this object.
+    /// </summary>
+    public IList<string>? Properties { get; set; }
+    /// <summary>
+    /// Type of property, determines the interpolator used. Possible values: 'number', 'color' and 'boolean'.
+    /// Only really needed for 'color', because typeof does not get that right.
+    /// </summary>
+    public string? Type { get; set; }
+    /// <summary>
+    /// Start value for the animation. Current value is used when undefined
+    /// </summary>
+    public object? From { get; set; }
+    /// <summary>
+    /// End value for the animation. Updated value is used when undefined
+    /// </summary>
+    public object? To { get; set; }
+    /// <summary>
+    /// disables animation defined by the collection of 'colors' properties
+    /// </summary>
+    public bool? Colors { get; set; }
+    /// <summary>
+    /// disables animation defined by the 'x' property 
+    /// </summary>
+    public bool? X { get; set; }
+
 }
 
 public record Plugins

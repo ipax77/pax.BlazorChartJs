@@ -230,4 +230,23 @@ public partial class LineChartPage : ComponentBase
     {
         chartJsConfig.RemoveData();
     }
+
+    private void Fill()
+    {
+        if (chartJsConfig.Data.Datasets.Any())
+        {
+            var lineDataset = chartJsConfig.Data.Datasets.First() as LineDataset;
+            if (lineDataset != null)
+            {
+                chartJsConfig.RemoveDataset(lineDataset);
+                lineDataset.Fill = new
+                {
+                    target = "origin",
+                    above = "rgb(255, 0, 0)",
+                    below = "rgb(0, 0, 255)"
+                };
+                chartJsConfig.AddDataset(lineDataset);
+            }
+        }
+    }
 }

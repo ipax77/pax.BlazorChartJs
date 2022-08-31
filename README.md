@@ -155,8 +155,6 @@ Program.cs:
 
 * BubbleChart
 * ScatterChart
-* PolarAreaChart
-* DoughnutChart
 
 * Events
 * Objects to Interfaces and Json handling

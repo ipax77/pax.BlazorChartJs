@@ -160,6 +160,9 @@ public record LineDataset : ChartJsDataset
     /// <see href="https://www.chartjs.org/docs/latest/charts/line.html#stepped">ChartJs docs</see>
     /// </summary>    
     public object? Stepped { get; set; }
+    /// <summary>
+    /// Bezier curve tension of the line. Set to 0 to draw straightlines. This option is ignored if monotone cubic interpolation is used.
+    /// </summary>
     public double? Tension { get; set; }
     public string? XAxisID { get; set; }
     public string? YAxisID { get; set; }

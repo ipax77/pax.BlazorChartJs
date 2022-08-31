@@ -45,8 +45,8 @@ public record PieDataset : ChartJsDataset
     /// <see href="https://www.chartjs.org/docs/latest/charts/bar.html#borderskipped">ChartJs docs</see>
     /// </summary>        
     // todo: can be object
-    public int? BorderWidth { get; set; }
-    public int? Circumference { get; set; }
+    public double? BorderWidth { get; set; }
+    public double? Circumference { get; set; }
     // todo: can be object
     /// <summary>
     /// can be number|object|false
@@ -63,12 +63,12 @@ public record PieDataset : ChartJsDataset
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
-    public int? HoverBorderWidth { get; set; }
-    public int? HoverOffset { get; set; }
-    public int? Offset { get; set; }
-    public int? Rotation { get; set; }
-    public int? Spacing { get; set; }
-    public int? Weight { get; set; }
+    public double? HoverBorderWidth { get; set; }
+    public double? HoverOffset { get; set; }
+    public double? Offset { get; set; }
+    public double? Rotation { get; set; }
+    public double? Spacing { get; set; }
+    public double? Weight { get; set; }
 }
 
 public record DoughnutDataset : PieDataset

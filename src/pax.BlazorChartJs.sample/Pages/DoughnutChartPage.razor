@@ -1,8 +1,8 @@
-﻿@page "/piechart"
+﻿@page "/doughnutchart"
 
-<PageTitle>PieChart</PageTitle>
+<PageTitle>DoughnutChart</PageTitle>
 
-<h3>PieChartPage</h3>
+<h3>DoughnutChartPage</h3>
 
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="ShowChart">ShowChart</button>
@@ -23,7 +23,7 @@
     {
         chartJsConfig = new()
             {
-                Type = ChartType.pie,
+                Type = ChartType.doughnut,
                 Data = new ChartJsData()
                 {
                     Labels = new List<string>()

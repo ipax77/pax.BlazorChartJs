@@ -102,8 +102,11 @@ public class ChartJsConfig
     {
         ArgumentNullException.ThrowIfNull(dataset);
 
-        Data.Datasets.Remove(dataset);
-        OnDatasetRemove(new DatasetRemoveEventArgs(((ChartJsDataset)dataset).Id));
+        if (Data.Datasets.Contains(dataset))
+        {
+            Data.Datasets.Remove(dataset);
+            OnDatasetRemove(new DatasetRemoveEventArgs(((ChartJsDataset)dataset).Id));
+        }
     }
 
     /// <summary>
@@ -207,6 +210,11 @@ public class ChartJsConfig
     {
         int pos = atPosition == null ? Data.Labels.Count - 1 : atPosition.Value;
 
+        if (pos < 0)
+        {
+            return;
+        }
+
         Data.Labels.RemoveAt(pos);
 
         for (int i = 0; i < Data.Datasets.Count; i++)
@@ -301,5 +309,6 @@ public enum ChartType
     bar = 2,
     doughnut = 3,
     pie = 4,
-    radar = 5
+    radar = 5,
+    polarArea = 6,
 }
