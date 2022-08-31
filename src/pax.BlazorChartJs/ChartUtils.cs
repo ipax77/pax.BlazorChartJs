@@ -103,6 +103,7 @@ public static class ChartUtils
             ChartType.pie => GetRandomPieDataset(id, count, min, max),
             ChartType.radar => GetRandomRadarDataset(id, count, min, max),
             ChartType.scatter => GetRandomScatterDataset(id, count, min, max),
+            ChartType.bubble => GetRandomBubbleDataset(id, count, min, max),
             _ => throw new NotImplementedException(nameof(chartType))
         };
     }
@@ -163,6 +164,29 @@ public static class ChartUtils
             Label = $"Dataset {id}",
             BackgroundColor = backgroundColor,
             Data = data.First().Select(s => (PointData)s).ToList()
+        };
+    }
+
+    private static BubbleDataset GetRandomBubbleDataset(int id, int count, int min, int max)
+    {
+        var backgroundColor = GetRandomColors(1).First();
+
+        List<BubbleDataPoint> data = new();
+        for (int i = 0; i < count; i++)
+        {
+            data.Add(new BubbleDataPoint()
+            {
+                X = random.Next(min, max),
+                Y = random.Next(min, max),
+                R = random.Next(1, 15)
+            });
+        }
+
+        return new BubbleDataset()
+        {
+            Label = $"Dataset {id}",
+            BackgroundColor = backgroundColor,
+            Data = data
         };
     }
 

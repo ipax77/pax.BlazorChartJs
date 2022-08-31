@@ -153,8 +153,6 @@ Program.cs:
 
 ## Known Limitations / ToDo
 
-* BubbleChart
-
 * Events
 * Objects to Interfaces and Json handling
 
