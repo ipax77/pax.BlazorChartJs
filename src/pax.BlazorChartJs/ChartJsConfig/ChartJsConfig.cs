@@ -311,4 +311,5 @@ public enum ChartType
     pie = 4,
     radar = 5,
     polarArea = 6,
+    scatter = 7,
 }
