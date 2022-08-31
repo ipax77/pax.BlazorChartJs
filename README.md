@@ -1,14 +1,14 @@
 
 Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js) (v3.9.1)
 
-
-
 # Getting started
 ## Prerequisites
 dotnet 6
 ## Installation
 
-TBD: nuget package
+```
+dotnet add package pax.BlazorChartJs
+```
 
 Program.cs:
 ```
@@ -16,6 +16,8 @@ Program.cs:
 ```
 
 ## Usage
+
+Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.sample)
 
 ```cs
 
@@ -158,7 +160,13 @@ Program.cs:
 
 ## ChangeLog
 
-<details open="open"><summary>v0.1.2</summary>
+<details open="open"><summary>v0.1.3</summary>
+
+>- Nuget Package
+
+</details>
+
+<details><summary>v0.1.2</summary>
 
 >- RadarChart
 
