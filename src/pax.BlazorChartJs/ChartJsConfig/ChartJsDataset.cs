@@ -14,6 +14,7 @@ public record ChartJsDataset
     /// <summary>
     /// can be object|object[]| number[]|string[]
     /// </summary>    
-    public virtual IList<object> Data { get; set; } = new List<object> { 1, 2, 3 };
+    public IList<object> Data { get; set; } = new List<object> { 1, 2, 3 };
+    public ChartType? Type { get; set; }
 }
 # pragma warning restore CA2227
