@@ -67,6 +67,8 @@ public record Animation
     /// If set to true, the animations loop endlessly.
     /// </summary>
     public bool? Loop { get; set; }
+    public bool? OnProgressEvent { get; set; }
+    public bool? OnCompleteEvent { get; set; }
 }
 
 public record Animations
@@ -216,6 +218,9 @@ public record Legend
     // public object? OnClick { get; set; }
     // public object? OnHover { get; set; }
     // public object? OnLeave { get; set; }
+    public bool? OnClickEvent { get; set; }
+    public bool? OnHoverEvent { get; set; }
+    public bool? OnLeaveEvent { get; set; }    
     public bool? Reverse { get; set; }
     public Labels? Labels { get; set; }
     /// <summary>
