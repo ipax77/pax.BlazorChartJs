@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -50,7 +51,8 @@ public class ChartJsInterop : IAsyncDisposable
         ArgumentNullException.ThrowIfNull(dotnetRef);
 
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("initChart", config.ChartJsConfigGuid, SerializeConfig(config), dotnetRef)
+        var serializedConfig = SerializeConfig(config);
+        await module.InvokeVoidAsync("initChart", config.ChartJsConfigGuid, serializedConfig, dotnetRef)
             .ConfigureAwait(false);
     }
 
@@ -158,7 +160,7 @@ public class ChartJsInterop : IAsyncDisposable
 
     private JsonObject? SerializeConfig(ChartJsConfig config)
     {
-        var json = JsonSerializer.Serialize(config, jsonOptions);
+        var json = JsonSerializer.Serialize<object>(config, jsonOptions);
 
         if (json == null)
         {
@@ -170,7 +172,15 @@ public class ChartJsInterop : IAsyncDisposable
 
     private JsonObject? SerializeConfigOptions(ChartJsConfig config)
     {
-        var json = JsonSerializer.Serialize(config.Options, jsonOptions);
+        Type configType = config.GetType();
+        var options = GetLowestProperty(configType, "Options")?.GetValue(config);
+
+        if (options == null)
+        {
+            return null;
+        }
+
+        var json = JsonSerializer.Serialize<object>(options, jsonOptions);
 
         if (json == null)
         {
@@ -195,6 +205,22 @@ public class ChartJsInterop : IAsyncDisposable
     {
         var json = JsonSerializer.Serialize(dataset, jsonOptions);
         return JsonSerializer.Deserialize<JsonObject>(json);
+    }
+
+    private static PropertyInfo? GetLowestProperty(Type type, string name)
+    {
+        var myType = type;
+        while (myType != null)
+        {
+            var property = myType.GetProperty(name, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+
+            if (property != null)
+            {
+                return property;
+            }
+            myType = myType.BaseType;
+        }
+        return null;
     }
 
     /// <summary>
