@@ -1,4 +1,5 @@
 
+using System.Diagnostics.Metrics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -38,4 +39,15 @@ public class RawJsonConverter : JsonConverter<object>
 public class UnsafeRawJsonConverter : RawJsonConverter
 {
     protected override bool SkipInputValidation => true;
+}
+
+public class ChartJsConfigConverter : JsonConverter<ChartJsConfig>
+{
+    public override ChartJsConfig Read(ref Utf8JsonReader reader,
+    Type typeToConvert, JsonSerializerOptions options)
+     => Read(ref reader, typeToConvert, options);
+
+    public override void Write(Utf8JsonWriter writer,
+        ChartJsConfig value, JsonSerializerOptions options)
+    { }
 }

@@ -30,6 +30,10 @@ public record ChartJsOptions
     /// </summary>        
     public string? Locale { get; set; }
     public Layout? Layout { get; set; }
+    /// <summary>
+    /// Plugins must define a unique id in order to be configurable. <see href="https://www.chartjs.org/docs/latest/developers/plugins.html#plugin-options">INTL NumberFormat</see>
+    /// Use 'new' in a derived ChartJsConfig for custom plugins
+    /// </summary>
     public Plugins? Plugins { get; set; }
     public ChartJsOptionsScales? Scales { get; set; }
     /// <summary>

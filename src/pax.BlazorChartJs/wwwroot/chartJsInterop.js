@@ -89,6 +89,11 @@ export async function initChart(chartId, dotnetConfig, dotnetRef) {
 
         const ctx = document.getElementById(chartId).getContext('2d');
         window.charts[chartId] = new Chart(ctx, config);
+
+        // window.charts[chartId].options.animation.onComplete = () => {
+        //     console.log('chart animation complete');
+        // };
+
     } catch { }
     finally {
         lock.disable();
