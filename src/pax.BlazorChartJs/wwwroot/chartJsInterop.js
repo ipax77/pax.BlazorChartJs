@@ -72,17 +72,6 @@ export async function initChart(chartId, dotnetConfig, dotnetRef) {
             plugins: plugins
         }
 
-        config.options.onClick = (e) => {
-            const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-
-            if (points.length) {
-                const firstPoint = points[0];
-                const label = window.charts[chartId].data.labels[firstPoint.index];
-                const value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
-                reportChartClick(chartId, label);
-            }
-        }
-
         if (window.charts[chartId]) {
             window.charts[chartId].destroy();
         }
@@ -93,10 +82,69 @@ export async function initChart(chartId, dotnetConfig, dotnetRef) {
         // window.charts[chartId].options.animation.onComplete = () => {
         //     console.log('chart animation complete');
         // };
+        registerEvents(dotnetConfig.options, chartId, window.charts[chartId]);
 
     } catch { }
     finally {
         lock.disable();
+    }
+}
+
+function registerEvents(dotnetConfigOptions, chartId, chart)
+{
+    // canvas
+    chart.options.onClick = (e) => {
+        const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+
+        if (points.length) {
+            const firstPoint = points[0];
+            const label = window.charts[chartId].data.labels[firstPoint.index];
+            const value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+            reportChartClick(chartId, label);
+        }
+    }
+
+    // legend events
+    if (dotnetConfigOptions.plugins?.legend?.onClickEvent == true) {
+
+        chart.options.plugins.legend.onClick = (event, legendItem, legend) => {
+            triggerEvent(chartId, "click", "legend", legendItem.text);
+        };
+    }
+
+    if (dotnetConfigOptions.plugins?.legend?.onHoverEvent == true) {
+
+        chart.options.plugins.legend.onHover = (event, legendItem, legend) => {
+            triggerEvent(chartId, "hover", "legend", legendItem.text);
+        };
+    }    
+
+    if (dotnetConfigOptions.plugins?.legend?.onLeaveEvent == true) {
+
+        chart.options.plugins.legend.onLeave = (event, legendItem, legend) => {
+            triggerEvent(chartId, "leave", "legend", legendItem.text);
+        };
+    }
+
+    // animation events
+    if (dotnetConfigOptions.animation?.onProgressEvent == true) {
+
+        chart.options.animation.onProgress = (context) => {
+            triggerEvent(chartId, "progress", "animation", { currentStep: context.currentStep, numSteps: context.numSteps });
+        };
+    }
+
+    if (dotnetConfigOptions.animation?.onCompleteEvent == true) {
+
+        chart.options.animation.onComplete = (context) => {
+            triggerEvent(chartId, "complete", "animation", context.initial);
+        };
+    }   
+}
+
+async function triggerEvent(chartid, event, source, data) {
+    if (window.dotnetrefs[chartid]) {
+        await window.dotnetrefs[chartid].invokeMethodAsync("EventTriggered", event, source, data);
     }
 }
 
@@ -111,16 +159,7 @@ export function updateChartOptions(chartId, options) {
         window.charts[chartId].options = options;
         window.charts[chartId].update();
 
-        window.charts[chartId].options.onClick = (e) => {
-            const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-
-            if (points.length) {
-                const firstPoint = points[0];
-                const label = window.charts[chartId].data.labels[firstPoint.index];
-                const value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
-                reportChartClick(chartId, label);
-            }
-        }
+        registerEvents(options, chartId, window.charts[chartId]);
     }
 }
 

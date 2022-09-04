@@ -37,6 +37,13 @@ public partial class ChartComponent : ComponentBase, IDisposable
     public EventCallback<KeyValuePair<Guid, string>> OnLabelClicked { get; set; }
 
     /// <summary>
+    /// ChartJsEvent - set required events to true to trigger
+    /// e.g. config.Options.Plugins.Legend.OnClickEvent = true
+    /// </summary>
+    [Parameter]
+    public EventCallback<ChartJsEvent> OnEventTriggered { get; set; }
+
+    /// <summary>
     /// ChartJsInterop
     /// </summary>
     [Inject]
@@ -143,6 +150,27 @@ public partial class ChartComponent : ComponentBase, IDisposable
     public void ChartClicked(string label)
     {
         OnLabelClicked.InvokeAsync(new KeyValuePair<Guid, string>(ChartJsConfig.ChartJsConfigGuid, label));
+    }
+
+    /// <summary>
+    /// Javascript call
+    /// </summary>
+    [JSInvokable]
+    public void EventTriggered(string eventType, string eventSource, object? data)
+    {
+        if (Enum.TryParse(eventType, out ChartJsEventType chartJsEventType))
+        {
+        }
+        if (Enum.TryParse(eventSource, out ChartJsEventSource chartJsEventSource))
+        {
+        }
+
+        OnEventTriggered.InvokeAsync(new ChartJsEvent()
+        {
+            Type = chartJsEventType,
+            Source = chartJsEventSource,
+            Data = data
+        });
     }
 
     /// <summary>
