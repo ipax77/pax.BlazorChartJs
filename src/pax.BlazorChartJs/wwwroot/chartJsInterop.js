@@ -338,6 +338,46 @@ export function resizeChart(chartId, width, height) {
     }
 }
 
+export function getChartImage(chartId, type, quality, width, height) {
+
+    const chart = Chart.getChart(chartId);
+    let currentWidth = 0;
+    let currentHeight = 0;
+    if (!(width == undefined || height == undefined)) {
+        var ctx = document.getElementById(chartId);
+        // var ctx = document.getElementById(chartId).getContext('2d');
+        if (ctx.parentNode) {
+            currentHeight = ctx.width;
+            currentHeight = ctx.height;
+
+            //ctx.parentNode.style.resize = 'both';
+            //ctx.parentNode.style.width = width + 'px !important';
+            //ctx.parentNode.style.height = height + 'px !important';
+            //chart.resize();
+
+            ctx.width = width;
+            ctx.height = height;
+            chart.options.animation = false;
+            chart.resize(width, height);
+        }
+    }
+
+    let chartImg;
+    if (!(type == undefined || quality == undefined)) {
+        chartImg = chart.toBase64Image(type, quality);
+    } else {
+        chartImg = chart.toBase64Image();
+    }
+
+    if (currentWidth > 0 && currentHeight > 0) {
+        //ctx.parentNode.style.width = currentWidth;
+        //ctx.parentNode.style.height = currentHeight;
+        chart.resize();
+    }
+    chart.options.animation = true;
+    return chartImg;
+}
+
 function arbitaryLinesPlugin() {
     return {
         id: 'arbitraryLines',

@@ -80,6 +80,7 @@ public record ChartJsOptions
     /// DataType = ResizeEventData
     /// </summary>    
     public bool? OnResizeEvent { get; set; }
+    public string? IndexAxis { get; set; }
 }
 
 public record Interactions
