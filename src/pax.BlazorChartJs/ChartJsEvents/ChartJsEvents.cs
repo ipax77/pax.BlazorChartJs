@@ -30,7 +30,6 @@ public record ChartJsEvent
         ChartJsConfigGuid = chartJsConfigGuid;
         Type = type;
         Source = source;
-        Data = data;
 
         var jsonElement = data == null ? new JsonElement() : (JsonElement)data;
 
@@ -49,7 +48,6 @@ public record ChartJsEvent
     public Guid ChartJsConfigGuid { get; init; }
     public ChartJsEventType Type { get; init; }
     public ChartJsEventSource Source { get; init; }
-    public object? Data { get; init; }
     public ChartJsEventData? EventData { get; init; }
 }
 

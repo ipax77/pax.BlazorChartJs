@@ -7,7 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddServerSideBlazor()
+    .AddHubOptions(options => options.MaximumReceiveMessageSize = 128 * 1024); // for chart images (only server side)
 builder.Services.AddSingleton<WeatherForecastService>();
 
 builder.Services.AddChartJs();

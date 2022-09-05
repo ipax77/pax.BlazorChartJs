@@ -166,6 +166,22 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// returns png/jpeg data url of the image on the canvas <see href="https://www.chartjs.org/docs/latest/developers/api.html#tobase64image-type-quality">ChartJs docs</see>
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <param name="imageType"></param>
+    /// <param name="quality"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public async ValueTask<string> GetChartImage(Guid configGuid, string? imageType = null, int? quality = null, double? width = null, double? height = null)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        return await module.InvokeAsync<string>("getChartImage", configGuid, imageType, quality, width, height)
+            .ConfigureAwait(false);
+    }
+
     private JsonObject? SerializeConfig(ChartJsConfig config)
     {
         var json = JsonSerializer.Serialize<object>(config, jsonOptions);
