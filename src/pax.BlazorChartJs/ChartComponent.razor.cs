@@ -49,6 +49,8 @@ public partial class ChartComponent : ComponentBase, IDisposable
     [Inject]
     protected ChartJsInterop ChartJsInterop { get; set; } = default!;
 
+    public ElementReference? CanvasElement { get; private set; }
+
     protected override void OnInitialized()
     {
         ChartJsConfig.DatasetAdd += ChartJsConfig_DatasetAdd;
@@ -146,6 +148,7 @@ public partial class ChartComponent : ComponentBase, IDisposable
     /// <summary>
     /// Javascript call
     /// </summary>
+    [Obsolete (message: "use EventTriggered instead")]
     [JSInvokable]
     public void ChartClicked(string label)
     {
@@ -164,13 +167,12 @@ public partial class ChartComponent : ComponentBase, IDisposable
         if (Enum.TryParse(eventSource, out ChartJsEventSource chartJsEventSource))
         {
         }
+        OnEventTriggered.InvokeAsync(new ChartJsEvent(ChartJsConfig.ChartJsConfigGuid, chartJsEventType, chartJsEventSource, data));
+    }
 
-        OnEventTriggered.InvokeAsync(new ChartJsEvent()
-        {
-            Type = chartJsEventType,
-            Source = chartJsEventSource,
-            Data = data
-        });
+    public async Task ResizeChart(double? width, double? height)
+    {
+        await ChartJsInterop.ResizeChart(ChartJsConfig.ChartJsConfigGuid, width, height).ConfigureAwait(false);
     }
 
     /// <summary>

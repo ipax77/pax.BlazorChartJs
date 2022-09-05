@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -157,6 +158,13 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+
+    public async ValueTask ResizeChart(Guid configGuid, double? width = null, double? height = null)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("resizeChart", configGuid, width, height)
+            .ConfigureAwait(false);
+    }
 
     private JsonObject? SerializeConfig(ChartJsConfig config)
     {

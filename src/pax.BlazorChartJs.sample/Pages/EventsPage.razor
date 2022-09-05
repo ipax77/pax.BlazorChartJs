@@ -39,7 +39,19 @@
             EventSource: @latestchartJsEvent.Source
         </p>
         <p>
-            Data: @latestchartJsEvent.Data
+            LabelEventData: @labelEventData
+        </p>
+        <p>
+            LegendEventData: @legendEventData
+        </p>
+        <p>
+            AnimationProgressEventData: @animationProgressEventData
+        </p>
+        <p>
+            AnimationCompleteEventData: @animationCompleteEventData
+        </p>
+        <p>
+            ResizeEventData: @resizeEventData
         </p>
     }
 </div>
@@ -49,6 +61,12 @@
     ChartJsConfig chartJsConfig = null!;
     ChartJsEvent? latestchartJsEvent = null;
     private string? labelClicked;
+
+    LabelEventData? labelEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as LabelEventData;
+    LegendEventData? legendEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as LegendEventData;
+    AnimationProgressEventData? animationProgressEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as AnimationProgressEventData;
+    AnimationCompleteEventData? animationCompleteEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as AnimationCompleteEventData;
+    ResizeEventData? resizeEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as ResizeEventData;
 
     protected override void OnInitialized()
     {
@@ -93,6 +111,9 @@
                 {
                     Responsive = true,
                     MaintainAspectRatio = true,
+                    OnClickEvent = true,
+                    OnHoverEvent = true,
+                    OnResizeEvent = true,
                     Animation = new Animation()
                     {
                         OnProgressEvent = true,
@@ -146,6 +167,9 @@
             {
                 Responsive = true,
                 MaintainAspectRatio = true,
+                OnClickEvent = false,
+                OnHoverEvent = false,
+                OnResizeEvent = false,
                 Animation = new Animation()
                 {
                     OnProgressEvent = false,
@@ -181,6 +205,9 @@
             {
                 Responsive = true,
                 MaintainAspectRatio = true,
+                OnClickEvent = true,
+                OnHoverEvent = true,
+                OnResizeEvent = true,
                 Animation = new Animation()
                 {
                     OnProgressEvent = true,
