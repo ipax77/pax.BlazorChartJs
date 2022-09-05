@@ -187,7 +187,7 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
     public async Task<string> GetChartImage(string? imageType = null, int? imageQuality = null, double? width = null, double? height = null)
     {
-        return await ChartJsInterop.GetChartImage(ChartJsConfig.ChartJsConfigGuid, imageType, imageQuality, width, height);
+        return await ChartJsInterop.GetChartImage(ChartJsConfig.ChartJsConfigGuid, imageType, imageQuality, width, height).ConfigureAwait(false);
     }
 
     /// <summary>
