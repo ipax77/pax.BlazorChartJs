@@ -1,4 +1,5 @@
 ﻿@page "/custompluginchart"
+@using System.Text.Json
 
 @inject IJSRuntime jsRuntime
 
@@ -12,7 +13,7 @@
 </div>
 
 <div class="w-75">
-    <ChartComponent @ref="chartComponent" ChartJsConfig="chartConfig"></ChartComponent>
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartConfig" OnEventTriggered="EventTriggered"></ChartComponent>
 </div>
 
 @code {
@@ -43,29 +44,28 @@
                         }
                     },
                 },
-                //Options = new CustomChartJsOptions()
-                //{
-                //    Plugins = new CustomPlugins()
-                //    {
-                //        Annotation = new AnnotationsSettings()
-                //        {
-                //            Annotations = new Dictionary<string, object>()
-                //        {
-                //            { "box1", new BoxAnimation()
-                //                {
-                //                    Type = "box",
-                //                    XMin = 1,
-                //                    XMax = 2,
-                //                    YMin = 50,
-                //                    YMax = 70,
-                //                    BackgroundColor = "rgba(255, 99, 132, 0.25)"
-                //                }
-                //            }
-                //        }
-                //        }
-                //    }
-                //}
+                Options = new CustomChartJsOptions()
+                {
+                    Animation = new Animation()
+                    {
+                        OnCompleteEvent = true
+                    }
+                }
             };
+    }
+
+    private async void EventTriggered(ChartJsEvent chartJsEvent)
+    {
+        if (chartJsEvent.Source == ChartJsEventSource.animation
+            && chartJsEvent.Type == ChartJsEventType.complete)
+        {
+            var data = chartJsEvent.EventData as AnimationCompleteEventData;
+            if (data != null && data.Initial)
+            {
+                await RegisterPlugin();
+                DrawChart();
+            }
+        }
     }
 
     private async Task RegisterPlugin()
@@ -108,7 +108,6 @@
             };
 
         chartComponent?.DrawChart();
-        // chartComponent?.UpdateChartOptions();
     }
 
     public class CustomChartJsConfig : ChartJsConfig

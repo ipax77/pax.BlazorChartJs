@@ -13,7 +13,7 @@
 </div>
 
 <div class="w-75">
-    <ChartComponent @ref="chartComponent" OnLabelClicked="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
+    <ChartComponent @ref="chartComponent" OnEventTriggered="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
 </div>
 
 <div>
@@ -105,9 +105,10 @@
         chartComponent?.DrawChart();
     }
 
-    private void LabelClicked(KeyValuePair<Guid, string> report)
+    private void LabelClicked(ChartJsEvent chartJsEvent)
     {
-        labelClicked = report.Value;
+        var data = chartJsEvent.EventData as LabelEventData;
+        labelClicked = data?.Label;
     }
 
     private DataPoint GetRandomPoint(int min = -100, int max = 100)

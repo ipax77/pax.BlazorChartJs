@@ -1,4 +1,9 @@
+using Microsoft.Extensions.Options;
+using System.Reflection.Metadata;
+using System;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic.FileIO;
 
 namespace pax.BlazorChartJs;
 
@@ -47,6 +52,57 @@ public record ChartJsOptions
     /// Transition extends the main animation configuration and <see href="https://www.chartjs.org/docs/latest/configuration/animations.html#animation-configuration">animations configuration</see>.
     /// </summary>
     public Dictionary<string, object>? Transitions { get; set; }
+    /// <summary>
+    /// Override the window's default devicePixelRatio.
+    /// </summary>
+    public double? DevicePixelRatio { get; set; }
+    /// <summary>
+    /// options.interaction, the global interaction configuration is at Chart.defaults.interaction. To configure which events trigger chart interactions
+    /// </summary>
+    public Interactions? Interactions { get; set; }
+    /// <summary>
+    /// The events option defines the browser events that the chart should listen to for.
+    /// Each of these events trigger hover and are passed to plugins. <see href="https://www.chartjs.org/docs/latest/configuration/interactions.html#event-option">more...</see>
+    /// </summary>
+    public IList<string>? Events { get; set; }
+    /// <summary>
+    /// Activates onHover Event for the chartComponent -> OnEventTriggered
+    /// DataType = LabelEventData
+    /// </summary>
+    public bool? OnHoverEvent { get; set; }
+    /// <summary>
+    /// Activates onClick Event for the chartComponent -> OnEventTriggered
+    /// /// DataType = LabelEventData
+    /// </summary>
+    public bool? OnClickEvent { get; set; }
+    /// <summary>
+    /// Activates onResize Event for the chartComponent -> OnEventTriggered
+    /// DataType = ResizeEventData
+    /// </summary>    
+    public bool? OnResizeEvent { get; set; }
+}
+
+public record Interactions
+{
+    /// <summary>
+    /// When configuring the interaction with the graph via interaction, hover or tooltips, a number of different modes are available.
+    /// options.hover and options.plugins.tooltip extend from options.interaction.So if mode, intersect or any other common settings are configured only in options.interaction, both hover and tooltips obey that.
+    /// The modes are detailed below and how they behave in conjunction with the intersect setting.
+    /// </summary>
+    public string? Mode { get; set; }
+    /// <summary>
+    /// if true, the interaction mode only applies when the mouse position intersects an item on the chart.
+    /// </summary>
+    public bool? Intersect { get; set; }
+    /// <summary>
+    /// Can be set to 'x', 'y', 'xy' or 'r' to define which directions are used in calculating distances.
+    /// Defaults to 'x' for 'index' mode and 'xy' in dataset and 'nearest' modes.
+    /// </summary>
+    public string? Axis { get; set; }
+    /// <summary>
+    /// if true, the invisible points that are outside of the chart area will also be included when evaluating interactions.
+    /// </summary>
+    public bool? IncludeInvisible { get; set; }
 }
 
 public record Animation
@@ -183,6 +239,11 @@ public record Tooltip
     /// 'bottom' 
     /// </summary>     
     public string? YAlign { get; set; }
+    /// <summary>
+    /// The events option defines the browser events that the chart should listen to for.
+    /// Each of these events trigger hover and are passed to plugins. <see href="https://www.chartjs.org/docs/latest/configuration/interactions.html#event-option">more...</see>
+    /// </summary>
+    public IList<string>? Events { get; set; }
 }
 
 public record Legend
@@ -215,11 +276,20 @@ public record Legend
     public int? MaxHeight { get; set; }
     public int? MaxWidth { get; set; }
     public bool? FullSize { get; set; }
-    // public object? OnClick { get; set; }
-    // public object? OnHover { get; set; }
-    // public object? OnLeave { get; set; }
+    /// <summary>
+    /// Activates onClick Event for the chartComponent -> OnEventTriggered
+    /// DataType = LegendEventData
+    /// </summary>   
     public bool? OnClickEvent { get; set; }
+    /// <summary>
+    /// Activates onHover Event for the chartComponent -> OnEventTriggered
+    /// DataType = LegendEventData
+    /// </summary>      
     public bool? OnHoverEvent { get; set; }
+    /// <summary>
+    /// Activates onLeave Event for the chartComponent -> OnEventTriggered
+    /// DataType = LegendEventData
+    /// </summary>      
     public bool? OnLeaveEvent { get; set; }    
     public bool? Reverse { get; set; }
     public Labels? Labels { get; set; }
