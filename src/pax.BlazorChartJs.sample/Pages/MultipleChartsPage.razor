@@ -7,17 +7,17 @@
 
 <h3>Chart1</h3>
 <div class="w-25">
-    <ChartComponent @ref="chartComponent1" OnLabelClicked="LabelClicked" ChartJsConfig="chartJsConfig1"></ChartComponent>
+    <ChartComponent @ref="chartComponent1" OnEventTriggered="LabelClicked" ChartJsConfig="chartJsConfig1"></ChartComponent>
 </div>
 
 <h3>Chart2</h3>
 <div class="w-50">
-    <ChartComponent @ref="chartComponent2" OnLabelClicked="LabelClicked" ChartJsConfig="chartJsConfig2"></ChartComponent>
+    <ChartComponent @ref="chartComponent2" OnEventTriggered="LabelClicked" ChartJsConfig="chartJsConfig2"></ChartComponent>
 </div>
 
 <h3>Chart3</h3>
 <div class="w-50">
-    <ChartComponent @ref="chartComponent3" OnLabelClicked="LabelClicked" ChartJsConfig="chartJsConfig3"></ChartComponent>
+    <ChartComponent @ref="chartComponent3" OnEventTriggered="LabelClicked" ChartJsConfig="chartJsConfig3"></ChartComponent>
 </div>
 
 <div>
@@ -78,6 +78,7 @@
                 },
                 Options = new ChartJsOptions()
                 {
+                    OnClickEvent = true,
                     Plugins = new Plugins()
                     {
                         Legend = new Legend()
@@ -134,6 +135,7 @@
                 {
                     Responsive = true,
                     MaintainAspectRatio = true,
+                    OnClickEvent = true,
                     Plugins = new Plugins()
                     {
                         Labels = new LabelsConfig()
@@ -197,6 +199,7 @@
                 Options = new ChartJsOptions()
                 {
                     Responsive = true,
+                    OnClickEvent = true,
                     Plugins = new Plugins()
                     {
                         ArbitraryLines = new List<ArbitraryLineConfig>(),
@@ -305,22 +308,26 @@
         base.OnInitialized();
     }
 
-    private void LabelClicked(KeyValuePair<Guid, string> report)
+    private void LabelClicked(ChartJsEvent chartJsEvent)
     {
         string chart = "unknown";
-        if (chartJsConfig1.ChartJsConfigGuid == report.Key)
+        if (chartJsConfig1.ChartJsConfigGuid == chartJsEvent.ChartJsConfigGuid)
         {
             chart = "chart1";
         }
-        else if (chartJsConfig2.ChartJsConfigGuid == report.Key)
+        else if (chartJsConfig2.ChartJsConfigGuid == chartJsEvent.ChartJsConfigGuid)
         {
             chart = "chart2";
         }
-        else if (chartJsConfig3.ChartJsConfigGuid == report.Key)
+        else if (chartJsConfig3.ChartJsConfigGuid == chartJsEvent.ChartJsConfigGuid)
         {
             chart = "chart3";
         }
 
-        labelClicked = $"{report.Value} on {chart}";
+        var data = chartJsEvent.EventData as LabelEventData;
+        if (data != null)
+        {
+            labelClicked = $"Label: {data.Label}, X = {data.DataX}, Y = {data.DataY} on {chart}";
+        }
     }
 }

@@ -20,7 +20,6 @@ Program.cs:
 Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.sample)
 
 ```cs
-
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
     <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
@@ -30,7 +29,7 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 </div>
 
 <div class="w-75">
-    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig"></ChartComponent>
+    <ChartComponent @ref="chartComponent" OnEventTriggered="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
 </div>
 
 <div>
@@ -90,6 +89,14 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
                 {
                     Responsive = true,
                     MaintainAspectRatio = true,
+                    OnClickEvent = true,
+                    Plugins = new Plugins()
+                    {
+                        Labels = new LabelsConfig()
+                        {
+                            Render = "image"
+                        }
+                    },
                     Scales = new ChartJsOptionsScales()
                     {
                         Y = new LinearAxis() 
@@ -100,6 +107,12 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
                 }
             };
         base.OnInitialized();
+    }
+
+    private void LabelClicked(ChartJsEvent chartJsEvent)
+    {
+        var data = chartJsEvent.EventData as LabelEventData;
+        labelClicked = data?.Label;
     }
 
     private void AddData()
@@ -140,27 +153,30 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
     private void RemoveLastDataFromDatasets()
     {
         chartJsConfig.RemoveData();
-    }    
-
-    private void LabelClicked(KeyValuePair<Guid, string> report)
-    {
-        labelClicked = report.Value;
-    }    
 }
 ```
 ## Supported Plugins
 * [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
 * [chartjs-plugin-labels](https://github.com/DavideViolante/chartjs-plugin-labels)
 * [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
+* Custom Plugins [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.sample/Pages/CustomPlugin.razor)
 
 ## Known Limitations / ToDo
 
-* Events
-* Objects to Interfaces and Json handling
+* Callbacks
+* Objects to Interfaces & System.Text.Json
 
 ## ChangeLog
 
-<details open="open"><summary>v0.1.3</summary>
+<details open="open"><summary>v0.2.0</summary>
+
+>- Events
+>- Custom Plugin Sample
+>- ChartJs API calls
+
+</details>
+
+<details><summary>v0.1.3</summary>
 
 >- Nuget Package
 

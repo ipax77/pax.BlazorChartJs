@@ -2,6 +2,7 @@
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,10 +38,19 @@ public partial class ChartComponent : ComponentBase, IDisposable
     public EventCallback<KeyValuePair<Guid, string>> OnLabelClicked { get; set; }
 
     /// <summary>
+    /// ChartJsEvent - set required events to true to trigger
+    /// e.g. config.Options.Plugins.Legend.OnClickEvent = true
+    /// </summary>
+    [Parameter]
+    public EventCallback<ChartJsEvent> OnEventTriggered { get; set; }
+
+    /// <summary>
     /// ChartJsInterop
     /// </summary>
     [Inject]
     protected ChartJsInterop ChartJsInterop { get; set; } = default!;
+
+    public ElementReference? CanvasElement { get; private set; }
 
     protected override void OnInitialized()
     {
@@ -139,10 +149,45 @@ public partial class ChartComponent : ComponentBase, IDisposable
     /// <summary>
     /// Javascript call
     /// </summary>
+    [Obsolete (message: "use EventTriggered instead")]
     [JSInvokable]
     public void ChartClicked(string label)
     {
         OnLabelClicked.InvokeAsync(new KeyValuePair<Guid, string>(ChartJsConfig.ChartJsConfigGuid, label));
+    }
+
+    /// <summary>
+    /// Javascript call
+    /// </summary>
+    [JSInvokable]
+    public void EventTriggered(string eventType, string eventSource, object? data)
+    {
+        if (Enum.TryParse(eventType, out ChartJsEventType chartJsEventType))
+        {
+        }
+        if (Enum.TryParse(eventSource, out ChartJsEventSource chartJsEventSource))
+        {
+        }
+        OnEventTriggered.InvokeAsync(new ChartJsEvent(ChartJsConfig.ChartJsConfigGuid, chartJsEventType, chartJsEventSource, data));
+    }
+
+    /// <summary>
+    /// Use this to manually resize the canvas element. This is run each time the canvas container is resized,
+    /// but you can call this method manually if you change the size of the canvas nodes container element.
+    /// You can call.resize() with no parameters to have the chart take the size of its container element,
+    /// or you can pass explicit dimensions (e.g., for printing).
+    /// </summary>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public async Task ResizeChart(double? width, double? height)
+    {
+        await ChartJsInterop.ResizeChart(ChartJsConfig.ChartJsConfigGuid, width, height).ConfigureAwait(false);
+    }
+
+    public async Task<string> GetChartImage(string? imageType = null, int? imageQuality = null, double? width = null, double? height = null)
+    {
+        return await ChartJsInterop.GetChartImage(ChartJsConfig.ChartJsConfigGuid, imageType, imageQuality, width, height);
     }
 
     /// <summary>
