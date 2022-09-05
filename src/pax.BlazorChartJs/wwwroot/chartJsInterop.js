@@ -72,26 +72,129 @@ export async function initChart(chartId, dotnetConfig, dotnetRef) {
             plugins: plugins
         }
 
-        config.options.onClick = (e) => {
-            const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-
-            if (points.length) {
-                const firstPoint = points[0];
-                const label = window.charts[chartId].data.labels[firstPoint.index];
-                const value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
-                reportChartClick(chartId, label);
-            }
-        }
-
         if (window.charts[chartId]) {
             window.charts[chartId].destroy();
         }
 
         const ctx = document.getElementById(chartId).getContext('2d');
         window.charts[chartId] = new Chart(ctx, config);
+
+        // window.charts[chartId].options.animation.onComplete = () => {
+        //     console.log('chart animation complete');
+        // };
+        registerEvents(dotnetConfig.options, chartId, window.charts[chartId]);
+
     } catch { }
     finally {
         lock.disable();
+    }
+}
+
+function registerEvents(dotnetConfigOptions, chartId, chart) {
+    // chart events
+    if (dotnetConfigOptions.onClickEvent == true) {
+        chart.options.onClick = (e) => {
+            const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+            let label = "";
+            let value = 0;
+            let dataX = 0;
+            let dataY = 0;
+
+            const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+
+            // Substitute the appropriate scale IDs
+            // todo: not working on pie.. charts
+            try {
+                dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+            } catch { }
+            try {
+                dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
+            } catch { }
+
+            if (points.length) {
+                const firstPoint = points[0];
+                label = window.charts[chartId].data.labels[firstPoint.index];
+                value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+            }
+            triggerEvent(chartId, "click", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY });
+        }
+    }
+
+    if (dotnetConfigOptions.onHoverEvent == true) {
+        chart.options.onHover = (e) => {
+            const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+            let label = "";
+            let value = 0;
+            let dataX = 0;
+            let dataY = 0;
+
+            const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+
+            // Substitute the appropriate scale IDs
+            // todo: not working on pie.. charts
+            try {
+                dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+            } catch { }
+            try {
+                dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
+            } catch { }
+
+            if (points.length) {
+                const firstPoint = points[0];
+                label = window.charts[chartId].data.labels[firstPoint.index];
+                value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+            }
+            triggerEvent(chartId, "click", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY });
+        }
+    }
+
+    if (dotnetConfigOptions.onResizeEvent == true) {
+        chart.options.onResize = (chart, size) => {
+            triggerEvent(chartId, "resize", "chart", { Height: size.height, Width: size.width });
+        };
+    }
+
+    // legend events
+    if (dotnetConfigOptions.plugins?.legend?.onClickEvent == true) {
+
+        chart.options.plugins.legend.onClick = (event, legendItem, legend) => {
+            triggerEvent(chartId, "click", "legend", { Label: legendItem.text });
+        };
+    }
+
+    if (dotnetConfigOptions.plugins?.legend?.onHoverEvent == true) {
+
+        chart.options.plugins.legend.onHover = (event, legendItem, legend) => {
+            triggerEvent(chartId, "hover", "legend", { Label: legendItem.text });
+        };
+    }
+
+    if (dotnetConfigOptions.plugins?.legend?.onLeaveEvent == true) {
+
+        chart.options.plugins.legend.onLeave = (event, legendItem, legend) => {
+            triggerEvent(chartId, "leave", "legend", { Label: legendItem.text });
+        };
+    }
+
+    // animation events
+    if (dotnetConfigOptions.animation?.onProgressEvent == true) {
+
+        chart.options.animation.onProgress = (context) => {
+            triggerEvent(chartId, "progress", "animation", { CurrentStep: context.currentStep, NumSteps: context.numSteps });
+        };
+    }
+
+    if (dotnetConfigOptions.animation?.onCompleteEvent == true) {
+
+        chart.options.animation.onComplete = (context) => {
+            triggerEvent(chartId, "complete", "animation", { Initial: context.initial });
+        };
+    }
+}
+
+async function triggerEvent(chartid, event, source, data) {
+    if (window.dotnetrefs[chartid]) {
+        await window.dotnetrefs[chartid].invokeMethodAsync("EventTriggered", event, source, data);
     }
 }
 
@@ -106,16 +209,7 @@ export function updateChartOptions(chartId, options) {
         window.charts[chartId].options = options;
         window.charts[chartId].update();
 
-        window.charts[chartId].options.onClick = (e) => {
-            const points = window.charts[chartId].getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-
-            if (points.length) {
-                const firstPoint = points[0];
-                const label = window.charts[chartId].data.labels[firstPoint.index];
-                const value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
-                reportChartClick(chartId, label);
-            }
-        }
+        registerEvents(options, chartId, window.charts[chartId]);
     }
 }
 
@@ -230,6 +324,58 @@ export function testChart(canvasId) {
         return false;
     }
     return true;
+}
+
+export function resizeChart(chartId, width, height) {
+    const chart = Chart.getChart(chartId);
+    if (chart == undefined) {
+        return;
+    }
+    if (width == undefined || height == undefined) {
+        chart.resize();
+    } else {
+        chart.resize(width, height);
+    }
+}
+
+export function getChartImage(chartId, type, quality, width, height) {
+
+    const chart = Chart.getChart(chartId);
+    let currentWidth = 0;
+    let currentHeight = 0;
+    if (!(width == undefined || height == undefined)) {
+        var ctx = document.getElementById(chartId);
+        // var ctx = document.getElementById(chartId).getContext('2d');
+        if (ctx.parentNode) {
+            currentHeight = ctx.width;
+            currentHeight = ctx.height;
+
+            //ctx.parentNode.style.resize = 'both';
+            //ctx.parentNode.style.width = width + 'px !important';
+            //ctx.parentNode.style.height = height + 'px !important';
+            //chart.resize();
+
+            ctx.width = width;
+            ctx.height = height;
+            chart.options.animation = false;
+            chart.resize(width, height);
+        }
+    }
+
+    let chartImg;
+    if (!(type == undefined || quality == undefined)) {
+        chartImg = chart.toBase64Image(type, quality);
+    } else {
+        chartImg = chart.toBase64Image();
+    }
+
+    if (currentWidth > 0 && currentHeight > 0) {
+        //ctx.parentNode.style.width = currentWidth;
+        //ctx.parentNode.style.height = currentHeight;
+        chart.resize();
+    }
+    chart.options.animation = true;
+    return chartImg;
 }
 
 function arbitaryLinesPlugin() {

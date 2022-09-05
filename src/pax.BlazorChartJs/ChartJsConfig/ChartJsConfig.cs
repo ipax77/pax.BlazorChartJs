@@ -286,7 +286,7 @@ public class ChartJsConfig
 }
 
 
-public class ChartJsData
+public record ChartJsData
 {
     public ChartJsData()
     {

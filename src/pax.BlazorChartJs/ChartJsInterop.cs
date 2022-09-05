@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -50,7 +52,8 @@ public class ChartJsInterop : IAsyncDisposable
         ArgumentNullException.ThrowIfNull(dotnetRef);
 
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("initChart", config.ChartJsConfigGuid, SerializeConfig(config), dotnetRef)
+        var serializedConfig = SerializeConfig(config);
+        await module.InvokeVoidAsync("initChart", config.ChartJsConfigGuid, serializedConfig, dotnetRef)
             .ConfigureAwait(false);
     }
 
@@ -156,9 +159,32 @@ public class ChartJsInterop : IAsyncDisposable
     }
 
 
+    public async ValueTask ResizeChart(Guid configGuid, double? width = null, double? height = null)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("resizeChart", configGuid, width, height)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// returns png/jpeg data url of the image on the canvas <see href="https://www.chartjs.org/docs/latest/developers/api.html#tobase64image-type-quality">ChartJs docs</see>
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <param name="imageType"></param>
+    /// <param name="quality"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public async ValueTask<string> GetChartImage(Guid configGuid, string? imageType = null, int? quality = null, double? width = null, double? height = null)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        return await module.InvokeAsync<string>("getChartImage", configGuid, imageType, quality, width, height)
+            .ConfigureAwait(false);
+    }
+
     private JsonObject? SerializeConfig(ChartJsConfig config)
     {
-        var json = JsonSerializer.Serialize(config, jsonOptions);
+        var json = JsonSerializer.Serialize<object>(config, jsonOptions);
 
         if (json == null)
         {
@@ -170,7 +196,15 @@ public class ChartJsInterop : IAsyncDisposable
 
     private JsonObject? SerializeConfigOptions(ChartJsConfig config)
     {
-        var json = JsonSerializer.Serialize(config.Options, jsonOptions);
+        Type configType = config.GetType();
+        var options = GetLowestProperty(configType, "Options")?.GetValue(config);
+
+        if (options == null)
+        {
+            return null;
+        }
+
+        var json = JsonSerializer.Serialize<object>(options, jsonOptions);
 
         if (json == null)
         {
@@ -195,6 +229,22 @@ public class ChartJsInterop : IAsyncDisposable
     {
         var json = JsonSerializer.Serialize(dataset, jsonOptions);
         return JsonSerializer.Deserialize<JsonObject>(json);
+    }
+
+    private static PropertyInfo? GetLowestProperty(Type type, string name)
+    {
+        var myType = type;
+        while (myType != null)
+        {
+            var property = myType.GetProperty(name, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+
+            if (property != null)
+            {
+                return property;
+            }
+            myType = myType.BaseType;
+        }
+        return null;
     }
 
     /// <summary>
