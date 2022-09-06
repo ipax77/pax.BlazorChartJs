@@ -63,7 +63,7 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
                         {
                             Label = "# of Votes",
                             Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
-                            BackgroundColor = new List<string>()
+                            BackgroundColor = new IndexableOption<string>(new List<string>()
                             {
                                 "rgba(255, 99, 132, 0.2)",
                                 "rgba(54, 162, 235, 0.2)",
@@ -71,8 +71,8 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
                                 "rgba(75, 192, 192, 0.2)",
                                 "rgba(153, 102, 255, 0.2)",
                                 "rgba(255, 159, 64, 0.2)",
-                            },
-                            BorderColor = new List<string>()
+                            }),
+                            BorderColor = new IndexableOption<string>(new List<string>()
                             {
                                 "rgba(255, 99, 132, 1)",
                                 "rgba(54, 162, 235, 1)",
@@ -80,8 +80,8 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
                                 "rgba(75, 192, 192, 1)",
                                 "rgba(153, 102, 255, 1)",
                                 "rgba(255, 159, 64, 1)",
-                            },
-                            BorderWidth = 1
+                            }),
+                            BorderWidth = new IndexableOption<double>(1)
                         }
                     }
                 },
@@ -99,7 +99,7 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
                     },
                     Scales = new ChartJsOptionsScales()
                     {
-                        Y = new LinearAxis() 
+                        Y = new LinearAxis()
                         {
                             SuggestedMax = 25
                         }
@@ -153,6 +153,7 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
     private void RemoveLastDataFromDatasets()
     {
         chartJsConfig.RemoveData();
+    }
 }
 ```
 ## Supported Plugins
@@ -164,11 +165,19 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 ## Known Limitations / ToDo
 
 * Callbacks
-* Objects to Interfaces & System.Text.Json
+* InteractionModes
+* DataDecimation
+* Time Scale Chart
 
 ## ChangeLog
 
-<details open="open"><summary>v0.2.0</summary>
+<details open="open"><summary>v0.3.0</summary>
+
+>- IndexableOption - Breaking Change!
+
+</details>
+
+<details"><summary>v0.2.0</summary>
 
 >- Events
 >- Custom Plugin Sample

@@ -142,10 +142,11 @@ public record LineDataset : ChartJsDataset
     public bool? ShowLine { get; set; }
     /// <summary>
     /// number|'auto'
-    /// If true, lines will be drawn between points with no or null data. If false, points with null data will create a break in the line. Can also be a number specifying the maximum gap length to span. The unit of the value depends on the scale used.
+    /// If true, lines will be drawn between points with no or null data. If false, points with null data will create a break in the line.
+    /// Can also be a number specifying the maximum gap length to span. The unit of the value depends on the scale used.
     /// <see href="https://www.chartjs.org/docs/latest/charts/line.html#line-styling">ChartJs docs</see>
     /// </summary>       
-    public object? SpanGaps { get; set; }
+    public new object? SpanGaps { get; set; }
     public string? Stack { get; set; }
     /// <summary>
     /// Stepped

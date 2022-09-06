@@ -96,5 +96,5 @@ public record RadarDataset : ChartJsDataset
     /// <summary>
     /// If true, lines will be drawn between points with no or null data. If false, points with null data will create a break in the line.
     /// </summary>
-    public bool? SpanGaps { get; set; }
+    public new bool? SpanGaps { get; set; }
 }

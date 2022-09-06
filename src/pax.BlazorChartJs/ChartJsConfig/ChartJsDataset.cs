@@ -16,5 +16,10 @@ public record ChartJsDataset
     /// </summary>    
     public IList<object> Data { get; set; } = new List<object> { 1, 2, 3 };
     public ChartType? Type { get; set; }
+    /// <summary>
+    /// If you have a lot of data points, it can be more performant to enable spanGaps. 
+    /// This disables segmentation of the line, which can be an unneeded step.
+    /// </summary>  
+    public bool? SpanGaps { get; set; }
 }
 # pragma warning restore CA2227
