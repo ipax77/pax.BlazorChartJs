@@ -49,6 +49,22 @@ internal class IndexableOptionIntConverter : JsonConverter<IndexableOption<int>?
     }
 }
 
+internal class IndexableOptionBoolConverter : JsonConverter<IndexableOption<bool>?>
+{
+    public override IndexableOption<bool>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+     => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, IndexableOption<bool>? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
+    }
+}
+
+
 internal class IndexableOptionObjectConverter : JsonConverter<IndexableOption<object>?>
 {
     public override IndexableOption<object>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -86,6 +102,7 @@ internal class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset?>
                     new IndexableOptionStringConverter(),
                     new IndexableOptionDoubleConverter(),
                     new IndexableOptionIntConverter(),
+                    new IndexableOptionBoolConverter(),
                     new IndexableOptionObjectConverter()
                 }
         }), true);

@@ -10,12 +10,12 @@ public record LineDataset : ChartJsDataset
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>           
-    public object? BackgroundColor { get; set; }
+    public string? BackgroundColor { get; set; }
     public string? BorderCapStyle { get; set; }
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
-    public object? BorderColor { get; set; }
+    public string? BorderColor { get; set; }
     public IList<double>? BorderDash { get; set; }
     public double? BorderDashOffset { get; set; }
     /// <summary>
@@ -42,7 +42,7 @@ public record LineDataset : ChartJsDataset
     /// If left untouched (undefined), the global options.elements.line.cubicInterpolationMode property is used
     /// </summary>        
     public string? CubicInterpolationMode { get; set; }
-    public bool? DrawActiveElementsOnTop { get; set; }
+    public IndexableOption<bool>? DrawActiveElementsOnTop { get; set; }
     /// <summary>
     /// Fill - boolean|string
     /// <see href="https://www.chartjs.org/docs/latest/charts/area.html">ChartJs docs</see>
@@ -90,16 +90,16 @@ public record LineDataset : ChartJsDataset
     /// </summary>      
     public string? Label { get; set; }
     public double? Order { get; set; }
-    public object? PointBackgroundColor { get; set; }
-    public object? PointBorderColor { get; set; }
-    public double? PointBorderWidth { get; set; }
-    public double? PointHitRadius { get; set; }
-    public object? PointHoverBackgroundColor { get; set; }
-    public object? PointHoverBorderColor { get; set; }
-    public double? PointHoverBorderWidth { get; set; }
-    public double? PointHoverRadius { get; set; }
-    public double? PointRadius { get; set; }
-    public double? PointRotation { get; set; }
+    public IndexableOption<string>? PointBackgroundColor { get; set; }
+    public IndexableOption<string>? PointBorderColor { get; set; }
+    public IndexableOption<double>? PointBorderWidth { get; set; }
+    public IndexableOption<double>? PointHitRadius { get; set; }
+    public IndexableOption<string>? PointHoverBackgroundColor { get; set; }
+    public IndexableOption<string>? PointHoverBorderColor { get; set; }
+    public IndexableOption<double>? PointHoverBorderWidth { get; set; }
+    public IndexableOption<double>? PointHoverRadius { get; set; }
+    public IndexableOption<double>? PointRadius { get; set; }
+    public IndexableOption<double>? PointRotation { get; set; }
     /// <summary>
     /// Types
     ///    The pointStyle argument accepts the following type of inputs: string, Image and HTMLCanvasElement
@@ -119,7 +119,7 @@ public record LineDataset : ChartJsDataset
     ///    'triangle'
     ///    If the value is an image or a canvas element, that image or canvas element is drawn on the canvas usin
     /// </summary>    
-    public string? PointStyle { get; set; }
+    public IndexableOption<string>? PointStyle { get; set; }
     /// <summary>
     /// Segment
     /// Line segment styles can be overridden by scriptable options in the segment object. Currently all of the border* and backgroundColor options are supported. The segment styles are resolved for each section of the line between each point. undefined fallbacks to main line styles.
