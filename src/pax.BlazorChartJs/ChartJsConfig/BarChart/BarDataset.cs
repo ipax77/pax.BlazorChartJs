@@ -10,7 +10,7 @@ public record BarDataset : ChartJsDataset
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>     
     public IndexableOption<string>? BackgroundColor { get; set; }
-    public int? Base { get; set; }
+    public IndexableOption<double>? Base { get; set; }
     public int? BarPercentage { get; set; }
     /// <summary>
     /// If this value is a number, it is applied to the width of each bar, in pixels. When this is enforced, barPercentage and categoryPercentage are ignored.
@@ -22,7 +22,7 @@ public record BarDataset : ChartJsDataset
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
-    public object? BorderColor { get; set; }
+    public IndexableOption<string>? BorderColor { get; set; }
     /// <summary>
     /// This setting is used to avoid drawing the bar stroke at the base of the fill, or disable the border radius. In general, this does not need to be changed except when creating chart types that derive from a bar chart.
     ///
@@ -45,32 +45,34 @@ public record BarDataset : ChartJsDataset
     /// </summary>        
     public object? BorderSkipped { get; set; }
     // todo: can be object
-    public int? BorderWidth { get; set; }
+    public IndexableOption<double>? BorderWidth { get; set; }
     // todo: can be object
-    public int? BorderRadius { get; set; }
+    public IndexableOption<double>? BorderRadius { get; set; }
     public int? CategoryPercentage { get; set; }
     /// <summary>
     /// can be number|object|false
+    /// How to clip relative to chartArea. Positive value allows overflow, negative value clips that many pixels inside chartArea.
+    /// 0 = clip at chartArea. Clipping can also be configured per side: clip: {left: 5, top: false, right: -2, bottom: 0}
     /// </summary>    
     public object? Clip { get; set; }
     public bool? Grouped { get; set; }
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
-    public object? HoverBackgroundColor { get; set; }
+    public IndexableOption<string>? HoverBackgroundColor { get; set; }
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
-    public object? HoverBorderColor { get; set; }
-    public int? HoverBorderWidth { get; set; }
-    public int? HoverBorderRadius { get; set; }
+    public IndexableOption<string>? HoverBorderColor { get; set; }
+    public IndexableOption<double>? HoverBorderWidth { get; set; }
+    public IndexableOption<double>? HoverBorderRadius { get; set; }
     public string? IndexAxis { get; set; }
     /// <summary>
     /// number|'auto'
     /// This option can be used to inflate the rects that are used to draw the bars. This can be used to hide artifacts between bars when barPercentage(#barpercentage) * categoryPercentage(#categorypercentage) is 1. The default value 'auto' should work in most cases
     /// <see href="https://www.chartjs.org/docs/latest/charts/bar.html#inflateamount">ChartJs docs</see>
     /// </summary>      
-    public int? InflateAmount { get; set; }
+    public IndexableOption<double>? InflateAmount { get; set; }
     public int? MaxBarThickness { get; set; }
     public int? MinBarLength { get; set; }
     public string? Label { get; set; }

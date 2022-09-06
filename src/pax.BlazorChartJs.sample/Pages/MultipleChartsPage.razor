@@ -54,7 +54,7 @@
                         new PieDataset()
                         {
                             Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
-                            BackgroundColor = new List<string>()
+                            BackgroundColor = new IndexableOption<string>(new List<string>()
                             {
                                 "rgba(255, 99, 132, 0.2)",
                                 "rgba(54, 162, 235, 0.2)",
@@ -62,8 +62,8 @@
                                 "rgba(75, 192, 192, 0.2)",
                                 "rgba(153, 102, 255, 0.2)",
                                 "rgba(255, 159, 64, 0.2)",
-                            },
-                            BorderColor = new List<string>()
+                            }),
+                            BorderColor = new IndexableOption<string>(new List<string>()
                             {
                                 "rgba(255, 99, 132, 1)",
                                 "rgba(54, 162, 235, 1)",
@@ -71,8 +71,8 @@
                                 "rgba(75, 192, 192, 1)",
                                 "rgba(153, 102, 255, 1)",
                                 "rgba(255, 159, 64, 1)",
-                            },
-                            BorderWidth = 1
+                            }),
+                            BorderWidth = new IndexableOption<double>(1)
                         }
                     }
                 },
@@ -118,7 +118,7 @@
                                 "rgba(153, 102, 255, 0.2)",
                                 "rgba(255, 159, 64, 0.2)",
                             }),
-                            BorderColor = new List<string>()
+                            BorderColor = new IndexableOption<string>(new List<string>()
                             {
                                 "rgba(255, 99, 132, 1)",
                                 "rgba(54, 162, 235, 1)",
@@ -126,8 +126,8 @@
                                 "rgba(75, 192, 192, 1)",
                                 "rgba(153, 102, 255, 1)",
                                 "rgba(255, 159, 64, 1)",
-                            },
-                            BorderWidth = 1
+                            }),
+                            BorderWidth = new IndexableOption<double>(1)
                         }
                     }
                 },
@@ -169,14 +169,14 @@
                         Label = "Team 1",
                         Data = new List<object>() { 1, 2, 3, 4, 5, 6 },
                         BackgroundColor = "lightblue",
-                        BorderColor = new List<string>() { "lightblue" },
+                        BorderColor = "lightblue",
                         BorderWidth = 5,
                         Fill = false,
-                        PointBackgroundColor = "blue",
-                        PointBorderColor = "blue",
-                        PointRadius = 6,
-                        PointBorderWidth = 6,
-                        PointHitRadius = 6,
+                        PointBackgroundColor = new IndexableOption<string>("blue"),
+                        PointBorderColor = new IndexableOption<string>("blue"),
+                        PointRadius = new IndexableOption<double>(6),
+                        PointBorderWidth = new IndexableOption<double>(6),
+                        PointHitRadius = new IndexableOption<double>(6),
                         Tension = 0
                     },
                     new LineDataset()
@@ -184,14 +184,14 @@
                         Label = "Team 2",
                         Data = new List<object>() { 6, 5, 4, 3, 2, 1 },
                         BackgroundColor = "lightgreen",
-                        BorderColor = new List<string>() { "lightgreen" },
+                        BorderColor = "lightgreen",
                         BorderWidth = 5,
                         Fill = false,
-                        PointBackgroundColor = "green",
-                        PointBorderColor = "green",
-                        PointRadius = 6,
-                        PointBorderWidth = 6,
-                        PointHitRadius = 6,
+                        PointBackgroundColor = new IndexableOption<string>("green"),
+                        PointBorderColor = new IndexableOption<string>("green"),
+                        PointRadius = new IndexableOption<double>(6),
+                        PointBorderWidth = new IndexableOption<double>(6),
+                        PointHitRadius = new IndexableOption<double>(6),
                         Tension = 0
                     }
                 }

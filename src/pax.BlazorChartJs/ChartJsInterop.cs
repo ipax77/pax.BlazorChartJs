@@ -34,6 +34,7 @@ public class ChartJsInterop : IAsyncDisposable
                 new IndexableOptionStringConverter(),
                 new IndexableOptionDoubleConverter(),
                 new IndexableOptionIntConverter(),
+                new IndexableOptionBoolConverter(),
                 new IndexableOptionObjectConverter(),
                 new ChartJsDatasetJsonConverter()
             }

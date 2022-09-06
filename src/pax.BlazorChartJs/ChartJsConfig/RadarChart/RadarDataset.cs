@@ -14,7 +14,7 @@ public record RadarDataset : ChartJsDataset
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>   
-    public object? BackgroundColor { get; set; }
+    public string? BackgroundColor { get; set; }
     /// <summary>
     /// BorderCapStyle options: 'butt'|'round'|'square' <see href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap">MDN</see>
     /// </summary>    
@@ -22,7 +22,7 @@ public record RadarDataset : ChartJsDataset
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>   
-    public object? BorderColor { get; set; }
+    public string? BorderColor { get; set; }
     /// <summary>
     /// BorderDash <see href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash">MDN</see>
     /// </summary>    
@@ -63,16 +63,16 @@ public record RadarDataset : ChartJsDataset
     /// Bezier curve tension of the line. Set to 0 to draw straight lines.
     /// </summary>
     public double? Tension { get; set; }
-    public object? PointBackgroundColor { get; set; }
-    public object? PointBorderColor { get; set; }
-    public double? PointBorderWidth { get; set; }
-    public double? PointHitRadius { get; set; }
-    public object? PointHoverBackgroundColor { get; set; }
-    public object? PointHoverBorderColor { get; set; }
-    public double? PointHoverBorderWidth { get; set; }
-    public double? PointHoverRadius { get; set; }
-    public double? PointRadius { get; set; }
-    public double? PointRotation { get; set; }
+    public IndexableOption<string>? PointBackgroundColor { get; set; }
+    public IndexableOption<string>? PointBorderColor { get; set; }
+    public IndexableOption<double>? PointBorderWidth { get; set; }
+    public IndexableOption<double>? PointHitRadius { get; set; }
+    public IndexableOption<string>? PointHoverBackgroundColor { get; set; }
+    public IndexableOption<string>? PointHoverBorderColor { get; set; }
+    public IndexableOption<double>? PointHoverBorderWidth { get; set; }
+    public IndexableOption<double>? PointHoverRadius { get; set; }
+    public IndexableOption<double>? PointRadius { get; set; }
+    public IndexableOption<double>? PointRotation { get; set; }
     /// <summary>
     /// Types
     ///    The pointStyle argument accepts the following type of inputs: string, Image and HTMLCanvasElement
@@ -92,7 +92,7 @@ public record RadarDataset : ChartJsDataset
     ///    'triangle'
     ///    If the value is an image or a canvas element, that image or canvas element is drawn on the canvas usin
     /// </summary>  
-    public object? PointStyle { get; set; }
+    public IndexableOption<object>? PointStyle { get; set; }
     /// <summary>
     /// If true, lines will be drawn between points with no or null data. If false, points with null data will create a break in the line.
     /// </summary>

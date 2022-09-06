@@ -153,11 +153,11 @@ public class ChartJsConfig
             {
                 if (pos < 0)
                 {
-                    ((ChartJsDataset)Data.Datasets[i]).Data.Add(data[i]);
+                    Data.Datasets[i].Data.Add(data[i]);
                 }
                 else
                 {
-                    ((ChartJsDataset)Data.Datasets[i]).Data.Insert(pos, data[i]);
+                    Data.Datasets[i].Data.Insert(pos, data[i]);
                 }
             }
 
@@ -185,15 +185,15 @@ public class ChartJsConfig
                 if (Data.Datasets[i].GetType() == typeof(BarDataset))
                 {
                     BarDataset dataset = (BarDataset)Data.Datasets[i];
-                    if (dataset.BorderColor != null && dataset.BorderColor.GetType() == typeof(List<string>))
+                    if (dataset.BorderColor != null && dataset.BorderColor.IsIndexed)
                     {
                         if (pos < 0)
                         {
-                            ((List<string>)dataset.BorderColor).Add(borderColors[i]);
+                            dataset.BorderColor.Add(borderColors[i]);
                         }
                         else
                         {
-                            ((List<string>)dataset.BorderColor).Insert(pos, borderColors[i]);
+                            dataset.BorderColor.Insert(pos, borderColors[i]);
                         }
                     }
                 }
@@ -219,24 +219,23 @@ public class ChartJsConfig
 
         for (int i = 0; i < Data.Datasets.Count; i++)
         {
-            ((ChartJsDataset)Data.Datasets[i]).Data.RemoveAt(pos);
-
+            Data.Datasets[i].Data.RemoveAt(pos);
 
             if (Data.Datasets[i].GetType() == typeof(BarDataset))
             {
                 BarDataset dataset = (BarDataset)Data.Datasets[i];
-                if (dataset.BackgroundColor != null && dataset.BackgroundColor.GetType() == typeof(List<string>))
+                if (dataset.BackgroundColor != null && dataset.BackgroundColor.IsIndexed)
                 {
-                    //((List<string>)dataset.BackgroundColor).RemoveAt(pos);
+                    dataset.BackgroundColor.RemoveAt(pos);
                 }
             }
 
             if (Data.Datasets[i].GetType() == typeof(BarDataset))
             {
                 BarDataset dataset = (BarDataset)Data.Datasets[i];
-                if (dataset.BorderColor != null && dataset.BorderColor.GetType() == typeof(List<string>))
+                if (dataset.BorderColor != null && dataset.BorderColor.IsIndexed)
                 {
-                    ((List<string>)dataset.BorderColor).RemoveAt(pos);
+                    dataset.BorderColor.RemoveAt(pos);
                 }
             }
         }
@@ -283,21 +282,6 @@ public class ChartJsConfig
         Data.Labels = labels;
         OnLabelsSet(new(labels));
     }
-}
-
-
-public record ChartJsData
-{
-    public ChartJsData()
-    {
-        Labels = new List<string>();
-        Datasets = new List<ChartJsDataset>();
-
-    }
-
-    public IList<string> Labels { get; set; }
-    public virtual IList<ChartJsDataset> Datasets { get; set; }
-
 }
 
 #pragma warning restore CA2227
