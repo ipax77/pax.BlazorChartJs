@@ -1,53 +1,93 @@
 
-using System.Diagnostics.Metrics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace pax.BlazorChartJs;
 
-/// <summary>
-/// Serializes the contents of a string value as raw JSON.  The string is validated as being an RFC 8259-compliant JSON payload
-/// </summary>
-public class RawJsonConverter : JsonConverter<object>
+internal class IndexableOptionStringConverter : JsonConverter<IndexableOption<string>?>
 {
-    public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override IndexableOption<string>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+     => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, IndexableOption<string>? value, JsonSerializerOptions options)
     {
-        using var doc = JsonDocument.ParseValue(ref reader);
-        return doc.RootElement.GetRawText();
+        if (value == null)
+        {
+            return;
+        }
+        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
     }
-
-    protected virtual bool SkipInputValidation => false;
-
-#pragma warning disable CA1062
-    public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
-    {
-        string valueJson = JsonSerializer.Serialize(value);
-        valueJson = valueJson.Substring(3, valueJson.Length - 3);
-
-        writer.WriteRawValue(valueJson, skipInputValidation : SkipInputValidation);
-    }
-
-//     public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) =>
-//         // skipInputValidation : true will improve performance, but only do this if you are certain the value represents well-formed JSON!
-//         writer.WriteRawValue(value, skipInputValidation : SkipInputValidation);
-#pragma warning restore CA1062        
 }
 
-/// <summary>
-/// Serializes the contents of a string value as raw JSON.  The string is NOT validated as being an RFC 8259-compliant JSON payload
-/// </summary>
-public class UnsafeRawJsonConverter : RawJsonConverter
+internal class IndexableOptionDoubleConverter : JsonConverter<IndexableOption<double>?>
 {
-    protected override bool SkipInputValidation => true;
+    public override IndexableOption<double>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+     => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, IndexableOption<double>? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
+    }
 }
 
-public class ChartJsConfigConverter : JsonConverter<ChartJsConfig>
+internal class IndexableOptionIntConverter : JsonConverter<IndexableOption<int>?>
 {
-    public override ChartJsConfig Read(ref Utf8JsonReader reader,
-    Type typeToConvert, JsonSerializerOptions options)
-     => Read(ref reader, typeToConvert, options);
+    public override IndexableOption<int>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+     => throw new NotImplementedException();
 
-    public override void Write(Utf8JsonWriter writer,
-        ChartJsConfig value, JsonSerializerOptions options)
-    { }
+    public override void Write(Utf8JsonWriter writer, IndexableOption<int>? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
+    }
+}
+
+internal class IndexableOptionObjectConverter : JsonConverter<IndexableOption<object>?>
+{
+    public override IndexableOption<object>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+     => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, IndexableOption<object>? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
+    }
+}
+
+internal class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset?>
+{
+    public override ChartJsDataset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+     => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, ChartJsDataset? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, new JsonSerializerOptions()
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters =
+                {
+                    new JsonStringEnumConverter(),
+                    new IndexableOptionStringConverter(),
+                    new IndexableOptionDoubleConverter(),
+                    new IndexableOptionIntConverter(),
+                    new IndexableOptionObjectConverter()
+                }
+        }), true);
+    }
 }

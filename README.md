@@ -57,7 +57,7 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
                     {
                         "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
                     },
-                    Datasets = new List<object>()
+                    Datasets = new List<ChartJsDataset>()
                     {
                         new BarDataset()
                         {

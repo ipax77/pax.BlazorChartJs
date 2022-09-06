@@ -66,7 +66,7 @@ public static class ChartUtils
         return data;
     }
 
-    public static object GetRandomDataset(ChartType chartType, int id, int count, int min = -100, int max = 100)
+    public static ChartJsDataset GetRandomDataset(ChartType chartType, int id, int count, int min = -100, int max = 100)
     {
         if (min >= max)
         {
@@ -87,10 +87,11 @@ public static class ChartUtils
 
     private static BarDataset GetRandomBarDataset(int id, int count, int min, int max)
     {
+        var colors = GetRandomColors(count);
         return new BarDataset()
         {
             Label = $"Dataset {id}",
-            BackgroundColor = GetRandomColors(count),
+            BackgroundColor = new IndexableOption<string>(colors.ToArray()),
             BorderColor = GetRandomColors(count),
             BorderWidth = 1,
             Data = GetRandomNumbers(count, min, max)
