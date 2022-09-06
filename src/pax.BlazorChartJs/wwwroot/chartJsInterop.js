@@ -144,7 +144,7 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
                 label = window.charts[chartId].data.labels[firstPoint.index];
                 value = window.charts[chartId].data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
             }
-            triggerEvent(chartId, "click", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY });
+            triggerEvent(chartId, "hover", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY });
         }
     }
 

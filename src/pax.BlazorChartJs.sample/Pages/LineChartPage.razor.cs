@@ -19,7 +19,7 @@ public partial class LineChartPage : ComponentBase
                 {
                     "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
                 },
-                Datasets = new List<object>()
+                Datasets = new List<ChartJsDataset>()
                 {
                     new LineDataset()
                     {

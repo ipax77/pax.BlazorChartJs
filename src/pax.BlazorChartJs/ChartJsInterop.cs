@@ -28,7 +28,15 @@ public class ChartJsInterop : IAsyncDisposable
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Converters = { new JsonStringEnumConverter() },
+        Converters =
+            {
+                new JsonStringEnumConverter(),
+                new IndexableOptionStringConverter(),
+                new IndexableOptionDoubleConverter(),
+                new IndexableOptionIntConverter(),
+                new IndexableOptionObjectConverter(),
+                new ChartJsDatasetJsonConverter()
+            }
     };
 
     /// <summary>
@@ -113,8 +121,8 @@ public class ChartJsInterop : IAsyncDisposable
     public async ValueTask AddDataToDataset(Guid configGuid, string label, IList<object> data, IList<string>? backgroundColors, IList<string>? borderColors, int? atPosition)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-            await module.InvokeVoidAsync("addChartDataToDatasets", configGuid , label, data, backgroundColors, borderColors, atPosition)
-                .ConfigureAwait(false);
+        await module.InvokeVoidAsync("addChartDataToDatasets", configGuid, label, data, backgroundColors, borderColors, atPosition)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

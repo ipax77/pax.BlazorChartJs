@@ -8,8 +8,8 @@ public record BarDataset : ChartJsDataset
 {
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
-    /// </summary>           
-    public object? BackgroundColor { get; set; }
+    /// </summary>     
+    public IndexableOption<string>? BackgroundColor { get; set; }
     public int? Base { get; set; }
     public int? BarPercentage { get; set; }
     /// <summary>

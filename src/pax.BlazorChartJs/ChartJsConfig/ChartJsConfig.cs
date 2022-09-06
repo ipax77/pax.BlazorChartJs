@@ -76,7 +76,7 @@ public class ChartJsConfig
     /// <paramref name="dataset"/>
     /// <paramref name="atPosition"/>
     /// </summary>
-    public void AddDataset(object dataset, int? atPosition = null)
+    public void AddDataset(ChartJsDataset dataset, int? atPosition = null)
     {
         if (atPosition == null)
         {
@@ -89,7 +89,7 @@ public class ChartJsConfig
             if (afterDataset != null)
             {
                 Data.Datasets.Insert(atPosition.Value, dataset);
-                OnDatasetAdd(new DatasetAddEventArgs(afterDataset, ((ChartJsDataset)afterDataset).Id));
+                OnDatasetAdd(new DatasetAddEventArgs(afterDataset, afterDataset.Id));
             }
         }
     }
@@ -98,14 +98,14 @@ public class ChartJsConfig
     /// Removes the dataset and updates the chart
     /// </summary>
     /// <param name="dataset"></param>
-    public void RemoveDataset(object dataset)
+    public void RemoveDataset(ChartJsDataset dataset)
     {
         ArgumentNullException.ThrowIfNull(dataset);
 
         if (Data.Datasets.Contains(dataset))
         {
             Data.Datasets.Remove(dataset);
-            OnDatasetRemove(new DatasetRemoveEventArgs(((ChartJsDataset)dataset).Id));
+            OnDatasetRemove(new DatasetRemoveEventArgs(dataset.Id));
         }
     }
 
@@ -166,15 +166,15 @@ public class ChartJsConfig
                 if (Data.Datasets[i].GetType() == typeof(BarDataset))
                 {
                     BarDataset dataset = (BarDataset)Data.Datasets[i];
-                    if (dataset.BackgroundColor != null && dataset.BackgroundColor.GetType() == typeof(List<string>))
+                    if (dataset.BackgroundColor != null && dataset.BackgroundColor.IsIndexed)
                     {
                         if (pos < 0)
                         {
-                            ((List<string>)dataset.BackgroundColor).Add(backgroundColors[i]);
+                            dataset.BackgroundColor.Add(backgroundColors[i]);
                         }
                         else
                         {
-                            ((List<string>)dataset.BackgroundColor).Insert(pos, backgroundColors[i]);
+                            dataset.BackgroundColor.Insert(pos, backgroundColors[i]);
                         }
                     }
                 }
@@ -227,7 +227,7 @@ public class ChartJsConfig
                 BarDataset dataset = (BarDataset)Data.Datasets[i];
                 if (dataset.BackgroundColor != null && dataset.BackgroundColor.GetType() == typeof(List<string>))
                 {
-                    ((List<string>)dataset.BackgroundColor).RemoveAt(pos);
+                    //((List<string>)dataset.BackgroundColor).RemoveAt(pos);
                 }
             }
 
@@ -291,12 +291,12 @@ public record ChartJsData
     public ChartJsData()
     {
         Labels = new List<string>();
-        Datasets = new List<object>();
+        Datasets = new List<ChartJsDataset>();
 
     }
 
     public IList<string> Labels { get; set; }
-    public virtual IList<object> Datasets { get; set; }
+    public virtual IList<ChartJsDataset> Datasets { get; set; }
 
 }
 
