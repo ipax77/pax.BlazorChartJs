@@ -200,7 +200,7 @@ public partial class LineChartPage : ComponentBase
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<object, IList<object>> chartData = new();
+        Dictionary<ChartJsDataset, IList<object>> chartData = new();
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {

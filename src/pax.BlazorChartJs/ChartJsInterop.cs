@@ -96,7 +96,7 @@ public class ChartJsInterop : IAsyncDisposable
     /// <summary>
     /// SetDatasetsData
     /// </summary>
-    public async ValueTask SetDatasetsData(Guid configGuid, Dictionary<object, IList<object>> data)
+    public async ValueTask SetDatasetsData(Guid configGuid, Dictionary<ChartJsDataset, IList<object>> data)
     {
         ArgumentNullException.ThrowIfNull(data);
 
@@ -107,7 +107,7 @@ public class ChartJsInterop : IAsyncDisposable
         {
             jsData.Add(new
             {
-                datasetId = ((ChartJsDataset)ent.Key).Id,
+                datasetId = ent.Key.Id,
                 data = ent.Value
             });
         }
