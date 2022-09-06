@@ -19,21 +19,21 @@ public partial class LineChartPage : ComponentBase
                 {
                     "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
                 },
-                Datasets = new List<object>()
+                Datasets = new List<ChartJsDataset>()
                 {
                     new LineDataset()
                     {
                         Label = "Team 1",
                         Data = new List<object>() { 1, 2, 3, 4, 5, 6 },
                         BackgroundColor = "lightblue",
-                        BorderColor = new List<string>() { "lightblue" },
+                        BorderColor = "lightblue",
                         BorderWidth = 5,
                         Fill = false,
-                        PointBackgroundColor = "blue",
-                        PointBorderColor = "blue",
-                        PointRadius = 6,
-                        PointBorderWidth = 6,
-                        PointHitRadius = 6,
+                        PointBackgroundColor = new IndexableOption<string>("blue"),
+                        PointBorderColor = new IndexableOption<string>("blue"),
+                        PointRadius = new IndexableOption<double>(6),
+                        PointBorderWidth = new IndexableOption<double>(6),
+                        PointHitRadius = new IndexableOption<double>(6),
                         Tension = 0
                     },
                     new LineDataset()
@@ -41,14 +41,14 @@ public partial class LineChartPage : ComponentBase
                         Label = "Team 2",
                         Data = new List<object>() { 6, 5, 4, 3, 2, 1 },
                         BackgroundColor = "lightgreen",
-                        BorderColor = new List<string>() { "lightgreen" },
+                        BorderColor = "lightgreen",
                         BorderWidth = 5,
                         Fill = false,
-                        PointBackgroundColor = "green",
-                        PointBorderColor = "green",
-                        PointRadius = 6,
-                        PointBorderWidth = 6,
-                        PointHitRadius = 6,
+                        PointBackgroundColor = new IndexableOption<string>("green"),
+                        PointBorderColor = new IndexableOption<string>("green"),
+                        PointRadius = new IndexableOption<double>(6),
+                        PointBorderWidth = new IndexableOption<double>(6),
+                        PointHitRadius = new IndexableOption<double>(6),
                         Tension = 0
                     }
                 }
@@ -200,7 +200,7 @@ public partial class LineChartPage : ComponentBase
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<object, IList<object>> chartData = new();
+        Dictionary<ChartJsDataset, IList<object>> chartData = new();
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {

@@ -25,11 +25,11 @@ public record ChartJsOptions
     /// <summary>
     /// Canvas aspect ratio (i.e. width / height, a value of 1 representing a square canvas). Note that this option is ignored if the height is explicitly defined either as attribute or via the style. The default value varies by chart type; Radial charts (doughnut, pie, polarArea, radar) default to 1 and others default to 2.
     /// </summary>    
-    public int? AspectRatio { get; set; }
+    public double? AspectRatio { get; set; }
     /// <summary>
     /// Delay the resize update by the given amount of milliseconds. This can ease the resize process by debouncing the update of the elements.
     /// </summary>    
-    public int? ResizeDelay { get; set; }
+    public double? ResizeDelay { get; set; }
     /// <summary>
     /// a string with a BCP 47 language tag, leveraging on <see href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat">INTL NumberFormat</see>
     /// </summary>        
@@ -111,7 +111,7 @@ public record Animation
     /// <summary>
     /// The number of milliseconds an animation takes.
     /// </summary>
-    public int? Duration { get; set; }
+    public double? Duration { get; set; }
     /// <summary>
     /// Easing function <see href="https://www.chartjs.org/docs/latest/configuration/animations.html#easing">ChartJs Docs</see>
     /// </summary>
@@ -119,7 +119,7 @@ public record Animation
     /// <summary>
     /// Delay before starting the animations.
     /// </summary>
-    public int? Delay { get; set; }
+    public double? Delay { get; set; }
     /// <summary>
     /// If set to true, the animations loop endlessly.
     /// </summary>
@@ -193,29 +193,29 @@ public record Tooltip
     public object? TitleColor { get; set; }
     public Font? TitleFont { get; set; }
     public string? TitleAlign { get; set; }
-    public int? TitleSpacing { get; set; }
-    public int? TitleMarginBottom { get; set; }
+    public double? TitleSpacing { get; set; }
+    public double? TitleMarginBottom { get; set; }
     public object? BodyColor { get; set; }
     public Font? BodyFont { get; set; }
     public string? BodyAlign { get; set; }
-    public int? BodySpacing { get; set; }
+    public double? BodySpacing { get; set; }
     public object? FooterColor { get; set; }
     public Font? FooterFont { get; set; }
     public string? FooterAlign { get; set; }
-    public int? FooterSpacing { get; set; }
-    public int? FooterMarginTop { get; set; }
+    public double? FooterSpacing { get; set; }
+    public double? FooterMarginTop { get; set; }
     public Padding? Padding { get; set; }
-    public int? CaretPadding { get; set; }
-    public int? CaretSize { get; set; }
-    public int? CornerRadius { get; set; }
+    public double? CaretPadding { get; set; }
+    public double? CaretSize { get; set; }
+    public double? CornerRadius { get; set; }
     public object? MultiKeyBackground { get; set; }
     public bool? DisplayColors { get; set; }
-    public int? BoxWidth { get; set; }
-    public int? BoxHeight { get; set; }
-    public int? BoxPadding { get; set; }
+    public double? BoxWidth { get; set; }
+    public double? BoxHeight { get; set; }
+    public double? BoxPadding { get; set; }
     public bool? UsePointStyle { get; set; }
     public object? BorderColor { get; set; }
-    public int? BorderWidth { get; set; }
+    public double? BorderWidth { get; set; }
     public bool? Rtl { get; set; }
     public string? TextDirection { get; set; }
     /// <summary>
@@ -274,8 +274,8 @@ public record Legend
     /// <see href="https://www.chartjs.org/docs/latest/configuration/legend.html#align">ChartJs docs</see>
     /// </summary>    
     public string? Align { get; set; }
-    public int? MaxHeight { get; set; }
-    public int? MaxWidth { get; set; }
+    public double? MaxHeight { get; set; }
+    public double? MaxWidth { get; set; }
     public bool? FullSize { get; set; }
     /// <summary>
     /// Activates onClick Event for the chartComponent -> OnEventTriggered
@@ -307,14 +307,14 @@ public record Legend
 
 public record Labels
 {
-    public int? BoxWidth { get; set; }
-    public int? BoxHeight { get; set; }
+    public double? BoxWidth { get; set; }
+    public double? BoxHeight { get; set; }
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>         
-    public object? Color { get; set; }
+    public string? Color { get; set; }
     public Font? Font { get; set; }
-    public int? Padding { get; set; }
+    public double? Padding { get; set; }
     // public object? GenerateLabels { get; set; }
     // public object? Filter { get; set; }
     // public object? Sort { get; set; }
@@ -344,6 +344,11 @@ public record Labels
     public string? TextAlign { get; set; }
     public bool? UsePointStyle { get; set; }
     public string? PointStyleWidth { get; set; }
+    /// <summary>
+    /// If you have a lot of data points, it can be more performant to enable spanGaps. 
+    /// This disables segmentation of the line, which can be an unneeded step.
+    /// </summary>  
+    public bool? SpanGaps { get; set; }    
 }
 
 public record Layout
@@ -391,7 +396,7 @@ public record Title
 public record Font
 {
     public string? Family { get; set; }
-    public int? Size { get; set; }
+    public double? Size { get; set; }
     /// <summary>
     /// Default font style. Does not apply to tooltip title or footer. Does not apply to chart title. Follows CSS font-style options (i.e. normal, italic, oblique, initial, inherit).
     /// </summary>

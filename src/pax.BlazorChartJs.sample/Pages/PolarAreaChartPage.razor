@@ -32,7 +32,7 @@
                     {
                         "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
                     },
-                    Datasets = new List<object>()
+                    Datasets = new List<ChartJsDataset>()
                     {
                         new PolarAreaDataset()
                         {
@@ -84,7 +84,7 @@
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, 0, 100);
 
-        Dictionary<object, IList<object>> chartData = new();
+        Dictionary<ChartJsDataset, IList<object>> chartData = new();
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {

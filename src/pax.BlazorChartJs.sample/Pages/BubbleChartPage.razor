@@ -38,7 +38,7 @@
                 Type = ChartType.bubble,
                 Data = new ChartJsData()
                 {
-                    Datasets = new List<object>()
+                    Datasets = new List<ChartJsDataset>()
                     {
                         new BubbleDataset()
                         {
@@ -76,7 +76,7 @@
                                     R = 12
                                 },
                             },
-                            BackgroundColor = "rgb(255, 99, 132)"
+                            BackgroundColor = new IndexableOption<string>("rgb(255, 99, 132)")
                         }
                     }
                 },

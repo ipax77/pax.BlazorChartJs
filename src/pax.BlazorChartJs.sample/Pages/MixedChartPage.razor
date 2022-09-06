@@ -36,14 +36,14 @@
                     {
                         "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
                     },
-                    Datasets = new List<object>()
+                    Datasets = new List<ChartJsDataset>()
                     {
                         new BarDataset()
                         {
                             Type = ChartType.bar,
                             Label = "Bar Dataset",
                             Data = barData,
-                            BackgroundColor = new List<string>()
+                            BackgroundColor = new IndexableOption<string>(new List<string>()
                             {
                                 "rgba(255, 99, 132, 0.2)",
                                 "rgba(54, 162, 235, 0.2)",
@@ -51,8 +51,8 @@
                                 "rgba(75, 192, 192, 0.2)",
                                 "rgba(153, 102, 255, 0.2)",
                                 "rgba(255, 159, 64, 0.2)",
-                            },
-                            BorderColor = new List<string>()
+                            }),
+                            BorderColor = new IndexableOption<string>(new List<string>()
                             {
                                 "rgba(255, 99, 132, 1)",
                                 "rgba(54, 162, 235, 1)",
@@ -60,8 +60,8 @@
                                 "rgba(75, 192, 192, 1)",
                                 "rgba(153, 102, 255, 1)",
                                 "rgba(255, 159, 64, 1)",
-                            },
-                            BorderWidth = 1
+                            }),
+                            BorderWidth = new IndexableOption<double>(1)
                         },
                         new LineDataset() {
                             Type = ChartType.line,
@@ -69,7 +69,7 @@
                             Data = GetNiceLineData(barData, Math.Max(barData.Count - 3, 3)),
                             BorderColor = "darkblue",
                             BorderWidth = 3,
-                            PointBorderWidth = 5,
+                            PointBorderWidth = new IndexableOption<double>(5),
                             Tension = 0.35
                         },
                     }
