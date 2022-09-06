@@ -177,7 +177,7 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 
 </details>
 
-<details"><summary>v0.2.0</summary>
+<details><summary>v0.2.0</summary>
 
 >- Events
 >- Custom Plugin Sample
