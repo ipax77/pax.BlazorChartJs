@@ -28,7 +28,16 @@ public class ChartJsInterop : IAsyncDisposable
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Converters = { new JsonStringEnumConverter() },
+        Converters =
+            {
+                new JsonStringEnumConverter(),
+                new IndexableOptionStringConverter(),
+                new IndexableOptionDoubleConverter(),
+                new IndexableOptionIntConverter(),
+                new IndexableOptionBoolConverter(),
+                new IndexableOptionObjectConverter(),
+                new ChartJsDatasetJsonConverter()
+            }
     };
 
     /// <summary>
@@ -87,7 +96,7 @@ public class ChartJsInterop : IAsyncDisposable
     /// <summary>
     /// SetDatasetsData
     /// </summary>
-    public async ValueTask SetDatasetsData(Guid configGuid, Dictionary<object, IList<object>> data)
+    public async ValueTask SetDatasetsData(Guid configGuid, Dictionary<ChartJsDataset, IList<object>> data)
     {
         ArgumentNullException.ThrowIfNull(data);
 
@@ -98,7 +107,7 @@ public class ChartJsInterop : IAsyncDisposable
         {
             jsData.Add(new
             {
-                datasetId = ((ChartJsDataset)ent.Key).Id,
+                datasetId = ent.Key.Id,
                 data = ent.Value
             });
         }
@@ -113,8 +122,8 @@ public class ChartJsInterop : IAsyncDisposable
     public async ValueTask AddDataToDataset(Guid configGuid, string label, IList<object> data, IList<string>? backgroundColors, IList<string>? borderColors, int? atPosition)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-            await module.InvokeVoidAsync("addChartDataToDatasets", configGuid , label, data, backgroundColors, borderColors, atPosition)
-                .ConfigureAwait(false);
+        await module.InvokeVoidAsync("addChartDataToDatasets", configGuid, label, data, backgroundColors, borderColors, atPosition)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

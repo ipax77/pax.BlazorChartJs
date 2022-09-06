@@ -76,7 +76,7 @@ public class ChartJsConfig
     /// <paramref name="dataset"/>
     /// <paramref name="atPosition"/>
     /// </summary>
-    public void AddDataset(object dataset, int? atPosition = null)
+    public void AddDataset(ChartJsDataset dataset, int? atPosition = null)
     {
         if (atPosition == null)
         {
@@ -89,7 +89,7 @@ public class ChartJsConfig
             if (afterDataset != null)
             {
                 Data.Datasets.Insert(atPosition.Value, dataset);
-                OnDatasetAdd(new DatasetAddEventArgs(afterDataset, ((ChartJsDataset)afterDataset).Id));
+                OnDatasetAdd(new DatasetAddEventArgs(afterDataset, afterDataset.Id));
             }
         }
     }
@@ -98,14 +98,14 @@ public class ChartJsConfig
     /// Removes the dataset and updates the chart
     /// </summary>
     /// <param name="dataset"></param>
-    public void RemoveDataset(object dataset)
+    public void RemoveDataset(ChartJsDataset dataset)
     {
         ArgumentNullException.ThrowIfNull(dataset);
 
         if (Data.Datasets.Contains(dataset))
         {
             Data.Datasets.Remove(dataset);
-            OnDatasetRemove(new DatasetRemoveEventArgs(((ChartJsDataset)dataset).Id));
+            OnDatasetRemove(new DatasetRemoveEventArgs(dataset.Id));
         }
     }
 
@@ -153,11 +153,11 @@ public class ChartJsConfig
             {
                 if (pos < 0)
                 {
-                    ((ChartJsDataset)Data.Datasets[i]).Data.Add(data[i]);
+                    Data.Datasets[i].Data.Add(data[i]);
                 }
                 else
                 {
-                    ((ChartJsDataset)Data.Datasets[i]).Data.Insert(pos, data[i]);
+                    Data.Datasets[i].Data.Insert(pos, data[i]);
                 }
             }
 
@@ -166,15 +166,15 @@ public class ChartJsConfig
                 if (Data.Datasets[i].GetType() == typeof(BarDataset))
                 {
                     BarDataset dataset = (BarDataset)Data.Datasets[i];
-                    if (dataset.BackgroundColor != null && dataset.BackgroundColor.GetType() == typeof(List<string>))
+                    if (dataset.BackgroundColor != null && dataset.BackgroundColor.IsIndexed)
                     {
                         if (pos < 0)
                         {
-                            ((List<string>)dataset.BackgroundColor).Add(backgroundColors[i]);
+                            dataset.BackgroundColor.Add(backgroundColors[i]);
                         }
                         else
                         {
-                            ((List<string>)dataset.BackgroundColor).Insert(pos, backgroundColors[i]);
+                            dataset.BackgroundColor.Insert(pos, backgroundColors[i]);
                         }
                     }
                 }
@@ -185,15 +185,15 @@ public class ChartJsConfig
                 if (Data.Datasets[i].GetType() == typeof(BarDataset))
                 {
                     BarDataset dataset = (BarDataset)Data.Datasets[i];
-                    if (dataset.BorderColor != null && dataset.BorderColor.GetType() == typeof(List<string>))
+                    if (dataset.BorderColor != null && dataset.BorderColor.IsIndexed)
                     {
                         if (pos < 0)
                         {
-                            ((List<string>)dataset.BorderColor).Add(borderColors[i]);
+                            dataset.BorderColor.Add(borderColors[i]);
                         }
                         else
                         {
-                            ((List<string>)dataset.BorderColor).Insert(pos, borderColors[i]);
+                            dataset.BorderColor.Insert(pos, borderColors[i]);
                         }
                     }
                 }
@@ -219,24 +219,23 @@ public class ChartJsConfig
 
         for (int i = 0; i < Data.Datasets.Count; i++)
         {
-            ((ChartJsDataset)Data.Datasets[i]).Data.RemoveAt(pos);
-
+            Data.Datasets[i].Data.RemoveAt(pos);
 
             if (Data.Datasets[i].GetType() == typeof(BarDataset))
             {
                 BarDataset dataset = (BarDataset)Data.Datasets[i];
-                if (dataset.BackgroundColor != null && dataset.BackgroundColor.GetType() == typeof(List<string>))
+                if (dataset.BackgroundColor != null && dataset.BackgroundColor.IsIndexed)
                 {
-                    ((List<string>)dataset.BackgroundColor).RemoveAt(pos);
+                    dataset.BackgroundColor.RemoveAt(pos);
                 }
             }
 
             if (Data.Datasets[i].GetType() == typeof(BarDataset))
             {
                 BarDataset dataset = (BarDataset)Data.Datasets[i];
-                if (dataset.BorderColor != null && dataset.BorderColor.GetType() == typeof(List<string>))
+                if (dataset.BorderColor != null && dataset.BorderColor.IsIndexed)
                 {
-                    ((List<string>)dataset.BorderColor).RemoveAt(pos);
+                    dataset.BorderColor.RemoveAt(pos);
                 }
             }
         }
@@ -248,22 +247,22 @@ public class ChartJsConfig
     /// </summary>
     /// <param name="dataset"></param>
     /// <param name="data"></param>
-    public void SetData(object dataset, IList<object> data)
+    public void SetData(ChartJsDataset dataset, IList<object> data)
     {
-        SetData(new Dictionary<object, IList<object>>() { { dataset, data } });
+        SetData(new Dictionary<ChartJsDataset, IList<object>>() { { dataset, data } });
     }
 
     /// <summary>
     /// Sets the dataset (=key) data (=value) and updates the chart
     /// </summary>
     /// <param name="data"></param>
-    public void SetData(Dictionary<object, IList<object>> data)
+    public void SetData(Dictionary<ChartJsDataset, IList<object>> data)
     {
         ArgumentNullException.ThrowIfNull(data);
 
         foreach (var ent in data)
         {
-            var dataset = Data.Datasets.FirstOrDefault(f => f.Equals(ent.Key)) as ChartJsDataset;
+            var dataset = Data.Datasets.FirstOrDefault(f => f.Equals(ent.Key));
             if (dataset != null)
             {
                 dataset.Data = ent.Value;
@@ -283,21 +282,6 @@ public class ChartJsConfig
         Data.Labels = labels;
         OnLabelsSet(new(labels));
     }
-}
-
-
-public record ChartJsData
-{
-    public ChartJsData()
-    {
-        Labels = new List<string>();
-        Datasets = new List<object>();
-
-    }
-
-    public IList<string> Labels { get; set; }
-    public virtual IList<object> Datasets { get; set; }
-
 }
 
 #pragma warning restore CA2227

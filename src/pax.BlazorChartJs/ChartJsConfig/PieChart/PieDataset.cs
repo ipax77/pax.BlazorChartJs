@@ -9,11 +9,15 @@ public record PieDataset : ChartJsDataset
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>           
-    public object? BackgroundColor { get; set; }
+    public IndexableOption<string>? BackgroundColor { get; set; }
     /// <summary>
     /// BorderAlign - 'center'|'inner'
     /// </summary>      
-    public string? BorderAlign { get; set; }
+    public IndexableOption<string>? BorderAlign { get; set; }
+    /// <summary>
+    /// BorderJoinStyle - 'round'|'bevel'|'miter'
+    /// </summary>
+    public IndexableOption<string>? BorderJoinStyle { get; set; }
     /// <summary>
     /// Border Radius
     /// If this value is a number, it is applied to all corners of the arc (outerStart, outerEnd, innerStart, innerRight). If this value is an object, the outerStart property defines the outer-start corner's border radius. Similarly, the outerEnd, innerStart, and innerEnd properties can also be specified    
@@ -23,7 +27,7 @@ public record PieDataset : ChartJsDataset
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/charts/doughnut.html#border-radius">ChartJs docs</see>
     /// </summary>
-    public object? BorderColor { get; set; }
+    public IndexableOption<string>? BorderColor { get; set; }
     /// <summary>
     /// This setting is used to avoid drawing the bar stroke at the base of the fill, or disable the border radius. In general, this does not need to be changed except when creating chart types that derive from a bar chart.
     ///
@@ -45,27 +49,29 @@ public record PieDataset : ChartJsDataset
     /// <see href="https://www.chartjs.org/docs/latest/charts/bar.html#borderskipped">ChartJs docs</see>
     /// </summary>        
     // todo: can be object
-    public double? BorderWidth { get; set; }
+    public IndexableOption<double>? BorderWidth { get; set; }
     public double? Circumference { get; set; }
     // todo: can be object
     /// <summary>
     /// can be number|object|false
+    /// How to clip relative to chartArea. Positive value allows overflow, negative value clips that many pixels inside chartArea. 0 = clip at chartArea.
+    /// Clipping can also be configured per side: clip: {left: 5, top: false, right: -2, bottom: 0}
     /// </summary>    
     public object? Clip { get; set; }
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
-    public object? HoverBackgroundColor { get; set; }
+    public IndexableOption<string>? HoverBackgroundColor { get; set; }
     /// <summary>
     /// HoverBorderJoinStyle - 'round'|'bevel'|'miter'
     /// </summary>          
-    public string? HoverBorderJoinStyle { get; set; }
+    public IndexableOption<string>? HoverBorderJoinStyle { get; set; }
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
-    public double? HoverBorderWidth { get; set; }
-    public double? HoverOffset { get; set; }
-    public double? Offset { get; set; }
+    public IndexableOption<double>? HoverBorderWidth { get; set; }
+    public IndexableOption<double>? HoverOffset { get; set; }
+    public IndexableOption<double>? Offset { get; set; }
     public double? Rotation { get; set; }
     public double? Spacing { get; set; }
     public double? Weight { get; set; }

@@ -60,11 +60,11 @@ public class DataRemoveEventArgs : EventArgs
 
 public class DataSetEventArgs : EventArgs
 {
-    public DataSetEventArgs(Dictionary<object, IList<object>> data)
+    public DataSetEventArgs(Dictionary<ChartJsDataset, IList<object>> data)
     {
         Data = data;
     }
-    public Dictionary<object, IList<object>> Data { get; init; }
+    public Dictionary<ChartJsDataset, IList<object>> Data { get; init; }
 }
 
 public class LabelsSetEventArgs : EventArgs

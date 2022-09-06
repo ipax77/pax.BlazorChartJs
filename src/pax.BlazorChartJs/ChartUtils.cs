@@ -66,7 +66,7 @@ public static class ChartUtils
         return data;
     }
 
-    public static object GetRandomDataset(ChartType chartType, int id, int count, int min = -100, int max = 100)
+    public static ChartJsDataset GetRandomDataset(ChartType chartType, int id, int count, int min = -100, int max = 100)
     {
         if (min >= max)
         {
@@ -90,9 +90,9 @@ public static class ChartUtils
         return new BarDataset()
         {
             Label = $"Dataset {id}",
-            BackgroundColor = GetRandomColors(count),
-            BorderColor = GetRandomColors(count),
-            BorderWidth = 1,
+            BackgroundColor = new IndexableOption<string>(GetRandomColors(count)),
+            BorderColor = new IndexableOption<string>(GetRandomColors(count)),
+            BorderWidth = new IndexableOption<double>(1),
             Data = GetRandomNumbers(count, min, max)
         };
     }
@@ -101,8 +101,8 @@ public static class ChartUtils
         return new LineDataset()
         {
             Label = $"Dataset {id}",
-            BackgroundColor = GetRandomColors(count),
-            BorderColor = GetRandomColors(count),
+            BackgroundColor = GetRandomColors(1).First(),
+            BorderColor = GetRandomColors(1).First(),
             BorderWidth = 1,
             Data = GetRandomNumbers(count, min, max)
         };
@@ -111,9 +111,9 @@ public static class ChartUtils
     {
         return new PieDataset()
         {
-            BackgroundColor = GetRandomColors(count),
-            BorderColor = GetRandomColors(count),
-            BorderWidth = 1,
+            BackgroundColor = new IndexableOption<string>(GetRandomColors(count)),
+            BorderColor = new IndexableOption<string>(GetRandomColors(count)),
+            BorderWidth = new IndexableOption<double>(1),
             Data = GetRandomNumbers(count, min, max)
         };
     }
@@ -171,7 +171,7 @@ public static class ChartUtils
         return new BubbleDataset()
         {
             Label = $"Dataset {id}",
-            BackgroundColor = backgroundColor,
+            BackgroundColor = new IndexableOption<string>(backgroundColor),
             Data = data
         };
     }
