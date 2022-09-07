@@ -1,12 +1,7 @@
 // This is a JavaScript module that is loaded on demand. It can export any number of
 // functions, and may import other JavaScript modules if required.
 
-// import * as Chart from './dist/chart.js';
-// import Chart from './dist/chart.js/auto';
-// import { Chart, registerables } from './chart.min.js';
-
-import './chart.min.js';
-//import './chartjs-plugin-labels.min.js';
+// import './chart.min.js';
 
 // todo: this only stops the first call which might not be good enough
 class AsyncLock {
@@ -21,13 +16,25 @@ class AsyncLock {
 }
 
 const lock = new AsyncLock()
+let isLoaded = false;
 
-export async function initChart(chartId, dotnetConfig, dotnetRef) {
+export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) {
 
     await lock.promise
     lock.enable();
 
     try {
+
+        if (!isLoaded) {
+            if (setupOptions?.chartJsLocation) {
+                await import(setupOptions.chartJsLocation);
+            }
+            else {
+                await import('./chart.min.js');
+            }
+            isLoaded = true;
+        }
+
         if (window.charts == undefined) {
             window.charts = {};
         }
@@ -54,12 +61,21 @@ export async function initChart(chartId, dotnetConfig, dotnetRef) {
             }
 
             if (dotnetConfig.options.plugins.labels != undefined) {
-                await import('./chartjs-plugin-labels.min.js');
+                if (setupOptions?.chartJsPluginLabelsLocation) {
+                    await import(setupOptions?.chartJsPluginLabelsLocation);
+                }
+                else {
+                    await import('./chartjs-plugin-labels.min.js');
+                }
                 // require('./chartjs-plugin-labels.min.js');
             }
 
             if (dotnetConfig.options.plugins.datalabels != undefined) {
-                await import('./chartjs-plugin-datalabels.min.js');
+                if (setupOptions?.chartJsPluginDatalabelsLocation) {
+                    await import(setupOptions.chartJsPluginDatalabelsLocation);
+                } else {
+                    await import('./chartjs-plugin-datalabels.min.js');
+                }
                 // require('./chartjs-plugin-datalabels.min.js');
                 plugins.push(ChartDataLabels);
             }

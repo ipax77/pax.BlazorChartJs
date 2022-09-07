@@ -1,9 +1,7 @@
-using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
-using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -22,8 +20,24 @@ namespace pax.BlazorChartJs;
 /// </summary>
 public class ChartJsInterop : IAsyncDisposable
 {
+    /// <summary>
+    /// ChartJsInterop
+    /// </summary>
+    public ChartJsInterop(IJSRuntime jsRuntime,
+                          // ILogger<ChartJsInterop> logger,
+                          IOptions<ChartJsSetupOptions>? options)
+    {
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+            "import", "./_content/pax.BlazorChartJs/chartJsInterop.js").AsTask());
+
+        setupOptions = options?.Value;
+
+        // this.logger = logger;
+    }
+
+    private readonly ChartJsSetupOptions? setupOptions;
     private readonly Lazy<Task<IJSObjectReference>> moduleTask;
-    private readonly ILogger<ChartJsInterop> logger;
+    // private readonly ILogger<ChartJsInterop> logger;
     private readonly JsonSerializerOptions jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -42,17 +56,7 @@ public class ChartJsInterop : IAsyncDisposable
             }
     };
 
-    /// <summary>
-    /// ChartJsInterop
-    /// </summary>
-    public ChartJsInterop(IJSRuntime jsRuntime, ILogger<ChartJsInterop> logger)
-    {
-        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-            "import", "./_content/pax.BlazorChartJs/chartJsInterop.js").AsTask());
 
-        this.logger = logger;
-        // this.logger.LogInformation("init");
-    }
 
     /// <summary>
     /// (Re-)initializes chart
@@ -64,7 +68,7 @@ public class ChartJsInterop : IAsyncDisposable
 
         var module = await moduleTask.Value.ConfigureAwait(false);
         var serializedConfig = SerializeConfig(config);
-        await module.InvokeVoidAsync("initChart", config.ChartJsConfigGuid, serializedConfig, dotnetRef)
+        await module.InvokeVoidAsync("initChart", setupOptions, config.ChartJsConfigGuid, serializedConfig, dotnetRef)
             .ConfigureAwait(false);
     }
 
