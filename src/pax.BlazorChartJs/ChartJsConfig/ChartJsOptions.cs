@@ -359,9 +359,9 @@ public record Layout
 
 public record ChartJsOptionsScales
 {
-    public object? X { get; set; }
-    public object? Y { get; set; }
-    public object? R { get; set; }
+    public ChartJsAxis? X { get; set; }
+    public ChartJsAxis? Y { get; set; }
+    public ChartJsAxis? R { get; set; }
 }
 
 public record Title

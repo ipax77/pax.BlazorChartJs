@@ -1,11 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace pax.BlazorChartJs;
 
@@ -211,13 +205,13 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
         if (disposing)
         {
+            dotNetHelper?.Dispose();
             ChartJsConfig.DatasetAdd -= ChartJsConfig_DatasetAdd;
             ChartJsConfig.DatasetRemove -= ChartJsConfig_DatasetRemove;
             ChartJsConfig.DataAdd -= ChartJsConfig_DataAdd;
             ChartJsConfig.DataRemove -= ChartJsConfig_DataRemove;
             ChartJsConfig.DataSet -= ChartJsConfig_DataSet;
             ChartJsConfig.LabelsSet -= ChartJsConfig_LabelsSet;
-            dotNetHelper?.Dispose();
             // todo: cleanup js chart?
         }
 

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using pax.BlazorChartJs;
-using pax.BlazorChartJs.sample.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor()
     .AddHubOptions(options => options.MaximumReceiveMessageSize = 128 * 1024); // for chart images (only server side)
-builder.Services.AddSingleton<WeatherForecastService>();
 
 builder.Services.AddChartJs();
 

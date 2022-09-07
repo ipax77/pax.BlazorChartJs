@@ -18,7 +18,7 @@ public record ChartJsAxis
     public string? Stacked { get; set; }
     public double? SuggestedMax { get; set; }
     public double? SuggestedMin { get; set; }
-    public object? Ticks { get; set; }
+    public ChartJsAxisTick? Ticks { get; set; }
     public string? Weight { get; set; }
     public Title? Title { get; set; }
 }
@@ -102,7 +102,7 @@ public record CartesianAxisTick : ChartJsAxisTick
     /// <summary>
     /// Padding between the ticks on the horizontal axis when autoSkip is enabled.
     /// </summary>      
-    public int? AutoSkipPadding { get; set; }
+    public double? AutoSkipPadding { get; set; }
     /// <summary>
     /// Should the defined min and max values be presented as ticks even if they are not "nice".
     /// </summary>      
@@ -110,15 +110,15 @@ public record CartesianAxisTick : ChartJsAxisTick
     /// <summary>
     /// Distance in pixels to offset the label from the centre point of the tick (in the x-direction for the x-axis, and the y-direction for the y-axis). Note: this can cause labels at the edges to be cropped by the edge of the canvas
     /// </summary>      
-    public int? LabelOffset { get; set; }
+    public double? LabelOffset { get; set; }
     /// <summary>
     /// Maximum rotation for tick labels when rotating to condense labels. Note: Rotation doesn't occur until necessary. Note: Only applicable to horizontal scales.
     /// </summary>      
-    public int? MaxRotation { get; set; }
+    public double? MaxRotation { get; set; }
     /// <summary>
     /// Minimum rotation for tick labels. Note: Only applicable to horizontal scales.
     /// </summary>      
-    public int? MinRotation { get; set; }
+    public double? MinRotation { get; set; }
     /// <summary>
     /// Flips tick labels around axis, displaying the labels inside the chart instead of outside. Note: Only applicable to vertical scales.
     /// </summary>      
@@ -196,8 +196,61 @@ public record PointLabels
     public Padding? BackdropPadding { get; set; }
     public object? BorderRadius { get; set; }
     public bool? Display { get; set; }
-    public object? Color { get; set; }
+    public string? Color { get; set; }
     public Font? Font { get; set; }
     public Padding? Padding { get; set; }
     public bool? CenterPointLabels { get; set; }
+}
+
+/// <summary>
+/// TimeCartesianAxis <see href="https://www.chartjs.org/docs/latest/axes/cartesian/time.htmls">ChartJs Docs</see>
+/// </summary>
+public record TimeCartesianAxis : LinearAxis
+{
+    /// <summary>
+    /// For both the min and max properties, the value must be string that is parsable by your date adapter
+    /// or a number with the amount of milliseconds that have elapsed since UNIX epoch.
+    /// </summary>
+    public new object? Min { get; set; }
+    /// <summary>
+    /// For both the min and max properties, the value must be string that is parsable by your date adapter
+    /// or a number with the amount of milliseconds that have elapsed since UNIX epoch.
+    /// </summary>    
+    public new object? Max { get; set; }
+    public new object? SuggestedMin { get; set; }
+    public new object? SuggestedMax { get; set; }
+    public new string? Bounds { get; set; }
+    public bool? OffsetAfterAutoskip { get; set; }
+    public new TimeCartesianAxisTicks? Ticks { get; set; }
+    public TimeCartesianAxisTime? Time { get; set; }
+}
+
+public record TimeCartesianAxisTicks
+{
+    public string? Source { get; set; }
+}
+
+public record TimeCartesianAxisTime
+{
+    public string? Source { get; set; }
+    /// <summary>
+    /// DisplayFormats <see href="https://www.chartjs.org/docs/latest/axes/cartesian/time.html#display-formats">ChartJs Docs</see>
+    /// </summary>
+    public object? DisplayFormats { get; set; }
+    /// <summary>
+    /// If boolean and true and the unit is set to 'week', then the first day of the week will be Monday.
+    /// Otherwise, it will be Sunday. If number, the index of the first day of the week (0 - Sunday, 6 - Saturday)
+    /// </summary>
+    public object? IsoWeekday { get; set; }
+    public string? Parser { get; set; }
+    public string? Round { get; set; }
+    public string? TooltipFormat { get; set; }
+    public string? Unit { get; set; }
+    public int? StepSize { get; set; }
+    public string? MinUnit { get; set; }
+}
+
+public record TimeSeriesAxis : TimeCartesianAxis
+{
+
 }
