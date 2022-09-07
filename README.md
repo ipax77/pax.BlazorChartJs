@@ -171,7 +171,13 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 
 ## ChangeLog
 
-<details open="open"><summary>v0.3.0</summary>
+<details open="open"><summary>v0.3.1</summary>
+
+>- Optional javascript location options
+
+</details>
+
+<details><summary>v0.3.0</summary>
 
 >- IndexableOption - Breaking Change!
 

@@ -9,7 +9,14 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor()
     .AddHubOptions(options => options.MaximumReceiveMessageSize = 128 * 1024); // for chart images (only server side)
 
-builder.Services.AddChartJs();
+builder.Services.AddChartJs(
+    //options =>
+    //{
+    //    options.ChartJsLocation = "https://cdn.jsdelivr.net/npm/chart.js";
+    //    options.ChartJsPluginDatalabelsLocation = "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2";
+    //    options.ChartJsPluginLabelsLocation = "https://unpkg.com/chart.js-plugin-labels-dv/dist/chartjs-plugin-labels.min.js";
+    //}
+);
 
 var app = builder.Build();
 
