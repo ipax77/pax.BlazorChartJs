@@ -31,10 +31,10 @@ public class ChartJsInterop : IAsyncDisposable
             "import", "./_content/pax.BlazorChartJs/chartJsInterop.js").AsTask());
 
         setupOptions = options?.Value;
+        JsRuntime = jsRuntime;
 
         // this.logger = logger;
     }
-
     private readonly ChartJsSetupOptions? setupOptions;
     private readonly Lazy<Task<IJSObjectReference>> moduleTask;
     // private readonly ILogger<ChartJsInterop> logger;
@@ -55,6 +55,8 @@ public class ChartJsInterop : IAsyncDisposable
                 new ChartJsAxisTickJsonConverter(),
             }
     };
+
+    public IJSRuntime JsRuntime { get; }
 
 
 
