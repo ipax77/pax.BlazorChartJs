@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace pax.BlazorChartJs;
 /// <summary>
 /// Represents an object that can be either a single value or an IList of values. This is used for type safe js-interop.
@@ -84,7 +80,7 @@ public class IndexableOption<T>
 
     internal object GetJsonObject()
     {
-        return IsIndexed ? 
+        return IsIndexed ?
               IndexedValues ?? throw new ArgumentNullException()
             : SingleValue ?? throw new ArgumentNullException();
     }

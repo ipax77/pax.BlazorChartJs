@@ -79,5 +79,5 @@ public record PieDataset : ChartJsDataset
 
 public record DoughnutDataset : PieDataset
 {
-    
+
 }

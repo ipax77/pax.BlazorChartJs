@@ -12,12 +12,12 @@ public record ChartJsAxis
     public string? BackgroundColor { get; set; }
     public bool? Display { get; set; }
     public object? Grid { get; set; }
-    public string? Min { get; set; }
-    public string? Max { get; set; }
+    public object? Min { get; set; }
+    public object? Max { get; set; }
     public bool? Reverse { get; set; }
     public string? Stacked { get; set; }
-    public double? SuggestedMax { get; set; }
-    public double? SuggestedMin { get; set; }
+    public object? SuggestedMax { get; set; }
+    public object? SuggestedMin { get; set; }
     public ChartJsAxisTick? Ticks { get; set; }
     public string? Weight { get; set; }
     public Title? Title { get; set; }
@@ -207,19 +207,6 @@ public record PointLabels
 /// </summary>
 public record TimeCartesianAxis : LinearAxis
 {
-    /// <summary>
-    /// For both the min and max properties, the value must be string that is parsable by your date adapter
-    /// or a number with the amount of milliseconds that have elapsed since UNIX epoch.
-    /// </summary>
-    public new object? Min { get; set; }
-    /// <summary>
-    /// For both the min and max properties, the value must be string that is parsable by your date adapter
-    /// or a number with the amount of milliseconds that have elapsed since UNIX epoch.
-    /// </summary>    
-    public new object? Max { get; set; }
-    public new object? SuggestedMin { get; set; }
-    public new object? SuggestedMax { get; set; }
-    public new string? Bounds { get; set; }
     public bool? OffsetAfterAutoskip { get; set; }
     public new TimeCartesianAxisTicks? Ticks { get; set; }
     public TimeCartesianAxisTime? Time { get; set; }

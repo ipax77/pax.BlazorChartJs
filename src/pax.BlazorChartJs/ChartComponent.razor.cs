@@ -26,12 +26,6 @@ public partial class ChartComponent : ComponentBase, IDisposable
     public ChartJsConfig ChartJsConfig { get; set; } = default!;
 
     /// <summary>
-    /// OnLabelClicked - reports click on chart and returns the chartConfig.Guid and the nearest label to that click
-    /// </summary>
-    [Parameter]
-    public EventCallback<KeyValuePair<Guid, string>> OnLabelClicked { get; set; }
-
-    /// <summary>
     /// ChartJsEvent - set required events to true to trigger
     /// e.g. config.Options.Plugins.Legend.OnClickEvent = true
     /// </summary>
@@ -138,16 +132,6 @@ public partial class ChartComponent : ComponentBase, IDisposable
         {
             await ChartJsInterop.UpdateChartDatasets(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
         }
-    }
-
-    /// <summary>
-    /// Javascript call
-    /// </summary>
-    [Obsolete (message: "use EventTriggered instead")]
-    [JSInvokable]
-    public void ChartClicked(string label)
-    {
-        OnLabelClicked.InvokeAsync(new KeyValuePair<Guid, string>(ChartJsConfig.ChartJsConfigGuid, label));
     }
 
     /// <summary>

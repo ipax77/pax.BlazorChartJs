@@ -1,10 +1,3 @@
-using Microsoft.Extensions.Options;
-using System.Reflection.Metadata;
-using System;
-using System.Text.Json.Serialization;
-using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic.FileIO;
-
 namespace pax.BlazorChartJs;
 
 # pragma warning disable CA2227
@@ -291,7 +284,7 @@ public record Legend
     /// Activates onLeave Event for the chartComponent -> OnEventTriggered
     /// DataType = LegendEventData
     /// </summary>      
-    public bool? OnLeaveEvent { get; set; }    
+    public bool? OnLeaveEvent { get; set; }
     public bool? Reverse { get; set; }
     public Labels? Labels { get; set; }
     /// <summary>
@@ -348,7 +341,7 @@ public record Labels
     /// If you have a lot of data points, it can be more performant to enable spanGaps. 
     /// This disables segmentation of the line, which can be an unneeded step.
     /// </summary>  
-    public bool? SpanGaps { get; set; }    
+    public bool? SpanGaps { get; set; }
 }
 
 public record Layout
