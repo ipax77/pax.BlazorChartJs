@@ -58,6 +58,8 @@ public class IndexableOption<T>
         IsIndexed = true;
     }
 
+    public int Count => _indexedValues == null ? 0 : _indexedValues.Count;
+
     public void Insert(int index, T item)
     {
         _indexedValues?.Insert(index, item);
