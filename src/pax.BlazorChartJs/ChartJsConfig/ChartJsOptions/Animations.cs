@@ -27,7 +27,4 @@ public record Animations
     /// disables animation defined by the 'x' property 
     /// </summary>
     public bool? X { get; set; }
-
 }
-
-

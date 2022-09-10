@@ -390,6 +390,58 @@ export function getChartImage(chartId, type, quality, width, height) {
     return chartImg;
 }
 
+export function resetChart(chartId) {
+    const chart = Chart.getChart(chartId);
+    chart.reset();
+}
+
+export function renderChart(chartId) {
+    const chart = Chart.getChart(chartId);
+    chart.render();
+}
+
+export function stopChart(chartId) {
+    const chart = Chart.getChart(chartId);
+    chart.stop();
+}
+
+export function setDatasetVisibility(chartId, datasetIndex, value) {
+    const chart = Chart.getChart(chartId);
+    chart.setDatasetVisibility(datasetIndex, value);
+    chart.update();
+}
+
+export function toggleDataVisibility(chartId, index) {
+    const chart = Chart.getChart(chartId);
+    chart.toggleDataVisibility(index);
+    chart.update();
+}
+
+export function getDataVisibility(chartId, index) {
+    const chart = Chart.getChart(chartId);
+    return chart.getDataVisibility(index);
+}
+
+export function hideDataset(chartId, datasetId, dataIndex) {
+    const chart = Chart.getChart(chartId);
+    const datasetMetas = chart.getSortedVisibleDatasetMetas();
+    var datasetIndex = datasetMetas.findIndex(obj => obj._dataset.id === datasetId);
+    if (dataIndex == undefined) {
+        chart.hide(datasetIndex);
+    } else {
+        chart.hide(datasetIndex, dataIndex);
+    }
+}
+
+export function showDataset(chartId, datasetIndex, dataIndex) {
+    const chart = Chart.getChart(chartId);
+    if (dataIndex == undefined) {
+        chart.show(datasetIndex);
+    } else {
+        chart.show(datasetIndex, dataIndex);
+    }
+}
+
 function arbitaryLinesPlugin() {
     return {
         id: 'arbitraryLines',
