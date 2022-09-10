@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace pax.BlazorChartJs;
+﻿namespace pax.BlazorChartJs;
 #pragma warning disable CA5394
 public static class ChartUtils
 {
@@ -139,7 +132,8 @@ public static class ChartUtils
 
         for (int i = 0; i < count; i++)
         {
-            data.Add(new DataPoint() {
+            data.Add(new DataPoint()
+            {
                 X = random.Next(min, max),
                 Y = random.Next(min, max)
             });

@@ -1,8 +1,4 @@
-using System.Data;
-using System;
 using System.Text.Json.Serialization;
-using pax.BlazorChartJs;
-using System.Reflection.Emit;
 
 namespace pax.BlazorChartJs;
 

@@ -20,6 +20,6 @@ public record ChartJsDataset
     /// If you have a lot of data points, it can be more performant to enable spanGaps. 
     /// This disables segmentation of the line, which can be an unneeded step.
     /// </summary>  
-    public bool? SpanGaps { get; set; }
+    public object? SpanGaps { get; set; }
 }
-# pragma warning restore CA2227
+#pragma warning restore CA2227
