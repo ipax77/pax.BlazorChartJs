@@ -23,7 +23,7 @@ public class DatasetRemoveEventArgs : EventArgs
 
 public class DataAddEventArgs : EventArgs
 {
-    public DataAddEventArgs(string label,
+    public DataAddEventArgs(string? label,
                             IList<object> data,
                             IList<string>? backgroundColors,
                             IList<string>? borderColors,
@@ -36,7 +36,7 @@ public class DataAddEventArgs : EventArgs
         AtPostion = atPosition;
     }
 
-    public string Label { get; init; }
+    public string? Label { get; init; }
     public IList<object> Data { get; init; }
     public IList<string>? BackgroundColors { get; init; }
     public IList<string>? BorderColors { get; init; }

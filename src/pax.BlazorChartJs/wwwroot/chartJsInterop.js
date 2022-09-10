@@ -214,12 +214,6 @@ async function triggerEvent(chartid, event, source, data) {
     }
 }
 
-async function reportChartClick(chartid, label) {
-    if (window.dotnetrefs[chartid]) {
-        await window.dotnetrefs[chartid].invokeMethodAsync("ChartClicked", label);
-    }
-}
-
 export function updateChartOptions(chartId, options) {
     if (window.charts[chartId]) {
         window.charts[chartId].options = options;
@@ -270,14 +264,16 @@ export function addChartDataToDatasets(chartId, label, data, backgroundColors, b
             pos = chart.data.labels.length;
         }
 
-        chart.data.labels.splice(pos, 0, label);
+        if (label != undefined) {
+            chart.data.labels.splice(pos, 0, label);
+        }
 
         for (var index = 0; index < data.length; ++index) {
             let dataset = window.charts[chartId].data.datasets[index];
             dataset.data.splice(pos, 0, data[index]);
 
             if (backgroundColors != undefined && backgroundColors.length >= index
-                && Array.isArray(Array.isArray) && dataset.backgroundColor.length >= index) {
+                && Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length >= index) {
                 dataset.backgroundColor.splice(pos, 0, backgroundColors[index]);
             }
 
