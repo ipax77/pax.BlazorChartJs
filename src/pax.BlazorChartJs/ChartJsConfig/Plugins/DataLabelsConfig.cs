@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace pax.BlazorChartJs;
+﻿namespace pax.BlazorChartJs;
 
 /// <summary>
 /// DataLabelsConfig <see href="https://chartjs-plugin-datalabels.netlify.app/guide/">ChartJs datalabels plugin</see>

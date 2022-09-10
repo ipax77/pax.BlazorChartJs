@@ -1,12 +1,7 @@
 // This is a JavaScript module that is loaded on demand. It can export any number of
 // functions, and may import other JavaScript modules if required.
 
-// import * as Chart from './dist/chart.js';
-// import Chart from './dist/chart.js/auto';
-// import { Chart, registerables } from './chart.min.js';
-
-import './chart.min.js';
-//import './chartjs-plugin-labels.min.js';
+// import './chart.min.js';
 
 // todo: this only stops the first call which might not be good enough
 class AsyncLock {
@@ -21,13 +16,25 @@ class AsyncLock {
 }
 
 const lock = new AsyncLock()
+let isLoaded = false;
 
-export async function initChart(chartId, dotnetConfig, dotnetRef) {
+export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) {
 
     await lock.promise
     lock.enable();
 
     try {
+
+        if (!isLoaded) {
+            if (setupOptions?.chartJsLocation) {
+                await import(setupOptions.chartJsLocation);
+            }
+            else {
+                await import('./chart.min.js');
+            }
+            isLoaded = true;
+        }
+
         if (window.charts == undefined) {
             window.charts = {};
         }
@@ -54,12 +61,21 @@ export async function initChart(chartId, dotnetConfig, dotnetRef) {
             }
 
             if (dotnetConfig.options.plugins.labels != undefined) {
-                await import('./chartjs-plugin-labels.min.js');
+                if (setupOptions?.chartJsPluginLabelsLocation) {
+                    await import(setupOptions?.chartJsPluginLabelsLocation);
+                }
+                else {
+                    await import('./chartjs-plugin-labels.min.js');
+                }
                 // require('./chartjs-plugin-labels.min.js');
             }
 
             if (dotnetConfig.options.plugins.datalabels != undefined) {
-                await import('./chartjs-plugin-datalabels.min.js');
+                if (setupOptions?.chartJsPluginDatalabelsLocation) {
+                    await import(setupOptions.chartJsPluginDatalabelsLocation);
+                } else {
+                    await import('./chartjs-plugin-datalabels.min.js');
+                }
                 // require('./chartjs-plugin-datalabels.min.js');
                 plugins.push(ChartDataLabels);
             }
@@ -198,12 +214,6 @@ async function triggerEvent(chartid, event, source, data) {
     }
 }
 
-async function reportChartClick(chartid, label) {
-    if (window.dotnetrefs[chartid]) {
-        await window.dotnetrefs[chartid].invokeMethodAsync("ChartClicked", label);
-    }
-}
-
 export function updateChartOptions(chartId, options) {
     if (window.charts[chartId]) {
         window.charts[chartId].options = options;
@@ -254,14 +264,16 @@ export function addChartDataToDatasets(chartId, label, data, backgroundColors, b
             pos = chart.data.labels.length;
         }
 
-        chart.data.labels.splice(pos, 0, label);
+        if (label != undefined) {
+            chart.data.labels.splice(pos, 0, label);
+        }
 
         for (var index = 0; index < data.length; ++index) {
             let dataset = window.charts[chartId].data.datasets[index];
             dataset.data.splice(pos, 0, data[index]);
 
             if (backgroundColors != undefined && backgroundColors.length >= index
-                && Array.isArray(Array.isArray) && dataset.backgroundColor.length >= index) {
+                && Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length >= index) {
                 dataset.backgroundColor.splice(pos, 0, backgroundColors[index]);
             }
 
@@ -376,6 +388,58 @@ export function getChartImage(chartId, type, quality, width, height) {
     }
     chart.options.animation = true;
     return chartImg;
+}
+
+export function resetChart(chartId) {
+    const chart = Chart.getChart(chartId);
+    chart.reset();
+}
+
+export function renderChart(chartId) {
+    const chart = Chart.getChart(chartId);
+    chart.render();
+}
+
+export function stopChart(chartId) {
+    const chart = Chart.getChart(chartId);
+    chart.stop();
+}
+
+export function setDatasetVisibility(chartId, datasetIndex, value) {
+    const chart = Chart.getChart(chartId);
+    chart.setDatasetVisibility(datasetIndex, value);
+    chart.update();
+}
+
+export function toggleDataVisibility(chartId, index) {
+    const chart = Chart.getChart(chartId);
+    chart.toggleDataVisibility(index);
+    chart.update();
+}
+
+export function getDataVisibility(chartId, index) {
+    const chart = Chart.getChart(chartId);
+    return chart.getDataVisibility(index);
+}
+
+export function hideDataset(chartId, datasetId, dataIndex) {
+    const chart = Chart.getChart(chartId);
+    const datasetMetas = chart.getSortedVisibleDatasetMetas();
+    var datasetIndex = datasetMetas.findIndex(obj => obj._dataset.id === datasetId);
+    if (dataIndex == undefined) {
+        chart.hide(datasetIndex);
+    } else {
+        chart.hide(datasetIndex, dataIndex);
+    }
+}
+
+export function showDataset(chartId, datasetIndex, dataIndex) {
+    const chart = Chart.getChart(chartId);
+    if (dataIndex == undefined) {
+        chart.show(datasetIndex);
+    } else {
+        chart.show(datasetIndex, dataIndex);
+    }
 }
 
 function arbitaryLinesPlugin() {

@@ -1,5 +1,7 @@
 ﻿@page "/customchart"
 @inject IJSRuntime jsRuntime
+@implements IDisposable
+
 <PageTitle>CustomChart</PageTitle>
 
 <h3>CustomChartPage</h3>
@@ -131,5 +133,14 @@
     private void RemoveLastDataFromDatasets()
     {
         chartJsConfig.RemoveData();
+    }
+
+    public void Dispose()
+    {
+        if (moduleTask != null && moduleTask.IsValueCreated)
+        {
+            var module = moduleTask.Value.GetAwaiter().GetResult();
+            module.DisposeAsync();
+        }
     }
 }
