@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
-using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -22,8 +19,24 @@ namespace pax.BlazorChartJs;
 /// </summary>
 public class ChartJsInterop : IAsyncDisposable
 {
+    /// <summary>
+    /// ChartJsInterop
+    /// </summary>
+    public ChartJsInterop(IJSRuntime jsRuntime,
+                          // ILogger<ChartJsInterop> logger,
+                          IOptions<ChartJsSetupOptions>? options)
+    {
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+            "import", "./_content/pax.BlazorChartJs/chartJsInterop.js").AsTask());
+
+        setupOptions = options?.Value;
+
+        // this.logger = logger;
+    }
+
+    private readonly ChartJsSetupOptions? setupOptions;
     private readonly Lazy<Task<IJSObjectReference>> moduleTask;
-    private readonly ILogger<ChartJsInterop> logger;
+    // private readonly ILogger<ChartJsInterop> logger;
     private readonly JsonSerializerOptions jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -36,21 +49,13 @@ public class ChartJsInterop : IAsyncDisposable
                 new IndexableOptionIntConverter(),
                 new IndexableOptionBoolConverter(),
                 new IndexableOptionObjectConverter(),
-                new ChartJsDatasetJsonConverter()
+                new ChartJsDatasetJsonConverter(),
+                new ChartJsAxisJsonConverter(),
+                new ChartJsAxisTickJsonConverter(),
             }
     };
 
-    /// <summary>
-    /// ChartJsInterop
-    /// </summary>
-    public ChartJsInterop(IJSRuntime jsRuntime, ILogger<ChartJsInterop> logger)
-    {
-        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-            "import", "./_content/pax.BlazorChartJs/chartJsInterop.js").AsTask());
 
-        this.logger = logger;
-        // this.logger.LogInformation("init");
-    }
 
     /// <summary>
     /// (Re-)initializes chart
@@ -62,7 +67,7 @@ public class ChartJsInterop : IAsyncDisposable
 
         var module = await moduleTask.Value.ConfigureAwait(false);
         var serializedConfig = SerializeConfig(config);
-        await module.InvokeVoidAsync("initChart", config.ChartJsConfigGuid, serializedConfig, dotnetRef)
+        await module.InvokeVoidAsync("initChart", setupOptions, config.ChartJsConfigGuid, serializedConfig, dotnetRef)
             .ConfigureAwait(false);
     }
 
@@ -119,7 +124,7 @@ public class ChartJsInterop : IAsyncDisposable
     /// <summary>
     /// Add last data to all datasets
     /// </summary>
-    public async ValueTask AddDataToDataset(Guid configGuid, string label, IList<object> data, IList<string>? backgroundColors, IList<string>? borderColors, int? atPosition)
+    public async ValueTask AddDataToDataset(Guid configGuid, string? label, IList<object> data, IList<string>? backgroundColors, IList<string>? borderColors, int? atPosition)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
         await module.InvokeVoidAsync("addChartDataToDatasets", configGuid, label, data, backgroundColors, borderColors, atPosition)
@@ -188,6 +193,64 @@ public class ChartJsInterop : IAsyncDisposable
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
         return await module.InvokeAsync<string>("getChartImage", configGuid, imageType, quality, width, height)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask ResetChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("resetChart", configGuid)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask RenderChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("renderChart", configGuid)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask StopChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("stopChart", configGuid)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask SetDatasetVisibility(Guid configGuid, int datasetIndex, bool value)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("setDatasetVisibility", configGuid, datasetIndex, value)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask ToggleDataVisibility(Guid configGuid, int index)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("toggleDataVisibility", configGuid, index)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask<bool> GetDataVisibility(Guid configGuid, int index)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        return await module.InvokeAsync<bool>("getDataVisibility", configGuid, index)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask HideDataset(Guid configGuid, ChartJsDataset dataset, int? index)
+    {
+        ArgumentNullException.ThrowIfNull(dataset);
+
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("hideDataset", configGuid, dataset.Id, index)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask ShowDataset(Guid configGuid, int datasetIndex, int? index)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("showDataset", configGuid, datasetIndex, index)
             .ConfigureAwait(false);
     }
 

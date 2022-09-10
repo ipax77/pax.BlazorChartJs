@@ -1,11 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace pax.BlazorChartJs;
 
@@ -30,12 +24,6 @@ public partial class ChartComponent : ComponentBase, IDisposable
     [Parameter]
     [EditorRequired]
     public ChartJsConfig ChartJsConfig { get; set; } = default!;
-
-    /// <summary>
-    /// OnLabelClicked - reports click on chart and returns the chartConfig.Guid and the nearest label to that click
-    /// </summary>
-    [Parameter]
-    public EventCallback<KeyValuePair<Guid, string>> OnLabelClicked { get; set; }
 
     /// <summary>
     /// ChartJsEvent - set required events to true to trigger
@@ -149,16 +137,6 @@ public partial class ChartComponent : ComponentBase, IDisposable
     /// <summary>
     /// Javascript call
     /// </summary>
-    [Obsolete (message: "use EventTriggered instead")]
-    [JSInvokable]
-    public void ChartClicked(string label)
-    {
-        OnLabelClicked.InvokeAsync(new KeyValuePair<Guid, string>(ChartJsConfig.ChartJsConfigGuid, label));
-    }
-
-    /// <summary>
-    /// Javascript call
-    /// </summary>
     [JSInvokable]
     public void EventTriggered(string eventType, string eventSource, object? data)
     {
@@ -191,6 +169,79 @@ public partial class ChartComponent : ComponentBase, IDisposable
     }
 
     /// <summary>
+    /// Reset the chart to its state before the initial animation. A new animation can then be triggered using update.
+    /// </summary>
+    public async ValueTask ResetChart()
+    {
+        await ChartJsInterop.ResetChart(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Triggers a redraw of all chart elements. Note, this does not update elements for new data. Use .update() in that case.
+    /// </summary>
+    public async ValueTask RenderChart()
+    {
+        await ChartJsInterop.RenderChart(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Use this to stop any current animation. This will pause the chart during any current animation frame. Call .render() to re-animate.
+    /// </summary>
+    public async ValueTask StopChart()
+    {
+        await ChartJsInterop.StopChart(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sets the visibility for a given dataset. This can be used to build a chart legend in HTML.
+    /// During click on one of the HTML items, you can call setDatasetVisibility to change the appropriate dataset.
+    /// </summary>
+    public async ValueTask SetDatasetVisibility(ChartJsDataset dataset, bool value)
+    {
+        await ChartJsInterop.SetDatasetVisibility(ChartJsConfig.ChartJsConfigGuid, ChartJsConfig.Data.Datasets.IndexOf(dataset), value).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Toggles the visibility of an item in all datasets. A dataset needs to explicitly support this feature for it to have an effect.
+    /// From internal chart types, doughnut / pie, polar area, and bar use this.
+    /// </summary>
+    public async ValueTask ToggleDataVisibility(int index)
+    {
+        await ChartJsInterop.ToggleDataVisibility(ChartJsConfig.ChartJsConfigGuid, index).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Returns the stored visibility state of an data index for all datasets. Set by toggleDataVisibility.
+    /// A dataset controller should use this method to determine if an item should not be visible.
+    /// </summary>
+    public async ValueTask<bool> GetDataVisibility(int index)
+    {
+        return await ChartJsInterop.GetDataVisibility(ChartJsConfig.ChartJsConfigGuid, index).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// If dataIndex is not specified, sets the visibility for the given dataset to false. Updates the chart and animates the dataset with 'hide' mode.
+    /// This animation can be configured under the hide key in animation options. Please see animations docs for more details.
+    /// If dataIndex is specified, sets the hidden flag of that element to true and updates the chart.
+    /// </summary>
+    public async ValueTask HideDataset(ChartJsDataset dataset, int? index)
+    {
+        ArgumentNullException.ThrowIfNull(dataset);
+        await ChartJsInterop.HideDataset(ChartJsConfig.ChartJsConfigGuid, dataset, index).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// If dataIndex is not specified, sets the visibility for the given dataset to true. Updates the chart and animates the dataset with 'show' mode.
+    /// This animation can be configured under the show key in animation options. Please see animations docs for more details.
+    /// If dataIndex is specified, sets the hidden flag of that element to false and updates the chart.
+    /// </summary>
+    public async ValueTask ShowDataset(ChartJsDataset dataset, int? index)
+    {
+        ArgumentNullException.ThrowIfNull(dataset);
+        await ChartJsInterop.ShowDataset(ChartJsConfig.ChartJsConfigGuid, ChartJsConfig.Data.Datasets.IndexOf(dataset), index).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Dispose
     /// </summary>
     public void Dispose()
@@ -211,13 +262,13 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
         if (disposing)
         {
+            dotNetHelper?.Dispose();
             ChartJsConfig.DatasetAdd -= ChartJsConfig_DatasetAdd;
             ChartJsConfig.DatasetRemove -= ChartJsConfig_DatasetRemove;
             ChartJsConfig.DataAdd -= ChartJsConfig_DataAdd;
             ChartJsConfig.DataRemove -= ChartJsConfig_DataRemove;
             ChartJsConfig.DataSet -= ChartJsConfig_DataSet;
             ChartJsConfig.LabelsSet -= ChartJsConfig_LabelsSet;
-            dotNetHelper?.Dispose();
             // todo: cleanup js chart?
         }
 

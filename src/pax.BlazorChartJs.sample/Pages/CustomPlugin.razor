@@ -1,5 +1,6 @@
 ﻿@page "/custompluginchart"
 @using System.Text.Json
+@implements IDisposable
 
 @inject IJSRuntime jsRuntime
 
@@ -145,5 +146,14 @@
         public double? YMax { get; set; }
         public string? BackgroundColor { get; set; }
 
+    }
+
+    public void Dispose()
+    {
+        if (moduleTask != null && moduleTask.IsValueCreated)
+        {
+            var module = moduleTask.Value.GetAwaiter().GetResult();
+            module.DisposeAsync();
+        }
     }
 }

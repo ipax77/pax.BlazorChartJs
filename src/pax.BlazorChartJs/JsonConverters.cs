@@ -108,3 +108,62 @@ internal class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset?>
         }), true);
     }
 }
+
+
+internal class ChartJsAxisJsonConverter : JsonConverter<ChartJsAxis?>
+{
+    public override ChartJsAxis? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+     => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, ChartJsAxis? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, new JsonSerializerOptions()
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters =
+                {
+                    new JsonStringEnumConverter(),
+                    new IndexableOptionStringConverter(),
+                    new IndexableOptionDoubleConverter(),
+                    new IndexableOptionIntConverter(),
+                    new IndexableOptionBoolConverter(),
+                    new IndexableOptionObjectConverter()
+                }
+        }), true);
+    }
+}
+
+internal class ChartJsAxisTickJsonConverter : JsonConverter<ChartJsAxisTick?>
+{
+    public override ChartJsAxisTick? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+     => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, ChartJsAxisTick? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, new JsonSerializerOptions()
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters =
+                {
+                    new JsonStringEnumConverter(),
+                    new IndexableOptionStringConverter(),
+                    new IndexableOptionDoubleConverter(),
+                    new IndexableOptionIntConverter(),
+                    new IndexableOptionBoolConverter(),
+                    new IndexableOptionObjectConverter()
+                }
+        }), true);
+    }
+}

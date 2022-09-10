@@ -14,12 +14,12 @@ public record ChartJsDataset
     /// <summary>
     /// can be object|object[]| number[]|string[]
     /// </summary>    
-    public IList<object> Data { get; set; } = new List<object> { 1, 2, 3 };
+    public IList<object> Data { get; set; } = new List<object>();
     public ChartType? Type { get; set; }
     /// <summary>
     /// If you have a lot of data points, it can be more performant to enable spanGaps. 
     /// This disables segmentation of the line, which can be an unneeded step.
     /// </summary>  
-    public bool? SpanGaps { get; set; }
+    public object? SpanGaps { get; set; }
 }
-# pragma warning restore CA2227
+#pragma warning restore CA2227

@@ -17,16 +17,7 @@
 </div>
 
 <div class="w-75">
-    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig" OnLabelClicked="LabelClicked" OnEventTriggered="EventTriggered"></ChartComponent>
-</div>
-
-<div>
-    @if (!String.IsNullOrEmpty(labelClicked))
-    {
-        <p>
-            Label clicked: @labelClicked
-        </p>
-    }
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig" OnEventTriggered="EventTriggered"></ChartComponent>
 </div>
 
 <div>
@@ -60,7 +51,6 @@
     ChartComponent? chartComponent;
     ChartJsConfig chartJsConfig = null!;
     ChartJsEvent? latestchartJsEvent = null;
-    private string? labelClicked;
 
     LabelEventData? labelEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as LabelEventData;
     LegendEventData? legendEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as LegendEventData;
@@ -148,11 +138,6 @@
     private void ShowChart()
     {
         chartComponent?.DrawChart();
-    }
-
-    private void LabelClicked(KeyValuePair<Guid, string> report)
-    {
-        labelClicked = report.Value;
     }
 
     private void EventTriggered(ChartJsEvent chartJsEvent)
