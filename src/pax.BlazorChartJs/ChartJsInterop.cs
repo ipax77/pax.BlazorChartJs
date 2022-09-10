@@ -196,6 +196,64 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    public async ValueTask ResetChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("resetChart", configGuid)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask RenderChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("renderChart", configGuid)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask StopChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("stopChart", configGuid)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask SetDatasetVisibility(Guid configGuid, int datasetIndex, bool value)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("setDatasetVisibility", configGuid, datasetIndex, value)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask ToggleDataVisibility(Guid configGuid, int index)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("toggleDataVisibility", configGuid, index)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask<bool> GetDataVisibility(Guid configGuid, int index)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        return await module.InvokeAsync<bool>("getDataVisibility", configGuid, index)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask HideDataset(Guid configGuid, ChartJsDataset dataset, int? index)
+    {
+        ArgumentNullException.ThrowIfNull(dataset);
+
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("hideDataset", configGuid, dataset.Id, index)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask ShowDataset(Guid configGuid, int datasetIndex, int? index)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("showDataset", configGuid, datasetIndex, index)
+            .ConfigureAwait(false);
+    }
+
     private JsonObject? SerializeConfig(ChartJsConfig config)
     {
         var json = JsonSerializer.Serialize<object>(config, jsonOptions);
