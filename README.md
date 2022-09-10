@@ -19,7 +19,7 @@ Program.cs: (You can set optional javascript locations here)
 
 Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.sample)
 
-```cs
+```razor
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
     <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
