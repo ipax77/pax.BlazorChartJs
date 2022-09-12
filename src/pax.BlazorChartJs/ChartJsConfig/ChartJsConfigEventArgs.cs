@@ -70,3 +70,31 @@ public class LabelsSetEventArgs : EventArgs
 
     public IList<string> Labels { get; init; }
 }
+
+public class AddDataEventArgs : EventArgs
+{
+    public AddDataEventArgs(string? label, int? atPosition, Dictionary<string, AddDataObject> datas)
+    {
+        Label = label;
+        Datas = datas;
+        AtPosition = atPosition;
+    }
+    public string? Label { get; init; }
+    public int? AtPosition { get; init; }
+    public Dictionary<string, AddDataObject> Datas { get; init; }
+}
+
+public record AddDataObject
+{
+    public AddDataObject(object data, int? atPosition = null, string? backgroundColor = null, string? borderColor = null)
+    {
+        Data = data;
+        BackgroundColor = backgroundColor;
+        BorderColor = borderColor;
+        AtPosition = atPosition;
+    }
+    public object Data { get; init; }
+    public string? BackgroundColor { get; init; }
+    public string? BorderColor { get; init; }
+    public int? AtPosition { get; init; }
+}

@@ -261,28 +261,111 @@ export function addChartDataToDatasets(chartId, label, data, backgroundColors, b
         var chart = window.charts[chartId];
 
         if (pos == undefined) {
-            pos = chart.data.labels.length;
-        }
-
-        if (label != undefined) {
-            chart.data.labels.splice(pos, 0, label);
-        }
-
-        for (var index = 0; index < data.length; ++index) {
-            let dataset = window.charts[chartId].data.datasets[index];
-            dataset.data.splice(pos, 0, data[index]);
-
-            if (backgroundColors != undefined && backgroundColors.length >= index
-                && Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length >= index) {
-                dataset.backgroundColor.splice(pos, 0, backgroundColors[index]);
+            if (label != undefined) {
+                chart.data.labels.push(label);
             }
 
-            if (borderColors != undefined && borderColors.length >= index
-                && Array.isArray(dataset.borderColor) && dataset.borderColor.length >= index) {
-                dataset.borderColor.splice(pos, 0, borderColors[index]);
+            for (var index = 0; index < data.length; ++index) {
+                let dataset = window.charts[chartId].data.datasets[index];
+                dataset.data.push(data[index]);
+
+                if (backgroundColors != undefined && backgroundColors.length >= index
+                    && Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length >= index) {
+                    dataset.backgroundColor.push(backgroundColors[index]);
+                }
+
+                if (borderColors != undefined && borderColors.length >= index
+                    && Array.isArray(dataset.borderColor) && dataset.borderColor.length >= index) {
+                    dataset.borderColor.push(borderColors[index]);
+                }
+            }
+        }
+        else {
+
+            if (label != undefined) {
+                chart.data.labels.splice(pos, 0, label);
+            }
+
+            for (var index = 0; index < data.length; ++index) {
+                let dataset = window.charts[chartId].data.datasets[index];
+                dataset.data.splice(pos, 0, data[index]);
+
+                if (backgroundColors != undefined && backgroundColors.length >= index
+                    && Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length >= index) {
+                    dataset.backgroundColor.splice(pos, 0, backgroundColors[index]);
+                }
+
+                if (borderColors != undefined && borderColors.length >= index
+                    && Array.isArray(dataset.borderColor) && dataset.borderColor.length >= index) {
+                    dataset.borderColor.splice(pos, 0, borderColors[index]);
+                }
             }
         }
         chart.update();
+    }
+}
+
+export function addData(chartId, label, pos, datasetDatas) {
+    const chart = Chart.getChart(chartId);
+
+    if (chart == undefined) {
+        return;
+    }
+
+    addLabel(chart, label, pos);
+
+    chart.data.datasets.forEach(dataset => {
+        if (datasetDatas[dataset.id] != undefined) {
+            let addData = datasetDatas[dataset.id];
+            addDatasetData(dataset, addData.data, addData.atPosition);
+
+            if (addData.backgroundColor != undefined) {
+                addBackgroundColor(dataset, addData.backgroundColor, adddata.atPosition);
+            }
+
+            if (addData.borderColor != undefined) {
+                addBorderColor(dataset, addData.borderColor, adddata.atPosition);
+            }
+        }
+    });
+    chart.update();
+}
+
+function addLabel(chart, label, pos) {
+    if (label != undefined) {
+        if (pos == undefined) {
+            chart.data.labels.push(label);
+        } else {
+            chart.data.labels.splice(pos, 0, label);
+        }
+    }
+}
+
+function addDatasetData(dataset, data, pos) {
+    if (pos == undefined) {
+        dataset.data.push(data);
+    } else {
+        dataset.data.splice(pos, 0, data);
+    }
+}
+
+function addBackgroundColor(dataset, backgroundColor, pos) {
+    if (Array.isArray(dataset.backgroundColor)) {
+        if (pos == undefined) {
+            dataset.backgroundColor.push(backgroundColor);
+        } else {
+            dataset.backgroundColor.splice(pos, 0, backgroundColor);
+        }
+    }
+}
+
+function addBorderColor(dataset, borderColor, pos) {
+    if (Array.isArray(dataset.borderColor)) {
+        if (pos == undefined) {
+            dataset.borderColor.push(borderColor);
+        } else {
+            dataset.borderColor.splice(pos, 0, borderColor);
+        }
     }
 }
 
@@ -300,22 +383,34 @@ export function removeData(chartId, pos) {
         var chart = window.charts[chartId];
 
         if (pos == undefined) {
-            pos = chart.data.labels.length - 1;
-        }
-
-        if (Array.isArray(chart.data.labels) && chart.data.labels.length >= pos) {
-            chart.data.labels.splice(pos, 1);
-        }
-
-        chart.data.datasets.forEach(dataset => {
-            dataset.data.splice(pos, 1);
-            if (Array.isArray(dataset.borderColor) && dataset.borderColor.length >= pos) {
-                dataset.borderColor.splice(pos, 1);
+            if (Array.isArray(chart.data.labels) && chart.data.labels.length > 0) {
+                chart.data.labels.pop();
             }
-            if (Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length >= pos) {
-                dataset.backgroundColor.splice(pos, 1);
+
+            chart.data.datasets.forEach(dataset => {
+                dataset.data.pop();
+                if (Array.isArray(dataset.borderColor) && dataset.borderColor.length > 0) {
+                    dataset.borderColor.pop();
+                }
+                if (Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length > 0) {
+                    dataset.backgroundColor.pop();
+                }
+            });
+        } else {
+            if (Array.isArray(chart.data.labels) && chart.data.labels.length > pos) {
+                chart.data.labels.splice(pos, 1);
             }
-        });
+
+            chart.data.datasets.forEach(dataset => {
+                dataset.data.splice(pos, 1);
+                if (Array.isArray(dataset.borderColor) && dataset.borderColor.length > pos) {
+                    dataset.borderColor.splice(pos, 1);
+                }
+                if (Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length > pos) {
+                    dataset.backgroundColor.splice(pos, 1);
+                }
+            });
+        }
         chart.update();
     }
 }

@@ -13,9 +13,13 @@ public partial class ChartJsConfig
     /// <param name="atPosition"></param>
     public void AddData(string label, object data, string? backgroundColor = null, string? borderColor = null, int? atPosition = null)
     {
-        var backgroundColors = backgroundColor == null ? null : new List<string> { backgroundColor };
-        var borderColors = borderColor == null ? null : new List<string> { borderColor };
-        AddData(label, new List<object>() { data }, backgroundColors, borderColors, atPosition);
+        // var backgroundColors = backgroundColor == null ? null : new List<string> { backgroundColor };
+        // var borderColors = borderColor == null ? null : new List<string> { borderColor };
+        // AddData(label, new List<object>() { data }, backgroundColors, borderColors, atPosition);
+        AddData(label, atPosition, new Dictionary<ChartJsDataset, AddDataObject>() 
+            {
+                { Data.Datasets.First(), new AddDataObject(data, atPosition, backgroundColor, borderColor)}
+            });
     }
 
     /// <summary>
@@ -26,6 +30,7 @@ public partial class ChartJsConfig
     /// <param name="backgroundColors"></param>
     /// <param name="borderColors"></param>
     /// <param name="atPosition"></param>
+    [Obsolete("Use AddDataObject instead")]
     public void AddData(string? label, IList<object> data, IList<string>? backgroundColors = null, IList<string>? borderColors = null, int? atPosition = null)
     {
         ArgumentNullException.ThrowIfNull(data);
@@ -50,6 +55,29 @@ public partial class ChartJsConfig
             }
         }
         OnDataAdd(new DataAddEventArgs(label, data, backgroundColors, borderColors, atPosition));
+    }
+
+    public void AddData(string? label, int? atPosition, Dictionary<ChartJsDataset, AddDataObject> datas)
+    {
+        ArgumentNullException.ThrowIfNull(datas);
+
+        AddLabel(label, atPosition);
+
+        Dictionary<string, AddDataObject> jsData = new();
+        foreach (var data in datas)
+        {
+            AddDatasetData(data.Key, data.Value.Data, data.Value.AtPosition);
+            if (data.Value.BackgroundColor != null)
+            {
+                AddDatasetBackgroundColor(data.Key, data.Value.BackgroundColor, data.Value.AtPosition);
+            }
+            if (data.Value.BorderColor != null)
+            {
+                AddDatasetBorderColor(data.Key, data.Value.BorderColor, data.Value.AtPosition);
+            }
+            jsData[data.Key.Id] = data.Value;
+        }
+        OnAddDataEvent(new AddDataEventArgs(label, atPosition, jsData));
     }
 
     private void AddLabel(string? label, int? atPosition)

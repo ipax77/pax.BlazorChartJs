@@ -131,6 +131,12 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    public async ValueTask AddData(Guid configGuid, string? label, int? atPosition, Dictionary<string, AddDataObject> datas)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("addData", configGuid, label, atPosition, datas).ConfigureAwait(false);
+    }
+
     /// <summary>
     /// AddDataset
     /// </summary>

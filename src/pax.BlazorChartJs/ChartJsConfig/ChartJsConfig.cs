@@ -29,6 +29,13 @@ public partial class ChartJsConfig
     internal event EventHandler<DataRemoveEventArgs>? DataRemove;
     internal event EventHandler<DataSetEventArgs>? DataSet;
     internal event EventHandler<LabelsSetEventArgs>? LabelsSet;
+    internal event EventHandler<AddDataEventArgs>? AddDataEvent;
+
+    internal virtual void OnAddDataEvent(AddDataEventArgs e)
+    {
+        EventHandler<AddDataEventArgs>? handler = AddDataEvent;
+        handler?.Invoke(this, e);
+    }
 
     internal virtual void OnLabelsSet(LabelsSetEventArgs e)
     {
