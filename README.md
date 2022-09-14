@@ -10,8 +10,8 @@ dotnet 6
 dotnet add package pax.BlazorChartJs
 ```
 
-Program.cs:
-```
+Program.cs: (You can set optional javascript locations here)
+``` cs
     builder.Services.AddChartJs();
 ```
 
@@ -19,7 +19,7 @@ Program.cs:
 
 Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.sample)
 
-```cs
+```razor
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
     <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
@@ -90,13 +90,6 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
                     Responsive = true,
                     MaintainAspectRatio = true,
                     OnClickEvent = true,
-                    Plugins = new Plugins()
-                    {
-                        Labels = new LabelsConfig()
-                        {
-                            Render = "image"
-                        }
-                    },
                     Scales = new ChartJsOptionsScales()
                     {
                         Y = new LinearAxis()
@@ -167,13 +160,16 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 * Callbacks
 * InteractionModes
 * DataDecimation
-* Time Scale Chart
 
 ## ChangeLog
 
 <details open="open"><summary>v0.3.1</summary>
 
+>- Time Scale Chart
 >- Optional javascript location options
+>- ChartJs API calls
+>- bugfixes
+>- refactoring
 
 </details>
 

@@ -11,7 +11,7 @@
     {
         // Arrange
         using var ctx = new TestContext();
-        var logger = NullLogger<ChartJsInterop>.Instance;
+        // var logger = NullLogger<ChartJsInterop>.Instance;
         var chartJsConfig = GetBarTestConfig();
         ctx.JSInterop.Mode = JSRuntimeMode.Strict;
 
@@ -20,7 +20,7 @@
         var chartJsInterop = ctx.JSInterop.SetupModule("./_content/pax.BlazorChartJs/chartJsInterop.js");
         var initChart = chartJsInterop.SetupVoid("initChart", _ => true);
 
-        ctx.Services.AddSingleton<ChartJsInterop>(new ChartJsInterop(ctx.JSInterop.JSRuntime, logger));
+        ctx.Services.AddSingleton<ChartJsInterop>(new ChartJsInterop(ctx.JSInterop.JSRuntime, null));
 
         // Act
         BarChart? barChart = null;

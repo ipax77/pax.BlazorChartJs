@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace pax.BlazorChartJs;
+﻿namespace pax.BlazorChartJs;
 
 /// <summary>
 /// Radar chart dataset <see href="https://www.chartjs.org/docs/latest/charts/radar.html">ChartJs docs</see>
@@ -26,7 +20,7 @@ public record RadarDataset : ChartJsDataset
     /// <summary>
     /// BorderDash <see href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash">MDN</see>
     /// </summary>    
-#pragma warning disable CA2227    
+#pragma warning disable CA2227
     public IList<double>? BorderDash { get; set; }
     /// <summary>
     /// BorderDashOffset <see href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset">MDN</see>
