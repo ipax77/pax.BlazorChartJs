@@ -9,7 +9,6 @@ public partial class ChartJsConfig
     /// </summary>
     public void SetData(Dictionary<ChartJsDataset, SetDataObject> datas, IList<string>? labels = null)
     {
-        ArgumentNullException.ThrowIfNull(labels);
         ArgumentNullException.ThrowIfNull(datas);
 
         if (labels != null)

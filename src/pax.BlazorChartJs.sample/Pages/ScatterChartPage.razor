@@ -128,9 +128,7 @@
             var scatterDataset = chartJsConfig.Data.Datasets[i] as ScatterDataset;
             if (scatterDataset != null)
             {
-                var data = new List<object>(scatterDataset.Data);
-                data.Add(GetRandomPoint());
-                datas.Add(scatterDataset, new AddDataObject(data));
+                datas.Add(scatterDataset, new AddDataObject(GetRandomPoint()));
             }
         }
         chartJsConfig.AddData(null, null, datas);

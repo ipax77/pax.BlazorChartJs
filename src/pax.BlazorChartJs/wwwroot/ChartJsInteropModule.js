@@ -66,13 +66,6 @@ class ChartJsInterop {
                 }
             }
         });
-        const datasetMetas = chart.getSortedVisibleDatasetMetas();
-        for (let i = 0; i < datas.length; i++) {
-            const datasetIndex = datasetMetas.findIndex(obj => obj['_dataset']['id'] === datas[i]['datasetId']);
-            if (datasetIndex >= 0) {
-                chart.data.datasets[datasetIndex].data.push(datas[i]['data']);
-            }
-        }
         chart.update();
     }
     addLabel(chart, label, pos) {
