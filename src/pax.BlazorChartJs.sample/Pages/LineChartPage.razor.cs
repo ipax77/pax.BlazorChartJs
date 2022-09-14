@@ -156,7 +156,7 @@ public partial class LineChartPage : ComponentBase
                 }
             }
         };
-            
+
         base.OnInitialized();
     }
 

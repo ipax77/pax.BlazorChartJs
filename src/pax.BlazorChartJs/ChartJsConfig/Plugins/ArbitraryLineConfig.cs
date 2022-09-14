@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace pax.BlazorChartJs;
+﻿namespace pax.BlazorChartJs;
 
 /// <summary>
 /// ArbitraryLineConfig <see href="https://www.youtube.com/watch?v=7ZZ_XfaJQbM">GitHub</see>

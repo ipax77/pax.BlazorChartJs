@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using System.Reflection;
@@ -127,11 +126,17 @@ public class ChartJsInterop : IAsyncDisposable
     /// <summary>
     /// Add last data to all datasets
     /// </summary>
-    public async ValueTask AddDataToDataset(Guid configGuid, string label, IList<object> data, IList<string>? backgroundColors, IList<string>? borderColors, int? atPosition)
+    public async ValueTask AddDataToDataset(Guid configGuid, string? label, IList<object> data, IList<string>? backgroundColors, IList<string>? borderColors, int? atPosition)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
         await module.InvokeVoidAsync("addChartDataToDatasets", configGuid, label, data, backgroundColors, borderColors, atPosition)
             .ConfigureAwait(false);
+    }
+
+    public async ValueTask AddData(Guid configGuid, string? label, int? atPosition, Dictionary<string, AddDataObject> datas)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("addData", configGuid, label, atPosition, datas).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -196,6 +201,64 @@ public class ChartJsInterop : IAsyncDisposable
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
         return await module.InvokeAsync<string>("getChartImage", configGuid, imageType, quality, width, height)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask ResetChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("resetChart", configGuid)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask RenderChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("renderChart", configGuid)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask StopChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("stopChart", configGuid)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask SetDatasetVisibility(Guid configGuid, int datasetIndex, bool value)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("setDatasetVisibility", configGuid, datasetIndex, value)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask ToggleDataVisibility(Guid configGuid, int index)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("toggleDataVisibility", configGuid, index)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask<bool> GetDataVisibility(Guid configGuid, int index)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        return await module.InvokeAsync<bool>("getDataVisibility", configGuid, index)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask HideDataset(Guid configGuid, ChartJsDataset dataset, int? index)
+    {
+        ArgumentNullException.ThrowIfNull(dataset);
+
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("hideDataset", configGuid, dataset.Id, index)
+            .ConfigureAwait(false);
+    }
+
+    public async ValueTask ShowDataset(Guid configGuid, int datasetIndex, int? index)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("showDataset", configGuid, datasetIndex, index)
             .ConfigureAwait(false);
     }
 

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace pax.BlazorChartJs;
+﻿namespace pax.BlazorChartJs;
 public class DatasetAddEventArgs : EventArgs
 {
     public DatasetAddEventArgs(object dataset, string? afterDatasetId)
@@ -29,7 +23,7 @@ public class DatasetRemoveEventArgs : EventArgs
 
 public class DataAddEventArgs : EventArgs
 {
-    public DataAddEventArgs(string label,
+    public DataAddEventArgs(string? label,
                             IList<object> data,
                             IList<string>? backgroundColors,
                             IList<string>? borderColors,
@@ -42,7 +36,7 @@ public class DataAddEventArgs : EventArgs
         AtPostion = atPosition;
     }
 
-    public string Label { get; init; }
+    public string? Label { get; init; }
     public IList<object> Data { get; init; }
     public IList<string>? BackgroundColors { get; init; }
     public IList<string>? BorderColors { get; init; }
@@ -75,4 +69,32 @@ public class LabelsSetEventArgs : EventArgs
     }
 
     public IList<string> Labels { get; init; }
+}
+
+public class AddDataEventArgs : EventArgs
+{
+    public AddDataEventArgs(string? label, int? atPosition, Dictionary<string, AddDataObject> datas)
+    {
+        Label = label;
+        Datas = datas;
+        AtPosition = atPosition;
+    }
+    public string? Label { get; init; }
+    public int? AtPosition { get; init; }
+    public Dictionary<string, AddDataObject> Datas { get; init; }
+}
+
+public record AddDataObject
+{
+    public AddDataObject(object data, int? atPosition = null, string? backgroundColor = null, string? borderColor = null)
+    {
+        Data = data;
+        BackgroundColor = backgroundColor;
+        BorderColor = borderColor;
+        AtPosition = atPosition;
+    }
+    public object Data { get; init; }
+    public string? BackgroundColor { get; init; }
+    public string? BorderColor { get; init; }
+    public int? AtPosition { get; init; }
 }

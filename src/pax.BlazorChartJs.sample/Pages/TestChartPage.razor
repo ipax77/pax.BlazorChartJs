@@ -1,16 +1,29 @@
-﻿@page "/polarareachart"
+﻿@page "/testchart"
 
-<PageTitle>PolarAreaChart</PageTitle>
+<PageTitle>TestChart</PageTitle>
 
-<h3>PolarAreaChartPage</h3>
+<h3>TestChartPage</h3>
+
+@if (chartComponent != null)
+{
+    <div class="btn-group">
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ResetChart()">Reset</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.StopChart()">Stop</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.SetDatasetVisibility(chartJsConfig.Data.Datasets.First(), false)">Visible false</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.SetDatasetVisibility(chartJsConfig.Data.Datasets.First(), true)">Visible true</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ToggleDataVisibility(2)">Toggle</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.HideDataset(chartJsConfig.Data.Datasets.First(), null)">Hide</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ShowDataset(chartJsConfig.Data.Datasets.First(), null)">Show</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.HideDataset(chartJsConfig.Data.Datasets.First(), 2)">Hide 2</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ShowDataset(chartJsConfig.Data.Datasets.First(), 2)">Show 2</button>
+    </div>
+}
 
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="ShowChart">ShowChart</button>
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
     <button type="button" class="btn btn-primary" @onclick="AddData">AddData</button>
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">RemoveData</button>
-    <button type="button" class="btn btn-primary" @onclick="EnableAnimations">EnabelAnimations</button>
-    <button type="button" class="btn btn-primary" @onclick="DisableAnimation">DisableAnimations</button>
 </div>
 
 <div class="w-50">
@@ -25,7 +38,7 @@
     {
         chartJsConfig = new()
             {
-                Type = ChartType.polarArea,
+                Type = ChartType.pie,
                 Data = new ChartJsData()
                 {
                     Labels = new List<string>()
@@ -34,7 +47,7 @@
                     },
                     Datasets = new List<ChartJsDataset>()
                     {
-                        new PolarAreaDataset()
+                        new PieDataset()
                         {
                             Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
                             BackgroundColor = new IndexableOption<string>(new List<string>()
@@ -55,8 +68,7 @@
                                 "rgba(153, 102, 255, 1)",
                                 "rgba(255, 159, 64, 1)",
                             }),
-                            BorderWidth = new IndexableOption<double>(1),
-                            Circular = new IndexableOption<bool>(true)
+                            BorderWidth = new IndexableOption<double>(1)
                         }
                     }
                 },
@@ -82,7 +94,7 @@
 
     private void Randomize()
     {
-        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, 0, 100);
+        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
         Dictionary<ChartJsDataset, IList<object>> chartData = new();
 
@@ -97,30 +109,12 @@
 
     private void AddData()
     {
-        var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, 0, 100);
+        var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
         chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
     }
 
     private void RemoveLastDataFromDatasets()
     {
         chartJsConfig.RemoveData();
-    }
-
-    private void DisableAnimation()
-    {
-        if (chartJsConfig.Options != null)
-        {
-            chartJsConfig.Options.Animation = false;
-            chartComponent?.UpdateChartOptions();
-        }
-    }
-
-    private void EnableAnimations()
-    {
-        if (chartJsConfig.Options != null)
-        {
-            chartJsConfig.Options.Animation = null;
-            chartComponent?.UpdateChartOptions();
-        }
     }
 }

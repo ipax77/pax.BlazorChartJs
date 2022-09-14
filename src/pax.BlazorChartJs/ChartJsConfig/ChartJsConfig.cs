@@ -1,17 +1,12 @@
-using System.Data;
-using System;
 using System.Text.Json.Serialization;
-using pax.BlazorChartJs;
-using System.Reflection.Emit;
 
 namespace pax.BlazorChartJs;
 
-#pragma warning disable CA2227
 /// <summary>
 /// ChartJs v3.9.1 wrapper class <see href="https://www.chartjs.org/docs/latest/configuration/">ChartJs docs</see>
 /// NULL values are ignored (=> ChartJs default)
 /// </summary>
-public class ChartJsConfig
+public partial class ChartJsConfig
 {
     public ChartJsConfig()
     {
@@ -34,6 +29,13 @@ public class ChartJsConfig
     internal event EventHandler<DataRemoveEventArgs>? DataRemove;
     internal event EventHandler<DataSetEventArgs>? DataSet;
     internal event EventHandler<LabelsSetEventArgs>? LabelsSet;
+    internal event EventHandler<AddDataEventArgs>? AddDataEvent;
+
+    internal virtual void OnAddDataEvent(AddDataEventArgs e)
+    {
+        EventHandler<AddDataEventArgs>? handler = AddDataEvent;
+        handler?.Invoke(this, e);
+    }
 
     internal virtual void OnLabelsSet(LabelsSetEventArgs e)
     {
@@ -89,7 +91,7 @@ public class ChartJsConfig
             if (afterDataset != null)
             {
                 Data.Datasets.Insert(atPosition.Value, dataset);
-                OnDatasetAdd(new DatasetAddEventArgs(afterDataset, afterDataset.Id));
+                OnDatasetAdd(new DatasetAddEventArgs(dataset, afterDataset.Id));
             }
         }
     }
@@ -107,139 +109,6 @@ public class ChartJsConfig
             Data.Datasets.Remove(dataset);
             OnDatasetRemove(new DatasetRemoveEventArgs(dataset.Id));
         }
-    }
-
-    /// <summary>
-    /// Adds data to datasets and updates the chart
-    /// </summary>
-    /// <param name="label"></param>
-    /// <param name="data"></param>
-    /// <param name="backgroundColor"></param>
-    /// <param name="borderColor"></param>
-    /// <param name="atPosition"></param>
-    public void AddData(string label, object data, string? backgroundColor = null, string? borderColor = null, int? atPosition = null)
-    {
-        var backgroundColors = backgroundColor == null ? null : new List<string> { backgroundColor };
-        var borderColors = borderColor == null ? null : new List<string> { borderColor };
-        AddData(label, new List<object>() { data }, backgroundColors, borderColors, atPosition);
-    }
-
-    /// <summary>
-    /// Adds data to datasets and updates the chart
-    /// </summary>
-    /// <param name="label"></param>
-    /// <param name="data"></param>
-    /// <param name="backgroundColors"></param>
-    /// <param name="borderColors"></param>
-    /// <param name="atPosition"></param>
-    public void AddData(string label, IList<object> data, IList<string>? backgroundColors = null, IList<string>? borderColors = null, int? atPosition = null)
-    {
-        ArgumentNullException.ThrowIfNull(data);
-
-        int pos = atPosition == null ? -1 : atPosition.Value;
-
-        if (pos < 0)
-        {
-            Data.Labels.Add(label);
-        }
-        else
-        {
-            Data.Labels.Insert(pos, label);
-        }
-
-        for (int i = 0; i < Data.Datasets.Count; i++)
-        {
-            if (data.Count >= i)
-            {
-                if (pos < 0)
-                {
-                    Data.Datasets[i].Data.Add(data[i]);
-                }
-                else
-                {
-                    Data.Datasets[i].Data.Insert(pos, data[i]);
-                }
-            }
-
-            if (backgroundColors != null && backgroundColors.Count >= i)
-            {
-                if (Data.Datasets[i].GetType() == typeof(BarDataset))
-                {
-                    BarDataset dataset = (BarDataset)Data.Datasets[i];
-                    if (dataset.BackgroundColor != null && dataset.BackgroundColor.IsIndexed)
-                    {
-                        if (pos < 0)
-                        {
-                            dataset.BackgroundColor.Add(backgroundColors[i]);
-                        }
-                        else
-                        {
-                            dataset.BackgroundColor.Insert(pos, backgroundColors[i]);
-                        }
-                    }
-                }
-            }
-
-            if (borderColors != null && borderColors.Count >= i)
-            {
-                if (Data.Datasets[i].GetType() == typeof(BarDataset))
-                {
-                    BarDataset dataset = (BarDataset)Data.Datasets[i];
-                    if (dataset.BorderColor != null && dataset.BorderColor.IsIndexed)
-                    {
-                        if (pos < 0)
-                        {
-                            dataset.BorderColor.Add(borderColors[i]);
-                        }
-                        else
-                        {
-                            dataset.BorderColor.Insert(pos, borderColors[i]);
-                        }
-                    }
-                }
-            }
-        }
-        OnDataAdd(new DataAddEventArgs(label, data, backgroundColors, borderColors, atPosition));
-    }
-
-    /// <summary>
-    /// Removes label and data from ALL datasets at last or given position
-    /// </summary>
-    /// <param name="atPosition"></param>
-    public void RemoveData(int? atPosition = null)
-    {
-        int pos = atPosition == null ? Data.Labels.Count - 1 : atPosition.Value;
-
-        if (pos < 0)
-        {
-            return;
-        }
-
-        Data.Labels.RemoveAt(pos);
-
-        for (int i = 0; i < Data.Datasets.Count; i++)
-        {
-            Data.Datasets[i].Data.RemoveAt(pos);
-
-            if (Data.Datasets[i].GetType() == typeof(BarDataset))
-            {
-                BarDataset dataset = (BarDataset)Data.Datasets[i];
-                if (dataset.BackgroundColor != null && dataset.BackgroundColor.IsIndexed)
-                {
-                    dataset.BackgroundColor.RemoveAt(pos);
-                }
-            }
-
-            if (Data.Datasets[i].GetType() == typeof(BarDataset))
-            {
-                BarDataset dataset = (BarDataset)Data.Datasets[i];
-                if (dataset.BorderColor != null && dataset.BorderColor.IsIndexed)
-                {
-                    dataset.BorderColor.RemoveAt(pos);
-                }
-            }
-        }
-        OnDataRemove(new DataRemoveEventArgs(atPosition));
     }
 
     /// <summary>
@@ -284,7 +153,6 @@ public class ChartJsConfig
     }
 }
 
-#pragma warning restore CA2227
 
 public enum ChartType
 {
