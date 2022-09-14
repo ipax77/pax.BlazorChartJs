@@ -113,6 +113,43 @@ class ChartJsInterop {
             }
         }
     }
+    removeData(chart) {
+        if (!(chart.data.labels.length == 0)) {
+            chart.data.labels.pop();
+        }
+        chart.data.datasets.forEach(dataset => {
+            if (!(dataset.data.length == 0)) {
+                dataset.data.pop();
+            }
+            if (Array.isArray(dataset.backgroundColor)
+                && !(dataset.backgroundColor.length == 0)) {
+                dataset.backgroundColor.pop();
+            }
+            if (Array.isArray(dataset.borderColor)
+                && !(dataset.borderColor.length == 0)) {
+                dataset.borderColor.pop();
+            }
+        });
+        chart.update();
+    }
+    setData(chart, labels, datas) {
+        if (labels != undefined) {
+            chart.data.labels = labels;
+        }
+        chart.data.datasets.forEach(dataset => {
+            if (datas[dataset['id']] != undefined) {
+                let addData = datas[dataset['id']];
+                dataset.data = addData['data'];
+                if (addData['backgroundColor'] != undefined) {
+                    dataset.backgroundColor = addData['backgroundColor'];
+                }
+                if (addData['borderColor'] != undefined) {
+                    dataset.borderColor = addData['borderColor'];
+                }
+            }
+        });
+        chart.update();
+    }
 }
 window[ChartJsInterop.name] = new ChartJsInterop();
 export default window[ChartJsInterop.name];

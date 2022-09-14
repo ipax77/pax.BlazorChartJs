@@ -112,35 +112,6 @@ public partial class ChartJsConfig
     }
 
     /// <summary>
-    /// Sets the data and updates the chart
-    /// </summary>
-    /// <param name="dataset"></param>
-    /// <param name="data"></param>
-    public void SetData(ChartJsDataset dataset, IList<object> data)
-    {
-        SetData(new Dictionary<ChartJsDataset, IList<object>>() { { dataset, data } });
-    }
-
-    /// <summary>
-    /// Sets the dataset (=key) data (=value) and updates the chart
-    /// </summary>
-    /// <param name="data"></param>
-    public void SetData(Dictionary<ChartJsDataset, IList<object>> data)
-    {
-        ArgumentNullException.ThrowIfNull(data);
-
-        foreach (var ent in data)
-        {
-            var dataset = Data.Datasets.FirstOrDefault(f => f.Equals(ent.Key));
-            if (dataset != null)
-            {
-                dataset.Data = ent.Value;
-            }
-        }
-        OnDataSet(new DataSetEventArgs(data));
-    }
-
-    /// <summary>
     /// Sets the chart labels
     /// </summary>
     /// <param name="labels"></param>

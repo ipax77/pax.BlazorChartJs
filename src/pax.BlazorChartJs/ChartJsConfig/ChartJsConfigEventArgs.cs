@@ -45,20 +45,20 @@ public class DataAddEventArgs : EventArgs
 
 public class DataRemoveEventArgs : EventArgs
 {
-    public DataRemoveEventArgs(int? atPosition)
+    public DataRemoveEventArgs()
     {
-        AtPosition = atPosition;
     }
-    public int? AtPosition { get; init; }
 }
 
 public class DataSetEventArgs : EventArgs
 {
-    public DataSetEventArgs(Dictionary<ChartJsDataset, IList<object>> data)
+    public DataSetEventArgs(Dictionary<string, SetDataObject> datas, IList<string>? labels = null)
     {
-        Data = data;
+        Labels = labels;
+        Datas = datas;
     }
-    public Dictionary<ChartJsDataset, IList<object>> Data { get; init; }
+    public IList<string>? Labels { get; init; }
+    public Dictionary<string, SetDataObject> Datas { get; init; }
 }
 
 public class LabelsSetEventArgs : EventArgs
@@ -97,4 +97,17 @@ public record AddDataObject
     public string? BackgroundColor { get; init; }
     public string? BorderColor { get; init; }
     public int? AtPosition { get; init; }
+}
+
+public record SetDataObject
+{
+    public SetDataObject(IList<object> data, IndexableOption<string>? backgroundColor = null, IndexableOption<string>? borderColor = null)
+    {
+        Data = data;
+        BackgroundColor = backgroundColor;
+        BorderColor = borderColor;
+    }
+    public IList<object> Data { get; init; }
+    public IndexableOption<string>? BackgroundColor { get; init; }
+    public IndexableOption<string>? BorderColor { get; init; }
 }

@@ -48,3 +48,13 @@ export function addData(chartId, label, pos, datas) {
     ChartJsInteropModule.addData(chart, label, pos, datas);
 }
 
+export function removeData(chartId) {
+    const chart = Chart.getChart(chartId);
+    ChartJsInteropModule.removeData(chart);
+}
+
+export function setData(chartId, labels, datas) {
+    const chart = Chart.getChart(chartId);
+    ChartJsInteropModule.setData(chart, labels, datas);
+}
+

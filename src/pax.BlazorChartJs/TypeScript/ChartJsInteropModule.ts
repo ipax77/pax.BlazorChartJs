@@ -128,7 +128,55 @@ class ChartJsInterop {
                 dataset.borderColor.splice(pos, 0, borderColor);
             }
         }
-    }    
+    }
+
+    public removeData(chart: Chart) {
+
+        if (!(chart.data.labels.length == 0)) {
+            chart.data.labels.pop();
+        }
+
+        chart.data.datasets.forEach(dataset => {
+            if (!(dataset.data.length == 0)) {
+                dataset.data.pop();
+            }
+
+            if (Array.isArray(dataset.backgroundColor) 
+                && !(dataset.backgroundColor.length == 0)) {
+                dataset.backgroundColor.pop();
+            }
+
+            if (Array.isArray(dataset.borderColor)
+                && !(dataset.borderColor.length == 0)) {
+                dataset.borderColor.pop();
+            }
+        });
+        chart.update();
+    }
+
+    public setData(chart: Chart, labels: Array<string>, datas: Array<JSON>) {
+        if (labels != undefined) {
+            chart.data.labels = labels;
+        }
+
+        chart.data.datasets.forEach(dataset => {
+            if (datas[dataset['id']] != undefined) {
+                let addData = datas[dataset['id']];
+
+                dataset.data = addData['data'];
+
+                if (addData['backgroundColor'] != undefined) {
+                    dataset.backgroundColor = addData['backgroundColor'];
+                }
+    
+                if (addData['borderColor'] != undefined) {
+                    dataset.borderColor = addData['borderColor']; 
+                }
+            }
+        });
+        chart.update();
+    }
+
 }
 
 window[ChartJsInterop.name] = new ChartJsInterop();

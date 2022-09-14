@@ -81,13 +81,13 @@
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<ChartJsDataset, IList<object>> chartData = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
             var dataList = data.ElementAt(i);
-            chartData.Add(dataset, dataList);
+            chartData.Add(dataset, new SetDataObject(dataList));
         }
         chartJsConfig.SetData(chartData);
     }
