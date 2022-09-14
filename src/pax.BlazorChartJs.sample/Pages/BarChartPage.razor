@@ -230,7 +230,15 @@
     private void AddData()
     {
         var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
-        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data, dataAddEventArgs.BackgroundColors, dataAddEventArgs.BorderColors);
+        // chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data, dataAddEventArgs.BackgroundColors, dataAddEventArgs.BorderColors);
+
+        Dictionary<ChartJsDataset, AddDataObject> datas = new();
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            ChartJsDataset dataset = chartJsConfig.Data.Datasets[i];
+            datas.Add(dataset, new AddDataObject(dataAddEventArgs.Data[i], null, dataAddEventArgs.BackgroundColors?[i], dataAddEventArgs.BorderColors?[i]));
+        }
+        chartJsConfig.AddData(dataAddEventArgs.Label, null, datas);
     }
 
     private void Randomize()
