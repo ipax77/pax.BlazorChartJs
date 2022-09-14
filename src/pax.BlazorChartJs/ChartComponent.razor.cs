@@ -64,12 +64,12 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
     private async void ChartJsConfig_DataSet(object? sender, DataSetEventArgs e)
     {
-        await ChartJsInterop.SetDatasetsData(ChartJsConfig.ChartJsConfigGuid, e.Data).ConfigureAwait(false);
+        await ChartJsInterop.SetData(ChartJsConfig.ChartJsConfigGuid, e.Labels, e.Datas).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DataRemove(object? sender, DataRemoveEventArgs e)
     {
-        await ChartJsInterop.RemoveDataFromDatasets(ChartJsConfig.ChartJsConfigGuid, e.AtPosition).ConfigureAwait(false);
+        await ChartJsInterop.RemoveData(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DataAdd(object? sender, DataAddEventArgs e)

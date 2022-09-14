@@ -129,16 +129,16 @@
 
     private void AddData()
     {
+        Dictionary<ChartJsDataset, AddDataObject> datas = new();
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             var bubbleDataset = chartJsConfig.Data.Datasets[i] as BubbleDataset;
             if (bubbleDataset != null)
             {
-                var data = new List<object>(bubbleDataset.Data);
-                data.Add(GetRandomPoint());
-                chartJsConfig.SetData(bubbleDataset, data);
+                datas.Add(bubbleDataset, new AddDataObject(GetRandomPoint()));
             }
         }
+        chartJsConfig.AddData(null, null, datas);
     }
 
     private void Randomize()
@@ -146,6 +146,8 @@
         if (chartJsConfig.Data.Datasets.Any())
         {
             var dataCount = ((ChartJsDataset)chartJsConfig.Data.Datasets.First()).Data.Count;
+
+            Dictionary<ChartJsDataset, SetDataObject> datas = new();
 
             for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
             {
@@ -157,9 +159,10 @@
                     {
                         data.Add(GetRandomPoint());
                     }
-                    chartJsConfig.SetData(bubbleDataset, data);
+                    datas.Add(bubbleDataset, new SetDataObject(data));
                 }
             }
+            chartJsConfig.SetData(datas);
         }
     }
 
@@ -185,18 +188,6 @@
 
     private void RemoveLastDataFromDatasets()
     {
-        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
-        {
-            var bubbleDataset = chartJsConfig.Data.Datasets[i] as BubbleDataset;
-            if (bubbleDataset != null)
-            {
-                var data = new List<object>(bubbleDataset.Data);
-                if (data.Any())
-                {
-                    data.Remove(data.Last());
-                    chartJsConfig.SetData(bubbleDataset, data);
-                }
-            }
-        }
+        chartJsConfig.RemoveData();
     }
 }

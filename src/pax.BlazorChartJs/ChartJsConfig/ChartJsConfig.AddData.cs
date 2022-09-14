@@ -11,7 +11,7 @@ public partial class ChartJsConfig
     /// <param name="backgroundColor"></param>
     /// <param name="borderColor"></param>
     /// <param name="atPosition"></param>
-    public void AddData(string label, object data, string? backgroundColor = null, string? borderColor = null, int? atPosition = null)
+    public void AddData(string? label, object data, string? backgroundColor = null, string? borderColor = null, int? atPosition = null)
     {
         // var backgroundColors = backgroundColor == null ? null : new List<string> { backgroundColor };
         // var borderColors = borderColor == null ? null : new List<string> { borderColor };
@@ -20,41 +20,6 @@ public partial class ChartJsConfig
             {
                 { Data.Datasets.First(), new AddDataObject(data, atPosition, backgroundColor, borderColor)}
             });
-    }
-
-    /// <summary>
-    /// Adds data to datasets and updates the chart
-    /// </summary>
-    /// <param name="label"></param>
-    /// <param name="data"></param>
-    /// <param name="backgroundColors"></param>
-    /// <param name="borderColors"></param>
-    /// <param name="atPosition"></param>
-    [Obsolete("Use AddDataObject instead")]
-    public void AddData(string? label, IList<object> data, IList<string>? backgroundColors = null, IList<string>? borderColors = null, int? atPosition = null)
-    {
-        ArgumentNullException.ThrowIfNull(data);
-
-        AddLabel(label, atPosition);
-
-        for (int i = 0; i < Data.Datasets.Count; i++)
-        {
-            if (data.Count > i)
-            {
-                AddDatasetData(Data.Datasets[i], data[i], atPosition);
-            }
-
-            if (backgroundColors != null && backgroundColors.Count > i)
-            {
-                AddDatasetBackgroundColor(Data.Datasets[i], backgroundColors[i], atPosition);
-            }
-
-            if (borderColors != null && borderColors.Count >= i)
-            {
-                AddDatasetBorderColor(Data.Datasets[i], borderColors[i], atPosition);
-            }
-        }
-        OnDataAdd(new DataAddEventArgs(label, data, backgroundColors, borderColors, atPosition));
     }
 
     public void AddData(string? label, int? atPosition, Dictionary<ChartJsDataset, AddDataObject> datas)
@@ -110,9 +75,8 @@ public partial class ChartJsConfig
 
     private static void AddDatasetBorderColor(ChartJsDataset dataset, string borderColor, int? atPosition)
     {
-        if (dataset.GetType() == typeof(BarDataset))
+        if (dataset is BarDataset barDataset)
         {
-            BarDataset barDataset = (BarDataset)dataset;
             if (barDataset.BorderColor != null && barDataset.BorderColor.IsIndexed)
             {
                 if (atPosition == null)
@@ -126,9 +90,8 @@ public partial class ChartJsConfig
             }
         }
 
-        if (dataset.GetType() == typeof(BubbleDataset))
+        else if (dataset is BubbleDataset bubbleDataset)
         {
-            BubbleDataset bubbleDataset = (BubbleDataset)dataset;
             if (bubbleDataset.BorderColor != null && bubbleDataset.BorderColor.IsIndexed)
             {
                 if (atPosition == null)
@@ -142,9 +105,8 @@ public partial class ChartJsConfig
             }
         }
 
-        if (dataset.GetType() == typeof(PieDataset))
+        else if (dataset is PieDataset pieDataset)
         {
-            PieDataset pieDataset = (PieDataset)dataset;
             if (pieDataset.BorderColor != null && pieDataset.BorderColor.IsIndexed)
             {
                 if (atPosition == null)
@@ -158,9 +120,8 @@ public partial class ChartJsConfig
             }
         }
 
-        if (dataset.GetType() == typeof(PolarAreaDataset))
+        else if (dataset is PolarAreaDataset polarAreaDataset)
         {
-            PolarAreaDataset polarAreaDataset = (PolarAreaDataset)dataset;
             if (polarAreaDataset.BorderColor != null && polarAreaDataset.BorderColor.IsIndexed)
             {
                 if (atPosition == null)
@@ -178,9 +139,8 @@ public partial class ChartJsConfig
 
     private static void AddDatasetBackgroundColor(ChartJsDataset dataset, string backgroundColor, int? atPosition)
     {
-        if (dataset.GetType() == typeof(BarDataset))
+        if (dataset is BarDataset barDataset)
         {
-            BarDataset barDataset = (BarDataset)dataset;
             if (barDataset.BackgroundColor != null && barDataset.BackgroundColor.IsIndexed)
             {
                 if (atPosition == null)
@@ -194,9 +154,8 @@ public partial class ChartJsConfig
             }
         }
 
-        if (dataset.GetType() == typeof(BubbleDataset))
+        else if (dataset is BubbleDataset bubbleDataset)
         {
-            BubbleDataset bubbleDataset = (BubbleDataset)dataset;
             if (bubbleDataset.BackgroundColor != null && bubbleDataset.BackgroundColor.IsIndexed)
             {
                 if (atPosition == null)
@@ -210,9 +169,8 @@ public partial class ChartJsConfig
             }
         }
 
-        if (dataset.GetType() == typeof(PieDataset))
+        else if (dataset is PieDataset pieDataset)
         {
-            PieDataset pieDataset = (PieDataset)dataset;
             if (pieDataset.BackgroundColor != null && pieDataset.BackgroundColor.IsIndexed)
             {
                 if (atPosition == null)
@@ -226,9 +184,8 @@ public partial class ChartJsConfig
             }
         }
 
-        if (dataset.GetType() == typeof(PolarAreaDataset))
+        else if (dataset is PolarAreaDataset polarAreaDataset)
         {
-            PolarAreaDataset polarAreaDataset = (PolarAreaDataset)dataset;
             if (polarAreaDataset.BackgroundColor != null && polarAreaDataset.BackgroundColor.IsIndexed)
             {
                 if (atPosition == null)

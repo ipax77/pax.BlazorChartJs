@@ -133,11 +133,7 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
-    public async ValueTask AddData(Guid configGuid, string? label, int? atPosition, Dictionary<string, AddDataObject> datas)
-    {
-        var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("addData", configGuid, label, atPosition, datas).ConfigureAwait(false);
-    }
+
 
     /// <summary>
     /// AddDataset
@@ -260,6 +256,24 @@ public class ChartJsInterop : IAsyncDisposable
         var module = await moduleTask.Value.ConfigureAwait(false);
         await module.InvokeVoidAsync("showDataset", configGuid, datasetIndex, index)
             .ConfigureAwait(false);
+    }
+
+    internal async ValueTask AddData(Guid configGuid, string? label, int? atPosition, Dictionary<string, AddDataObject> datas)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("addData", configGuid, label, atPosition, datas).ConfigureAwait(false);
+    }
+
+    internal async ValueTask RemoveData(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("removeData", configGuid).ConfigureAwait(false);
+    }
+
+    internal async ValueTask SetData(Guid configGuid, IList<string>? labels, Dictionary<string, SetDataObject> datas) 
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("setData", configGuid, labels, datas).ConfigureAwait(false);
     }
 
     private JsonObject? SerializeConfig(ChartJsConfig config)
