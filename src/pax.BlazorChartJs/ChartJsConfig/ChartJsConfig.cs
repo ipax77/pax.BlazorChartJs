@@ -91,7 +91,7 @@ public partial class ChartJsConfig
             if (afterDataset != null)
             {
                 Data.Datasets.Insert(atPosition.Value, dataset);
-                OnDatasetAdd(new DatasetAddEventArgs(afterDataset, afterDataset.Id));
+                OnDatasetAdd(new DatasetAddEventArgs(dataset, afterDataset.Id));
             }
         }
     }
