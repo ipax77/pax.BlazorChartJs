@@ -248,7 +248,7 @@ export function addChartDataset(chartId, dataset, afterDatasetId) {
             window.charts[chartId].data.datasets.push(dataset);
         } else {
             const datasetMetas = window.charts[chartId].getSortedVisibleDatasetMetas();
-            var datasetIndex = datasetMetas.findIndex(obj => obj._dataset.id === datasetId);
+            var datasetIndex = datasetMetas.findIndex(obj => obj._dataset.id === afterDatasetId);
             window.charts[chartId].data.datasets.splice(datasetIndex + 1, 0, dataset);
         }
         window.charts[chartId].update();
