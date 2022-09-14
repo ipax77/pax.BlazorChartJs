@@ -79,7 +79,7 @@
 
     private void Randomize()
     {
-        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
+        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, 1, 100);
 
         Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 
