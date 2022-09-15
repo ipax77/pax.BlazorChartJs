@@ -187,9 +187,10 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 
 <details open="open"><summary>v0.3.2</summary>
 
->- Chart udpate refactoring - Breaking Changes!
+>- Chart update refactoring - Breaking Changes!
 >- Chart events refactoring - Breaking Changes!
 >- Typescript
+>- NuGet udpates
 
 </details>
 
