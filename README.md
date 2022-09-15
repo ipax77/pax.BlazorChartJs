@@ -102,36 +102,59 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
         base.OnInitialized();
     }
 
+
+    private void ShowChart()
+    {
+        chartComponent?.DrawChart();
+    }
+
     private void LabelClicked(ChartJsEvent chartJsEvent)
     {
-        var data = chartJsEvent.EventData as LabelEventData;
-        labelClicked = data?.Label;
+        if (chartJsEvent is ChartJsLabelClickEvent labelClickEvent)
+        {
+            labelClicked = labelClickEvent.Label;
+        }
     }
 
     private void AddData()
     {
         var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
-        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data, dataAddEventArgs.BackgroundColors, dataAddEventArgs.BorderColors);
+
+        Dictionary<ChartJsDataset, AddDataObject> datas = new();
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            ChartJsDataset dataset = chartJsConfig.Data.Datasets[i];
+            datas.Add(dataset,
+                new AddDataObject(dataAddEventArgs.Data[i],
+                                  null,
+                                  dataAddEventArgs.BackgroundColors?[i],
+                                  dataAddEventArgs.BorderColors?[i]));
+        }
+        chartJsConfig.AddData(dataAddEventArgs.Label, null, datas);
     }
 
     private void Randomize()
     {
-        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
+        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count,
+         chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<ChartJsDataset, IList<object>> chartData = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
             var dataList = data.ElementAt(i);
-            chartData.Add(dataset, dataList);
+            chartData.Add(dataset, new SetDataObject(dataList));
         }
         chartJsConfig.SetData(chartData);
     }
 
     private void AddDataset()
     {
-        var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
+        var dataset = ChartUtils
+         .GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value,
+                           chartJsConfig.Data.Datasets.Count + 1,
+                           chartJsConfig.Data.Labels.Count);
         chartJsConfig.AddDataset(dataset);
     }
 
@@ -147,7 +170,6 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
     {
         chartJsConfig.RemoveData();
     }
-}
 ```
 ## Supported Plugins
 * [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
@@ -163,7 +185,16 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 
 ## ChangeLog
 
-<details open="open"><summary>v0.3.1</summary>
+<details open="open"><summary>v0.3.2</summary>
+
+>- Chart update refactoring - Breaking Changes!
+>- Chart events refactoring - Breaking Changes!
+>- Typescript
+>- NuGet udpates
+
+</details>
+
+<details><summary>v0.3.1</summary>
 
 >- Time Scale Chart
 >- Optional javascript location options

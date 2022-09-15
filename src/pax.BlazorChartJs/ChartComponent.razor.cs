@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace pax.BlazorChartJs;
@@ -42,13 +43,31 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
     protected override void OnInitialized()
     {
-        ChartJsConfig.DatasetAdd += ChartJsConfig_DatasetAdd;
-        ChartJsConfig.DatasetRemove += ChartJsConfig_DatasetRemove;
+        ChartJsConfig.DatasetsAdd += ChartJsConfig_DatasetsAdd;
+        ChartJsConfig.DatasetsRemove += ChartJsConfig_DatasetsRemove;
+        ChartJsConfig.DatasetsUpdate += ChartJsConfig_DatasetsUpdate;
+        ChartJsConfig.DatasetsSet += ChartJsConfig_DatasetsSet;
         ChartJsConfig.DataAdd += ChartJsConfig_DataAdd;
         ChartJsConfig.DataRemove += ChartJsConfig_DataRemove;
         ChartJsConfig.DataSet += ChartJsConfig_DataSet;
         ChartJsConfig.LabelsSet += ChartJsConfig_LabelsSet;
+        ChartJsConfig.AddDataEvent += ChartJsConfig_AddDataEvent;
         base.OnInitialized();
+    }
+
+    private async void ChartJsConfig_DatasetsSet(object? sender, DatasetsSetEventArgs e)
+    {
+        await ChartJsInterop.SetDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets).ConfigureAwait(false);
+    }
+
+    private async void ChartJsConfig_DatasetsUpdate(object? sender, DatasetsUpdateEventArgs e)
+    {
+        await ChartJsInterop.UpdateDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets).ConfigureAwait(false);
+    }
+
+    private async void ChartJsConfig_AddDataEvent(object? sender, AddDataEventArgs e)
+    {
+        await ChartJsInterop.AddData(ChartJsConfig.ChartJsConfigGuid, e.Label, e.AtPosition, e.Datas).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_LabelsSet(object? sender, LabelsSetEventArgs e)
@@ -58,12 +77,12 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
     private async void ChartJsConfig_DataSet(object? sender, DataSetEventArgs e)
     {
-        await ChartJsInterop.SetDatasetsData(ChartJsConfig.ChartJsConfigGuid, e.Data).ConfigureAwait(false);
+        await ChartJsInterop.SetData(ChartJsConfig.ChartJsConfigGuid, e.Labels, e.Datas).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DataRemove(object? sender, DataRemoveEventArgs e)
     {
-        await ChartJsInterop.RemoveDataFromDatasets(ChartJsConfig.ChartJsConfigGuid, e.AtPosition).ConfigureAwait(false);
+        await ChartJsInterop.RemoveData(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DataAdd(object? sender, DataAddEventArgs e)
@@ -77,14 +96,14 @@ public partial class ChartComponent : ComponentBase, IDisposable
             e.AtPostion).ConfigureAwait(false);
     }
 
-    private async void ChartJsConfig_DatasetRemove(object? sender, DatasetRemoveEventArgs e)
+    private async void ChartJsConfig_DatasetsRemove(object? sender, DatasetsRemoveEventArgs e)
     {
-        await ChartJsInterop.RemoveDataset(ChartJsConfig.ChartJsConfigGuid, e.DatasetId).ConfigureAwait(false);
+        await ChartJsInterop.RemoveDatasets(ChartJsConfig.ChartJsConfigGuid, e.DatasetIds).ConfigureAwait(false);
     }
 
-    private async void ChartJsConfig_DatasetAdd(object? sender, DatasetAddEventArgs e)
+    private async void ChartJsConfig_DatasetsAdd(object? sender, DatasetsAddEventArgs e)
     {
-        await ChartJsInterop.AddDataset(ChartJsConfig.ChartJsConfigGuid, e.Dataset, e.AfterDatasetId).ConfigureAwait(false);
+        await ChartJsInterop.AddDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -140,13 +159,28 @@ public partial class ChartComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void EventTriggered(string eventType, string eventSource, object? data)
     {
-        if (Enum.TryParse(eventType, out ChartJsEventType chartJsEventType))
+        if (Enum.TryParse(eventType, out ChartJsEventType chartJsEventType)
+         && Enum.TryParse(eventSource, out ChartJsEventSource chartJsEventSource))
         {
+            var jsonElement = data == null ? new JsonElement() : (JsonElement)data;
+            ChartJsEvent? chartJsEvent = (chartJsEventSource, chartJsEventType) switch
+            {
+                (ChartJsEventSource.label, ChartJsEventType.click) => JsonSerializer.Deserialize<ChartJsLabelClickEvent>(jsonElement),
+                (ChartJsEventSource.label, ChartJsEventType.hover) => JsonSerializer.Deserialize<ChartJsLabelHoverEvent>(jsonElement),
+                (ChartJsEventSource.legend, ChartJsEventType.click) => JsonSerializer.Deserialize<ChartJsLegendClickEvent>(jsonElement),
+                (ChartJsEventSource.legend, ChartJsEventType.hover) => JsonSerializer.Deserialize<ChartJsLegendHoverEvent>(jsonElement),
+                (ChartJsEventSource.legend, ChartJsEventType.leave) => JsonSerializer.Deserialize<ChartJsLegendLeaveEvent>(jsonElement),
+                (ChartJsEventSource.animation, ChartJsEventType.progress) => JsonSerializer.Deserialize<ChartJsAnimationProgressEvent>(jsonElement),
+                (ChartJsEventSource.animation, ChartJsEventType.complete) => JsonSerializer.Deserialize<ChartJsAnimationCompleteEvent>(jsonElement),
+                (ChartJsEventSource.chart, ChartJsEventType.resize) => JsonSerializer.Deserialize<ChartJsResizeEvent>(jsonElement),
+                _ => null
+            };
+            if (chartJsEvent != null)
+            {
+                chartJsEvent.ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid;
+                OnEventTriggered.InvokeAsync(chartJsEvent);
+            }
         }
-        if (Enum.TryParse(eventSource, out ChartJsEventSource chartJsEventSource))
-        {
-        }
-        OnEventTriggered.InvokeAsync(new ChartJsEvent(ChartJsConfig.ChartJsConfigGuid, chartJsEventType, chartJsEventSource, data));
     }
 
     /// <summary>
@@ -262,14 +296,18 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
         if (disposing)
         {
+            _ = ChartJsInterop.DisposeChart(ChartJsConfig.ChartJsConfigGuid);
             dotNetHelper?.Dispose();
-            ChartJsConfig.DatasetAdd -= ChartJsConfig_DatasetAdd;
-            ChartJsConfig.DatasetRemove -= ChartJsConfig_DatasetRemove;
+            ChartJsConfig.DatasetsAdd -= ChartJsConfig_DatasetsAdd;
+            ChartJsConfig.DatasetsRemove -= ChartJsConfig_DatasetsRemove;
+            ChartJsConfig.DatasetsUpdate -= ChartJsConfig_DatasetsUpdate;
+            ChartJsConfig.DatasetsSet -= ChartJsConfig_DatasetsSet;
             ChartJsConfig.DataAdd -= ChartJsConfig_DataAdd;
             ChartJsConfig.DataRemove -= ChartJsConfig_DataRemove;
             ChartJsConfig.DataSet -= ChartJsConfig_DataSet;
             ChartJsConfig.LabelsSet -= ChartJsConfig_LabelsSet;
-            // todo: cleanup js chart?
+            ChartJsConfig.AddDataEvent -= ChartJsConfig_AddDataEvent;
+
         }
 
         isDisposed = true;

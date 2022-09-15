@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Pages\MovieChartPage.razor" />
     <Content Remove="Pages\TimeChartPage.razor" />
   </ItemGroup>
 
@@ -23,7 +24,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\MovieChartPage.razor" />
     <_ContentIncludedByDefault Remove="Pages\TimeChartPage.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\MovieChartPage.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\MovieChartPage.razor" />
   </ItemGroup>
 
 </Project>

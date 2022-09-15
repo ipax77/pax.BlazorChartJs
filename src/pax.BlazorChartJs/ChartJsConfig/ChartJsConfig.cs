@@ -22,13 +22,22 @@ public partial class ChartJsConfig
     public ChartJsData Data { get; set; } = new();
     public ChartJsOptions? Options { get; set; }
 
-    internal event EventHandler<DatasetAddEventArgs>? DatasetAdd;
+    internal event EventHandler<DatasetsAddEventArgs>? DatasetsAdd;
 
-    internal event EventHandler<DatasetRemoveEventArgs>? DatasetRemove;
+    internal event EventHandler<DatasetsRemoveEventArgs>? DatasetsRemove;
+    internal event EventHandler<DatasetsUpdateEventArgs>? DatasetsUpdate;
+    internal event EventHandler<DatasetsSetEventArgs>? DatasetsSet;
     internal event EventHandler<DataAddEventArgs>? DataAdd;
     internal event EventHandler<DataRemoveEventArgs>? DataRemove;
     internal event EventHandler<DataSetEventArgs>? DataSet;
     internal event EventHandler<LabelsSetEventArgs>? LabelsSet;
+    internal event EventHandler<AddDataEventArgs>? AddDataEvent;
+
+    internal virtual void OnAddDataEvent(AddDataEventArgs e)
+    {
+        EventHandler<AddDataEventArgs>? handler = AddDataEvent;
+        handler?.Invoke(this, e);
+    }
 
     internal virtual void OnLabelsSet(LabelsSetEventArgs e)
     {
@@ -36,17 +45,29 @@ public partial class ChartJsConfig
         handler?.Invoke(this, e);
     }
 
-    internal virtual void OnDatasetAdd(DatasetAddEventArgs e)
+    internal virtual void OnDatasetsAdd(DatasetsAddEventArgs e)
     {
-        EventHandler<DatasetAddEventArgs>? handler = DatasetAdd;
+        EventHandler<DatasetsAddEventArgs>? handler = DatasetsAdd;
         handler?.Invoke(this, e);
     }
 
-    internal virtual void OnDatasetRemove(DatasetRemoveEventArgs e)
+    internal virtual void OnDatasetsRemove(DatasetsRemoveEventArgs e)
     {
-        EventHandler<DatasetRemoveEventArgs>? handler = DatasetRemove;
+        EventHandler<DatasetsRemoveEventArgs>? handler = DatasetsRemove;
         handler?.Invoke(this, e);
     }
+
+    internal virtual void OnDatasetsUpdate(DatasetsUpdateEventArgs e)
+    {
+        EventHandler<DatasetsUpdateEventArgs>? handler = DatasetsUpdate;
+        handler?.Invoke(this, e);
+    }
+
+    internal virtual void OnDatasetsSet(DatasetsSetEventArgs e)
+    {
+        EventHandler<DatasetsSetEventArgs>? handler = DatasetsSet;
+        handler?.Invoke(this, e);
+    }        
 
     internal virtual void OnDataAdd(DataAddEventArgs e)
     {
@@ -64,73 +85,6 @@ public partial class ChartJsConfig
     {
         EventHandler<DataSetEventArgs>? handler = DataSet;
         handler?.Invoke(this, e);
-    }
-
-    /// <summary>
-    /// AddDataset - Adds the dataset and updates the chart
-    /// <paramref name="dataset"/>
-    /// <paramref name="atPosition"/>
-    /// </summary>
-    public void AddDataset(ChartJsDataset dataset, int? atPosition = null)
-    {
-        if (atPosition == null)
-        {
-            Data.Datasets.Add(dataset);
-            OnDatasetAdd(new DatasetAddEventArgs(dataset, null));
-        }
-        else
-        {
-            var afterDataset = Data.Datasets.ElementAt(atPosition.Value);
-            if (afterDataset != null)
-            {
-                Data.Datasets.Insert(atPosition.Value, dataset);
-                OnDatasetAdd(new DatasetAddEventArgs(afterDataset, afterDataset.Id));
-            }
-        }
-    }
-
-    /// <summary>
-    /// Removes the dataset and updates the chart
-    /// </summary>
-    /// <param name="dataset"></param>
-    public void RemoveDataset(ChartJsDataset dataset)
-    {
-        ArgumentNullException.ThrowIfNull(dataset);
-
-        if (Data.Datasets.Contains(dataset))
-        {
-            Data.Datasets.Remove(dataset);
-            OnDatasetRemove(new DatasetRemoveEventArgs(dataset.Id));
-        }
-    }
-
-    /// <summary>
-    /// Sets the data and updates the chart
-    /// </summary>
-    /// <param name="dataset"></param>
-    /// <param name="data"></param>
-    public void SetData(ChartJsDataset dataset, IList<object> data)
-    {
-        SetData(new Dictionary<ChartJsDataset, IList<object>>() { { dataset, data } });
-    }
-
-    /// <summary>
-    /// Sets the dataset (=key) data (=value) and updates the chart
-    /// </summary>
-    /// <param name="data"></param>
-    public void SetData(Dictionary<ChartJsDataset, IList<object>> data)
-    {
-        ArgumentNullException.ThrowIfNull(data);
-
-        foreach (var ent in data)
-        {
-            var dataset = Data.Datasets.FirstOrDefault(f => f.Equals(ent.Key));
-            if (dataset != null)
-            {
-                dataset.Data = ent.Value;
-            }
-        }
-        OnDataSet(new DataSetEventArgs(data));
     }
 
     /// <summary>

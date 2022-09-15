@@ -6,7 +6,9 @@ public record Plugins
     public Title? Title { get; set; }
     public Title? Subtitle { get; set; }
     public Tooltip? Tooltip { get; set; }
+#pragma warning disable CA2227
     public ICollection<ArbitraryLineConfig>? ArbitraryLines { get; set; }
+#pragma warning restore CA2227
     public LabelsConfig? Labels { get; set; }
     public DataLabelsConfig? Datalabels { get; set; }
 }

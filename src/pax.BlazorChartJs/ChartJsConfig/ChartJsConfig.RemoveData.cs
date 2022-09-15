@@ -4,187 +4,106 @@ namespace pax.BlazorChartJs;
 public partial class ChartJsConfig
 {
     /// <summary>
-    /// Removes label and data from ALL datasets at last or given position
+    /// Removes last label and last data, backgroundColor and borderColor from ALL datasets
     /// </summary>
-    /// <param name="atPosition"></param>
-    public void RemoveData(int? atPosition = null)
+    public void RemoveData()
     {
-        RemoveLabel(atPosition);
+        RemoveLabel();
 
         for (int i = 0; i < Data.Datasets.Count; i++)
         {
-            RemoveDatasetData(Data.Datasets[i], atPosition);
-            RemoveDatasetBackgroundColor(Data.Datasets[i], atPosition);
-            RemoveDatasetBorderColor(Data.Datasets[i], atPosition);
+            RemoveDatasetData(Data.Datasets[i]);
+            RemoveDatasetBackgroundColor(Data.Datasets[i]);
+            RemoveDatasetBorderColor(Data.Datasets[i]);
         }
-        OnDataRemove(new DataRemoveEventArgs(atPosition));
+        OnDataRemove(new DataRemoveEventArgs());
     }
 
-    private void RemoveLabel(int? atPosition)
+    private void RemoveLabel()
     {
         if (!Data.Labels.Any())
         {
             return;
         }
-
-        if (atPosition == null)
-        {
-            Data.Labels.RemoveAt(Data.Labels.Count - 1);
-        }
-        else
-        {
-            Data.Labels.RemoveAt(atPosition.Value);
-        }
+        Data.Labels.RemoveAt(Data.Labels.Count - 1);
     }
 
-    private static void RemoveDatasetData(ChartJsDataset dataset, int? atPosition)
+    private static void RemoveDatasetData(ChartJsDataset dataset)
     {
         if (!dataset.Data.Any())
         {
             return;
         }
-
-        if (atPosition == null)
-        {
-            dataset.Data.RemoveAt(dataset.Data.Count - 1);
-        }
-        else
-        {
-            dataset.Data.RemoveAt(atPosition.Value);
-        }
+        dataset.Data.RemoveAt(dataset.Data.Count - 1);
     }
 
-    private static void RemoveDatasetBorderColor(ChartJsDataset dataset, int? atPosition)
+    private static void RemoveDatasetBorderColor(ChartJsDataset dataset)
     {
-        if (dataset.GetType() == typeof(BarDataset))
+        if (dataset is BarDataset barDataset)
         {
-            BarDataset barDataset = (BarDataset)dataset;
             if (barDataset.BorderColor != null && barDataset.BorderColor.IsIndexed)
             {
-                if (atPosition == null)
-                {
-                    barDataset.BorderColor.RemoveAt(barDataset.BorderColor.Count - 1);
-                }
-                else
-                {
-                    barDataset.BorderColor.RemoveAt(atPosition.Value);
-                }
+                barDataset.BorderColor.RemoveAt(barDataset.BorderColor.Count - 1);
             }
         }
 
-        if (dataset.GetType() == typeof(BubbleDataset))
+        else if (dataset is BubbleDataset bubbleDataset)
         {
-            BubbleDataset bubbleDataset = (BubbleDataset)dataset;
             if (bubbleDataset.BorderColor != null && bubbleDataset.BorderColor.IsIndexed)
             {
-                if (atPosition == null)
-                {
-                    bubbleDataset.BorderColor.RemoveAt(bubbleDataset.BorderColor.Count - 1);
-                }
-                else
-                {
-                    bubbleDataset.BorderColor.RemoveAt(atPosition.Value);
-                }
+                bubbleDataset.BorderColor.RemoveAt(bubbleDataset.BorderColor.Count - 1);
             }
         }
 
-        if (dataset.GetType() == typeof(PieDataset))
+        else if (dataset is PieDataset pieDataset)
         {
-            PieDataset pieDataset = (PieDataset)dataset;
             if (pieDataset.BorderColor != null && pieDataset.BorderColor.IsIndexed)
             {
-                if (atPosition == null)
-                {
-                    pieDataset.BorderColor.RemoveAt(pieDataset.BorderColor.Count - 1);
-                }
-                else
-                {
-                    pieDataset.BorderColor.RemoveAt(atPosition.Value);
-                }
+                pieDataset.BorderColor.RemoveAt(pieDataset.BorderColor.Count - 1);
             }
         }
 
-        if (dataset.GetType() == typeof(PolarAreaDataset))
+        else if (dataset is PolarAreaDataset polarAreaDataset)
         {
-            PolarAreaDataset polarAreaDataset = (PolarAreaDataset)dataset;
             if (polarAreaDataset.BorderColor != null && polarAreaDataset.BorderColor.IsIndexed)
             {
-                if (atPosition == null)
-                {
-                    polarAreaDataset.BorderColor.RemoveAt(polarAreaDataset.BorderColor.Count - 1);
-                }
-                else
-                {
-                    polarAreaDataset.BorderColor.RemoveAt(atPosition.Value);
-                }
+                polarAreaDataset.BorderColor.RemoveAt(polarAreaDataset.BorderColor.Count - 1);
             }
         }
     }
 
 
-    private static void RemoveDatasetBackgroundColor(ChartJsDataset dataset, int? atPosition)
+    private static void RemoveDatasetBackgroundColor(ChartJsDataset dataset)
     {
-        if (dataset.GetType() == typeof(BarDataset))
+        if (dataset is BarDataset barDataset)
         {
-            BarDataset barDataset = (BarDataset)dataset;
             if (barDataset.BackgroundColor != null && barDataset.BackgroundColor.IsIndexed)
             {
-                if (atPosition == null)
-                {
-                    barDataset.BackgroundColor.RemoveAt(barDataset.BackgroundColor.Count - 1);
-                }
-                else
-                {
-                    barDataset.BackgroundColor.RemoveAt(atPosition.Value);
-                }
+                barDataset.BackgroundColor.RemoveAt(barDataset.BackgroundColor.Count - 1);
             }
         }
 
-        if (dataset.GetType() == typeof(BubbleDataset))
+        else if (dataset is BubbleDataset bubbleDataset)
         {
-            BubbleDataset bubbleDataset = (BubbleDataset)dataset;
             if (bubbleDataset.BackgroundColor != null && bubbleDataset.BackgroundColor.IsIndexed)
             {
-                if (atPosition == null)
-                {
-                    bubbleDataset.BackgroundColor.RemoveAt(bubbleDataset.BackgroundColor.Count - 1);
-                }
-                else
-                {
-                    bubbleDataset.BackgroundColor.RemoveAt(atPosition.Value);
-                }
+                bubbleDataset.BackgroundColor.RemoveAt(bubbleDataset.BackgroundColor.Count - 1);
             }
         }
 
-        if (dataset.GetType() == typeof(PieDataset))
+        else if (dataset is PieDataset pieDataset)
         {
-            PieDataset pieDataset = (PieDataset)dataset;
             if (pieDataset.BackgroundColor != null && pieDataset.BackgroundColor.IsIndexed)
             {
-                if (atPosition == null)
-                {
-                    pieDataset.BackgroundColor.RemoveAt(pieDataset.BackgroundColor.Count - 1);
-                }
-                else
-                {
-                    pieDataset.BackgroundColor.RemoveAt(atPosition.Value);
-                }
+                pieDataset.BackgroundColor.RemoveAt(pieDataset.BackgroundColor.Count - 1);
             }
         }
 
-        if (dataset.GetType() == typeof(PolarAreaDataset))
+        else if (dataset is PolarAreaDataset polarAreaDataset)
         {
-            PolarAreaDataset polarAreaDataset = (PolarAreaDataset)dataset;
             if (polarAreaDataset.BackgroundColor != null && polarAreaDataset.BackgroundColor.IsIndexed)
             {
-                if (atPosition == null)
-                {
-                    polarAreaDataset.BackgroundColor.RemoveAt(polarAreaDataset.BackgroundColor.Count - 1);
-                }
-                else
-                {
-                    polarAreaDataset.BackgroundColor.RemoveAt(atPosition.Value);
-                }
+                polarAreaDataset.BackgroundColor.RemoveAt(polarAreaDataset.BackgroundColor.Count - 1);
             }
         }
     }

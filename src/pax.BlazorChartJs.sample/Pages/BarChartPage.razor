@@ -133,8 +133,10 @@
 
     private void LabelClicked(ChartJsEvent chartJsEvent)
     {
-        var data = chartJsEvent.EventData as LabelEventData;
-        labelClicked = data?.Label;
+        if (chartJsEvent is ChartJsLabelClickEvent labelClickEvent)
+        {
+            labelClicked = labelClickEvent.Label;
+        }
     }
 
     private async Task MakeImage()
@@ -230,27 +232,42 @@
     private void AddData()
     {
         var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
-        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data, dataAddEventArgs.BackgroundColors, dataAddEventArgs.BorderColors);
+
+        Dictionary<ChartJsDataset, AddDataObject> datas = new();
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            ChartJsDataset dataset = chartJsConfig.Data.Datasets[i];
+            datas.Add(dataset,
+                new AddDataObject(dataAddEventArgs.Data[i],
+                                  null,
+                                  dataAddEventArgs.BackgroundColors?[i],
+                                  dataAddEventArgs.BorderColors?[i]));
+        }
+        chartJsConfig.AddData(dataAddEventArgs.Label, null, datas);
     }
 
     private void Randomize()
     {
-        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
+        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count,
+         chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<ChartJsDataset, IList<object>> chartData = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
             var dataList = data.ElementAt(i);
-            chartData.Add(dataset, dataList);
+            chartData.Add(dataset, new SetDataObject(dataList));
         }
         chartJsConfig.SetData(chartData);
     }
 
     private void AddDataset()
     {
-        var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
+        var dataset = ChartUtils
+         .GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value,
+                           chartJsConfig.Data.Datasets.Count + 1,
+                           chartJsConfig.Data.Labels.Count);
         chartJsConfig.AddDataset(dataset);
     }
 

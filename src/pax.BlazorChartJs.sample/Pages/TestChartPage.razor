@@ -16,6 +16,8 @@
         <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ShowDataset(chartJsConfig.Data.Datasets.First(), null)">Show</button>
         <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.HideDataset(chartJsConfig.Data.Datasets.First(), 2)">Hide 2</button>
         <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ShowDataset(chartJsConfig.Data.Datasets.First(), 2)">Show 2</button>
+        <button type="button" class="btn btn-warning" @onclick="SetDatasets">SetDatasets</button>
+        <button type="button" class="btn btn-warning" @onclick="UpdateDatasets">UpdateDataset</button>
     </div>
 }
 
@@ -92,17 +94,53 @@
         chartComponent?.DrawChart();
     }
 
+    private void SetDatasets()
+    {
+        var dataset = chartJsConfig.Data.Datasets.FirstOrDefault() as PieDataset;
+        if (dataset != null)
+        {
+            dataset.BackgroundColor = new IndexableOption<string>(new List<string>()
+                            {
+                                "rgba(255, 99, 132, 0.8)",
+                                "rgba(54, 162, 235, 0.8)",
+                                "rgba(255, 206, 86, 0.8)",
+                                "rgba(75, 192, 192, 0.8)",
+                                "rgba(153, 102, 255, 0.8)",
+                                "rgba(255, 159, 64, 0.8)",
+                            });
+            chartJsConfig.SetDatasets();
+        }
+    }
+
+    private void UpdateDatasets()
+    {
+        var dataset = chartJsConfig.Data.Datasets.FirstOrDefault() as PieDataset;
+        if (dataset != null)
+        {
+            dataset.BackgroundColor = new IndexableOption<string>(new List<string>()
+                            {
+                                "rgba(255, 99, 132, 0.6)",
+                                "rgba(54, 162, 235, 0.6)",
+                                "rgba(255, 206, 86, 0.6)",
+                                "rgba(75, 192, 192, 0.6)",
+                                "rgba(153, 102, 255, 0.6)",
+                                "rgba(255, 159, 64, 0.6)",
+                            });
+            chartJsConfig.UpdateDataset(dataset);
+        }
+    }
+
     private void Randomize()
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<ChartJsDataset, IList<object>> chartData = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
             var dataList = data.ElementAt(i);
-            chartData.Add(dataset, dataList);
+            chartData.Add(dataset, new SetDataObject(dataList));
         }
         chartJsConfig.SetData(chartData);
     }

@@ -193,20 +193,29 @@ public partial class LineChartPage : ComponentBase
     private void AddData()
     {
         var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
-        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
+        // chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
+
+        Dictionary<ChartJsDataset, AddDataObject> data = new Dictionary<ChartJsDataset, AddDataObject>();
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            ChartJsDataset dataset = chartJsConfig.Data.Datasets[i];
+            data.Add(dataset, new AddDataObject(dataAddEventArgs.Data[i]));
+        }
+
+        chartJsConfig.AddData(dataAddEventArgs.Label, null, data);
     }
 
     private void Randomize()
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<ChartJsDataset, IList<object>> chartData = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
             var dataList = data.ElementAt(i);
-            chartData.Add(dataset, dataList);
+            chartData.Add(dataset, new SetDataObject(dataList));
         }
         chartJsConfig.SetData(chartData);
     }

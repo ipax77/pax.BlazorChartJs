@@ -94,6 +94,8 @@
     {
         List<object> barData = new();
 
+        Dictionary<ChartJsDataset, SetDataObject> datas = new();
+
         foreach (var dataset in chartJsConfig.Data.Datasets)
         {
             var barDataset = dataset as BarDataset;
@@ -103,20 +105,22 @@
                 {
                     barData.Add(random.Next(1, 100));
                 }
-                chartJsConfig.SetData(barDataset, barData);
+                datas.Add(barDataset, new SetDataObject(barData));
             }
 
             var lineDataset = dataset as LineDataset;
             if (lineDataset != null)
             {
-                chartJsConfig.SetData(lineDataset, GetNiceLineData(barData, Math.Max(barData.Count - 3, 3)));
+                datas.Add(lineDataset, new SetDataObject(GetNiceLineData(barData, Math.Max(barData.Count - 3, 3))));
             }
         }
+        chartJsConfig.SetData(datas);
     }
 
     public void AddData()
     {
         List<object> barData = new();
+        Dictionary<ChartJsDataset, AddDataObject> datas = new();
 
         foreach (var dataset in chartJsConfig.Data.Datasets)
         {
@@ -130,38 +134,21 @@
                 var borderColor = ChartUtils.GetRandomColor();
                 var backgroundColor = $"#33{borderColor.Substring(1)}";
 
-                chartJsConfig.AddData($"Label {barData.Count}", new List<object>() { addData, addData }, new List<string>() { backgroundColor, backgroundColor }, new List<string>() { borderColor, borderColor });
+                datas.Add(barDataset, new AddDataObject(addData, null, backgroundColor, borderColor));
             }
 
             var lineDataset = dataset as LineDataset;
             if (lineDataset != null)
             {
-                chartJsConfig.SetData(lineDataset, GetNiceLineData(barData, Math.Max(barData.Count - 3, 3)));
+                chartJsConfig.SetData(new Dictionary<ChartJsDataset, SetDataObject>() { { lineDataset, new SetDataObject(GetNiceLineData(barData, Math.Max(barData.Count - 3, 3))) } });
             }
         }
+        chartJsConfig.AddData($"Label {barData.Count}", null, datas);
     }
 
     private void RemoveData()
     {
-        List<object> barData = new();
-
-        foreach (var dataset in chartJsConfig.Data.Datasets)
-        {
-            var barDataset = dataset as BarDataset;
-            if (barDataset != null && barDataset.Data.Any())
-            {
-                barData = new List<object>(barDataset.Data);
-                barData.Remove(barData.Last());
-
-                chartJsConfig.RemoveData();
-            }
-
-            var lineDataset = dataset as LineDataset;
-            if (lineDataset != null)
-            {
-                chartJsConfig.SetData(lineDataset, GetNiceLineData(barData, Math.Max(barData.Count - 3, 3)));
-            }
-        }
+        chartJsConfig.RemoveData();
     }
 
     private static List<object> GetNiceLineData(List<object> data, int order)
