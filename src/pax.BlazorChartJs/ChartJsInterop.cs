@@ -300,6 +300,11 @@ public class ChartJsInterop : IAsyncDisposable
         await module.InvokeVoidAsync("setDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
     }
 
+    internal async Task DisposeChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("disposeChart", configGuid).ConfigureAwait(false);
+    }
 
     private JsonObject? SerializeConfig(ChartJsConfig config)
     {

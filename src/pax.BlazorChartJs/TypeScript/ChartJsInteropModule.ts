@@ -58,6 +58,12 @@ class ChartJsInterop {
         return plugins;
     }
 
+    public async triggerEvent(chartId: string, event: string, source: string, data: any) {
+        if (this.dotnetRefs.has(chartId)) {
+            await this.dotnetRefs.get(chartId).invokeMethodAsync("EventTriggered", event, source, data);
+        }
+    }
+
     public addData(chart: Chart, label: string, pos: number, datas: Array<JSON>) {
 
         if (chart == undefined)
@@ -201,6 +207,10 @@ class ChartJsInterop {
     public setDatasets(chart: Chart, datasets: Array<ChartDataset>) {
         chart.data.datasets = datasets;
         chart.update();
+    }
+
+    public disposeChart(chartId) {
+        this.dotnetRefs.delete(chartId);
     }
 }
 
