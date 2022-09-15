@@ -215,3 +215,4 @@ function arbitaryLinesPlugin() {
         }
     };
 }
+//# sourceMappingURL=ChartJsInteropModule.js.map

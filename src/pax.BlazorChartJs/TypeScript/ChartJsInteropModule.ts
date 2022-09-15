@@ -40,7 +40,7 @@ class ChartJsInterop {
                     await import(setupOptions['chartJsPluginLabelsLocation']);
                 }
                 else {
-                    await import('./chartjs-plugin-labels.min.js');
+                    await import ('./chartjs-plugin-labels.min.js');
                 }
             }
 
