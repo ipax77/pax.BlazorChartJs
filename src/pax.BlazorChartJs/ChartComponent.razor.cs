@@ -42,14 +42,26 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
     protected override void OnInitialized()
     {
-        ChartJsConfig.DatasetAdd += ChartJsConfig_DatasetAdd;
-        ChartJsConfig.DatasetRemove += ChartJsConfig_DatasetRemove;
+        ChartJsConfig.DatasetsAdd += ChartJsConfig_DatasetsAdd;
+        ChartJsConfig.DatasetsRemove += ChartJsConfig_DatasetsRemove;
+        ChartJsConfig.DatasetsUpdate += ChartJsConfig_DatasetsUpdate;
+        ChartJsConfig.DatasetsSet += ChartJsConfig_DatasetsSet;
         ChartJsConfig.DataAdd += ChartJsConfig_DataAdd;
         ChartJsConfig.DataRemove += ChartJsConfig_DataRemove;
         ChartJsConfig.DataSet += ChartJsConfig_DataSet;
         ChartJsConfig.LabelsSet += ChartJsConfig_LabelsSet;
         ChartJsConfig.AddDataEvent += ChartJsConfig_AddDataEvent;
         base.OnInitialized();
+    }
+
+    private async void ChartJsConfig_DatasetsSet(object? sender, DatasetsSetEventArgs e)
+    {
+        await ChartJsInterop.SetDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets).ConfigureAwait(false);
+    }
+
+    private async void ChartJsConfig_DatasetsUpdate(object? sender, DatasetsUpdateEventArgs e)
+    {
+        await ChartJsInterop.UpdateDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_AddDataEvent(object? sender, AddDataEventArgs e)
@@ -83,14 +95,14 @@ public partial class ChartComponent : ComponentBase, IDisposable
             e.AtPostion).ConfigureAwait(false);
     }
 
-    private async void ChartJsConfig_DatasetRemove(object? sender, DatasetRemoveEventArgs e)
+    private async void ChartJsConfig_DatasetsRemove(object? sender, DatasetsRemoveEventArgs e)
     {
-        await ChartJsInterop.RemoveDataset(ChartJsConfig.ChartJsConfigGuid, e.DatasetId).ConfigureAwait(false);
+        await ChartJsInterop.RemoveDatasets(ChartJsConfig.ChartJsConfigGuid, e.DatasetIds).ConfigureAwait(false);
     }
 
-    private async void ChartJsConfig_DatasetAdd(object? sender, DatasetAddEventArgs e)
+    private async void ChartJsConfig_DatasetsAdd(object? sender, DatasetsAddEventArgs e)
     {
-        await ChartJsInterop.AddDataset(ChartJsConfig.ChartJsConfigGuid, e.Dataset, e.AfterDatasetId).ConfigureAwait(false);
+        await ChartJsInterop.AddDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -269,8 +281,10 @@ public partial class ChartComponent : ComponentBase, IDisposable
         if (disposing)
         {
             dotNetHelper?.Dispose();
-            ChartJsConfig.DatasetAdd -= ChartJsConfig_DatasetAdd;
-            ChartJsConfig.DatasetRemove -= ChartJsConfig_DatasetRemove;
+            ChartJsConfig.DatasetsAdd -= ChartJsConfig_DatasetsAdd;
+            ChartJsConfig.DatasetsRemove -= ChartJsConfig_DatasetsRemove;
+            ChartJsConfig.DatasetsUpdate -= ChartJsConfig_DatasetsUpdate;
+            ChartJsConfig.DatasetsSet -= ChartJsConfig_DatasetsSet;
             ChartJsConfig.DataAdd -= ChartJsConfig_DataAdd;
             ChartJsConfig.DataRemove -= ChartJsConfig_DataRemove;
             ChartJsConfig.DataSet -= ChartJsConfig_DataSet;
