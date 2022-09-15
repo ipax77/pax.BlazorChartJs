@@ -1,24 +1,41 @@
 ﻿namespace pax.BlazorChartJs;
-public class DatasetAddEventArgs : EventArgs
+public class DatasetsAddEventArgs : EventArgs
 {
-    public DatasetAddEventArgs(object dataset, string? afterDatasetId)
+    public DatasetsAddEventArgs(IList<ChartJsDataset> datasets)
     {
-        Dataset = dataset;
-        AfterDatasetId = afterDatasetId;
+        Datasets = datasets;
     }
 
-    public object Dataset { get; init; }
-    public string? AfterDatasetId { get; init; }
+    public IList<ChartJsDataset> Datasets { get; init; }
 }
 
-public class DatasetRemoveEventArgs : EventArgs
+public class DatasetsRemoveEventArgs : EventArgs
 {
-    public DatasetRemoveEventArgs(string datasetId)
+    public DatasetsRemoveEventArgs(IList<string> datasetIds)
     {
-        DatasetId = datasetId;
+        DatasetIds = datasetIds;
     }
 
-    public string DatasetId { get; init; }
+    public IList<string> DatasetIds { get; init; }
+}
+
+public class DatasetsUpdateEventArgs : EventArgs
+{
+    public DatasetsUpdateEventArgs(IList<ChartJsDataset> datasets)
+    {
+        Datasets = datasets;
+    }
+
+    public IList<ChartJsDataset> Datasets { get; init; }
+}
+
+public class DatasetsSetEventArgs : EventArgs
+{
+    public DatasetsSetEventArgs(IList<ChartJsDataset> datasets)
+    {
+        Datasets = datasets;
+    }
+    public IList<ChartJsDataset> Datasets { get; init; }
 }
 
 public class DataAddEventArgs : EventArgs

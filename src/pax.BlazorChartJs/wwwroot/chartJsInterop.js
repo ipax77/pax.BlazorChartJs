@@ -58,3 +58,22 @@ export function setData(chartId, labels, datas) {
     ChartJsInteropModule.setData(chart, labels, datas);
 }
 
+export function addDatasets(chartId, datasets) {
+    const chart = Chart.getChart(chartId);
+    ChartJsInteropModule.addDatasets(chart, datasets);
+}
+
+export function removeDatasets(chartId, datasets) {
+    const chart = Chart.getChart(chartId);
+    ChartJsInteropModule.removeDatasets(chart, datasets);
+}
+
+export function updateDatasets(chartId, datasets) {
+    const chart = Chart.getChart(chartId);
+    ChartJsInteropModule.updateDatasets(chart, datasets);
+}
+
+export function setDatasets(chartId, datasets) {
+    const chart = Chart.getChart(chartId);
+    ChartJsInteropModule.setDatasets(chart, datasets);
+}

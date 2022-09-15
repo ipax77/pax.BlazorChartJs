@@ -143,6 +143,35 @@ class ChartJsInterop {
         });
         chart.update();
     }
+    addDatasets(chart, datasets) {
+        for (let i = 0; i < datasets.length; i++) {
+            chart.data.datasets.push(datasets[i]);
+        }
+        chart.update();
+    }
+    removeDatasets(chart, datasetIds) {
+        chart.data.datasets.forEach(dataset => {
+            if (datasetIds.includes(dataset['id'])) {
+                const index = chart.data.datasets.indexOf(dataset);
+                chart.data.datasets.splice(index, 1);
+            }
+        });
+        chart.update();
+    }
+    updateDatasets(chart, datasets) {
+        const datasetMetas = chart.getSortedVisibleDatasetMetas();
+        datasets.forEach(dataset => {
+            const datasetIndex = datasetMetas.findIndex(obj => obj['_dataset']['id'] === dataset['id']);
+            if (datasetIndex >= 0) {
+                chart.data.datasets[datasetIndex] = dataset;
+            }
+        });
+        chart.update();
+    }
+    setDatasets(chart, datasets) {
+        chart.data.datasets = datasets;
+        chart.update();
+    }
 }
 window[ChartJsInterop.name] = new ChartJsInterop();
 export default window[ChartJsInterop.name];

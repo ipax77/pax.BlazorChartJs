@@ -5,7 +5,9 @@ public record Animations
     /// <summary>
     /// The property names this configuration applies to. Defaults to the key name of this object.
     /// </summary>
+#pragma warning disable CA2227    
     public IList<string>? Properties { get; set; }
+#pragma warning restore CA2227    
     /// <summary>
     /// Type of property, determines the interpolator used. Possible values: 'number', 'color' and 'boolean'.
     /// Only really needed for 'color', because typeof does not get that right.

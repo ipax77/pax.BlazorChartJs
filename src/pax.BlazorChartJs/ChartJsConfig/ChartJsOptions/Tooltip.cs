@@ -75,7 +75,9 @@ public record Tooltip
     /// The events option defines the browser events that the chart should listen to for.
     /// Each of these events trigger hover and are passed to plugins. <see href="https://www.chartjs.org/docs/latest/configuration/interactions.html#event-option">more...</see>
     /// </summary>
+#pragma warning disable CA2227      
     public IList<string>? Events { get; set; }
+#pragma warning restore CA2227      
 }
 
 
