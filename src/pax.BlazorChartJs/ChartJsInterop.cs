@@ -30,10 +30,10 @@ public class ChartJsInterop : IAsyncDisposable
             "import", "./_content/pax.BlazorChartJs/chartJsInterop.js").AsTask());
 
         setupOptions = options?.Value;
+        JsRuntime = jsRuntime;
 
         // this.logger = logger;
     }
-
     private readonly ChartJsSetupOptions? setupOptions;
     private readonly Lazy<Task<IJSObjectReference>> moduleTask;
     // private readonly ILogger<ChartJsInterop> logger;
@@ -54,6 +54,8 @@ public class ChartJsInterop : IAsyncDisposable
                 new ChartJsAxisTickJsonConverter(),
             }
     };
+
+    public IJSRuntime JsRuntime { get; }
 
 
 
@@ -130,6 +132,8 @@ public class ChartJsInterop : IAsyncDisposable
         await module.InvokeVoidAsync("addChartDataToDatasets", configGuid, label, data, backgroundColors, borderColors, atPosition)
             .ConfigureAwait(false);
     }
+
+
 
     /// <summary>
     /// AddDataset
@@ -254,6 +258,54 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    internal async ValueTask AddData(Guid configGuid, string? label, int? atPosition, Dictionary<string, AddDataObject> datas)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("addData", configGuid, label, atPosition, datas).ConfigureAwait(false);
+    }
+
+    internal async ValueTask RemoveData(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("removeData", configGuid).ConfigureAwait(false);
+    }
+
+    internal async ValueTask SetData(Guid configGuid, IList<string>? labels, Dictionary<string, SetDataObject> datas)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("setData", configGuid, labels, datas).ConfigureAwait(false);
+    }
+
+    internal async ValueTask AddDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("addDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+    }
+
+    internal async ValueTask RemoveDatasets(Guid configGuid, IList<string> datasetIds)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("removeDatasets", configGuid, datasetIds).ConfigureAwait(false);
+    }
+
+    internal async ValueTask UpdateDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("updateDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+    }
+
+    internal async ValueTask SetDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("setDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+    }
+
+    internal async Task DisposeChart(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("disposeChart", configGuid).ConfigureAwait(false);
+    }
+
     private JsonObject? SerializeConfig(ChartJsConfig config)
     {
         var json = JsonSerializer.Serialize<object>(config, jsonOptions);
@@ -301,6 +353,17 @@ public class ChartJsInterop : IAsyncDisposable
     {
         var json = JsonSerializer.Serialize(dataset, jsonOptions);
         return JsonSerializer.Deserialize<JsonObject>(json);
+    }
+
+    private List<JsonObject?> SerializeDatasets(IList<ChartJsDataset> datasets)
+    {
+        List<JsonObject?> jsonObjects = new();
+        for (int i = 0; i < datasets.Count; i++)
+        {
+            var json = JsonSerializer.Serialize(datasets[i], jsonOptions);
+            jsonObjects.Add(JsonSerializer.Deserialize<JsonObject>(json));
+        }
+        return jsonObjects;
     }
 
     private static PropertyInfo? GetLowestProperty(Type type, string name)

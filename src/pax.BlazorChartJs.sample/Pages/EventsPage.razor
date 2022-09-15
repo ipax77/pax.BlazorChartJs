@@ -23,27 +23,54 @@
 <div>
     @if (latestchartJsEvent != null)
     {
-        <p>
-            EventType: @latestchartJsEvent.Type
-        </p>
-        <p>
-            EventSource: @latestchartJsEvent.Source
-        </p>
-        <p>
-            LabelEventData: @labelEventData
-        </p>
-        <p>
-            LegendEventData: @legendEventData
-        </p>
-        <p>
-            AnimationProgressEventData: @animationProgressEventData
-        </p>
-        <p>
-            AnimationCompleteEventData: @animationCompleteEventData
-        </p>
-        <p>
-            ResizeEventData: @resizeEventData
-        </p>
+        @if (latestchartJsEvent is ChartJsLabelHoverEvent labelHoverEvent)
+        {
+            <p>
+                ChartJsLabelHoverEvent: @labelHoverEvent
+            </p>
+        }
+        else if (latestchartJsEvent is ChartJsLabelClickEvent labelClickEvent)
+        {
+            <p>
+                ChartJsLabelClickEvent: @labelClickEvent
+            </p>
+        }
+        else if (latestchartJsEvent is ChartJsLegendHoverEvent legendHoverEvent)
+        {
+            <p>
+                ChartJsLegendHoverEvent:  @legendHoverEvent
+            </p>
+        }
+        else if (latestchartJsEvent is ChartJsLegendClickEvent legendClickEvent)
+        {
+            <p>
+                ChartJsLegendClickEvent: @legendClickEvent
+            </p>
+        }
+        else if (latestchartJsEvent is ChartJsLegendLeaveEvent legendLeaveEvent)
+        {
+            <p>
+                ChartJsLegendLeaveEvent: @legendLeaveEvent
+            </p>
+        }
+        else if (latestchartJsEvent is ChartJsAnimationProgressEvent animationProgressEvent)
+        {
+            <p>
+                ChartJsAnimationProgressEvent: @animationProgressEvent
+            </p>
+        }
+        else if (latestchartJsEvent is ChartJsAnimationCompleteEvent animationCompleteEvent)
+        {
+            <p>
+                ChartJsAnimationCompleteEvent: @animationCompleteEvent
+            </p>
+        }
+        else if (latestchartJsEvent is ChartJsResizeEvent resizeEvent)
+        {
+            <p>
+                ChartJsResizeEvent: @resizeEvent
+            </p>
+        }
     }
 </div>
 
@@ -51,12 +78,6 @@
     ChartComponent? chartComponent;
     ChartJsConfig chartJsConfig = null!;
     ChartJsEvent? latestchartJsEvent = null;
-
-    LabelEventData? labelEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as LabelEventData;
-    LegendEventData? legendEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as LegendEventData;
-    AnimationProgressEventData? animationProgressEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as AnimationProgressEventData;
-    AnimationCompleteEventData? animationCompleteEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as AnimationCompleteEventData;
-    ResizeEventData? resizeEventData => latestchartJsEvent?.EventData == null ? null : latestchartJsEvent.EventData as ResizeEventData;
 
     protected override void OnInitialized()
     {
@@ -225,20 +246,27 @@
     private void AddData()
     {
         var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
-        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data, dataAddEventArgs.BackgroundColors, dataAddEventArgs.BorderColors);
+
+        Dictionary<ChartJsDataset, AddDataObject> datas = new();
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            ChartJsDataset dataset = chartJsConfig.Data.Datasets[i];
+            datas.Add(dataset, new AddDataObject(dataAddEventArgs.Data[i], null, dataAddEventArgs.BackgroundColors?[i], dataAddEventArgs.BorderColors?[i]));
+        }
+        chartJsConfig.AddData(dataAddEventArgs.Label, null, datas);
     }
 
     private void Randomize()
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<ChartJsDataset, IList<object>> chartData = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
             var dataList = data.ElementAt(i);
-            chartData.Add(dataset, dataList);
+            chartData.Add(dataset, new SetDataObject(dataList));
         }
         chartJsConfig.SetData(chartData);
     }
