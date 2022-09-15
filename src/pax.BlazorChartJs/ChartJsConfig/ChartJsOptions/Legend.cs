@@ -31,19 +31,16 @@ public record Legend
     public double? MaxWidth { get; set; }
     public bool? FullSize { get; set; }
     /// <summary>
-    /// Activates onClick Event for the chartComponent -> OnEventTriggered
-    /// DataType = LegendEventData
+    /// Registers OnClick Event - ChartJsEvent type = ChartJsLegendClickEvent
     /// </summary>   
     public bool? OnClickEvent { get; set; }
     /// <summary>
-    /// Activates onHover Event for the chartComponent -> OnEventTriggered
-    /// DataType = LegendEventData
-    /// </summary>      
+    /// Registers OnHover Event - ChartJsEvent type = ChartJsLegendHoverEvent
+    /// </summary>   
     public bool? OnHoverEvent { get; set; }
     /// <summary>
-    /// Activates onLeave Event for the chartComponent -> OnEventTriggered
-    /// DataType = LegendEventData
-    /// </summary>      
+    /// Registers OnLeave Event - ChartJsEvent type = ChartJsLegendLeaveEvent
+    /// </summary>       
     public bool? OnLeaveEvent { get; set; }
     public bool? Reverse { get; set; }
     public Labels? Labels { get; set; }

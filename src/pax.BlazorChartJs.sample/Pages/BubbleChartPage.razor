@@ -123,8 +123,10 @@
 
     private void LabelClicked(ChartJsEvent chartJsEvent)
     {
-        var data = chartJsEvent.EventData as LabelEventData;
-        labelClicked = data?.Label;
+        if (chartJsEvent is ChartJsLabelClickEvent labelClickEvent)
+        {
+            labelClicked = labelClickEvent.Label;
+        }
     }
 
     private void AddData()

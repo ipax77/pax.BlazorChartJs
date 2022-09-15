@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace pax.BlazorChartJs;
@@ -159,13 +159,28 @@ public partial class ChartComponent : ComponentBase, IDisposable
     [JSInvokable]
     public void EventTriggered(string eventType, string eventSource, object? data)
     {
-        if (Enum.TryParse(eventType, out ChartJsEventType chartJsEventType))
+        if (Enum.TryParse(eventType, out ChartJsEventType chartJsEventType)
+         && Enum.TryParse(eventSource, out ChartJsEventSource chartJsEventSource))
         {
+            var jsonElement = data == null ? new JsonElement() : (JsonElement)data;
+            ChartJsEvent? chartJsEvent = (chartJsEventSource, chartJsEventType) switch
+            {
+                (ChartJsEventSource.label, ChartJsEventType.click) => JsonSerializer.Deserialize<ChartJsLabelClickEvent>(jsonElement),
+                (ChartJsEventSource.label, ChartJsEventType.hover) => JsonSerializer.Deserialize<ChartJsLabelHoverEvent>(jsonElement),
+                (ChartJsEventSource.legend, ChartJsEventType.click) => JsonSerializer.Deserialize<ChartJsLegendClickEvent>(jsonElement),
+                (ChartJsEventSource.legend, ChartJsEventType.hover) => JsonSerializer.Deserialize<ChartJsLegendHoverEvent>(jsonElement),
+                (ChartJsEventSource.legend, ChartJsEventType.leave) => JsonSerializer.Deserialize<ChartJsLegendLeaveEvent>(jsonElement),
+                (ChartJsEventSource.animation, ChartJsEventType.progress) => JsonSerializer.Deserialize<ChartJsAnimationProgressEvent>(jsonElement),
+                (ChartJsEventSource.animation, ChartJsEventType.complete) => JsonSerializer.Deserialize<ChartJsAnimationCompleteEvent>(jsonElement),
+                (ChartJsEventSource.chart, ChartJsEventType.resize) => JsonSerializer.Deserialize<ChartJsResizeEvent>(jsonElement),
+                _ => null
+            };
+            if (chartJsEvent != null)
+            {
+                chartJsEvent.ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid;
+                OnEventTriggered.InvokeAsync(chartJsEvent);
+            }
         }
-        if (Enum.TryParse(eventSource, out ChartJsEventSource chartJsEventSource))
-        {
-        }
-        OnEventTriggered.InvokeAsync(new ChartJsEvent(ChartJsConfig.ChartJsConfigGuid, chartJsEventType, chartJsEventSource, data));
     }
 
     /// <summary>
@@ -292,7 +307,7 @@ public partial class ChartComponent : ComponentBase, IDisposable
             ChartJsConfig.DataSet -= ChartJsConfig_DataSet;
             ChartJsConfig.LabelsSet -= ChartJsConfig_LabelsSet;
             ChartJsConfig.AddDataEvent -= ChartJsConfig_AddDataEvent;
-            
+
         }
 
         isDisposed = true;
