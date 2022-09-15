@@ -16,7 +16,7 @@ class ChartJsInterop {
             'type': dotnetConfig['type'],
             data: dotnetConfig['data'],
             options: dotnetConfig['options'] ?? {},
-            plugins: await this.loadPlugins(setupOptions, dotnetConfig)
+            plugins: []
         };
         return config;
     }
@@ -25,7 +25,7 @@ class ChartJsInterop {
         if (dotnetConfig['options'] != undefined
             && dotnetConfig['options'].plugins != undefined) {
             if (dotnetConfig['options'].plugins.arbitraryLines != undefined) {
-                const arbitraryLines = arbitaryLinesPlugin();
+                const arbitraryLines = this.arbitaryLinesPlugin();
                 plugins.push(arbitraryLines);
             }
             if (dotnetConfig['options'].plugins.labels != undefined) {
@@ -180,39 +180,38 @@ class ChartJsInterop {
     disposeChart(chartId) {
         this.dotnetRefs.delete(chartId);
     }
+    arbitaryLinesPlugin() {
+        return {
+            id: 'arbitraryLines',
+            afterDraw(chart, args, options) {
+                const { ctx, chartArea: { top, right, bottom, left, width, height }, scales: { x, y } } = chart;
+                ctx.save();
+                for (let i = 0; i < options.length; i++) {
+                    var option = options[i];
+                    ctx.fillStyle = option.arbitraryLineColor;
+                    const xWidth = option.xWidth;
+                    let x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
+                    let y0 = top;
+                    let x1 = xWidth;
+                    let y1 = height;
+                    ctx.fillRect(x0, y0, x1, y1);
+                }
+                for (let i = 0; i < options.length; i++) {
+                    var option = options[i];
+                    ctx.fillStyle = option.arbitraryLineColor;
+                    const xWidth = option.xWidth;
+                    let x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
+                    let y0 = top;
+                    let x1 = xWidth;
+                    let y1 = height;
+                    ctx.fillStyle = 'white';
+                    ctx.font = '14px arial';
+                    ctx.fillText(option.text, x0 + 4, y0 + 10 * (i + 1));
+                }
+                ctx.restore();
+            }
+        };
+    }
 }
 window[ChartJsInterop.name] = new ChartJsInterop();
 export default window[ChartJsInterop.name];
-function arbitaryLinesPlugin() {
-    return {
-        id: 'arbitraryLines',
-        afterDraw(chart, args, options) {
-            const { ctx, chartArea: { top, right, bottom, left, width, height }, scales: { x, y } } = chart;
-            ctx.save();
-            for (let i = 0; i < options.length; i++) {
-                var option = options[i];
-                ctx.fillStyle = option.arbitraryLineColor;
-                const xWidth = option.xWidth;
-                let x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
-                let y0 = top;
-                let x1 = xWidth;
-                let y1 = height;
-                ctx.fillRect(x0, y0, x1, y1);
-            }
-            for (let i = 0; i < options.length; i++) {
-                var option = options[i];
-                ctx.fillStyle = option.arbitraryLineColor;
-                const xWidth = option.xWidth;
-                let x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
-                let y0 = top;
-                let x1 = xWidth;
-                let y1 = height;
-                ctx.fillStyle = 'white';
-                ctx.font = '14px arial';
-                ctx.fillText(option.text, x0 + 4, y0 + 10 * (i + 1));
-            }
-            ctx.restore();
-        }
-    };
-}
-//# sourceMappingURL=ChartJsInteropModule.js.map
