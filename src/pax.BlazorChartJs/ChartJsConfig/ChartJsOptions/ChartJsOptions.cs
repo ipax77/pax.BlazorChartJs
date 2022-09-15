@@ -59,19 +59,16 @@ public record ChartJsOptions
     /// </summary>
     public IList<string>? Events { get; set; }
     /// <summary>
-    /// Activates onHover Event for the chartComponent -> OnEventTriggered
-    /// DataType = LabelEventData
-    /// </summary>
+    /// Registers OnHover Event - ChartJsEvent type = ChartJsLabelHoverEvent
+    /// </summary>   
     public bool? OnHoverEvent { get; set; }
     /// <summary>
-    /// Activates onClick Event for the chartComponent -> OnEventTriggered
-    /// /// DataType = LabelEventData
-    /// </summary>
+    /// Registers OnClick Event - ChartJsEvent type = ChartJsLabelClickEvent
+    /// </summary>   
     public bool? OnClickEvent { get; set; }
     /// <summary>
-    /// Activates onResize Event for the chartComponent -> OnEventTriggered
-    /// DataType = ResizeEventData
-    /// </summary>    
+    /// Registers OnResize Event - ChartJsEvent type = ChartJsResizeEvent
+    /// </summary>   
     public bool? OnResizeEvent { get; set; }
     public string? IndexAxis { get; set; }
 }

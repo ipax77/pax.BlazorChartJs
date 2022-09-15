@@ -324,10 +324,9 @@
             chart = "chart3";
         }
 
-        var data = chartJsEvent.EventData as LabelEventData;
-        if (data != null)
+        if (chartJsEvent is ChartJsLabelClickEvent labelClickEvent)
         {
-            labelClicked = $"Label: {data.Label}, X = {data.DataX}, Y = {data.DataY} on {chart}";
+            labelClicked = $"Label: {labelClickEvent.Label}, X = {labelClickEvent.DataX}, Y = {labelClickEvent.DataY} on {chart}";
         }
     }
 }

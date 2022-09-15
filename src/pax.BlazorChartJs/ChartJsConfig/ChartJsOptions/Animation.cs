@@ -18,7 +18,13 @@ public record Animation
     /// If set to true, the animations loop endlessly.
     /// </summary>
     public bool? Loop { get; set; }
+    /// <summary>
+    /// Registers OnProgress Event - ChartJsEvent type = ChartJsAnimationProgressEvent
+    /// </summary>    
     public bool? OnProgressEvent { get; set; }
+    /// <summary>
+    /// Registers OnComplete Event - ChartJsEvent type = ChartJsAnimationCompleteEvent
+    /// </summary>    
     public bool? OnCompleteEvent { get; set; }
 }
 
