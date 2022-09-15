@@ -6,7 +6,7 @@
       "preserveConstEnums": true,
       "baseUrl": "TypeScript",
       "outDir": "wwwroot",
-      "sourceMap": true,
+      "sourceMap": false,
     },
     "include": ["./TypeScript/*.ts"]
   }

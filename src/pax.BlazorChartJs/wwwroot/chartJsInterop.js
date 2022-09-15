@@ -14,8 +14,7 @@ class AsyncLock {
 const lock = new AsyncLock()
 let isLoaded = false;
 
-export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef)
-{
+export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) {
     await lock.promise
     lock.enable();
 
@@ -36,13 +35,48 @@ export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef)
         }
 
         const config = await ChartJsInteropModule.initChart(setupOptions, chartId, dotnetConfig, dotnetRef);
+        config.plugins = await loadPlugins(setupOptions, dotnetConfig);
         const ctx = document.getElementById(chartId).getContext('2d');
         const chart = new Chart(ctx, config);
-
-        registerEvents(dotnetConfig.options, chartId, chart);
+        
+        if (dotnetConfig['options'] != undefined) {
+            registerEvents(dotnetConfig.options, chartId, chart);
+        }
     } finally {
         lock.disable();
     }
+}
+
+async function loadPlugins(setupOptions, dotnetConfig) {
+    let plugins = []
+
+    if (dotnetConfig['options'] != undefined
+        && dotnetConfig['options'].plugins != undefined) {
+
+        if (dotnetConfig['options'].plugins.arbitraryLines != undefined) {
+            const arbitraryLines = ChartJsInteropModule.arbitaryLinesPlugin();
+            plugins.push(arbitraryLines);
+        }
+
+        if (dotnetConfig['options'].plugins.labels != undefined) {
+            if (setupOptions?.['chartJsPluginLabelsLocation']) {
+                await import(setupOptions['chartJsPluginLabelsLocation']);
+            }
+            else {
+                await import('./chartjs-plugin-labels.min.js');
+            }
+        }
+
+        if (dotnetConfig['options'].plugins.datalabels != undefined) {
+            if (setupOptions?.['chartJsPluginDatalabelsLocation']) {
+                await import(setupOptions['chartJsPluginDatalabelsLocation']);
+            } else {
+                await import('./chartjs-plugin-datalabels.min.js');
+            }
+            plugins.push(ChartDataLabels);
+        }
+    }
+    return plugins;
 }
 
 function registerEvents(dotnetConfigOptions, chartId, chart) {
@@ -153,8 +187,7 @@ async function triggerEvent(chartId, event, source, data) {
 
 export function updateChartOptions(chartId, options) {
     const chart = Chart.getChart(chartId);
-    if (chart != undefined)
-    {
+    if (chart != undefined) {
         chart.options = options;
         chart.update();
         registerEvents(options, chartId, chart);
@@ -308,5 +341,5 @@ export function showDataset(chartId, datasetIndex, dataIndex) {
 }
 
 export function disposeChart(chartId) {
-    
+
 }
