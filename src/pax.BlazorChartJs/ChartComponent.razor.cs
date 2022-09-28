@@ -143,17 +143,6 @@ public partial class ChartComponent : ComponentBase, IDisposable
     }
 
     /// <summary>
-    /// Update Chart Datasets
-    /// </summary>
-    public async Task UpdateChartDatasets()
-    {
-        if (dotNetHelper != null)
-        {
-            await ChartJsInterop.UpdateChartDatasets(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-        }
-    }
-
-    /// <summary>
     /// Javascript call
     /// </summary>
     [JSInvokable]

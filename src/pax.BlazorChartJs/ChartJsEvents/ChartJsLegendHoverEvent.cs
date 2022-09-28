@@ -1,3 +1,6 @@
 namespace pax.BlazorChartJs;
 
-public record ChartJsLegendHoverEvent : ChartJsLegendClickEvent { }
+public record ChartJsLegendHoverEvent : ChartJsEvent
+{
+    public string? Label { get; init; }
+}

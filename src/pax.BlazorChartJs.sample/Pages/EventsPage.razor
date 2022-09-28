@@ -164,6 +164,35 @@
     private void EventTriggered(ChartJsEvent chartJsEvent)
     {
         latestchartJsEvent = chartJsEvent;
+
+        if (chartJsEvent is ChartJsLegendClickEvent legendClickEvent)
+        {
+            var dataset = chartJsConfig.Data.Datasets
+                .Cast<BarDataset>()
+                .FirstOrDefault(f => f.Label == legendClickEvent.Label);
+
+            if (dataset != null)
+            {
+                if (dataset.Hidden == null)
+                {
+                    dataset.Hidden = true;
+                }
+                else
+                {
+                    dataset.Hidden = !dataset.Hidden.Value;
+                }
+
+                if (!dataset.Hidden.Value)
+                {
+                    chartComponent?.ShowDataset(dataset, null);
+                }
+                else
+                {
+                    chartComponent?.HideDataset(dataset, null);
+                }
+            }
+        }
+
         StateHasChanged();
     }
 

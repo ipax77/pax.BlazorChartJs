@@ -18,6 +18,7 @@
         <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ShowDataset(chartJsConfig.Data.Datasets.First(), 2)">Show 2</button>
         <button type="button" class="btn btn-warning" @onclick="SetDatasets">SetDatasets</button>
         <button type="button" class="btn btn-warning" @onclick="UpdateDatasets">UpdateDataset</button>
+        <button type="button" class="btn btn-warning" @onclick="GetDataVisibility">GetDataVisibility</button>
     </div>
 }
 
@@ -32,9 +33,16 @@
     <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig"></ChartComponent>
 </div>
 
+<div>
+    <p>
+        Dataset visible: @isVisible
+    </p>
+</div>
+
 @code {
     ChartComponent? chartComponent;
     ChartJsConfig chartJsConfig = null!;
+    private bool isVisible = true;
 
     protected override void OnInitialized()
     {
@@ -154,5 +162,12 @@
     private void RemoveLastDataFromDatasets()
     {
         chartJsConfig.RemoveData();
+    }
+
+    private async Task GetDataVisibility()
+    {
+        var task = chartComponent?.GetDataVisibility(0);
+        isVisible = await task.GetValueOrDefault();
+        await InvokeAsync(() => StateHasChanged());
     }
 }

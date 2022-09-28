@@ -185,7 +185,15 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 
 ## ChangeLog
 
-<details open="open"><summary>v0.3.2</summary>
+<details open="open"><summary>v0.3.3</summary>
+
+>- Fix #6
+>- chartComponent.UpdateChartDatasets removed - use chartConfig.SetDatasets() instead
+>- Added Hidden option for Datasets
+
+</details>
+
+<details><summary>v0.3.2</summary>
 
 >- Chart update refactoring - Breaking Changes!
 >- Chart events refactoring - Breaking Changes!
