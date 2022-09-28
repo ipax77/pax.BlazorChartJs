@@ -87,20 +87,6 @@ public class ChartJsInterop : IAsyncDisposable
     }
 
     /// <summary>
-    /// Update Chart datasets
-    /// </summary>
-    public async ValueTask UpdateChartDatasets(ChartJsConfig config, DotNetObjectReference<ChartComponent> dotnetRef)
-    {
-        ArgumentNullException.ThrowIfNull(config);
-        ArgumentNullException.ThrowIfNull(dotnetRef);
-
-        var module = await moduleTask.Value.ConfigureAwait(false);
-        var data = SerializeConfigDatasets(config);
-        await module.InvokeVoidAsync("updateChartDatasets", config.ChartJsConfigGuid, data)
-            .ConfigureAwait(false);
-    }
-
-    /// <summary>
     /// SetDatasetsData
     /// </summary>
     public async ValueTask SetDatasetsData(Guid configGuid, Dictionary<ChartJsDataset, IList<object>> data)

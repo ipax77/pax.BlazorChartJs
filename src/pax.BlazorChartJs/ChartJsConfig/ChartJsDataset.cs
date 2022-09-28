@@ -21,5 +21,6 @@ public record ChartJsDataset
     /// This disables segmentation of the line, which can be an unneeded step.
     /// </summary>  
     public object? SpanGaps { get; set; }
+    public bool? Hidden { get; set; }
 }
 #pragma warning restore CA2227
