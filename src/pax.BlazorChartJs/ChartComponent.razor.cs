@@ -115,7 +115,11 @@ public partial class ChartComponent : ComponentBase, IDisposable
         if (firstRender)
         {
             dotNetHelper = DotNetObjectReference.Create(this);
-            await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+            var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+            if (initResult == true)
+            {
+                await InvokeAsync(() => OnEventTriggered.InvokeAsync(new ChartJsInitEvent()));
+            }
         }
         base.OnAfterRender(firstRender);
     }

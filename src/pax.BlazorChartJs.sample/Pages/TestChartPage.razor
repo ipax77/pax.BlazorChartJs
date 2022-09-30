@@ -48,7 +48,7 @@
     {
         chartJsConfig = new()
             {
-                Type = ChartType.pie,
+                Type = ChartType.bar,
                 Data = new ChartJsData()
                 {
                     Labels = new List<string>()
@@ -57,40 +57,77 @@
                     },
                     Datasets = new List<ChartJsDataset>()
                     {
-                        new PieDataset()
+                        new BarDataset()
                         {
+                            Label = "Dataset 1",
                             Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
-                            BackgroundColor = new IndexableOption<string>(new List<string>()
-                            {
-                                "rgba(255, 99, 132, 0.2)",
-                                "rgba(54, 162, 235, 0.2)",
-                                "rgba(255, 206, 86, 0.2)",
-                                "rgba(75, 192, 192, 0.2)",
-                                "rgba(153, 102, 255, 0.2)",
-                                "rgba(255, 159, 64, 0.2)",
-                            }),
-                            BorderColor = new IndexableOption<string>(new List<string>()
-                            {
-                                "rgba(255, 99, 132, 1)",
-                                "rgba(54, 162, 235, 1)",
-                                "rgba(255, 206, 86, 1)",
-                                "rgba(75, 192, 192, 1)",
-                                "rgba(153, 102, 255, 1)",
-                                "rgba(255, 159, 64, 1)",
-                            }),
+                            BackgroundColor = new IndexableOption<string>("rgba(255, 99, 132, 0.2)"),
+                            BorderColor = new IndexableOption<string>("rgba(255, 99, 132, 1)"),
                             BorderWidth = new IndexableOption<double>(1)
-                        }
+                        },
+                        new BarDataset()
+                        {
+                            Label = "Dataset 2",
+                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
+                            BackgroundColor = new IndexableOption<string>("rgba(54, 162, 235, 0.2)"),
+                            BorderColor = new IndexableOption<string>("rgba(54, 162, 235, 1)"),
+                            BorderWidth = new IndexableOption<double>(1)
+                        },
+                        new BarDataset()
+                        {
+                            Label = "Dataset 3",
+                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
+                            BackgroundColor = new IndexableOption<string>("rgba(255, 206, 86, 0.2)"),
+                            BorderColor = new IndexableOption<string>("rgba(255, 206, 86, 1)"),
+                            BorderWidth = new IndexableOption<double>(1)
+                        },
                     }
                 },
                 Options = new ChartJsOptions()
                 {
+                    IndexAxis = "y",
                     Plugins = new Plugins()
                     {
                         Legend = new Legend()
                         {
                             Position = "right"
                         }
-                    }
+                    },
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        X = new LinearAxis()
+                        {
+                            BeginAtZero = true,
+                            Stacked = true,
+                            Min = 0,
+                            Ticks = new LinearAxisTick()
+                            {
+                                Display = true,
+                                StepSize = 10
+                            },
+                            Grid = new ChartJsGrid()
+                            {
+                                Display = false,
+                                DrawBorder = false
+                            }
+                        },
+                        Y = new LinearAxis()
+                        {
+                            Stacked = true,
+                            Display = false,
+                            Ticks = new LinearAxisTick()
+                            {
+                                Display = true,
+                                StepSize = 60
+                            },
+                            Grid = new ChartJsGrid()
+                            {
+                                Display = false,
+                                DrawBorder = false
+                            }
+                        }
+                    },
+
                 }
 
             };
@@ -140,7 +177,7 @@
 
     private void Randomize()
     {
-        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
+        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, 0, 100);
 
         Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 

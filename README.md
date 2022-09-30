@@ -185,7 +185,15 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 
 ## ChangeLog
 
-<details open="open"><summary>v0.3.3</summary>
+<details open="open"><summary>v0.3.4</summary>
+
+>- Fix #7 - Axis Ticks JsonConverter
+>- Added ChartJsInitEvent which is triggered when the chart finished initializing the first time
+>- ScatterChart Sample 
+
+</details>
+
+<details><summary>v0.3.3</summary>
 
 >- Fix #6
 >- chartComponent.UpdateChartDatasets removed - use chartConfig.SetDatasets() instead

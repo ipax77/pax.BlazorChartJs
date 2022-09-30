@@ -18,14 +18,13 @@
 
 
         var chartJsInterop = ctx.JSInterop.SetupModule("./_content/pax.BlazorChartJs/chartJsInterop.js");
-        var initChart = chartJsInterop.SetupVoid("initChart", _ => true);
+        var initChart = chartJsInterop.Setup<bool>("initChart", _ => true).SetResult(true);
 
         ctx.Services.AddSingleton<ChartJsInterop>(new ChartJsInterop(ctx.JSInterop.JSRuntime, null));
 
         // Act
         BarChart? barChart = null;
         var cut = ctx.Render(@<BarChart @ref="barChart" chartJsConfig="chartJsConfig" />);
-        initChart.SetVoidResult();
 
         // Assert
         Assert.NotNull(barChart);
