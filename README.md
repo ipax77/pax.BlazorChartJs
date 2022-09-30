@@ -189,7 +189,7 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 
 >- Fix #7 - Axis Ticks JsonConverter
 >- Added ChartJsInitEvent which is triggered when the chart finished initializing the first time
->- ScatterChart Sample 
+>- [StackedChart](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.sample/Pages/StackedChartPage.razor) Sample
 
 </details>
 
