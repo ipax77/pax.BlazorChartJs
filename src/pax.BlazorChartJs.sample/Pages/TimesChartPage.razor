@@ -48,24 +48,6 @@
                             Tension = 0.1
                         }
                     },
-                },
-                Options = new ChartJsOptions()
-                {
-                    Animation = new Animation()
-                    {
-                        OnCompleteEvent = true
-                    },
-                    //Scales = new ChartJsOptionsScales()
-                    //{
-                    //    X = new TimeCartesianAxis()
-                    //    {
-                    //        Type = "time",
-                    //        Time = new TimeCartesianAxisTime()
-                    //        {
-                    //            Unit = "day"
-                    //        }
-                    //    }
-                    //}
                 }
             };
         base.OnInitialized();
@@ -73,12 +55,9 @@
 
     private async void EventTriggered(ChartJsEvent chartJsEvent)
     {
-        if (chartJsEvent is ChartJsAnimationCompleteEvent animationCompleteEvent)
+        if (chartJsEvent is ChartJsInitEvent initEvent)
         {
-            if (animationCompleteEvent.Initial)
-            {
-                await RegisterPlugin();
-            }
+            await RegisterPlugin();
         }
     }
 
@@ -92,9 +71,9 @@
 
             isRegistered = true;
 
-            if (chartConfig.Options != null)
-            {
-                chartConfig.Options.Scales = new ChartJsOptionsScales()
+            chartConfig.Options = new ChartJsOptions()
+                {
+                    Scales = new ChartJsOptionsScales()
                     {
                         X = new TimeCartesianAxis()
                         {
@@ -104,9 +83,8 @@
                                 Unit = "day"
                             }
                         }
-                    };
-            }
-
+                    }
+                };
             chartComponent?.DrawChart();
         }
     }

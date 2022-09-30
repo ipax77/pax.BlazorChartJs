@@ -103,7 +103,7 @@ internal class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset?>
                     new IndexableOptionDoubleConverter(),
                     new IndexableOptionIntConverter(),
                     new IndexableOptionBoolConverter(),
-                    new IndexableOptionObjectConverter()
+                    new IndexableOptionObjectConverter(),
                 }
         }), true);
     }
@@ -133,7 +133,8 @@ internal class ChartJsAxisJsonConverter : JsonConverter<ChartJsAxis?>
                     new IndexableOptionDoubleConverter(),
                     new IndexableOptionIntConverter(),
                     new IndexableOptionBoolConverter(),
-                    new IndexableOptionObjectConverter()
+                    new IndexableOptionObjectConverter(),
+                    new ChartJsAxisTickJsonConverter(),
                 }
         }), true);
     }

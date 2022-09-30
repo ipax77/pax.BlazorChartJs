@@ -11,14 +11,20 @@ public record ChartJsAxis
     public string? Axis { get; set; }
     public string? BackgroundColor { get; set; }
     public bool? Display { get; set; }
-    public object? Grid { get; set; }
-    public object? Min { get; set; }
-    public object? Max { get; set; }
+    public ChartJsGrid? Grid { get; set; }
+    public double? Min { get; set; }
+    public double? Max { get; set; }
     public bool? Reverse { get; set; }
-    public string? Stacked { get; set; }
-    public object? SuggestedMax { get; set; }
-    public object? SuggestedMin { get; set; }
+    /// <summary>
+    /// By default data is not stacked. If the stacked option of the value scale (y-axis on horizontal chart) is true,
+    /// positive and negative values are stacked separately. Additionally a stack option can be defined per dataset to 
+    /// further divide into stack groups more.... For some charts, you might want to stack positive and negative values together.
+    ///  That can be achieved by specifying stacked: 'single'   
+    /// </summary>
+    public object? Stacked { get; set; }
+    public double? SuggestedMax { get; set; }
+    public double? SuggestedMin { get; set; }
     public ChartJsAxisTick? Ticks { get; set; }
-    public string? Weight { get; set; }
+    public double? Weight { get; set; }
     public Title? Title { get; set; }
 }

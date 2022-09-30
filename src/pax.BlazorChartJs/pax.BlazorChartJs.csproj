@@ -9,11 +9,11 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ipax77/pax.BlazorChartJs</RepositoryUrl>
     <PackageTags>blazor;dotnet;wrapper;chartjs</PackageTags>
-    <AssemblyVersion>0.3.3.0</AssemblyVersion>
+    <AssemblyVersion>0.3.4.0</AssemblyVersion>
     <Owners>Philipp Hetzner</Owners>
     <Authors>Philipp Hetzner</Authors>
-    <Version>0.3.3</Version>
-	  <FileVersion>0.3.3.0</FileVersion>
+    <Version>0.3.4</Version>
+	  <FileVersion>0.3.4.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>    
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>

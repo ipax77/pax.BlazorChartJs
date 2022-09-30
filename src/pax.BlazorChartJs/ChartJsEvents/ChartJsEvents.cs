@@ -25,3 +25,8 @@ public enum ChartJsEventSource
     label = 3,
     chart = 4,
 }
+
+public record ChartJsInitEvent : ChartJsEvent
+{
+
+}

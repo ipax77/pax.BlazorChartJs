@@ -45,6 +45,7 @@ export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) 
     } finally {
         lock.disable();
     }
+    return true;
 }
 
 async function loadPlugins(setupOptions, dotnetConfig) {

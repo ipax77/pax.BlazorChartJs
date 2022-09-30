@@ -57,9 +57,14 @@
 
     private async void EventTriggered(ChartJsEvent chartJsEvent)
     {
-        if (chartJsEvent is ChartJsAnimationCompleteEvent animationCompleteEvent)
+        //if (chartJsEvent is ChartJsInitEvent initEvent)
+        //{
+        //    await RegisterPlugin();
+        //    DrawChart();
+        //}
+        if (chartJsEvent is ChartJsAnimationCompleteEvent animationEvent)
         {
-            if (animationCompleteEvent.Initial)
+            if (animationEvent.Initial)
             {
                 await RegisterPlugin();
                 DrawChart();
