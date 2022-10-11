@@ -7,14 +7,14 @@ namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class LineChartTests : PageStartupTest
+public class LineChartTests : PageTest
 {
 
 
     [Test]
     public async Task AddDataTest()
     {
-        await Page.GotoAsync("https://localhost:7193/linechart");
+        await Page.GotoAsync(Startup.SampleBaseUrl + "linechart");
 
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"));
@@ -26,7 +26,7 @@ public class LineChartTests : PageStartupTest
         Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
 
         // wait for ChartJs to load
-        await Task.Delay(1000);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         // Current data count
         int countPrev = await GetDatasetDataCount(canvasId);
@@ -43,7 +43,7 @@ public class LineChartTests : PageStartupTest
         await addData.ClickAsync();
 
         // wait for Chartjs
-        await Task.Delay(10);        
+        await Task.Delay(Startup.ChartJsComputeDelay);        
 
         int countAfter = await GetDatasetDataCount(canvasId);
 
@@ -53,7 +53,7 @@ public class LineChartTests : PageStartupTest
     [Test]
     public async Task RemoveDataTest()
     {
-        await Page.GotoAsync("https://localhost:7193/linechart");
+        await Page.GotoAsync(Startup.SampleBaseUrl + "linechart");
 
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"));
@@ -65,7 +65,7 @@ public class LineChartTests : PageStartupTest
         Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
 
         // wait for ChartJs to load
-        await Task.Delay(1000);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         // Current data count
         int countPrev = await GetDatasetDataCount(canvasId);
@@ -82,7 +82,7 @@ public class LineChartTests : PageStartupTest
         await removeData.ClickAsync();
 
         // wait for Chartjs
-        await Task.Delay(10);        
+        await Task.Delay(Startup.ChartJsComputeDelay);        
 
         int countAfter = await GetDatasetDataCount(canvasId);
 
@@ -92,7 +92,7 @@ public class LineChartTests : PageStartupTest
     [Test]
     public async Task AddDatasetTest()
     {
-        await Page.GotoAsync("https://localhost:7193/linechart");
+        await Page.GotoAsync(Startup.SampleBaseUrl + "linechart");
 
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"));
@@ -104,7 +104,7 @@ public class LineChartTests : PageStartupTest
         Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
 
         // wait for ChartJs to load
-        await Task.Delay(1000);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         // Current data count
         int countPrev = await GetDatasetCount(canvasId);
@@ -121,7 +121,7 @@ public class LineChartTests : PageStartupTest
         await addDataset.ClickAsync();
 
         // wait for Chartjs
-        await Task.Delay(10);
+        await Task.Delay(Startup.ChartJsComputeDelay);
 
         int countAfter = await GetDatasetCount(canvasId);
 
@@ -131,7 +131,7 @@ public class LineChartTests : PageStartupTest
     [Test]
     public async Task RemoveDatasetTest()
     {
-        await Page.GotoAsync("https://localhost:7193/linechart");
+        await Page.GotoAsync(Startup.SampleBaseUrl + "linechart");
 
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"));
@@ -143,7 +143,7 @@ public class LineChartTests : PageStartupTest
         Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
 
         // wait for ChartJs to load
-        await Task.Delay(1000);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         // Current data count
         int countPrev = await GetDatasetCount(canvasId);
@@ -160,7 +160,7 @@ public class LineChartTests : PageStartupTest
         await removeDataset.ClickAsync();
 
         // wait for Chartjs
-        await Task.Delay(10);
+        await Task.Delay(Startup.ChartJsComputeDelay);
 
         int countAfter = await GetDatasetCount(canvasId);
 
