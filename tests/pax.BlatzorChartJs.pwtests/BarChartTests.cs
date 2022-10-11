@@ -7,12 +7,12 @@ namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class BarChartTests : PageStartupTest
+public class BarChartTests : PageTest
 {
     [Test]
     public async Task AddDataTest()
     {
-        await Page.GotoAsync("https://localhost:7193/barchart");
+        await Page.GotoAsync(Startup.SampleBaseUrl + "barchart");
 
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("barchart"));
@@ -24,7 +24,7 @@ public class BarChartTests : PageStartupTest
         Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
 
         // wait for ChartJs to load
-        await Task.Delay(1000);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         // Current data count
         int countPrev = await GetDatasetDataCount(canvasId);
@@ -41,7 +41,7 @@ public class BarChartTests : PageStartupTest
         await addData.ClickAsync();
 
         // wait for Chartjs
-        await Task.Delay(10);
+        await Task.Delay(Startup.ChartJsComputeDelay);
 
         int countAfter = await GetDatasetDataCount(canvasId);
 
@@ -51,7 +51,7 @@ public class BarChartTests : PageStartupTest
     [Test]
     public async Task RemoveDataTest()
     {
-        await Page.GotoAsync("https://localhost:7193/barchart");
+        await Page.GotoAsync(Startup.SampleBaseUrl + "barchart");
 
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("barchart"));
@@ -63,7 +63,7 @@ public class BarChartTests : PageStartupTest
         Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
 
         // wait for ChartJs to load
-        await Task.Delay(1000);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         // Current data count
         int countPrev = await GetDatasetDataCount(canvasId);
@@ -87,7 +87,7 @@ public class BarChartTests : PageStartupTest
     [Test]
     public async Task AddDatasetTest()
     {
-        await Page.GotoAsync("https://localhost:7193/barchart");
+        await Page.GotoAsync(Startup.SampleBaseUrl + "barchart");
 
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("barchart"));
@@ -99,7 +99,7 @@ public class BarChartTests : PageStartupTest
         Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
 
         // wait for ChartJs to load
-        await Task.Delay(1000);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         // Current data count
         int countPrev = await GetDatasetCount(canvasId);
@@ -115,7 +115,7 @@ public class BarChartTests : PageStartupTest
         // Click the button.
         await addDataset.ClickAsync();
 
-        await Task.Delay(10);
+        await Task.Delay(Startup.ChartJsComputeDelay);
 
         int countAfter = await GetDatasetCount(canvasId);
 
@@ -125,7 +125,7 @@ public class BarChartTests : PageStartupTest
     [Test]
     public async Task RemoveDatasetTest()
     {
-        await Page.GotoAsync("https://localhost:7193/barchart");
+        await Page.GotoAsync(Startup.SampleBaseUrl + "barchart");
 
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("barchart"));
@@ -137,7 +137,7 @@ public class BarChartTests : PageStartupTest
         Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
 
         // wait for ChartJs to load
-        await Task.Delay(1000);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         // Current data count
         int countPrev = await GetDatasetCount(canvasId);

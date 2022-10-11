@@ -7,12 +7,12 @@ namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class MultipleChartsTests : PageStartupTest
+public class MultipleChartsTests : PageTest
 {
     [Test]
     public async Task AddDataTest()
     {
-        await Page.GotoAsync("https://localhost:7193/multiplecharts");
+        await Page.GotoAsync(Startup.SampleBaseUrl + "multiplecharts");
 
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("MultipleCharts"));
@@ -24,13 +24,15 @@ public class MultipleChartsTests : PageStartupTest
         Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
 
         // wait for ChartJs to load
-        await Task.Delay(1000);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions() 
             {
                 Position = new Microsoft.Playwright.Position() { X = 10, Y = 10 } 
             }
         );
+
+        await Task.Delay(Startup.ChartJsComputeDelay);
 
         var clickResult = Page.Locator("p");
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"chart1$"));

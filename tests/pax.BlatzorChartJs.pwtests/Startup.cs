@@ -6,10 +6,18 @@ namespace PlaywrightTests;
 
 public static class Startup
 {
+    // time to wait for chart.min.js and plugins to load
+    internal static TimeSpan ChartJsLoadDelay = TimeSpan.FromMilliseconds(1500);
+    // time to wait for ChartJs to compute actions (e.g. addData)
+    internal static TimeSpan ChartJsComputeDelay = TimeSpan.FromMilliseconds(10);
+    // Sample project baseurl
+    internal static readonly string SampleBaseUrl = "https://localhost:7193/";
+
     private static SemaphoreSlim ssStart = new(1, 1);
     private static SemaphoreSlim ssStop = new(1, 1);
     private static int runners;
     private static TimeSpan delay = TimeSpan.FromMilliseconds(30000);
+
 
     public static async Task Init()
     {
