@@ -52,7 +52,7 @@ public record ChartJsOptions
     /// <summary>
     /// options.interaction, the global interaction configuration is at Chart.defaults.interaction. To configure which events trigger chart interactions
     /// </summary>
-    public Interactions? Interactions { get; set; }
+    public Interactions? Interaction { get; set; }
     /// <summary>
     /// The events option defines the browser events that the chart should listen to for.
     /// Each of these events trigger hover and are passed to plugins. <see href="https://www.chartjs.org/docs/latest/configuration/interactions.html#event-option">more...</see>
