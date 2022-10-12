@@ -1,0 +1,145 @@
+﻿@using pax.BlazorChartJs
+
+<div class="row">
+    <div class="btn-group col-auto">
+        <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+        <button type="button" class="btn btn-primary" @onclick="AddData">AddData</button>
+        <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">RemoveData</button>
+
+    </div>
+    <div class="form-group col-auto">
+        <label class="from-label">StepSize</label>
+        <input type="number" value="10" class="form-control" @onchange="SetStepSize" />
+    </div>
+</div>
+
+<div class="w-50">
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig"></ChartComponent>
+</div>
+
+@code {
+    ChartComponent? chartComponent;
+    ChartJsConfig chartJsConfig = null!;
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = new()
+            {
+                Type = ChartType.bar,
+                Data = new ChartJsData()
+                {
+                    Labels = new List<string>()
+                    {
+                        "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
+                    },
+                    Datasets = new List<ChartJsDataset>()
+                    {
+                        new BarDataset()
+                        {
+                            Label = "Dataset 1",
+                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
+                            BackgroundColor = new IndexableOption<string>("rgba(255, 99, 132, 0.2)"),
+                            BorderColor = new IndexableOption<string>("rgba(255, 99, 132, 1)"),
+                            BorderWidth = new IndexableOption<double>(1)
+                        },
+                        new BarDataset()
+                        {
+                            Label = "Dataset 2",
+                            Data = new List<object>() { 30, 20, 10, 50, 20, 30 },
+                            BackgroundColor = new IndexableOption<string>("rgba(54, 162, 235, 0.2)"),
+                            BorderColor = new IndexableOption<string>("rgba(54, 162, 235, 1)"),
+                            BorderWidth = new IndexableOption<double>(1)
+                        },
+                        new BarDataset()
+                        {
+                            Label = "Dataset 3",
+                            Data = new List<object>() { 22, 19, 30, 50, 11, 77 },
+                            BackgroundColor = new IndexableOption<string>("rgba(255, 206, 86, 0.2)"),
+                            BorderColor = new IndexableOption<string>("rgba(255, 206, 86, 1)"),
+                            BorderWidth = new IndexableOption<double>(1)
+                        },
+                    }
+                },
+                Options = new ChartJsOptions()
+                {
+                    IndexAxis = "y",
+                    Plugins = new Plugins()
+                    {
+                        Legend = new Legend()
+                        {
+                            Position = "right"
+                        }
+                    },
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        X = new LinearAxis()
+                        {
+                            BeginAtZero = true,
+                            Stacked = true,
+                            Min = 0,
+                            Max = 200,
+                            Ticks = new LinearAxisTick()
+                            {
+                                Display = true,
+                                StepSize = 10
+                            }
+                        },
+                        Y = new LinearAxis()
+                        {
+                            Stacked = true,
+                            Display = false,
+                            Grid = new ChartJsGrid()
+                            {
+                                Display = false,
+                                DrawBorder = false
+                            }
+                        }
+                    },
+
+                }
+
+            };
+        base.OnInitialized();
+    }
+
+    private void SetStepSize(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int stepSize))
+        {
+            if (chartJsConfig.Options?.Scales?.X?.Ticks != null)
+            {
+                if (chartJsConfig.Options.Scales.X?.Ticks is LinearAxisTick linearTicks)
+                {
+                    linearTicks.StepSize = stepSize;
+                    chartComponent?.UpdateChartOptions();
+                }
+            }
+        }
+    }
+
+    private void Randomize()
+    {
+        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, 0, 100);
+
+        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
+
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
+            var dataList = data.ElementAt(i);
+            chartData.Add(dataset, new SetDataObject(dataList));
+        }
+        chartJsConfig.SetData(chartData);
+    }
+
+    private void AddData()
+    {
+        var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, 0, 100);
+        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
+    }
+
+    private void RemoveLastDataFromDatasets()
+    {
+        chartJsConfig.RemoveData();
+    }
+}
