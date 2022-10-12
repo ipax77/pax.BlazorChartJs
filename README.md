@@ -190,6 +190,7 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 >- TimeCartesianAxisTicks fix
 >- Interactions fix
 >- Playwright tests
+>- ghpages
 
 </details>
 
