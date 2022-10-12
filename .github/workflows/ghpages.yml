@@ -17,12 +17,15 @@ jobs:
 
         - name: Publish .NET Core Project
           run: dotnet publish src/pax.BlazorChartJs.wasmtest/pax.BlazorChartJs.wasmtest.csproj -c Release -o release --nologo
-
+        
         - name: Rewrite base href
           uses: SteveSandersonMS/ghaction-rewrite-base-href@v1.1.0
           with:
             html_path: release/wwwroot/index.html
-            base_href: /pax.BlazorChartJs/
+            base_href: /pax.BlazorChartJs/    
+        
+        - name: copy index.html to 404.html
+          run: cp release/wwwroot/index.html release/wwwroot/404.html
 
         - name: Add .nojekyll file
           run: touch release/wwwroot/.nojekyll
