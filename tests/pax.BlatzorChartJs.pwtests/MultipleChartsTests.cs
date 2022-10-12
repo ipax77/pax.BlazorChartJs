@@ -12,10 +12,10 @@ public class MultipleChartsTests : PageTest
     [Test]
     public async Task AddDataTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "multiplecharts");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/multiplecharts");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("MultipleCharts"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("MultipleCharts"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas").First;
@@ -31,8 +31,6 @@ public class MultipleChartsTests : PageTest
                 Position = new Microsoft.Playwright.Position() { X = 10, Y = 10 } 
             }
         );
-
-        await Task.Delay(Startup.ChartJsComputeDelay);
 
         var clickResult = Page.Locator("p");
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"chart1$"));

@@ -12,10 +12,10 @@ public class BarChartTests : PageTest
     [Test]
     public async Task AddDataTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "barchart");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/barchart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("barchart"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas");
@@ -51,10 +51,10 @@ public class BarChartTests : PageTest
     [Test]
     public async Task RemoveDataTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "barchart");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/barchart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("barchart"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas");
@@ -87,10 +87,10 @@ public class BarChartTests : PageTest
     [Test]
     public async Task AddDatasetTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "barchart");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/barchart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("barchart"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas");
@@ -125,10 +125,10 @@ public class BarChartTests : PageTest
     [Test]
     public async Task RemoveDatasetTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "barchart");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/barchart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("barchart"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas");

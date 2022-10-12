@@ -1,0 +1,100 @@
+@using pax.BlazorChartJs
+@using Microsoft.JSInterop
+
+@inject IJSRuntime jsRuntime
+@implements IDisposable
+
+<h3>TimeChart</h3>
+
+<div class="w-75">
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartConfig" OnEventTriggered="EventTriggered"></ChartComponent>
+</div>
+
+@code {
+    private Lazy<Task<IJSObjectReference>>? moduleTask;
+    ChartJsConfig chartConfig = null!;
+    ChartComponent? chartComponent;
+    private bool isRegistered = false;
+
+    protected override void OnInitialized()
+    {
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+        "import", "/timeChart.js").AsTask());
+
+        chartConfig = new ChartJsConfig()
+            {
+                Type = ChartType.line,
+                Data = new ChartJsData()
+                {
+                    Datasets = new List<ChartJsDataset>()
+                    {
+                        new LineDataset() {
+                            Label = "My First Dataset",
+                            Data = new List<object>()
+                            {
+                                new { x = "2022-09-07", y = 20 },
+                                new { x = "2022-09-08", y = 40 },
+                                new { x = "2022-09-09", y = 20 },
+                                new { x = "2022-09-10", y = 60 },
+                                new { x = "2022-09-11", y = 70 },
+                                new { x = "2022-09-12", y = 20 },
+                                new { x = "2022-09-13", y = 10 },
+                                new { x = "2022-09-14", y = 50 },
+                                new { x = "2022-09-15", y = 30 },
+                                new { x = "2022-10-01", y = 30 },
+                            },
+                            Fill = false,
+                            BorderColor = "rgb(75, 192, 192)",
+                            Tension = 0.1
+                        }
+                    },
+                }
+            };
+        base.OnInitialized();
+    }
+
+    private async void EventTriggered(ChartJsEvent chartJsEvent)
+    {
+        if (chartJsEvent is ChartJsInitEvent initEvent)
+        {
+            await RegisterPlugin();
+        }
+    }
+
+    private async Task RegisterPlugin()
+    {
+        if (moduleTask != null && !isRegistered)
+        {
+            var module = await moduleTask.Value.ConfigureAwait(false);
+            await module.InvokeVoidAsync("registerPlugin")
+                .ConfigureAwait(false);
+
+            isRegistered = true;
+
+            chartConfig.Options = new ChartJsOptions()
+                {
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        X = new TimeCartesianAxis()
+                        {
+                            Type = "time",
+                            Time = new TimeCartesianAxisTime()
+                            {
+                                Unit = "day"
+                            }
+                        }
+                    }
+                };
+            chartComponent?.DrawChart();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (moduleTask != null && moduleTask.IsValueCreated)
+        {
+            var module = moduleTask.Value.GetAwaiter().GetResult();
+            module.DisposeAsync();
+        }
+    }
+}
