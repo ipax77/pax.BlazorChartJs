@@ -8,25 +8,25 @@ jobs:
     deploy-to-github-pages:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            uses: actions/checkout@v3
 
             - name: Setup .NET Core SDK
-            - uses: actions/setup-dotnet@v3
-              with:
-                  dotnet-version: '6.x'
+                uses: actions/setup-dotnet@v3
+                with:
+                    dotnet-version: '6.x'
 
             - name: Publish .NET Core Project
-            - run: dotnet publish src/pax.BlazorChartJs.wasmsample/pax.BlazorChartJs.wasmsample.csproj -c Release -o release --nologo
+                run: dotnet publish src/pax.BlazorChartJs.wasmsample/pax.BlazorChartJs.wasmsample.csproj -c Release -o release --nologo
 
             - name: copy index.html to 404.html
-            - run: cp release/wwwroot/index.html release/wwwroot/404.html
+                run: cp release/wwwroot/index.html release/wwwroot/404.html
 
             - name: Add .nojekyll file
-            - run: touch release/wwwroot/.nojekyll
+                run: touch release/wwwroot/.nojekyll
 
             - name: Commit wwwroot to GitHub Pages
-            - uses: peaceiris/actions-gh-pages@v3
-              with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_branch: gh-pages
-                  publish_dir: ./release/wwwroot
+                uses: peaceiris/actions-gh-pages@v3
+                with:
+                    github_token: ${{ secrets.GITHUB_TOKEN }}
+                    publish_branch: gh-pages
+                    publish_dir: ./release/wwwroot
