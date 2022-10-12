@@ -1,3 +1,4 @@
+[![Playwright Tests](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml/badge.svg)](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml) [TestPage](https://ipax77.github.io/pax.BlazorChartJs/)
 
 Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js) (v3.9.1)
 
