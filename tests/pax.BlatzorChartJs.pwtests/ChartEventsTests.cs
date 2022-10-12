@@ -12,10 +12,10 @@ public class ChartEventsTests : PageTest
     [Test]
     public async Task ClickEventTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "chartevents");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/eventschart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("ChartEvents"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("EventsChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas").First;
@@ -32,9 +32,6 @@ public class ChartEventsTests : PageTest
         }
         );
 
-        // wait for ChartJs
-        await Task.Delay(Startup.ChartJsComputeDelay);
-
         var clickResult = Page.Locator("p");
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"ChartJsLabelClickEvent"));
     }
@@ -42,10 +39,10 @@ public class ChartEventsTests : PageTest
     [Test]
     public async Task DisableEventsTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "chartevents");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/eventschart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("ChartEvents"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("EventsChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas").First;
@@ -82,10 +79,10 @@ public class ChartEventsTests : PageTest
     [Test]
     public async Task ToggleEventsTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "chartevents");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/eventschart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("ChartEvents"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("EventsChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas").First;
@@ -123,15 +120,11 @@ public class ChartEventsTests : PageTest
         var addEvents = Page.GetByText("AddEvents");
         await addEvents.ClickAsync();
 
-        // wait for ChartJs
-        await Task.Delay(Startup.ChartJsComputeDelay);
-
         await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
             {
                 Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
             }
         );
-
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"ChartJsLabelClickEvent"));
     }
 }

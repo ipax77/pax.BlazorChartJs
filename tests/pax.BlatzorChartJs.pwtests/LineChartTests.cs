@@ -14,10 +14,10 @@ public class LineChartTests : PageTest
     [Test]
     public async Task AddDataTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "linechart");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/linechart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas");
@@ -53,10 +53,10 @@ public class LineChartTests : PageTest
     [Test]
     public async Task RemoveDataTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "linechart");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/linechart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas");
@@ -92,10 +92,10 @@ public class LineChartTests : PageTest
     [Test]
     public async Task AddDatasetTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "linechart");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/linechart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas");
@@ -131,10 +131,10 @@ public class LineChartTests : PageTest
     [Test]
     public async Task RemoveDatasetTest()
     {
-        await Page.GotoAsync(Startup.SampleBaseUrl + "linechart");
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/linechart");
 
         // Expect a title "to contain" a substring.
-        await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"));
+        await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // GetCanvasId
         var canvas = Page.Locator("canvas");

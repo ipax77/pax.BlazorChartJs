@@ -1,0 +1,176 @@
+﻿@using pax.BlazorChartJs
+@using MathNet.Numerics
+
+<h3>MixedChartPage</h3>
+
+<div class="btn-block">
+    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="AddData">AddData</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveData">RemoveData</button>
+</div>
+
+<div class="w-75">
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig"></ChartComponent>
+</div>
+
+
+
+@code {
+    ChartComponent? chartComponent;
+    ChartJsConfig chartJsConfig = null!;
+
+    private Random random = new();
+
+    protected override void OnInitialized()
+    {
+        List<object> barData = new List<object>() { 12, 19, 30, 40, 20, 30, 16, 22, 7 };
+
+        chartJsConfig = new()
+            {
+                Type = ChartType.None,
+                Data = new ChartJsData()
+                {
+                    Labels = new List<string>()
+                    {
+                        "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
+                    },
+                    Datasets = new List<ChartJsDataset>()
+                    {
+                        new BarDataset()
+                        {
+                            Type = ChartType.bar,
+                            Label = "Bar Dataset",
+                            Data = barData,
+                            BackgroundColor = new IndexableOption<string>(new List<string>()
+                            {
+                                "rgba(255, 99, 132, 0.2)",
+                                "rgba(54, 162, 235, 0.2)",
+                                "rgba(255, 206, 86, 0.2)",
+                                "rgba(75, 192, 192, 0.2)",
+                                "rgba(153, 102, 255, 0.2)",
+                                "rgba(255, 159, 64, 0.2)",
+                            }),
+                            BorderColor = new IndexableOption<string>(new List<string>()
+                            {
+                                "rgba(255, 99, 132, 1)",
+                                "rgba(54, 162, 235, 1)",
+                                "rgba(255, 206, 86, 1)",
+                                "rgba(75, 192, 192, 1)",
+                                "rgba(153, 102, 255, 1)",
+                                "rgba(255, 159, 64, 1)",
+                            }),
+                            BorderWidth = new IndexableOption<double>(1)
+                        },
+                        new LineDataset() {
+                            Type = ChartType.line,
+                            Label = "Line Dataset",
+                            Data = GetNiceLineData(barData, Math.Max(barData.Count - 3, 3)),
+                            BorderColor = "darkblue",
+                            BorderWidth = 3,
+                            PointBorderWidth = new IndexableOption<double>(5),
+                            Tension = 0.35
+                        },
+                    }
+                },
+                Options = new ChartJsOptions()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = true,
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        Y = new LinearAxis()
+                        {
+                            BeginAtZero = true
+                        }
+                    }
+                }
+            };
+        base.OnInitialized();
+    }
+
+    public void Randomize()
+    {
+        List<object> barData = new();
+
+        Dictionary<ChartJsDataset, SetDataObject> datas = new();
+
+        foreach (var dataset in chartJsConfig.Data.Datasets)
+        {
+            var barDataset = dataset as BarDataset;
+            if (barDataset != null)
+            {
+                for (int i = 0; i < barDataset.Data.Count; i++)
+                {
+                    barData.Add(random.Next(1, 100));
+                }
+                datas.Add(barDataset, new SetDataObject(barData));
+            }
+
+            var lineDataset = dataset as LineDataset;
+            if (lineDataset != null)
+            {
+                datas.Add(lineDataset, new SetDataObject(GetNiceLineData(barData, Math.Max(barData.Count - 3, 3))));
+            }
+        }
+        chartJsConfig.SetData(datas);
+    }
+
+    public void AddData()
+    {
+        List<object> barData = new();
+        Dictionary<ChartJsDataset, AddDataObject> datas = new();
+
+        foreach (var dataset in chartJsConfig.Data.Datasets)
+        {
+            var barDataset = dataset as BarDataset;
+            if (barDataset != null)
+            {
+                barData = new List<object>(barDataset.Data);
+                double addData = random.Next(1, 100);
+                barData.Add(addData);
+
+                var borderColor = ChartUtils.GetRandomColor();
+                var backgroundColor = $"#33{borderColor.Substring(1)}";
+
+                datas.Add(barDataset, new AddDataObject(addData, null, backgroundColor, borderColor));
+            }
+
+            var lineDataset = dataset as LineDataset;
+            if (lineDataset != null)
+            {
+                chartJsConfig.SetData(new Dictionary<ChartJsDataset, SetDataObject>() { { lineDataset, new SetDataObject(GetNiceLineData(barData, Math.Max(barData.Count - 3, 3))) } });
+            }
+        }
+        chartJsConfig.AddData($"Label {barData.Count}", null, datas);
+    }
+
+    private void RemoveData()
+    {
+        chartJsConfig.RemoveData();
+    }
+
+    private static List<object> GetNiceLineData(List<object> data, int order)
+    {
+        List<double> xdata = new List<double>();
+        for (int i = 0; i < data.Count(); i++)
+        {
+            xdata.Add(i);
+        }
+
+        if (xdata.Count < 4)
+            return new List<object>();
+
+        if (xdata.Count() < order)
+            order = Math.Max(xdata.Count() - 2, 3);
+
+        var poly = Fit.PolynomialFunc(xdata.ToArray(), data.Select(s => Convert.ToDouble(s)).ToArray(), order);
+
+        List<double> nicedata = new List<double>();
+        for (int i = 0; i < data.Count(); i++)
+        {
+            nicedata.Add(Math.Round(poly(i), 2));
+        }
+
+        return nicedata.Select(s => (object)s).ToList();
+    }
+}

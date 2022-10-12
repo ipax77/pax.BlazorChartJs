@@ -1,0 +1,185 @@
+﻿@using pax.BlazorChartJs
+
+<h3>ScatterChartPage</h3>
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="AddData">Add Data</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataset">Remove Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
+</div>
+
+<div class="w-75">
+    <ChartComponent @ref="chartComponent" OnEventTriggered="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
+</div>
+
+<div>
+    @if (!String.IsNullOrEmpty(labelClicked))
+    {
+        <p>
+            Label clicked: @labelClicked
+        </p>
+    }
+</div>
+
+@code {
+    ChartComponent? chartComponent;
+    ChartJsConfig chartJsConfig = null!;
+    private string? labelClicked;
+    private Random random = new();
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = new()
+            {
+                Type = ChartType.scatter,
+                Data = new ChartJsData()
+                {
+                    Datasets = new List<ChartJsDataset>()
+                    {
+                        new ScatterDataset()
+                        {
+                            Label = "Scatter Dataset",
+                            Data = new List<object>()
+                            {
+                                new DataPoint()
+                                {
+                                    X = -10,
+                                    Y = 0
+                                },
+                                new DataPoint()
+                                {
+                                    X = 0,
+                                    Y = 10
+                                },
+                                new DataPoint()
+                                {
+                                    X = 10,
+                                    Y = 5
+                                },
+                                new DataPoint()
+                                {
+                                    X = 0.5,
+                                    Y = 5.5
+                                },
+                                new DataPoint()
+                                {
+                                    X = 7,
+                                    Y = 7
+                                },
+                            },
+                            BackgroundColor = "rgb(255, 99, 132)"
+                        }
+                    }
+                },
+                Options = new ChartJsOptions()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = true,
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        X = new LinearAxis()
+                        {
+                            Type = "linear",
+                            Position = "bottom",
+                            SuggestedMin = -100,
+                            SuggestedMax = 100
+                        },
+                        Y = new LinearAxis()
+                        {
+                            SuggestedMin = -100,
+                            SuggestedMax = 100
+                        }
+                    }
+                }
+            };
+        base.OnInitialized();
+    }
+
+
+    private void ShowChart()
+    {
+        chartComponent?.DrawChart();
+    }
+
+    private void LabelClicked(ChartJsEvent chartJsEvent)
+    {
+        if (chartJsEvent is ChartJsLabelClickEvent labelClickEvent)
+        {
+            labelClicked = labelClickEvent.Label;
+        }
+    }
+
+    private DataPoint GetRandomPoint(int min = -100, int max = 100)
+    {
+        return new DataPoint()
+            {
+                X = random.Next(min, max),
+                Y = random.Next(min, max)
+            };
+    }
+
+    private void AddData()
+    {
+        Dictionary<ChartJsDataset, AddDataObject> datas = new();
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            var scatterDataset = chartJsConfig.Data.Datasets[i] as ScatterDataset;
+            if (scatterDataset != null)
+            {
+                datas.Add(scatterDataset, new AddDataObject(GetRandomPoint()));
+            }
+        }
+        chartJsConfig.AddData(null, null, datas);
+    }
+
+    private void Randomize()
+    {
+        if (chartJsConfig.Data.Datasets.Any())
+        {
+            var dataCount = ((ChartJsDataset)chartJsConfig.Data.Datasets.First()).Data.Count;
+            Dictionary<ChartJsDataset, SetDataObject> datas = new();
+
+            for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+            {
+                var scatterDataset = chartJsConfig.Data.Datasets[i] as ScatterDataset;
+                if (scatterDataset != null)
+                {
+                    List<object> data = new();
+                    for (int j = 0; j < dataCount; j++)
+                    {
+                        data.Add(GetRandomPoint());
+                    }
+                    datas.Add(scatterDataset, new SetDataObject(data));
+                }
+            }
+            chartJsConfig.SetData(datas);
+        }
+    }
+
+    private void AddDataset()
+    {
+        int dataCount = 5;
+        if (chartJsConfig.Data.Datasets.Any())
+        {
+            dataCount = ((ChartJsDataset)chartJsConfig.Data.Datasets.First()).Data.Count;
+        }
+
+        var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, dataCount);
+        chartJsConfig.AddDataset(dataset);
+    }
+
+    private void RemoveLastDataset()
+    {
+        if (chartJsConfig.Data.Datasets.Any())
+        {
+            chartJsConfig.RemoveDataset(chartJsConfig.Data.Datasets.Last());
+        }
+    }
+
+    private void RemoveLastDataFromDatasets()
+    {
+        chartJsConfig.RemoveData();
+    }
+}
