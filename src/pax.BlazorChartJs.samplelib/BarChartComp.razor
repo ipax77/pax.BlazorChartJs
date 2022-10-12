@@ -1,25 +1,15 @@
+﻿@using pax.BlazorChartJs
 
-Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js) (v3.9.1)
+<h3>BarChartPage</h3>
 
-# Getting started
-## Prerequisites
-dotnet 6
-## Installation
-
-```
-dotnet add package pax.BlazorChartJs
-```
-
-Program.cs: (You can set optional javascript locations here)
-``` cs
-    builder.Services.AddChartJs();
-```
-
-## Usage
-
-Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.sample)
-
-```razor
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="ShowChart">ShowChart</button>
+    <button type="button" class="btn btn-primary" @onclick="AddData">AddData</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowImages">ShowImages</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowDataLabels">ShowLabels</button>
+    <button type="button" class="btn btn-primary" @onclick="Horizontal">Horizontal</button>
+    <button type="button" class="btn btn-primary" @onclick="MakeImage">MakeImage</button>
+</div>
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
     <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
@@ -41,10 +31,18 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
     }
 </div>
 
+<div>
+    @if (imageString != null)
+    {
+        <img src="@imageString" alt="chart"/>
+    }
+</div>
+
 @code {
     ChartComponent? chartComponent;
     ChartJsConfig chartJsConfig = null!;
     private string? labelClicked;
+    private string? imageString;
 
     protected override void OnInitialized()
     {
@@ -90,6 +88,13 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
                     Responsive = true,
                     MaintainAspectRatio = true,
                     OnClickEvent = true,
+                    Plugins = new Plugins()
+                    {
+                        Labels = new LabelsConfig()
+                        {
+                            Render = "image"
+                        }
+                    },
                     Scales = new ChartJsOptionsScales()
                     {
                         Y = new LinearAxis()
@@ -108,12 +113,118 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
         chartComponent?.DrawChart();
     }
 
+    private void Horizontal()
+    {
+        if (chartJsConfig.Options != null)
+        {
+            chartJsConfig.Options.IndexAxis = "y";
+        }
+        else
+        {
+            chartJsConfig.Options = new ChartJsOptions()
+                {
+                    IndexAxis = "y"
+                };
+        }
+        chartComponent?.DrawChart();
+    }
+
     private void LabelClicked(ChartJsEvent chartJsEvent)
     {
         if (chartJsEvent is ChartJsLabelClickEvent labelClickEvent)
         {
             labelClicked = labelClickEvent.Label;
         }
+    }
+
+    private async Task MakeImage()
+    {
+        if (chartComponent != null)
+        {
+            imageString = await chartComponent.GetChartImage();
+            await InvokeAsync(() => StateHasChanged());
+        }
+    }
+
+    private void ShowImages()
+    {
+        if (chartJsConfig.Options == null)
+        {
+            chartJsConfig.Options = new();
+        }
+
+        if (chartJsConfig.Options.Plugins == null)
+        {
+            chartJsConfig.Options.Plugins = new();
+        }
+
+        chartJsConfig.Options.Plugins.Labels = new LabelsConfig()
+            {
+                Render = "image",
+                ShowZero = true,
+                Images = new List<LabelsConfigImage>()
+            {
+                new LabelsConfigImage()
+                {
+                    Src = "./images/abathur-min.png",
+                    Width = 45,
+                    Height = 45
+                },
+                new LabelsConfigImage()
+                {
+                    Src = "./images/alarak-min.png",
+                    Width = 45,
+                    Height = 45
+                },
+                new LabelsConfigImage()
+                {
+                    Src = "./images/artanis-min.png",
+                    Width = 45,
+                    Height = 45
+                },
+                new LabelsConfigImage()
+                {
+                    Src = "./images/alarak-min.png",
+                    Width = 45,
+                    Height = 45
+                },
+                new LabelsConfigImage()
+                {
+                    Src = "./images/alarak-min.png",
+                    Width = 45,
+                    Height = 45
+                }
+            }
+            };
+        // _ = chartComponent?.UpdateChartOptions();
+        _ = chartComponent?.DrawChart();
+    }
+
+    private void ShowDataLabels()
+    {
+        if (chartJsConfig.Options == null)
+        {
+            chartJsConfig.Options = new();
+        }
+
+        if (chartJsConfig.Options.Plugins == null)
+        {
+            chartJsConfig.Options.Plugins = new();
+        }
+
+        chartJsConfig.Options.Plugins.Datalabels = new DataLabelsConfig()
+            {
+                Display = "auto",
+                Color = "#0a050c",
+                BackgroundColor = "#cdc7ce",
+                BorderColor = "#491756",
+                BorderRadius = 4,
+                BorderWidth = 1,
+                Anchor = "end",
+                Align = "start",
+                Clip = true
+            };
+        _ = chartComponent?.DrawChart();
     }
 
     private void AddData()
@@ -170,100 +281,4 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
     {
         chartJsConfig.RemoveData();
     }
-```
-## Supported Plugins
-* [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
-* [chartjs-plugin-labels](https://github.com/DavideViolante/chartjs-plugin-labels)
-* [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
-* Custom Plugins [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.sample/Pages/CustomPlugin.razor)
-
-## Known Limitations / ToDo
-
-* Callbacks
-* InteractionModes
-* DataDecimation
-
-## ChangeLog
-
-<details open="open"><summary>v0.3.5</summary>
-
->- TimeCartesianAxisTicks fix
->- Interactions fix
->- Playwright tests
->- ghpages
-
-</details>
-
-<details><summary>v0.3.4</summary>
-
->- Fix #7 - Axis Ticks JsonConverter
->- Added ChartJsInitEvent which is triggered when the chart finished initializing the first time
->- [StackedChart](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.sample/Pages/StackedChartPage.razor) Sample
-
-</details>
-
-<details><summary>v0.3.3</summary>
-
->- Fix #6
->- chartComponent.UpdateChartDatasets removed - use chartConfig.SetDatasets() instead
->- Added Hidden option for Datasets
-
-</details>
-
-<details><summary>v0.3.2</summary>
-
->- Chart update refactoring - Breaking Changes!
->- Chart events refactoring - Breaking Changes!
->- Typescript
->- NuGet udpates
-
-</details>
-
-<details><summary>v0.3.1</summary>
-
->- Time Scale Chart
->- Optional javascript location options
->- ChartJs API calls
->- bugfixes
->- refactoring
-
-</details>
-
-<details><summary>v0.3.0</summary>
-
->- IndexableOption - Breaking Change!
-
-</details>
-
-<details><summary>v0.2.0</summary>
-
->- Events
->- Custom Plugin Sample
->- ChartJs API calls
-
-</details>
-
-<details><summary>v0.1.3</summary>
-
->- Nuget Package
-
-</details>
-
-<details><summary>v0.1.2</summary>
-
->- RadarChart
-
-</details>
-
-
-<details><summary>v0.1.1</summary>
-
->- Readme
-
-</details>
-
-<details><summary>v0.1.0</summary>
-
->- Init
-
-</details>
+}

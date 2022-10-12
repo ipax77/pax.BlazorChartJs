@@ -1,0 +1,208 @@
+﻿@using pax.BlazorChartJs
+
+<h3>TestChartPage</h3>
+
+@if (chartComponent != null)
+{
+    <div class="btn-group">
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ResetChart()">Reset</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.StopChart()">Stop</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.SetDatasetVisibility(chartJsConfig.Data.Datasets.First(), false)">Visible false</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.SetDatasetVisibility(chartJsConfig.Data.Datasets.First(), true)">Visible true</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ToggleDataVisibility(2)">Toggle</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.HideDataset(chartJsConfig.Data.Datasets.First(), null)">Hide</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ShowDataset(chartJsConfig.Data.Datasets.First(), null)">Show</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.HideDataset(chartJsConfig.Data.Datasets.First(), 2)">Hide 2</button>
+        <button type="button" class="btn btn-warning" @onclick="e => chartComponent?.ShowDataset(chartJsConfig.Data.Datasets.First(), 2)">Show 2</button>
+        <button type="button" class="btn btn-warning" @onclick="SetDatasets">SetDatasets</button>
+        <button type="button" class="btn btn-warning" @onclick="UpdateDatasets">UpdateDataset</button>
+        <button type="button" class="btn btn-warning" @onclick="GetDataVisibility">GetDataVisibility</button>
+    </div>
+}
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="ShowChart">ShowChart</button>
+    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="AddData">AddData</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">RemoveData</button>
+</div>
+
+<div class="w-50">
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig"></ChartComponent>
+</div>
+
+<div>
+    <p>
+        Dataset visible: @isVisible
+    </p>
+</div>
+
+@code {
+    ChartComponent? chartComponent;
+    ChartJsConfig chartJsConfig = null!;
+    private bool isVisible = true;
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = new()
+            {
+                Type = ChartType.bar,
+                Data = new ChartJsData()
+                {
+                    Labels = new List<string>()
+                    {
+                        "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
+                    },
+                    Datasets = new List<ChartJsDataset>()
+                    {
+                        new BarDataset()
+                        {
+                            Label = "Dataset 1",
+                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
+                            BackgroundColor = new IndexableOption<string>("rgba(255, 99, 132, 0.2)"),
+                            BorderColor = new IndexableOption<string>("rgba(255, 99, 132, 1)"),
+                            BorderWidth = new IndexableOption<double>(1)
+                        },
+                        new BarDataset()
+                        {
+                            Label = "Dataset 2",
+                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
+                            BackgroundColor = new IndexableOption<string>("rgba(54, 162, 235, 0.2)"),
+                            BorderColor = new IndexableOption<string>("rgba(54, 162, 235, 1)"),
+                            BorderWidth = new IndexableOption<double>(1)
+                        },
+                        new BarDataset()
+                        {
+                            Label = "Dataset 3",
+                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
+                            BackgroundColor = new IndexableOption<string>("rgba(255, 206, 86, 0.2)"),
+                            BorderColor = new IndexableOption<string>("rgba(255, 206, 86, 1)"),
+                            BorderWidth = new IndexableOption<double>(1)
+                        },
+                    }
+                },
+                Options = new ChartJsOptions()
+                {
+                    IndexAxis = "y",
+                    Plugins = new Plugins()
+                    {
+                        Legend = new Legend()
+                        {
+                            Position = "right"
+                        }
+                    },
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        X = new LinearAxis()
+                        {
+                            BeginAtZero = true,
+                            Stacked = true,
+                            Min = 0,
+                            Ticks = new LinearAxisTick()
+                            {
+                                Display = true,
+                                StepSize = 10
+                            },
+                            Grid = new ChartJsGrid()
+                            {
+                                Display = false,
+                                DrawBorder = false
+                            }
+                        },
+                        Y = new LinearAxis()
+                        {
+                            Stacked = true,
+                            Display = false,
+                            Ticks = new LinearAxisTick()
+                            {
+                                Display = true,
+                                StepSize = 60
+                            },
+                            Grid = new ChartJsGrid()
+                            {
+                                Display = false,
+                                DrawBorder = false
+                            }
+                        }
+                    },
+
+                }
+
+            };
+        base.OnInitialized();
+    }
+
+    public void ShowChart()
+    {
+        chartComponent?.DrawChart();
+    }
+
+    private void SetDatasets()
+    {
+        var dataset = chartJsConfig.Data.Datasets.FirstOrDefault() as PieDataset;
+        if (dataset != null)
+        {
+            dataset.BackgroundColor = new IndexableOption<string>(new List<string>()
+                            {
+                                "rgba(255, 99, 132, 0.8)",
+                                "rgba(54, 162, 235, 0.8)",
+                                "rgba(255, 206, 86, 0.8)",
+                                "rgba(75, 192, 192, 0.8)",
+                                "rgba(153, 102, 255, 0.8)",
+                                "rgba(255, 159, 64, 0.8)",
+                            });
+            chartJsConfig.SetDatasets();
+        }
+    }
+
+    private void UpdateDatasets()
+    {
+        var dataset = chartJsConfig.Data.Datasets.FirstOrDefault() as PieDataset;
+        if (dataset != null)
+        {
+            dataset.BackgroundColor = new IndexableOption<string>(new List<string>()
+                            {
+                                "rgba(255, 99, 132, 0.6)",
+                                "rgba(54, 162, 235, 0.6)",
+                                "rgba(255, 206, 86, 0.6)",
+                                "rgba(75, 192, 192, 0.6)",
+                                "rgba(153, 102, 255, 0.6)",
+                                "rgba(255, 159, 64, 0.6)",
+                            });
+            chartJsConfig.UpdateDataset(dataset);
+        }
+    }
+
+    private void Randomize()
+    {
+        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, 0, 100);
+
+        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
+
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
+            var dataList = data.ElementAt(i);
+            chartData.Add(dataset, new SetDataObject(dataList));
+        }
+        chartJsConfig.SetData(chartData);
+    }
+
+    private void AddData()
+    {
+        var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
+        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
+    }
+
+    private void RemoveLastDataFromDatasets()
+    {
+        chartJsConfig.RemoveData();
+    }
+
+    private async Task GetDataVisibility()
+    {
+        var task = chartComponent?.GetDataVisibility(0);
+        isVisible = await task.GetValueOrDefault();
+        await InvokeAsync(() => StateHasChanged());
+    }
+}

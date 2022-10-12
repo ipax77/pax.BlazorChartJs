@@ -1,7 +1,7 @@
 
 namespace pax.BlazorChartJs;
 
-public record TimeCartesianAxisTicks
+public record TimeCartesianAxisTicks : LinearAxisTick
 {
     public string? Source { get; set; }
 }
