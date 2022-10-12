@@ -1,0 +1,21 @@
+name: Playwright Tests
+on:
+  workflow_run:
+    workflows: ["Deploy Blazor WASM to GitHub Pages"]
+    types:
+      - completed
+jobs:
+    test:
+      timeout-minutes: 60
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - name: Setup dotnet
+          uses: actions/setup-dotnet@v3
+          with:
+            dotnet-version: '6.0.x'
+        - run: dotnet build --project ./tests/pax.BlatzorChartJs.pwtests
+        - name: Ensure browsers are installed
+          run: pwsh ./tests/pax.BlatzorChartJs.pwtests/bin/Debug/net6.0/playwright.ps1 install --with-deps
+        - name: Run your tests
+          run: dotnet test

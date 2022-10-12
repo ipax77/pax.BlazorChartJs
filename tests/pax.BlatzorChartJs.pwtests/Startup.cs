@@ -58,7 +58,7 @@ public static class Startup
         
         if (int.TryParse(configuration["ChartJsComputeDelay"], out int chartComputeDelay))
         {
-            WasmLoadDelay = TimeSpan.FromMilliseconds(chartComputeDelay);
+            ChartJsComputeDelay = TimeSpan.FromMilliseconds(chartComputeDelay);
         }
     }
 
