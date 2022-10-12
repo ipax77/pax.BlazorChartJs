@@ -17,11 +17,11 @@ public static class Startup
     
     private static string sampleBaseUrl = "";
 
-    private static SemaphoreSlim ssStart = new(1, 1);
-    private static SemaphoreSlim ssStop = new(1, 1);
+    private static readonly SemaphoreSlim ssStart = new(1, 1);
+    private static readonly SemaphoreSlim ssStop = new(1, 1);
     private static int runners;
-    private static TimeSpan delay = TimeSpan.FromMilliseconds(30000);
-    private static object lockobject = new();
+    private static readonly TimeSpan delay = TimeSpan.FromMilliseconds(30000);
+    private static readonly object lockobject = new();
 
     public static string GetSampleBaseUrl()
     {
@@ -29,17 +29,37 @@ public static class Startup
         {
             if (String.IsNullOrEmpty(sampleBaseUrl))
             {
-                var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                var configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile($"appsettings.json", false, false)
-                    .AddJsonFile($"appsettings.{environment}.json", true, false)
-                    .Build();
-                sampleBaseUrl = configuration["SampleBaseUrl"];
+                SetupConfiguration();
             }
         }
-
         return sampleBaseUrl;
+    }
+
+    private static void SetupConfiguration()
+    {
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile($"appsettings.json", false, false)
+            .AddJsonFile($"appsettings.{environment}.json", true, false)
+            .Build();
+
+        sampleBaseUrl = configuration["SampleBaseUrl"];
+        
+        if (int.TryParse(configuration["WasmLoadDelay"], out int wasmMs))
+        {
+            WasmLoadDelay = TimeSpan.FromMilliseconds(wasmMs);
+        }
+        
+        if (int.TryParse(configuration["ChartJsLoadDelay"], out int chartLoadMs))
+        {
+            ChartJsLoadDelay = TimeSpan.FromMilliseconds(chartLoadMs);
+        }
+        
+        if (int.TryParse(configuration["ChartJsComputeDelay"], out int chartComputeDelay))
+        {
+            WasmLoadDelay = TimeSpan.FromMilliseconds(chartComputeDelay);
+        }
     }
 
     public static async Task Init()
@@ -71,7 +91,7 @@ public static class Startup
 
     }
 
-    public static async Task Stop(bool init = false)
+    public static async Task Stop()
     {
         await ssStop.WaitAsync();
         try
@@ -105,7 +125,7 @@ public static class Startup
         Process.Start(new ProcessStartInfo()
         {
             FileName = "dotnet",
-            Arguments = "run --project ../../../../../src/pax.BlazorChartJs.sample"
+            Arguments = "run --project ../../../../../src/pax.BlazorChartJs.wasmsample"
         });
 
         // wait for dotnet

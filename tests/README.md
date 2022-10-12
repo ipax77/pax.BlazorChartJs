@@ -16,16 +16,16 @@ dotnet run --project ../src/pax.BlazorChartJs.wasmsample
 ```
 
 ## Configuration
-Depending on your hardware you might have to adjust the WaitTimes
+Depending on your hardware you might have to adjust the WaitTimes in milliseconds
 
-In ./pax.BlazorChartJs.pwtests/Startup.cs
-```csharp
-// time to wait for wasmsample to load
-internal static TimeSpan WasmLoadDelay = TimeSpan.FromMilliseconds(10000);
-// time to wait for chart.min.js and plugins to load
-internal static TimeSpan ChartJsLoadDelay = TimeSpan.FromMilliseconds(1500);
-// time to wait for ChartJs to compute actions (e.g. addData)
-internal static TimeSpan ChartJsComputeDelay = TimeSpan.FromMilliseconds(10);
+In ./pax.BlazorChartJs.pwtests/appsettings.Development.json
+```json
+{
+  "SampleBaseUrl": "https://localhost:7082",
+  "WasmLoadDelay": 10000,
+  "ChartJsLoadDelay": 1500,
+  "ChartJsComputeDelay": 10
+}
 ```
 
 ## Run local tests (powershell)
