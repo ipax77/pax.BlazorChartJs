@@ -1,0 +1,32 @@
+name: Deploy Blazor WASM to GitHub Pages
+
+on:
+    push:
+        branches: [master]
+
+jobs:
+    deploy-to-github-pages:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Setup .NET Core SDK
+              uses: actions/setup-dotnet@v1
+              with:
+                  dotnet-version: 6.x
+
+            - name: Publish .NET Core Project
+              run: dotnet publish src/pax.BlazorChartJs.wasmsample/pax.BlazorChartJs.wasmsample.csproj -c Release -o release --nologo
+
+            - name: copy index.html to 404.html
+              run: cp release/wwwroot/index.html release/wwwroot/404.html
+
+            - name: Add .nojekyll file
+              run: touch release/wwwroot/.nojekyll
+
+            - name: Commit wwwroot to GitHub Pages
+              uses: JamesIves/github-pages-deploy-action@3.7.1
+              with:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  BRANCH: gh-pages
+                  FOLDER: release/wwwroot
