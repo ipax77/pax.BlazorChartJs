@@ -1,11 +1,12 @@
 ﻿@using pax.BlazorChartJs
 
 <div class="row">
-    <div class="btn-group col-auto">
-        <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
-        <button type="button" class="btn btn-primary" @onclick="AddData">AddData</button>
-        <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">RemoveData</button>
-
+    <div class="col-auto align-self-center">
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+            <button type="button" class="btn btn-primary" @onclick="AddData">AddData</button>
+            <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">RemoveData</button>
+        </div>
     </div>
     <div class="form-group col-auto">
         <label class="from-label">StepSize</label>
@@ -134,8 +135,13 @@
 
     private void AddData()
     {
-        var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, 0, 100);
-        chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
+        Random random = new();
+        var data = new Dictionary<ChartJsDataset, AddDataObject>();
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            data[chartJsConfig.Data.Datasets[i]] = new AddDataObject(random.Next(1, 99));
+        }
+        chartJsConfig.AddData("Hidden", null, data);
     }
 
     private void RemoveLastDataFromDatasets()

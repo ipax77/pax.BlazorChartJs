@@ -1,4 +1,6 @@
-﻿@using pax.BlazorChartJs
+﻿@using Microsoft.JSInterop
+@using pax.BlazorChartJs
+@inject IJSRuntime jsRuntime
 
 <h3>BarChartPage</h3>
 
@@ -9,6 +11,7 @@
     <button type="button" class="btn btn-primary" @onclick="ShowDataLabels">ShowLabels</button>
     <button type="button" class="btn btn-primary" @onclick="Horizontal">Horizontal</button>
     <button type="button" class="btn btn-primary" @onclick="MakeImage">MakeImage</button>
+    <button type="button" class="btn btn-primary" @onclick="GetCanvasInfo">GetCanvasInfo</button>
 </div>
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
@@ -34,7 +37,13 @@
 <div>
     @if (imageString != null)
     {
-        <img src="@imageString" alt="chart"/>
+        <img id="chartImage" src="@imageString" alt="chart"/>
+    }
+</div>
+<div>
+    @if (canvasInfo != null)
+    {
+        <img id="canvasImage" src="@canvasInfo" alt="chart" />
     }
 </div>
 
@@ -43,9 +52,14 @@
     ChartJsConfig chartJsConfig = null!;
     private string? labelClicked;
     private string? imageString;
+    private string? canvasInfo;
+    private Lazy<Task<IJSObjectReference>>? moduleTask;
 
     protected override void OnInitialized()
     {
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+            "import", "./_content/pax.BlazorChartJs.samplelib/customChart.js").AsTask());
+
         chartJsConfig = new()
             {
                 Type = ChartType.bar,
@@ -166,31 +180,31 @@
             {
                 new LabelsConfigImage()
                 {
-                    Src = "./images/abathur-min.png",
+                    Src = "./_content/pax.BlazorChartJs.samplelib/images/abathur-min.png",
                     Width = 45,
                     Height = 45
                 },
                 new LabelsConfigImage()
                 {
-                    Src = "./images/alarak-min.png",
+                    Src = "./_content/pax.BlazorChartJs.samplelib/images/alarak-min.png",
                     Width = 45,
                     Height = 45
                 },
                 new LabelsConfigImage()
                 {
-                    Src = "./images/artanis-min.png",
+                    Src = "./_content/pax.BlazorChartJs.samplelib/images/artanis-min.png",
                     Width = 45,
                     Height = 45
                 },
                 new LabelsConfigImage()
                 {
-                    Src = "./images/alarak-min.png",
+                    Src = "./_content/pax.BlazorChartJs.samplelib/images/alarak-min.png",
                     Width = 45,
                     Height = 45
                 },
                 new LabelsConfigImage()
                 {
-                    Src = "./images/alarak-min.png",
+                    Src = "./_content/pax.BlazorChartJs.samplelib/images/alarak-min.png",
                     Width = 45,
                     Height = 45
                 }
@@ -225,6 +239,17 @@
                 Clip = true
             };
         _ = chartComponent?.DrawChart();
+    }
+
+    private async Task GetCanvasInfo()
+    {
+        if (moduleTask != null)
+        {
+            var module = await moduleTask.Value.ConfigureAwait(false);
+            canvasInfo = await module.InvokeAsync<string>("getCanvasInfo", chartJsConfig.ChartJsConfigGuid)
+                .ConfigureAwait(false);
+            await InvokeAsync(() => StateHasChanged());
+        }
     }
 
     private void AddData()
