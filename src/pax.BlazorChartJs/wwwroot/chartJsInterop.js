@@ -342,5 +342,5 @@ export function showDataset(chartId, datasetIndex, dataIndex) {
 }
 
 export function disposeChart(chartId) {
-
+    ChartJsInteropModule.disposeChart(chartId);
 }

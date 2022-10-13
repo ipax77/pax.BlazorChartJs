@@ -7,7 +7,7 @@ namespace pax.BlazorChartJs;
 /// <summary>
 /// ChartComponent
 /// </summary>
-public partial class ChartComponent : ComponentBase, IDisposable
+public partial class ChartComponent : ComponentBase, IAsyncDisposable
 {
     private bool isDisposed;
     private DotNetObjectReference<ChartComponent>? dotNetHelper;
@@ -268,19 +268,13 @@ public partial class ChartComponent : ComponentBase, IDisposable
         await ChartJsInterop.ShowDataset(ChartJsConfig.ChartJsConfigGuid, ChartJsConfig.Data.Datasets.IndexOf(dataset), index).ConfigureAwait(false);
     }
 
-    /// <summary>
-    /// Dispose
-    /// </summary>
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        Dispose(true);
+        await DisposeAsyncCore(true).ConfigureAwait(false);
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    /// Dispose
-    /// </summary>
-    protected virtual void Dispose(bool disposing)
+    protected virtual async ValueTask DisposeAsyncCore(bool disposing)
     {
         if (isDisposed)
         {
@@ -289,8 +283,7 @@ public partial class ChartComponent : ComponentBase, IDisposable
 
         if (disposing)
         {
-            _ = ChartJsInterop.DisposeChart(ChartJsConfig.ChartJsConfigGuid);
-            dotNetHelper?.Dispose();
+            await ChartJsInterop.DisposeChart(ChartJsConfig.ChartJsConfigGuid);
             ChartJsConfig.DatasetsAdd -= ChartJsConfig_DatasetsAdd;
             ChartJsConfig.DatasetsRemove -= ChartJsConfig_DatasetsRemove;
             ChartJsConfig.DatasetsUpdate -= ChartJsConfig_DatasetsUpdate;
@@ -300,7 +293,7 @@ public partial class ChartComponent : ComponentBase, IDisposable
             ChartJsConfig.DataSet -= ChartJsConfig_DataSet;
             ChartJsConfig.LabelsSet -= ChartJsConfig_LabelsSet;
             ChartJsConfig.AddDataEvent -= ChartJsConfig_AddDataEvent;
-
+            dotNetHelper?.Dispose();
         }
 
         isDisposed = true;
