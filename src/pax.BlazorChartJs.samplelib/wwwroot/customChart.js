@@ -14,3 +14,8 @@ export function setCustomChart(chartId) {
         };
     }
 }
+
+export function getCanvasInfo(chartId) {
+    const canvas = document.getElementById(chartId);
+    return canvas.toDataURL();
+}
