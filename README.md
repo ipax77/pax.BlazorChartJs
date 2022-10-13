@@ -192,6 +192,7 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 >- Interactions fix
 >- Playwright tests
 >- ghpages
+>- ChartComponent DisposeAsync
 
 </details>
 
