@@ -18,7 +18,7 @@ Program.cs: (You can set optional javascript locations here)
 
 ## Usage
 
-Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.sample)
+Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.samplelib)
 
 ```razor
 <div class="btn-group">
@@ -176,7 +176,7 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 * [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
 * [chartjs-plugin-labels](https://github.com/DavideViolante/chartjs-plugin-labels)
 * [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
-* Custom Plugins [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.sample/Pages/CustomPlugin.razor)
+* Custom Plugins [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor)
 
 ## Known Limitations / ToDo
 
@@ -186,7 +186,16 @@ Sample Project [pax.BlazorChartJs.sample](https://github.com/ipax77/pax.BlazorCh
 
 ## ChangeLog
 
-<details open="open"><summary>v0.3.5</summary>
+<details open="open"><summary>v0.4.0</summary>
+
+>- Title.Text is now IndexableOptions<string> - **Breaking Change!**
+>- chartComponent?.DrawChart() triggeres an InitEvent after the chart is complete
+>- ChartJsInitEvent does have the ChartJsConfigGuid set correctly, now
+>- RemoveDataset(s) can now handle self referencing and missing
+
+</details>
+
+<details><summary>v0.3.5</summary>
 
 >- TimeCartesianAxisTicks fix
 >- Interactions fix

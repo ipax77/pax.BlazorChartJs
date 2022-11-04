@@ -111,6 +111,13 @@ class ChartJsInterop {
             }
         }
     }
+    *reverseKeys(arr) {
+        var key = arr.length - 1;
+        while (key >= 0) {
+            yield key;
+            key -= 1;
+        }
+    }
     removeData(chart) {
         if (!(chart.data.labels.length == 0)) {
             chart.data.labels.pop();
@@ -155,12 +162,12 @@ class ChartJsInterop {
         chart.update();
     }
     removeDatasets(chart, datasetIds) {
-        chart.data.datasets.forEach(dataset => {
+        for (var index of this.reverseKeys(chart.data.datasets)) {
+            var dataset = chart.data.datasets[index];
             if (datasetIds.includes(dataset['id'])) {
-                const index = chart.data.datasets.indexOf(dataset);
                 chart.data.datasets.splice(index, 1);
             }
-        });
+        }
         chart.update();
     }
     updateDatasets(chart, datasets) {

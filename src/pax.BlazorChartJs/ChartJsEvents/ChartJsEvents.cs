@@ -28,5 +28,4 @@ public enum ChartJsEventSource
 
 public record ChartJsInitEvent : ChartJsEvent
 {
-
 }
