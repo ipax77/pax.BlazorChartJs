@@ -41,7 +41,7 @@ class ChartJsInterop {
                     await import(setupOptions['chartJsPluginLabelsLocation']);
                 }
                 else {
-                    await import ('./chartjs-plugin-labels.min.js');
+                    await import('./chartjs-plugin-labels.min.js');
                 }
             }
 
@@ -67,13 +67,12 @@ class ChartJsInterop {
 
     public addData(chart: Chart, label: string, pos: number, datas: Array<JSON>) {
 
-        if (chart == undefined)
-        {
+        if (chart == undefined) {
             return;
         }
 
         this.addLabel(chart, label, pos);
-        
+
         chart.data.datasets.forEach(dataset => {
             if (datas[dataset['id']] != undefined) {
                 let addData = datas[dataset['id']];
@@ -82,7 +81,7 @@ class ChartJsInterop {
                 if (addData['backgroundColor'] != undefined) {
                     this.addBackgroundColor(dataset, addData['backgroundColor'], addData['atPosition']);
                 }
-    
+
                 if (addData['borderColor'] != undefined) {
                     this.addBorderColor(dataset, addData['borderColor'], addData['atPosition']);
                 }
@@ -100,7 +99,7 @@ class ChartJsInterop {
             }
         }
     }
-    
+
     private addDatasetData(dataset: ChartDataset, data: any, pos: number) {
         if (pos == undefined) {
             dataset.data.push(data);
@@ -108,7 +107,7 @@ class ChartJsInterop {
             dataset.data.splice(pos, 0, data);
         }
     }
-    
+
     private addBackgroundColor(dataset: ChartDataset, backgroundColor: string, pos: number) {
         if (Array.isArray(dataset.backgroundColor)) {
             if (pos == undefined) {
@@ -118,7 +117,7 @@ class ChartJsInterop {
             }
         }
     }
-    
+
     private addBorderColor(dataset: ChartDataset, borderColor: string, pos: number) {
         if (Array.isArray(dataset.borderColor)) {
             if (pos == undefined) {
@@ -126,6 +125,15 @@ class ChartJsInterop {
             } else {
                 dataset.borderColor.splice(pos, 0, borderColor);
             }
+        }
+    }
+
+    private *reverseKeys(arr) {
+        var key = arr.length - 1;
+
+        while (key >= 0) {
+            yield key;
+            key -= 1;
         }
     }
 
@@ -140,7 +148,7 @@ class ChartJsInterop {
                 dataset.data.pop();
             }
 
-            if (Array.isArray(dataset.backgroundColor) 
+            if (Array.isArray(dataset.backgroundColor)
                 && !(dataset.backgroundColor.length == 0)) {
                 dataset.backgroundColor.pop();
             }
@@ -167,9 +175,9 @@ class ChartJsInterop {
                 if (addData['backgroundColor'] != undefined) {
                     dataset.backgroundColor = addData['backgroundColor'];
                 }
-    
+
                 if (addData['borderColor'] != undefined) {
-                    dataset.borderColor = addData['borderColor']; 
+                    dataset.borderColor = addData['borderColor'];
                 }
             }
         });
@@ -184,12 +192,12 @@ class ChartJsInterop {
     }
 
     public removeDatasets(chart: Chart, datasetIds: Array<string>) {
-        chart.data.datasets.forEach(dataset => {
+        for (var index of this.reverseKeys(chart.data.datasets)) {
+            var dataset = chart.data.datasets[index];
             if (datasetIds.includes(dataset['id'])) {
-                const index = chart.data.datasets.indexOf(dataset);
                 chart.data.datasets.splice(index, 1);
             }
-        });
+        }
         chart.update();
     }
 
@@ -220,9 +228,9 @@ class ChartJsInterop {
             // beforeDraw(chart, args, options) {
             afterDraw(chart, args, options) {
                 const { ctx, chartArea: { top, right, bottom, left, width, height }, scales: { x, y } } = chart;
-    
+
                 ctx.save();
-    
+
                 for (let i = 0; i < options.length; i++) {
                     var option = options[i];
                     ctx.fillStyle = option.arbitraryLineColor;
@@ -233,7 +241,7 @@ class ChartJsInterop {
                     let y1 = height;
                     ctx.fillRect(x0, y0, x1, y1);
                 }
-    
+
                 for (let i = 0; i < options.length; i++) {
                     var option = options[i];
                     ctx.fillStyle = option.arbitraryLineColor;
@@ -242,12 +250,12 @@ class ChartJsInterop {
                     let y0 = top;
                     let x1 = xWidth;
                     let y1 = height;
-    
+
                     ctx.fillStyle = 'white';
                     ctx.font = '14px arial';
                     ctx.fillText(option.text, x0 + 4, y0 + 10 * (i + 1));
                 }
-    
+
                 ctx.restore();
             }
         };

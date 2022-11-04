@@ -49,11 +49,18 @@ public partial class ChartJsConfig
     {
         ArgumentNullException.ThrowIfNull(datasets);
 
-        foreach (var dataset in datasets)
+        List<string> removeDatasetIds = new();
+
+        foreach (var dataset in datasets.ToArray())
         {
-            Data.Datasets.Remove(dataset);
+            int index = Data.Datasets.IndexOf(dataset);
+            if (index >= 0)
+            {
+                removeDatasetIds.Add(dataset.Id);
+                Data.Datasets.RemoveAt(index);
+            }
         }
-        OnDatasetsRemove(new DatasetsRemoveEventArgs(datasets.Select(s => s.Id).ToList()));
+        OnDatasetsRemove(new DatasetsRemoveEventArgs(removeDatasetIds));
     }
 
     /// <summary>

@@ -37,7 +37,7 @@
 <div>
     @if (imageString != null)
     {
-        <img id="chartImage" src="@imageString" alt="chart"/>
+        <img id="chartImage" src="@imageString" alt="chart" />
     }
 </div>
 <div>
@@ -104,6 +104,11 @@
                     OnClickEvent = true,
                     Plugins = new Plugins()
                     {
+                        Title = new Title()
+                        {
+                            Display = true,
+                            Text = new IndexableOption<string>(new List<string>() { "BarChart", "testing"}),
+                        },
                         Labels = new LabelsConfig()
                         {
                             Render = "image"
@@ -113,6 +118,11 @@
                     {
                         Y = new LinearAxis()
                         {
+                            Title = new Title()
+                            {
+                                Display = true,
+                                Text = new IndexableOption<string>(new List<string>() { "$ y-axis title test", "€ y-axis title test" })
+                            },
                             SuggestedMax = 25
                         }
                     }

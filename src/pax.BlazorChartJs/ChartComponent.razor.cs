@@ -118,7 +118,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
             if (initResult == true)
             {
-                await InvokeAsync(() => OnEventTriggered.InvokeAsync(new ChartJsInitEvent()));
+                await InvokeAsync(() => OnEventTriggered.InvokeAsync(new ChartJsInitEvent() { ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid }));
             }
         }
         base.OnAfterRender(firstRender);
@@ -131,7 +131,11 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     {
         if (dotNetHelper != null)
         {
-            await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+            var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+            if (initResult == true)
+            {
+                await InvokeAsync(() => OnEventTriggered.InvokeAsync(new ChartJsInitEvent() { ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid }));
+            }
         }
     }
 

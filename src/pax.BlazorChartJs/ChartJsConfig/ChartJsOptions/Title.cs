@@ -26,7 +26,7 @@ public record Title
     public string? Position { get; set; }
     public Font? Font { get; set; }
     public Padding? Padding { get; set; }
-    public string? Text { get; set; }
+    public IndexableOption<string>? Text { get; set; }
 }
 
 

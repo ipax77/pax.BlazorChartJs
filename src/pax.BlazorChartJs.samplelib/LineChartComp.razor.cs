@@ -75,7 +75,7 @@ public partial class LineChartComp : ComponentBase
                         Title = new Title()
                         {
                             Display = true,
-                            Text = "GameTime",
+                            Text = new IndexableOption<string>("GameTime"),
                             Color = "black",
                             Font = new()
                             {
@@ -120,7 +120,7 @@ public partial class LineChartComp : ComponentBase
                         Title = new Title()
                         {
                             Display = true,
-                            Text = "%",
+                            Text = new IndexableOption<string>("%"),
                             Color = "red",
                             Font = new()
                             {
@@ -243,6 +243,11 @@ public partial class LineChartComp : ComponentBase
     private void RemoveLastDataFromDatasets()
     {
         chartJsConfig.RemoveData();
+    }
+
+    private void RemoveAllDatasets()
+    {
+        chartJsConfig.RemoveDatasets(chartJsConfig.Data.Datasets);
     }
 
     private void Fill()
