@@ -186,7 +186,13 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
 
 ## ChangeLog
 
-<details open="open"><summary>v0.4.0</summary>
+<details open="open"><summary>v0.4.1</summary>
+
+>- Catch ObjectDisposedException and JSException when disposing the ChartComponent while initializing
+
+</details>
+
+<details><summary>v0.4.0</summary>
 
 >- Title.Text is now IndexableOptions<string> - **Breaking Change!**
 >- chartComponent?.DrawChart() triggeres an InitEvent after the chart is complete
