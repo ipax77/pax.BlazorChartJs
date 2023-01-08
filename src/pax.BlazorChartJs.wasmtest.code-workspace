@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "pax.BlazorChartJs.wasmtest"
+		},
+		{
+			"path": "pax.BlazorChartJs.samplelib"
+		},
+		{
+			"path": "pax.BlazorChartJs"
+		}
+	],
+	"settings": {}
+}
