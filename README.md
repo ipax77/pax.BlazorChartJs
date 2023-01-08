@@ -189,6 +189,7 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
 <details open="open"><summary>v0.4.1</summary>
 
 >- Catch ObjectDisposedException and JSException when disposing the ChartComponent while initializing
+>- Microsoft.AspNetCore.Components.Web upgrade to v6.0.12
 
 </details>
 
