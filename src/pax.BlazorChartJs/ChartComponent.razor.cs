@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
 namespace pax.BlazorChartJs;
@@ -43,6 +44,8 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
 
     protected override void OnInitialized()
     {
+        dotNetHelper = DotNetObjectReference.Create(this);
+
         ChartJsConfig.DatasetsAdd += ChartJsConfig_DatasetsAdd;
         ChartJsConfig.DatasetsRemove += ChartJsConfig_DatasetsRemove;
         ChartJsConfig.DatasetsUpdate += ChartJsConfig_DatasetsUpdate;
@@ -112,14 +115,20 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     /// <param name="firstRender"></param>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && dotNetHelper != null)
         {
-            dotNetHelper = DotNetObjectReference.Create(this);
-            var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-            if (initResult == true)
+            try
             {
-                await InvokeAsync(() => OnEventTriggered.InvokeAsync(new ChartJsInitEvent() { ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid }));
+                var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+                if (initResult == true)
+                {
+                    await InvokeAsync(() => OnEventTriggered
+                        .InvokeAsync(new ChartJsInitEvent() { ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid }))
+                    .ConfigureAwait(false);
+                }
             }
+            catch (ObjectDisposedException) { }
+            catch (JSException) { }
         }
         base.OnAfterRender(firstRender);
     }
@@ -134,7 +143,12 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
             if (initResult == true)
             {
-                await InvokeAsync(() => OnEventTriggered.InvokeAsync(new ChartJsInitEvent() { ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid }));
+                await InvokeAsync(() =>
+                    OnEventTriggered.InvokeAsync(new ChartJsInitEvent()
+                    {
+                        ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid
+                    }))
+                .ConfigureAwait(false);
             }
         }
     }
@@ -275,6 +289,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         await DisposeAsyncCore(true).ConfigureAwait(false);
+        dotNetHelper?.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -287,7 +302,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
 
         if (disposing)
         {
-            await ChartJsInterop.DisposeChart(ChartJsConfig.ChartJsConfigGuid);
+            await ChartJsInterop.DisposeChart(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
             ChartJsConfig.DatasetsAdd -= ChartJsConfig_DatasetsAdd;
             ChartJsConfig.DatasetsRemove -= ChartJsConfig_DatasetsRemove;
             ChartJsConfig.DatasetsUpdate -= ChartJsConfig_DatasetsUpdate;
@@ -297,7 +312,6 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             ChartJsConfig.DataSet -= ChartJsConfig_DataSet;
             ChartJsConfig.LabelsSet -= ChartJsConfig_LabelsSet;
             ChartJsConfig.AddDataEvent -= ChartJsConfig_AddDataEvent;
-            dotNetHelper?.Dispose();
         }
 
         isDisposed = true;

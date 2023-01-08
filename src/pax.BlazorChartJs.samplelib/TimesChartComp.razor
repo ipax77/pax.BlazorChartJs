@@ -13,13 +13,13 @@
 @code {
     private Lazy<Task<IJSObjectReference>>? moduleTask;
     ChartJsConfig chartConfig = null!;
-    ChartComponent? chartComponent;
+    public ChartComponent? chartComponent;
     private bool isRegistered = false;
 
     protected override void OnInitialized()
     {
         moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-        "import", "/timeChart.js").AsTask());
+        "import", "./_content/pax.BlazorChartJs.samplelib/timeChart.js").AsTask());
 
         chartConfig = new ChartJsConfig()
             {

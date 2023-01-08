@@ -12,7 +12,7 @@ To run the pwtests locally you have to start the sample project first - and rest
 
 To start it from this directory:
 ```sh
-dotnet run --project ../src/pax.BlazorChartJs.wasmsample
+dotnet run --project ../src/pax.BlazorChartJs.wasmtest
 ```
 
 ## Configuration
