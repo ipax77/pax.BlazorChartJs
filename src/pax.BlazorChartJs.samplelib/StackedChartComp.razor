@@ -112,7 +112,7 @@
                 if (chartJsConfig.Options.Scales.X?.Ticks is LinearAxisTick linearTicks)
                 {
                     linearTicks.StepSize = stepSize;
-                    chartComponent?.UpdateChartOptions();
+                    chartJsConfig.UpdateChartOptions();
                 }
             }
         }

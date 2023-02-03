@@ -75,7 +75,7 @@
 
     public void ShowChart()
     {
-        chartComponent?.DrawChart();
+        chartJsConfig.ReinitializeChart();
     }
 
     private void Randomize()
@@ -117,7 +117,7 @@
         if (chartJsConfig.Options != null)
         {
             chartJsConfig.Options.Animation = false;
-            chartComponent?.UpdateChartOptions();
+            chartJsConfig.UpdateChartOptions();
         }
     }
 
@@ -126,7 +126,7 @@
         if (chartJsConfig.Options != null)
         {
             chartJsConfig.Options.Animation = null;
-            chartComponent?.UpdateChartOptions();
+            chartJsConfig.UpdateChartOptions();
         }
     }
 }
