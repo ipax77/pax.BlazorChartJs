@@ -113,7 +113,7 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
 
     private void ShowChart()
     {
-        chartComponent?.DrawChart();
+        chartJsConfig.ReinitializeChart();
     }
 
     private void LabelClicked(ChartJsEvent chartJsEvent)
