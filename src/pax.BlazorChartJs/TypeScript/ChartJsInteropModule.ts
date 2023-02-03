@@ -1,6 +1,3 @@
-/// <reference path="./types/index.esm.d.ts" />   
-
-import { Chart, Chart as TsChart, ChartDataset } from "./types/index.esm";
 
 class LoadInfo {
     chartJsLoaded: boolean = false;
@@ -36,21 +33,9 @@ class ChartJsInterop {
                 plugins.push(arbitraryLines);
             }
 
-            if (dotnetConfig['options'].plugins.labels != undefined) {
-                if (setupOptions?.['chartJsPluginLabelsLocation']) {
-                    await import(setupOptions['chartJsPluginLabelsLocation']);
-                }
-                else {
-                    await import('./chartjs-plugin-labels.min.js');
-                }
-            }
-
             if (dotnetConfig['options'].plugins.datalabels != undefined) {
                 if (setupOptions?.['chartJsPluginDatalabelsLocation']) {
                     const ChartDataLabels = await import(setupOptions['chartJsPluginDatalabelsLocation']);
-                    plugins.push(ChartDataLabels);
-                } else {
-                    const ChartDataLabels = await import('./chartjs-plugin-datalabels.min.js');
                     plugins.push(ChartDataLabels);
                 }
             }
@@ -65,7 +50,7 @@ class ChartJsInterop {
         }
     }
 
-    public addData(chart: Chart, label: string, pos: number, datas: Array<JSON>) {
+    public addData(chart: any, label: string, pos: number, datas: Array<JSON>) {
 
         if (chart == undefined) {
             return;
@@ -90,7 +75,7 @@ class ChartJsInterop {
         chart.update();
     }
 
-    private addLabel(chart: Chart, label: string, pos: number) {
+    private addLabel(chart: any, label: string, pos: number) {
         if (label != undefined) {
             if (pos == undefined) {
                 chart.data.labels.push(label);
@@ -100,7 +85,7 @@ class ChartJsInterop {
         }
     }
 
-    private addDatasetData(dataset: ChartDataset, data: any, pos: number) {
+    private addDatasetData(dataset: any, data: any, pos: number) {
         if (pos == undefined) {
             dataset.data.push(data);
         } else {
@@ -108,7 +93,7 @@ class ChartJsInterop {
         }
     }
 
-    private addBackgroundColor(dataset: ChartDataset, backgroundColor: string, pos: number) {
+    private addBackgroundColor(dataset: any, backgroundColor: string, pos: number) {
         if (Array.isArray(dataset.backgroundColor)) {
             if (pos == undefined) {
                 dataset.backgroundColor.push(backgroundColor);
@@ -118,7 +103,7 @@ class ChartJsInterop {
         }
     }
 
-    private addBorderColor(dataset: ChartDataset, borderColor: string, pos: number) {
+    private addBorderColor(dataset: any, borderColor: string, pos: number) {
         if (Array.isArray(dataset.borderColor)) {
             if (pos == undefined) {
                 dataset.borderColor.push(borderColor);
@@ -137,7 +122,7 @@ class ChartJsInterop {
         }
     }
 
-    public removeData(chart: Chart) {
+    public removeData(chart: any) {
 
         if (!(chart.data.labels.length == 0)) {
             chart.data.labels.pop();
@@ -161,7 +146,7 @@ class ChartJsInterop {
         chart.update();
     }
 
-    public setData(chart: Chart, labels: Array<string>, datas: Array<JSON>) {
+    public setData(chart: any, labels: Array<string>, datas: Array<JSON>) {
         if (labels != undefined) {
             chart.data.labels = labels;
         }
@@ -184,14 +169,14 @@ class ChartJsInterop {
         chart.update();
     }
 
-    public addDatasets(chart: Chart, datasets: Array<ChartDataset>) {
+    public addDatasets(chart: any, datasets: Array<any>) {
         for (let i = 0; i < datasets.length; i++) {
             chart.data.datasets.push(datasets[i]);
         }
         chart.update();
     }
 
-    public removeDatasets(chart: Chart, datasetIds: Array<string>) {
+    public removeDatasets(chart: any, datasetIds: Array<string>) {
         for (var index of this.reverseKeys(chart.data.datasets)) {
             var dataset = chart.data.datasets[index];
             if (datasetIds.includes(dataset['id'])) {
@@ -201,7 +186,7 @@ class ChartJsInterop {
         chart.update();
     }
 
-    public updateDatasets(chart: Chart, datasets: Array<ChartDataset>) {
+    public updateDatasets(chart: any, datasets: Array<any>) {
 
         const datasetMetas = chart.getSortedVisibleDatasetMetas();
         datasets.forEach(dataset => {
@@ -213,7 +198,7 @@ class ChartJsInterop {
         chart.update();
     }
 
-    public setDatasets(chart: Chart, datasets: Array<ChartDataset>) {
+    public setDatasets(chart: any, datasets: Array<any>) {
         chart.data.datasets = datasets;
         chart.update();
     }
