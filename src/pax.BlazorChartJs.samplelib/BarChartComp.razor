@@ -11,7 +11,6 @@
     <button type="button" class="btn btn-primary" @onclick="ShowDataLabels">ShowLabels</button>
     <button type="button" class="btn btn-primary" @onclick="Horizontal">Horizontal</button>
     <button type="button" class="btn btn-primary" @onclick="MakeImage">MakeImage</button>
-    <button type="button" class="btn btn-primary" @onclick="GetCanvasInfo">GetCanvasInfo</button>
 </div>
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
@@ -49,16 +48,16 @@
 
 @code {
     ChartComponent? chartComponent;
-    ChartJsConfig chartJsConfig = null!;
+    IconsChartJsConfig chartJsConfig = null!;
     private string? labelClicked;
     private string? imageString;
     private string? canvasInfo;
-    private Lazy<Task<IJSObjectReference>>? moduleTask;
+    private Lazy<Task<IJSObjectReference>> moduleTask = null!;
 
     protected override void OnInitialized()
     {
         moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-            "import", "./_content/pax.BlazorChartJs.samplelib/customChart.js").AsTask());
+            "import", "./_content/pax.BlazorChartJs.samplelib/customPlugin.js").AsTask());
 
         chartJsConfig = new()
             {
@@ -97,22 +96,19 @@
                         }
                     }
                 },
-                Options = new ChartJsOptions()
+                Options = new()
                 {
                     Responsive = true,
                     MaintainAspectRatio = true,
                     OnClickEvent = true,
-                    Plugins = new Plugins()
+                    Plugins = new()
                     {
                         Title = new Title()
                         {
                             Display = true,
                             Text = new IndexableOption<string>(new List<string>() { "BarChart", "testing"}),
                         },
-                        Labels = new LabelsConfig()
-                        {
-                            Render = "image"
-                        }
+
                     },
                     Scales = new ChartJsOptionsScales()
                     {
@@ -145,7 +141,7 @@
         }
         else
         {
-            chartJsConfig.Options = new ChartJsOptions()
+            chartJsConfig.Options = new()
                 {
                     IndexAxis = "y"
                 };
@@ -170,8 +166,12 @@
         }
     }
 
-    private void ShowImages()
+    private async Task ShowImages()
     {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("registerImagePlugin", 30, 30)
+            .ConfigureAwait(false);
+
         if (chartJsConfig.Options == null)
         {
             chartJsConfig.Options = new();
@@ -182,44 +182,36 @@
             chartJsConfig.Options.Plugins = new();
         }
 
-        chartJsConfig.Options.Plugins.Labels = new LabelsConfig()
+        List<ChartIconsConfig> icons = new()
+        {
+            new()
             {
-                Render = "image",
-                ShowZero = true,
-                Images = new List<LabelsConfigImage>()
+                XWidth = 30,
+                YWidth = 30,
+                YOffset = 0,
+                ImageSrc = "_content/pax.BlazorChartJs.samplelib/images/abathur-min.png",
+                Cmdr = "abathur"
+            },
+            new()
             {
-                new LabelsConfigImage()
-                {
-                    Src = "./_content/pax.BlazorChartJs.samplelib/images/abathur-min.png",
-                    Width = 45,
-                    Height = 45
-                },
-                new LabelsConfigImage()
-                {
-                    Src = "./_content/pax.BlazorChartJs.samplelib/images/alarak-min.png",
-                    Width = 45,
-                    Height = 45
-                },
-                new LabelsConfigImage()
-                {
-                    Src = "./_content/pax.BlazorChartJs.samplelib/images/artanis-min.png",
-                    Width = 45,
-                    Height = 45
-                },
-                new LabelsConfigImage()
-                {
-                    Src = "./_content/pax.BlazorChartJs.samplelib/images/alarak-min.png",
-                    Width = 45,
-                    Height = 45
-                },
-                new LabelsConfigImage()
-                {
-                    Src = "./_content/pax.BlazorChartJs.samplelib/images/alarak-min.png",
-                    Width = 45,
-                    Height = 45
-                }
-            }
-            };
+                XWidth = 30,
+                YWidth = 30,
+                YOffset = 0,
+                ImageSrc = "_content/pax.BlazorChartJs.samplelib/images/alarak-min.png",
+                Cmdr = "alarak"
+            },
+            new()
+            {
+                XWidth = 30,
+                YWidth = 30,
+                YOffset = 0,
+                ImageSrc = "_content/pax.BlazorChartJs.samplelib/images/artanis-min.png",
+                Cmdr = "artanis"
+            },
+        };
+
+        chartJsConfig.Options.Plugins.BarIcons = icons;
+
         // _ = chartComponent?.UpdateChartOptions();
         _ = chartComponent?.DrawChart();
     }
@@ -315,5 +307,29 @@
     private void RemoveLastDataFromDatasets()
     {
         chartJsConfig.RemoveData();
+    }
+
+    public class IconsChartJsConfig : ChartJsConfig
+    {
+        public new IconsChartJsOptions? Options { get; set; }
+    }
+
+    public record IconsChartJsOptions : ChartJsOptions
+    {
+        public new IconsPlugins? Plugins { get; set; }
+    }
+
+    public record IconsPlugins : Plugins
+    {
+        public ICollection<ChartIconsConfig>? BarIcons { get; set; }
+    }
+
+    public record ChartIconsConfig
+    {
+        public int XWidth { get; set; }
+        public int YWidth { get; set; }
+        public int YOffset { get; set; }
+        public string ImageSrc { get; set; } = null!;
+        public string? Cmdr { get; set; }
     }
 }

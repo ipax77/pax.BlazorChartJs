@@ -23,6 +23,8 @@ public class ChartOptionsTests : PageTest
         var canvasId = await canvas.GetAttributeAsync("id");
         Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
 
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
         await Page.Locator("input").FillAsync("20");
         await Page.Keyboard.PressAsync("Enter");
 

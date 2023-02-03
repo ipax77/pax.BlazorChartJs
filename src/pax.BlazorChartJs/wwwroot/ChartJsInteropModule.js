@@ -28,21 +28,9 @@ class ChartJsInterop {
                 const arbitraryLines = this.arbitaryLinesPlugin();
                 plugins.push(arbitraryLines);
             }
-            if (dotnetConfig['options'].plugins.labels != undefined) {
-                if (setupOptions?.['chartJsPluginLabelsLocation']) {
-                    await import(setupOptions['chartJsPluginLabelsLocation']);
-                }
-                else {
-                    await import('./chartjs-plugin-labels.min.js');
-                }
-            }
             if (dotnetConfig['options'].plugins.datalabels != undefined) {
                 if (setupOptions?.['chartJsPluginDatalabelsLocation']) {
                     const ChartDataLabels = await import(setupOptions['chartJsPluginDatalabelsLocation']);
-                    plugins.push(ChartDataLabels);
-                }
-                else {
-                    const ChartDataLabels = await import('./chartjs-plugin-datalabels.min.js');
                     plugins.push(ChartDataLabels);
                 }
             }

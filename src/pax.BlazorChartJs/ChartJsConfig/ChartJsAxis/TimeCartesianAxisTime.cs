@@ -17,6 +17,5 @@ public record TimeCartesianAxisTime
     public string? Round { get; set; }
     public string? TooltipFormat { get; set; }
     public string? Unit { get; set; }
-    public int? StepSize { get; set; }
     public string? MinUnit { get; set; }
 }
