@@ -130,7 +130,7 @@
 
     private void ShowChart()
     {
-        chartComponent?.DrawChart();
+        chartJsConfig.ReinitializeChart();
     }
 
     private void Horizontal()
@@ -146,7 +146,7 @@
                     IndexAxis = "y"
                 };
         }
-        chartComponent?.DrawChart();
+        chartJsConfig.ReinitializeChart();
     }
 
     private void LabelClicked(ChartJsEvent chartJsEvent)
@@ -212,8 +212,7 @@
 
         chartJsConfig.Options.Plugins.BarIcons = icons;
 
-        // _ = chartComponent?.UpdateChartOptions();
-        _ = chartComponent?.DrawChart();
+        chartJsConfig.ReinitializeChart();
     }
 
     private void ShowDataLabels()
@@ -240,7 +239,7 @@
                 Align = "start",
                 Clip = true
             };
-        _ = chartComponent?.DrawChart();
+        chartJsConfig.ReinitializeChart();
     }
 
     private async Task GetCanvasInfo()

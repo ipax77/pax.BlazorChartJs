@@ -192,13 +192,16 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
 
 ## ChangeLog
 
-<details open="open"><summary>v0.5.0-rc1.0</summary>
+<details open="open"><summary>v0.5.0-rc2.0</summary>
 
 >- **Breaking Changes**
 >- Update to [ChartJs v4.x](https://www.chartjs.org/docs/latest/migration/v4-migration.html)
->- Removed ChartJs javascript files - defaults to cdn links, now. Use ``` options.ChartJsLocation = "mychart.js"``` if you want to use your projects ChartJs version.
+>- Removed ChartJs javascript files - defaults to cdn links, now. Use ``` options.ChartJsLocation = "mychart.js"``` to use a custom/local ChartJs version.
 >- Removed chartjs-plugin-labels (you can still register it as [custom plugin](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor))
 >- Microsoft.AspNetCore.Components.Web upgrade to v6.0.13
+>- Added ScaleAxis X1 and Y1 (override ChartJsOptionsScales for other names)
+>- ```ChartJsConfig.UpdateChartOptions()``` (will replace ```ChartComponent.UpdateChartOptions```)
+>- ```ChartJsConfig.ReinitializeChart()``` (will replace ```ChartComponent.DrawChart```)
 
 </details>
 

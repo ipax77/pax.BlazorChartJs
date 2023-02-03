@@ -152,7 +152,7 @@
 
     private void ShowChart()
     {
-        chartComponent?.DrawChart();
+        chartJsConfig.ReinitializeChart();
     }
 
     private void EventTriggered(ChartJsEvent chartJsEvent)
@@ -221,7 +221,7 @@
                     }
                 }
             };
-        chartComponent?.UpdateChartOptions();
+        chartJsConfig.UpdateChartOptions();
     }
 
     private void AddEvents()
@@ -255,7 +255,7 @@
                     }
                 }
             };
-        chartComponent?.UpdateChartOptions();
+        chartJsConfig.UpdateChartOptions();
     }
 
     private void AddData()

@@ -167,7 +167,7 @@ public partial class LineChartComp : ComponentBase
 
     public void ShowChart()
     {
-        chartComponent?.DrawChart();
+        chartJsConfig.ReinitializeChart();
     }
 
     public void AddArbitraryLine()
@@ -192,7 +192,7 @@ public partial class LineChartComp : ComponentBase
                 Text = "Plugin Test"
             }
         };
-        chartComponent?.UpdateChartOptions();
+        chartJsConfig.UpdateChartOptions();
     }
 
     private void AddData()

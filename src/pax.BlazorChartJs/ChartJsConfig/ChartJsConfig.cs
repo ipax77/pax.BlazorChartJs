@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace pax.BlazorChartJs;
 
 /// <summary>
-/// ChartJs v3.9.1 wrapper class <see href="https://www.chartjs.org/docs/latest/configuration/">ChartJs docs</see>
+/// ChartJs wrapper class <see href="https://www.chartjs.org/docs/latest/configuration/">ChartJs docs</see>
 /// NULL values are ignored (=> ChartJs default)
 /// </summary>
 public partial class ChartJsConfig
@@ -32,6 +32,20 @@ public partial class ChartJsConfig
     internal event EventHandler<DataSetEventArgs>? DataSet;
     internal event EventHandler<LabelsSetEventArgs>? LabelsSet;
     internal event EventHandler<AddDataEventArgs>? AddDataEvent;
+    internal event EventHandler? ChartOptionsUpdate;
+    internal event EventHandler? ChartRedraw;
+
+    internal virtual void OnChartRedraw()
+    {
+        EventHandler? handler = ChartRedraw;
+        handler?.Invoke(this, new());
+    }
+
+    internal virtual void OnUpdateChartOptions()
+    {
+        EventHandler? handler = ChartOptionsUpdate;
+        handler?.Invoke(this, new());
+    }
 
     internal virtual void OnAddDataEvent(AddDataEventArgs e)
     {
@@ -97,6 +111,22 @@ public partial class ChartJsConfig
 
         Data.Labels = labels;
         OnLabelsSet(new(labels));
+    }
+
+    /// <summary>
+    /// Updates chart options
+    /// </summary>
+    public void UpdateChartOptions()
+    {
+        OnUpdateChartOptions();
+    }
+
+    /// <summary>
+    /// Reinitializes the chart and triggers a new ChartJsInitEvent
+    /// </summary>
+    public void ReinitializeChart()
+    {
+        OnChartRedraw();
     }
 }
 
