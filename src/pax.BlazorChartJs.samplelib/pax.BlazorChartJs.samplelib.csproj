@@ -14,9 +14,9 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>latest</LangVersion>
-    <WarningsNotAsErrors></WarningsNotAsErrors>
+    <WarningsNotAsErrors>CA5394</WarningsNotAsErrors>
     <DisabledWarnings>1591</DisabledWarnings>
-    <NoWarn>1591</NoWarn>	
+    <NoWarn>1591, CA5394</NoWarn>	
   </PropertyGroup>
 
 
