@@ -1,0 +1,155 @@
+﻿@using pax.BlazorChartJs
+
+<div class="btn-block">
+    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+</div>
+
+<div class="w-75 h-50">
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig" OnEventTriggered="ChartEventTriggered"></ChartComponent>
+</div>
+
+@code {
+    ChartJsConfig chartJsConfig = null!;
+    ChartComponent? chartComponent;
+    bool isChartInit;
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = GetMultiAxisChartConfig();
+        chartJsConfig.Data.Labels = GetLabels();
+        chartJsConfig.Data.Datasets.Add(GetMultiAxisDatasetY());
+        chartJsConfig.Data.Datasets.Add(GetMultiAxisDatasetY1());
+        base.OnInitialized();
+    }
+
+    public void ChartEventTriggered(ChartJsEvent e)
+    {
+        if (e is ChartJsInitEvent initEvent)
+        {
+            isChartInit = true;
+        }
+    }
+
+    public void Randomize()
+    {
+        if (!isChartInit)
+        {
+            return;
+        }
+
+        Random random = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
+
+        foreach (var dataset in chartJsConfig.Data.Datasets)
+        {
+            if (dataset is LineDataset lineDataset)
+            {
+                List<object> newData = new();
+                if (lineDataset.Label != null && lineDataset.Label.StartsWith("Dataset Y-"))
+                {
+                    foreach (var data in lineDataset.Data)
+                    {
+                        newData.Add(random.Next(0, 10));
+                    }
+                }
+                else if (lineDataset.Label != null && lineDataset.Label.StartsWith("Dataset Y1-"))
+                {
+                    foreach (var data in lineDataset.Data)
+                    {
+                        newData.Add(random.Next(0, 100));
+                    }
+                }
+                chartData[dataset] = new(newData);
+            }
+        }
+        chartJsConfig.SetData(chartData);
+    }
+
+    public List<string> GetLabels()
+    {
+        return new() { "Jan", "Feb", "Mar", "Apr", "May", "Jun" };
+    }
+
+    public ChartJsDataset GetMultiAxisDatasetY()
+    {
+        return new LineDataset()
+        {
+            Label = $"Dataset Y-{chartJsConfig.Data.Datasets.Count % 2}",
+            Data = new List<object>() { 1, 2, 3, 4, 5, 6 },
+            BackgroundColor = "#4E58A0",
+            BorderColor = "#4E58A0",
+            BorderWidth = 4,
+            Fill = false,
+            PointBackgroundColor = new IndexableOption<string>("blue"),
+            PointBorderColor = new IndexableOption<string>("blue"),
+            PointRadius = new IndexableOption<double>(5),
+            PointBorderWidth = new IndexableOption<double>(5),
+            PointHitRadius = new IndexableOption<double>(5),
+            Tension = 0.4,
+            YAxisID = "y"
+        };
+    }
+
+    public ChartJsDataset GetMultiAxisDatasetY1()
+    {
+        return new LineDataset()
+        {
+            Label = $"Dataset Y1-{chartJsConfig.Data.Datasets.Count % 2}",
+            Data = new List<object>() { 60, 50, 40, 30, 20, 10 },
+            BackgroundColor = "grey",
+            BorderColor = "grey",
+            BorderWidth = 2,
+            Fill = false,
+            PointBackgroundColor = new IndexableOption<string>("grey"),
+            PointBorderColor = new IndexableOption<string>("grey"),
+            PointRadius = new IndexableOption<double>(1),
+            PointBorderWidth = new IndexableOption<double>(1),
+            PointHitRadius = new IndexableOption<double>(1),
+            BorderDash = new List<double>() { 10, 5 },
+            Tension = 0.2,
+            YAxisID = "y1"
+        };
+    }
+
+    public ChartJsConfig GetMultiAxisChartConfig()
+    {
+        return new ChartJsConfig()
+        {
+            Type = ChartType.line,
+            Options = new ChartJsOptions
+            {
+                Responsive = true,
+                Interaction = new()
+                {
+                    Mode = "index",
+                    Intersect = false
+                },
+                Stacked = false,
+                Scales = new ChartJsOptionsScales()
+                {
+                    X = new CartesianAxis()
+                    {
+                        Display = true,
+                        Position = "bottom",
+                    },
+                    Y = new CartesianAxis()
+                    {
+                        Type = "linear",
+                        Display = true,
+                        Position = "left",
+                    },
+                    Y1 = new CartesianAxis()
+                    {
+                        Type = "linear",
+                        Display = true,
+                        Position = "right",
+                        Grid = new ChartJsGrid()
+                        {
+                            DrawOnChartArea = false
+                        }
+                    }
+                }
+            }
+        };
+    }
+}

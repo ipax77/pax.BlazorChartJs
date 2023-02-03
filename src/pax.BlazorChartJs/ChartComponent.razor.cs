@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
 namespace pax.BlazorChartJs;
@@ -55,7 +54,34 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
         ChartJsConfig.DataSet += ChartJsConfig_DataSet;
         ChartJsConfig.LabelsSet += ChartJsConfig_LabelsSet;
         ChartJsConfig.AddDataEvent += ChartJsConfig_AddDataEvent;
+        ChartJsConfig.ChartOptionsUpdate += ChartJsConfig_ChartOptionsUpdate;
+        ChartJsConfig.ChartRedraw += ChartJsConfig_ChartRedraw;
         base.OnInitialized();
+    }
+
+    private async void ChartJsConfig_ChartRedraw(object? sender, EventArgs e)
+    {
+        if (dotNetHelper != null)
+        {
+            var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+            if (initResult == true)
+            {
+                await InvokeAsync(() =>
+                    OnEventTriggered.InvokeAsync(new ChartJsInitEvent()
+                    {
+                        ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid
+                    }))
+                .ConfigureAwait(false);
+            }
+        }
+    }
+
+    private async void ChartJsConfig_ChartOptionsUpdate(object? sender, EventArgs e)
+    {
+        if (dotNetHelper != null)
+        {
+            await ChartJsInterop.UpdateChartOptions(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+        }
     }
 
     private async void ChartJsConfig_DatasetsSet(object? sender, DatasetsSetEventArgs e)
@@ -136,6 +162,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     /// <summary>
     /// (Re-)Draws the chart
     /// </summary>
+    [Obsolete($"Please use {nameof(ChartJsConfig)}.{nameof(ChartJsConfig.ReinitializeChart)} instead")]
     public async Task DrawChart()
     {
         if (dotNetHelper != null)
@@ -156,6 +183,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Update Chart Options
     /// </summary>
+    [Obsolete($"Please use {nameof(ChartJsConfig)}.{nameof(ChartJsConfig.UpdateChartOptions)} instead")]
     public async Task UpdateChartOptions()
     {
         if (dotNetHelper != null)
@@ -312,6 +340,8 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             ChartJsConfig.DataSet -= ChartJsConfig_DataSet;
             ChartJsConfig.LabelsSet -= ChartJsConfig_LabelsSet;
             ChartJsConfig.AddDataEvent -= ChartJsConfig_AddDataEvent;
+            ChartJsConfig.ChartOptionsUpdate -= ChartJsConfig_ChartOptionsUpdate;
+            ChartJsConfig.ChartRedraw -= ChartJsConfig_ChartRedraw;
         }
 
         isDisposed = true;
