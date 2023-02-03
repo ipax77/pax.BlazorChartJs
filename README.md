@@ -1,6 +1,8 @@
 [![Playwright Tests](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml/badge.svg)](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml) [TestPage](https://ipax77.github.io/pax.BlazorChartJs/)
 
-Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js) (v3.9.1)
+Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js)
+ * &gt;= v0.5 => ChartJs v4.x - Tested with version 4.2.0
+ * < v0.5 => ChartJs v3.91
 
 # Getting started
 ## Prerequisites
@@ -11,9 +13,14 @@ dotnet 6
 dotnet add package pax.BlazorChartJs
 ```
 
-Program.cs: (You can set optional javascript locations here)
+Program.cs:
 ``` cs
-    builder.Services.AddChartJs();
+    builder.Services.AddChartJs(options =>
+    {
+        // default
+        options.ChartJsLocation = "https://cdn.jsdelivr.net/npm/chart.js";
+        options.ChartJsPluginDatalabelsLocation = "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2";
+    });
 ```
 
 ## Usage
@@ -29,7 +36,7 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
 </div>
 
-<div class="w-75">
+<div class="w-75 h-50">
     <ChartComponent @ref="chartComponent" OnEventTriggered="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
 </div>
 
@@ -174,7 +181,6 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
 ```
 ## Supported Plugins
 * [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
-* [chartjs-plugin-labels](https://github.com/DavideViolante/chartjs-plugin-labels)
 * [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
 * Custom Plugins [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor)
 
@@ -186,7 +192,17 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
 
 ## ChangeLog
 
-<details open="open"><summary>v0.4.1</summary>
+<details open="open"><summary>v0.5.0-rc1.0</summary>
+
+>- **Breaking Changes**
+>- Update to [ChartJs v4.x](https://www.chartjs.org/docs/latest/migration/v4-migration.html)
+>- Removed ChartJs javascript files - defaults to cdn links, now. Use ``` options.ChartJsLocation = "mychart.js"``` if you want to use your projects ChartJs version.
+>- Removed chartjs-plugin-labels (you can still register it as [custom plugin](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor))
+>- Microsoft.AspNetCore.Components.Web upgrade to v6.0.13
+
+</details>
+
+<details><summary>v0.4.1</summary>
 
 >- Catch ObjectDisposedException and JSException when disposing the ChartComponent while initializing
 >- Microsoft.AspNetCore.Components.Web upgrade to v6.0.12
