@@ -23,9 +23,6 @@ export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) 
             if (setupOptions?.chartJsLocation) {
                 await import(setupOptions.chartJsLocation);
             }
-            else {
-                await import('./chart.min.js');
-            }
             isLoaded = true;
         }
 
@@ -63,16 +60,11 @@ async function loadPlugins(setupOptions, dotnetConfig) {
             if (setupOptions?.['chartJsPluginLabelsLocation']) {
                 await import(setupOptions['chartJsPluginLabelsLocation']);
             }
-            else {
-                await import('./chartjs-plugin-labels.min.js');
-            }
         }
 
         if (dotnetConfig['options'].plugins.datalabels != undefined) {
             if (setupOptions?.['chartJsPluginDatalabelsLocation']) {
                 await import(setupOptions['chartJsPluginDatalabelsLocation']);
-            } else {
-                await import('./chartjs-plugin-datalabels.min.js');
             }
             plugins.push(ChartDataLabels);
         }
