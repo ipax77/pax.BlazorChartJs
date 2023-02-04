@@ -112,7 +112,7 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
 * use ```ChartJsConfig.UpdateChartOptions()``` to update the chart options, only (e.g. [StepSize](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/StackedChartComp.razor#L106))
 
 ## Chart Events
-There are several chart events available, by default only the init event is fired. You can enable the others in the ChartJsConfig.Options [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventsComp.razor)
+Several chart events are available, by default only the Init event is fired. The others can be activated in the ChartJsConfig.Options [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventsComp.razor)
 *  click
 *  hover
 *  leave
