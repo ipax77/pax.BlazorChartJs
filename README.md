@@ -1,9 +1,8 @@
 [![Playwright Tests](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml/badge.svg)](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml) [TestPage](https://ipax77.github.io/pax.BlazorChartJs/)
 
 Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js)
- * &gt;= v0.5 => ChartJs v4.x - Tested with version 4.2.0
- * < v0.5 => ChartJs v3.91
-
+ * **ChartJs v4.x support** (tested with ChartJs v4.2.0)
+ 
 # Getting started
 This library is using [JavaScript isolation](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/?view=aspnetcore-6.0#javascript-isolation-in-javascript-modules-1). JS isolation provides the following benefits:
 * Imported JS no longer pollutes the global namespace.
@@ -127,14 +126,14 @@ There are several chart events available, by default only the init event is fire
 * Custom Plugins [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor)
 
 ## ChartComponent
-In the ChartComponent are several chart functions available, e.g.:
+Several chart functions are available in the ChartComponent, e.g.:
 * ```ChartComponent.ResizeChart(...)```
 * ```ChartComponent.GetChartImage(...)```
 * ```ChartComponent.ToggleDataVisibility(...)```
 
 ## ChangeLog
 
-<details open="open"><summary>v0.5.0-rc2.0</summary>
+<details open="open"><summary>v0.5.0</summary>
 
 >- **Breaking Changes**
 >- Update to [ChartJs v4.x](https://www.chartjs.org/docs/latest/migration/v4-migration.html)
