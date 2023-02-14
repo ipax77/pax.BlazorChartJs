@@ -1,0 +1,106 @@
+﻿@using Microsoft.JSInterop
+@using pax.BlazorChartJs
+@inject IJSRuntime jsRuntime
+@implements IAsyncDisposable
+
+@if (ChartConfig != null)
+{
+    <ChartComponent @ref="ChartComponent" ChartJsConfig="ChartConfig" OnEventTriggered="EventTriggered"></ChartComponent>
+}
+
+@code {
+    private Lazy<ValueTask<IJSObjectReference>> chartJsModuleTask = null!;
+    private Lazy<ValueTask<IJSObjectReference>> pluginModuleTask = null!;
+
+    public ChartJsConfig? ChartConfig;
+
+    public ChartComponent? ChartComponent { get; private set; }
+
+    protected override void OnInitialized()
+    {
+        chartJsModuleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", "https://cdn.jsdelivr.net/npm/chart.js"));
+        pluginModuleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3/dist/chartjs-adapter-date-fns.bundle.min.js"));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var chartModule = await chartJsModuleTask.Value;
+            var pluginModule = await pluginModuleTask.Value;
+            ChartConfig = GetChartConfig();
+            await InvokeAsync(() => StateHasChanged());
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void EventTriggered(ChartJsEvent chartJsEvent)
+    {
+        if (chartJsEvent is ChartJsInitEvent initEvent)
+        {
+
+        }
+    }
+
+    private ChartJsConfig GetChartConfig()
+    {
+        return new()
+            {
+                Type = ChartType.line,
+                Data = new ChartJsData()
+                {
+                    Datasets = new List<ChartJsDataset>()
+                    {
+                        new LineDataset()
+                        {
+                            Label = "My First Dataset",
+                            Data = new List<object>()
+                            {
+                                new { x = "2022-09-07", y = 20 },
+                                new { x = "2022-09-08", y = 40 },
+                                new { x = "2022-09-09", y = 20 },
+                                new { x = "2022-09-10", y = 60 },
+                                new { x = "2022-09-11", y = 70 },
+                                new { x = "2022-09-12", y = 20 },
+                                new { x = "2022-09-13", y = 10 },
+                                new { x = "2022-09-14", y = 50 },
+                                new { x = "2022-09-15", y = 30 },
+                                new { x = "2022-10-01", y = 30 },
+                            },
+                            Fill = false,
+                            BorderColor = "rgb(75, 192, 192)",
+                            Tension = 0.1
+                        }
+                    },
+                },
+                Options = new ChartJsOptions()
+                {
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        X = new TimeCartesianAxis()
+                        {
+                            Type = "time",
+                            Time = new TimeCartesianAxisTime()
+                            {
+                                Unit = "minute"
+                            }
+                        }
+                    }
+                }
+            };
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (chartJsModuleTask.IsValueCreated)
+        {
+            var module = await chartJsModuleTask.Value;
+            module?.DisposeAsync();
+        }
+        if (pluginModuleTask.IsValueCreated)
+        {
+            var module = await pluginModuleTask.Value;
+            module?.DisposeAsync();
+        }
+    }
+}
