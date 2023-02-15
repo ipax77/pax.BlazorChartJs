@@ -1,9 +1,16 @@
+![Nuget](https://img.shields.io/nuget/v/pax.BlazorChartJs)
 [![Playwright Tests](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml/badge.svg)](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml) [TestPage](https://ipax77.github.io/pax.BlazorChartJs/)
 
-Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js)
- * **ChartJs v4.x support** (tested with ChartJs v4.2.0)
+# Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js)
  
-# Getting started
+ The following versions of ChartJs are compatible with published releases of `pax.BlazorChartJs`
+ Release | ChartJs | Tests
+ ---|---------------|---------------|
+ <= 0.5.0 | **3.9.1** | 3.9.1
+ &gt;= 0.5.0 | **4.x**   | 4.2.1
+ 
+ 
+## Getting started
 This library is using [JavaScript isolation](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/?view=aspnetcore-6.0#javascript-isolation-in-javascript-modules-1). JS isolation provides the following benefits:
 * Imported JS no longer pollutes the global namespace.
 * Consumers of a library and components aren't required to import the related JS.
@@ -130,6 +137,10 @@ Several chart functions are available in the ChartComponent, e.g.:
 * ```ChartComponent.ResizeChart(...)```
 * ```ChartComponent.GetChartImage(...)```
 * ```ChartComponent.ToggleDataVisibility(...)```
+
+## Contributing
+
+We really like people helping us with the project. Nevertheless, take your time to read our contributing guidelines [here](https://github.com/ipax77/pax.BlazorChartJs/blob/master/CONTRIBUTING.md).
 
 ## ChangeLog
 
