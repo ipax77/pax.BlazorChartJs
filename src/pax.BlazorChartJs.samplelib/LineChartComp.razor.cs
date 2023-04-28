@@ -103,14 +103,17 @@ public partial class LineChartComp : ComponentBase
                             Display = true,
                             Color = "lightgrey",
                             LineWidth = 1,
-                            DrawBorder = true,
                             DrawOnChartArea = true,
                             TickLength = 8,
                             TickWidth = 1,
                             TickColor = "red",
                             Offset = false,
-                            BorderWidth = 1,
-                            BorderColor = "rgba(0,0,0,0.1)"
+                        },
+                        Border = new ChartJsAxisBorder()
+                        {
+                            Display = true,
+                            Width = 1,
+                            Color = "rgba(0,0,0,0.1)"
                         }
                     },
                     Y = new LinearAxis()
@@ -148,14 +151,17 @@ public partial class LineChartComp : ComponentBase
                             Display = true,
                             Color = "lightgrey",
                             LineWidth = 1,
-                            DrawBorder = true,
                             DrawOnChartArea = true,
                             TickLength = 8,
                             TickWidth = 1,
                             TickColor = "red",
                             Offset = false,
-                            BorderWidth = 1,
-                            BorderColor = "rgba(0,0,0,0.1)"
+                        },
+                        Border = new ChartJsAxisBorder()
+                        {
+                            Display = true,
+                            Width = 1,
+                            Color = "rgba(0,0,0,0.1)"
                         }
                     }
                 }
