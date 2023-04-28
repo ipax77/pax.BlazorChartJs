@@ -1,7 +1,7 @@
 [![Playwright Tests](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml/badge.svg)](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml) [TestPage](https://ipax77.github.io/pax.BlazorChartJs/)
 
 Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js)
- * **ChartJs v4.x support** (tested with ChartJs v4.2.0)
+ * **ChartJs v4.x support** (tested with ChartJs v4.3.0)
  
 # Getting started
 This library is using [JavaScript isolation](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/?view=aspnetcore-6.0#javascript-isolation-in-javascript-modules-1). JS isolation provides the following benefits:
@@ -136,7 +136,8 @@ Several chart functions are available in the ChartComponent, e.g.:
 <details open="open"><summary>v0.5.1</summary>
 
 >- Marked ChartJsGrid border options as obsolete for v4.x - use ChartJsAxisBorder instead.
-
+>- TimeSeriesAxis Min, Max, SuggestedMin and SuggestedMax are of type ```StringOrDoubleValue```, now.
+>- ChartJs v4.3.0 tests
 
 </details>
 

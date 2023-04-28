@@ -26,11 +26,12 @@ public static class ServiceCollectionExtensions
 public record ChartJsSetupOptions
 {
     /// <summary>
-    /// Optional chart.js Javascript location (e.g. cdn)
+    /// Chart.js Javascript location (default cdn.jsdelivr.net)
     /// </summary>
     public string ChartJsLocation { get; set; } = "https://cdn.jsdelivr.net/npm/chart.js";
     /// <summary>
-    /// Optional chartjs-plugin-datalabsle.js location (e.g. cdn)
+    /// chartjs-plugin-datalabsle.js location (default cdn.jsdelivr.net)
+    /// The plugin will only be loaded if it is set in the chart options.
     /// </summary>
     public string ChartJsPluginDatalabelsLocation { get; set; } = "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2";
 }
