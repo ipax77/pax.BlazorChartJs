@@ -7,7 +7,7 @@
  Release | ChartJs | Tests
  ---|---------------|---------------|
  <= 0.5.0 | **3.9.1** | 3.9.1
- &gt;= 0.5.0 | **4.x**   | 4.2.1
+ &gt;= 0.5.0 | **4.x**   | 4.3.0
  
  
 ## Getting started
@@ -148,6 +148,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 >- Marked ChartJsGrid border options as obsolete for v4.x - use ChartJsAxisBorder instead.
 >- TimeSeriesAxis Min, Max, SuggestedMin and SuggestedMax are of type ```StringOrDoubleValue```, now.
+>- Microsoft.AspNetCore.Components.Web upgrade to v6.0.16
 >- ChartJs v4.3.0 tests
 
 </details>
