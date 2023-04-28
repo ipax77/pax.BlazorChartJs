@@ -133,7 +133,14 @@ Several chart functions are available in the ChartComponent, e.g.:
 
 ## ChangeLog
 
-<details open="open"><summary>v0.5.0</summary>
+<details open="open"><summary>v0.5.1</summary>
+
+>- Marked ChartJsGrid border options as obsolete for v4.x - use ChartJsAxisBorder instead.
+
+
+</details>
+
+<details><summary>v0.5.0</summary>
 
 >- **Breaking Changes**
 >- Update to [ChartJs v4.x](https://www.chartjs.org/docs/latest/migration/v4-migration.html)
