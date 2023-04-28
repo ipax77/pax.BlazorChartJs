@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Components.Forms;
 @using pax.BlazorChartJs
 @using Microsoft.JSInterop
 
@@ -5,6 +6,25 @@
 @implements IDisposable
 
 <h3>TimeChart</h3>
+
+<div>
+    <EditForm EditContext="editContext">
+        <div class="row">
+            <div class="col-auto">
+                <label class="col-form-label">
+                    StartDate
+                    <InputDate id="inputstartdate" class="form-control" @bind-Value="timeOptions.Start" />
+                </label>
+            </div>
+            <div class="col-auto">
+                <label class="col-form-label">
+                    EndDate
+                    <InputDate class="form-control" @bind-Value="timeOptions.End" />
+                </label>
+            </div>
+        </div>
+    </EditForm>
+</div>
 
 <div class="w-75">
     <ChartComponent @ref="chartComponent" ChartJsConfig="chartConfig" OnEventTriggered="EventTriggered"></ChartComponent>
@@ -16,8 +36,17 @@
     public ChartComponent? chartComponent;
     private bool isRegistered = false;
 
+    EditContext editContext = null!;
+    TimeOptions timeOptions = new();
+
+    DateTime startDate = new DateTime(2022, 09, 07);
+    DateTime enddate = new DateTime(2022, 10, 01);
+
     protected override void OnInitialized()
     {
+        editContext = new(timeOptions);
+        editContext.OnFieldChanged += FieldChanged;
+
         moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
         "import", "./_content/pax.BlazorChartJs.samplelib/timeChart.js").AsTask());
 
@@ -89,6 +118,32 @@
         }
     }
 
+    private void FieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        if (timeOptions.Start < startDate)
+        {
+            return;
+        }
+
+        if (timeOptions.End > enddate)
+        {
+            return;
+        }
+
+        if (timeOptions.Start > timeOptions.End)
+        {
+            timeOptions.End = timeOptions.Start.AddDays(1);
+        }
+
+        if (chartConfig.Options?.Scales?.X != null
+            && chartConfig.Options?.Scales?.X is TimeCartesianAxis timeAxis)
+        {
+            timeAxis.Min = timeOptions.Start.ToString("yyyy-MM-dd");
+            timeAxis.Max = timeOptions.End.ToString("yyyy-MM-dd");
+            chartConfig.UpdateChartOptions();
+        }
+    }
+
     public void Dispose()
     {
         if (moduleTask != null && moduleTask.IsValueCreated)
@@ -96,5 +151,12 @@
             var module = moduleTask.Value.GetAwaiter().GetResult();
             module.DisposeAsync();
         }
+        editContext.OnFieldChanged -= FieldChanged;
+    }
+
+    public record TimeOptions
+    {
+        public DateTime Start { get; set; } = new DateTime(2022, 09, 07);
+        public DateTime End { get; set; } = new DateTime(2022, 10, 01);
     }
 }
