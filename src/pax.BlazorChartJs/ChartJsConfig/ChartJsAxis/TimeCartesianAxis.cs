@@ -1,4 +1,3 @@
-
 namespace pax.BlazorChartJs;
 
 /// <summary>
@@ -9,4 +8,8 @@ public record TimeCartesianAxis : LinearAxis
     public bool? OffsetAfterAutoskip { get; set; }
     public new TimeCartesianAxisTicks? Ticks { get; set; }
     public TimeCartesianAxisTime? Time { get; set; }
+    public new StringOrDoubleValue? Min { get; set; }
+    public new StringOrDoubleValue? Max { get; set; }
+    public new StringOrDoubleValue? SuggestedMin { get; set; }
+    public new StringOrDoubleValue? SuggestedMax { get; set; }
 }

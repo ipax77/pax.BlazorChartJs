@@ -64,6 +64,21 @@ internal class IndexableOptionBoolConverter : JsonConverter<IndexableOption<bool
     }
 }
 
+internal class StringOrDoubleValueConverter : JsonConverter<StringOrDoubleValue>
+{
+    public override StringOrDoubleValue? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+     => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, StringOrDoubleValue? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
+    }
+
+}
 
 internal class IndexableOptionObjectConverter : JsonConverter<IndexableOption<object>?>
 {
@@ -104,6 +119,7 @@ internal class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset?>
                     new IndexableOptionIntConverter(),
                     new IndexableOptionBoolConverter(),
                     new IndexableOptionObjectConverter(),
+                    new StringOrDoubleValueConverter()
                 }
         }), true);
     }
@@ -135,6 +151,7 @@ internal class ChartJsAxisJsonConverter : JsonConverter<ChartJsAxis?>
                     new IndexableOptionBoolConverter(),
                     new IndexableOptionObjectConverter(),
                     new ChartJsAxisTickJsonConverter(),
+                    new StringOrDoubleValueConverter()
                 }
         }), true);
     }
