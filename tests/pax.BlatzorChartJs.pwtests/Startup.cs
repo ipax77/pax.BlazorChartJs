@@ -44,7 +44,7 @@ public static class Startup
             .AddJsonFile($"appsettings.{environment}.json", true, false)
             .Build();
 
-        sampleBaseUrl = configuration["SampleBaseUrl"];
+        sampleBaseUrl = configuration["SampleBaseUrl"] ?? "";
         
         if (int.TryParse(configuration["WasmLoadDelay"], out int wasmMs))
         {
