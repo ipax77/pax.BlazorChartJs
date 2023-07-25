@@ -20,8 +20,12 @@
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
 </div>
 
-<div class="w-75">
-    <ChartComponent @ref="chartComponent" OnEventTriggered="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
+<div class="chart-container w-75">
+    <ChartComponent @ref="chartComponent"
+        OnEventTriggered="ChartEventTriggered"
+        ChartJsConfig="chartJsConfig"
+    />
+    <p id="chartVersion">ChartJs v@(chartVersion)</p>
 </div>
 
 <div>
@@ -53,6 +57,7 @@
     private string? imageString;
     private string? canvasInfo;
     private Lazy<Task<IJSObjectReference>> moduleTask = null!;
+    private string chartVersion = "unknown";
 
     protected override void OnInitialized()
     {
@@ -127,7 +132,6 @@
         base.OnInitialized();
     }
 
-
     private void ShowChart()
     {
         chartJsConfig.ReinitializeChart();
@@ -149,12 +153,23 @@
         chartJsConfig.ReinitializeChart();
     }
 
-    private void LabelClicked(ChartJsEvent chartJsEvent)
+    private void ChartEventTriggered(ChartJsEvent chartJsEvent)
     {
-        if (chartJsEvent is ChartJsLabelClickEvent labelClickEvent)
+        if (chartJsEvent is ChartJsInitEvent initEvent)
+        {
+            SetChartVersion();
+        }
+
+        else if (chartJsEvent is ChartJsLabelClickEvent labelClickEvent)
         {
             labelClicked = labelClickEvent.Label;
         }
+    }
+
+    private async void SetChartVersion()
+    {
+        chartVersion = await jsRuntime.InvokeAsync<string>("getChartVersion");
+        await InvokeAsync(() => StateHasChanged());
     }
 
     private async Task MakeImage()
