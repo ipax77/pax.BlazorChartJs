@@ -7,7 +7,7 @@
  Release | ChartJs | Tests
  ---|---------------|---------------|
  <= 0.5.0 | **3.9.1** | 3.9.1
- &gt;= 0.5.0 | **4.x**   | 4.3.1
+ &gt;= 0.5.0 | **4.x**   | 4.3.3
  
  
 ## Getting started
@@ -151,6 +151,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 >- Microsoft.AspNetCore.Components.Web upgrade to v6.0.16
 >- ChartJs v4.3.0 tests
 >- ChartJs v4.3.1 tests
+>- ChartJs v4.3.3 tests
 
 </details>
 
