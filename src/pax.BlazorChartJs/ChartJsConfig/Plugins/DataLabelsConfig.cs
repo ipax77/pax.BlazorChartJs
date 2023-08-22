@@ -28,6 +28,5 @@ public record DataLabelsConfig
     public double? TextStrokeWidth { get; set; }
     public double? TextShadowBlur { get; set; }
     public string? TextShadowColor { get; set; }
-    public DataLabelsConfig? Datalabels { get; set; }
 }
 
