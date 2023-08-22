@@ -1,0 +1,316 @@
+@using Microsoft.JSInterop
+@using pax.BlazorChartJs
+@inject IJSRuntime jsRuntime
+
+<h3>BarChartPage</h3>
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="ShowChart">ShowChart</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowDataLabels">ShowLabels</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowDataLabelsPerDataset">ShowLabels per Dataset</button>
+</div>
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="AddData">Add Data</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataset">Remove Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
+</div>
+
+<div class="chart-container w-75">
+    <ChartComponent @ref="chartComponent" OnEventTriggered="ChartEventTriggered" ChartJsConfig="chartJsConfig" />
+    <p id="chartVersion">ChartJs v@(chartVersion)</p>
+</div>
+
+<div>
+    @if (!String.IsNullOrEmpty(labelClicked))
+    {
+        <p>
+            Label clicked: @labelClicked
+        </p>
+    }
+</div>
+
+@code {
+    ChartComponent? chartComponent;
+    IconsChartJsConfig chartJsConfig = null!;
+    private string? labelClicked;
+    private Lazy<Task<IJSObjectReference>> moduleTask = null!;
+    private string chartVersion = "unknown";
+
+    protected override void OnInitialized()
+    {
+        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+        "import", "./_content/pax.BlazorChartJs.samplelib/customPlugin.js").AsTask());
+
+        chartJsConfig = new()
+            {
+                Type = ChartType.bar,
+                Data = new ChartJsData()
+                {
+                    Labels = new List<string>()
+{
+"Red", "Blue", "Yellow", "Green", "Purple", "Orange"
+},
+                    Datasets = new List<ChartJsDataset>()
+{
+new BarDataset()
+{
+Label = "# of Votes",
+Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
+BackgroundColor = new IndexableOption<string>(new List<string>()
+{
+"rgba(255, 99, 132, 0.2)",
+"rgba(54, 162, 235, 0.2)",
+"rgba(255, 206, 86, 0.2)",
+"rgba(75, 192, 192, 0.2)",
+"rgba(153, 102, 255, 0.2)",
+"rgba(255, 159, 64, 0.2)",
+}),
+BorderColor = new IndexableOption<string>(new List<string>()
+{
+"rgba(255, 99, 132, 1)",
+"rgba(54, 162, 235, 1)",
+"rgba(255, 206, 86, 1)",
+"rgba(75, 192, 192, 1)",
+"rgba(153, 102, 255, 1)",
+"rgba(255, 159, 64, 1)",
+}),
+BorderWidth = new IndexableOption<double>(1)
+}
+}
+                },
+                Options = new()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = true,
+                    OnClickEvent = true,
+                    Plugins = new()
+                    {
+                        Title = new Title()
+                        {
+                            Display = true,
+                            Text = new IndexableOption<string>(new List<string>() { "BarChart", "testing" }),
+                        },
+
+                    },
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        Y = new LinearAxis()
+                        {
+                            Title = new Title()
+                            {
+                                Display = true,
+                                Text = new IndexableOption<string>(new List<string>() { "$ y-axis title test", "€ y-axis title test" })
+                            },
+                            SuggestedMax = 25
+                        }
+                    }
+                }
+            };
+        base.OnInitialized();
+    }
+
+    private void ShowChart()
+    {
+        chartJsConfig.ReinitializeChart();
+    }
+
+    private void ChartEventTriggered(ChartJsEvent chartJsEvent)
+    {
+        if (chartJsEvent is ChartJsInitEvent initEvent)
+        {
+            SetChartVersion();
+        }
+
+        else if (chartJsEvent is ChartJsLabelClickEvent labelClickEvent)
+        {
+            labelClicked = labelClickEvent.Label;
+        }
+    }
+
+    private async void SetChartVersion()
+    {
+        chartVersion = await jsRuntime.InvokeAsync<string>("getChartVersion");
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    private void ShowDataLabels()
+    {
+        if (chartJsConfig.Options == null)
+        {
+            chartJsConfig.Options = new();
+        }
+
+        if (chartJsConfig.Options.Plugins == null)
+        {
+            chartJsConfig.Options.Plugins = new();
+        }
+
+        chartJsConfig.Options.Plugins.Datalabels = new DataLabelsConfig()
+            {
+                Display = "auto",
+                Color = "#0a050c",
+                BackgroundColor = "#cdc7ce",
+                BorderColor = "#491756",
+                BorderRadius = 4,
+                BorderWidth = 1,
+                Anchor = "end",
+                Align = "start",
+                Clip = true
+            };
+
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
+            dataset.Datalabels = null;
+        }
+
+        chartJsConfig.ReinitializeChart();
+    }
+
+    private void ShowDataLabelsPerDataset()
+    {
+        if (chartJsConfig.Options == null)
+        {
+            chartJsConfig.Options = new();
+        }
+
+        if (chartJsConfig.Options.Plugins == null)
+        {
+            chartJsConfig.Options.Plugins = new();
+        }
+
+        chartJsConfig.Options.Plugins.Datalabels = new DataLabelsConfig()
+            {
+                Display = "auto",
+                Color = "#0a050c",
+                BackgroundColor = "#cdc7ce",
+                BorderColor = "#491756",
+                BorderRadius = 4,
+                BorderWidth = 1,
+                Anchor = "end",
+                Align = "start",
+                Clip = true
+            };
+
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
+            dataset.Datalabels = GetDataLabelsConfig(i);
+        }
+
+        chartJsConfig.ReinitializeChart();
+    }
+
+    public DataLabelsConfig GetDataLabelsConfig(int i)
+    {
+        DataLabelsConfig dataLabelsConfig = new DataLabelsConfig()
+            {
+                Display = "auto",
+                BorderRadius = 4,
+                BorderWidth = 1,
+                Anchor = "end",
+                Align = "start",
+                Clip = true
+            };
+
+        string[] colors = new string[] { "#0000ff", "#e61234", "#71ac49", "#003030", "#d47fff" };
+
+        if (i >= 0 && i < colors.Length)
+        {
+            dataLabelsConfig.Color = colors[i];
+            dataLabelsConfig.BackgroundColor = colors[i] + "33";
+            dataLabelsConfig.BorderColor = colors[i];
+        }
+        else
+        {
+            // Provide a default color or handle out-of-range values as needed
+            dataLabelsConfig.Color = "#999999";
+            dataLabelsConfig.BackgroundColor = "#dddddd";
+            dataLabelsConfig.BorderColor = "#777777";
+        }
+
+        return dataLabelsConfig;
+    }
+
+    private void AddData()
+    {
+        var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
+
+        Dictionary<ChartJsDataset, AddDataObject> datas = new();
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            ChartJsDataset dataset = chartJsConfig.Data.Datasets[i];
+            datas.Add(dataset,
+            new AddDataObject(dataAddEventArgs.Data[i],
+            null,
+            dataAddEventArgs.BackgroundColors?[i],
+            dataAddEventArgs.BorderColors?[i]));
+        }
+        chartJsConfig.AddData(dataAddEventArgs.Label, null, datas);
+    }
+
+    private void Randomize()
+    {
+        var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count,
+        chartJsConfig.Data.Labels.Count, -100, 100);
+
+        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
+
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            var dataset = chartJsConfig.Data.Datasets.ElementAt(i);
+            var dataList = data.ElementAt(i);
+            chartData.Add(dataset, new SetDataObject(dataList));
+        }
+        chartJsConfig.SetData(chartData);
+    }
+
+    private void AddDataset()
+    {
+        var dataset = ChartUtils
+        .GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value,
+        chartJsConfig.Data.Datasets.Count + 1,
+        chartJsConfig.Data.Labels.Count);
+        chartJsConfig.AddDataset(dataset);
+    }
+
+    private void RemoveLastDataset()
+    {
+        if (chartJsConfig.Data.Datasets.Any())
+        {
+            chartJsConfig.RemoveDataset(chartJsConfig.Data.Datasets.Last());
+        }
+    }
+
+    private void RemoveLastDataFromDatasets()
+    {
+        chartJsConfig.RemoveData();
+    }
+
+    public class IconsChartJsConfig : ChartJsConfig
+    {
+        public new IconsChartJsOptions? Options { get; set; }
+    }
+
+    public record IconsChartJsOptions : ChartJsOptions
+    {
+        public new IconsPlugins? Plugins { get; set; }
+    }
+
+    public record IconsPlugins : Plugins
+    {
+        public ICollection<ChartIconsConfig>? BarIcons { get; set; }
+    }
+
+    public record ChartIconsConfig
+    {
+        public int XWidth { get; set; }
+        public int YWidth { get; set; }
+        public int YOffset { get; set; }
+        public string ImageSrc { get; set; } = null!;
+        public string? Cmdr { get; set; }
+    }
+}
