@@ -22,5 +22,10 @@ public record ChartJsDataset
     /// </summary>  
     public object? SpanGaps { get; set; }
     public bool? Hidden { get; set; }
+    /// <summary>
+    /// DataLabelsConfig per Dataset <see href="https://chartjs-plugin-datalabels.netlify.app/guide/">ChartJs datalabels plugin</see>
+    /// </summary>
+    public DataLabelsConfig? Datalabels { get; set; }
+
 }
 #pragma warning restore CA2227
