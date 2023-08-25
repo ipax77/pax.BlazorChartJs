@@ -4,7 +4,7 @@ namespace pax.BlazorChartJs;
 /// <summary>
 /// AngelLines <see href="https://www.chartjs.org/docs/latest/axes/radial/linear.html#angle-line-options">ChartJs Docs</see>
 /// </summary>
-public record AngelLines
+public record AngleLines
 {
     public bool? Display { get; set; }
     public object? Color { get; set; }

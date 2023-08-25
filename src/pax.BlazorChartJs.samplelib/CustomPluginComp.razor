@@ -76,7 +76,7 @@
         if (moduleTask != null)
         {
             var module = await moduleTask.Value.ConfigureAwait(false);
-            await module.InvokeVoidAsync("regsisterPlugin")
+            await module.InvokeVoidAsync("registerPlugin")
                 .ConfigureAwait(false);
         }
     }
