@@ -7,7 +7,7 @@ namespace pax.BlazorChartJs;
 public record LinearRadialAxis : ChartJsAxis
 {
     public bool Animate { get; set; }
-    public AngelLines? AngelLines { get; set; }
+    public AngleLines? AngleLines { get; set; }
     public bool BeginAtZero { get; set; }
     public PointLabels? PointLabels { get; set; }
     public double? StartAngel { get; set; }
