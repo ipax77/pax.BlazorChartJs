@@ -144,7 +144,13 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.5.2</summary>
+<details open="open"><summary>v0.6.0</summary>
+
+>- Fix typo for AngleLines in LinearRadialAxis **Breaking Change**
+
+</details>
+
+<details><summary>v0.5.2</summary>
 
 >- Datalabels per dataset contributed by pjvinson
 >- ChartJs v4.4.0 tests
