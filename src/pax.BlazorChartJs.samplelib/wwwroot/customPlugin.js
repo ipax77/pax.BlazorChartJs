@@ -2,7 +2,7 @@
 
 const cmdrIconsMap = new Map();
 
-export async function regsisterPlugin() {
+export async function registerPlugin() {
     await import('./chartjs-plugin-annotation.min.js');
     Chart.register(annotationPlugin);
 };
