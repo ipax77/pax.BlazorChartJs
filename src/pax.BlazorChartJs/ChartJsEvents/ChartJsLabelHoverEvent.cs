@@ -6,5 +6,7 @@ public record ChartJsLabelHoverEvent : ChartJsEvent
     public object? Value { get; init; }
     public double DataX { get; init; }
     public double DataY { get; init; }
+    public string? DatasetLabel { get; init; }
+    public int? DatasetIndex { get; init; }
 }
 

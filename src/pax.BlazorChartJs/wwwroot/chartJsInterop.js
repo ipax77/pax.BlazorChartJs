@@ -81,6 +81,8 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
             let value = 0;
             let dataX = 0;
             let dataY = 0;
+            let datasetLabel = null;
+            let datasetIndex = null;
 
             const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
 
@@ -96,9 +98,11 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
             if (points.length) {
                 const firstPoint = points[0];
                 label = chart.data.labels[firstPoint.index];
-                value = chart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+                datasetIndex = firstPoint.datasetIndex;
+                value = chart.data.datasets[datasetIndex].data[firstPoint.index];
+                datasetLabel = chart.data.datasets[datasetIndex].label;
             }
-            triggerEvent(chartId, "click", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY });
+            triggerEvent(chartId, "click", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY, DatasetLabel: datasetLabel, DatasetIndex: datasetIndex });
         }
     }
 
@@ -109,6 +113,8 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
             let value = 0;
             let dataX = 0;
             let dataY = 0;
+            let datasetLabel = null;
+            let datasetIndex = null;
 
             const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
 
@@ -124,9 +130,11 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
             if (points.length) {
                 const firstPoint = points[0];
                 label = chart.data.labels[firstPoint.index];
-                value = chart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+                datasetIndex = firstPoint.datasetIndex;
+                value = chart.data.datasets[datasetIndex].data[firstPoint.index];
+                datasetLabel = chart.data.datasets[datasetIndex].label;
             }
-            triggerEvent(chartId, "hover", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY });
+            triggerEvent(chartId, "hover", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY, DatasetLabel: datasetLabel, DatasetIndex: datasetIndex });
         }
     }
 
