@@ -64,7 +64,7 @@ public partial class ChartJsConfig
     }
 
     /// <summary>
-    /// Updates the dataset and Chart
+    /// Updates the dataset and Chart. Be cautious when using this method, as it directly modifies the ChartJsConfig.Data.Datasets collection.
     /// </summary>
     public void UpdateDataset(ChartJsDataset dataset)
     {
