@@ -144,7 +144,14 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.6.0</summary>
+<details open="open"><summary>v0.6.1</summary>
+
+>- ChartJsLabelClickEvent and ChartJsLabelHoverEvent with 'nearest' DatasetLabel and DatasetIndex
+>- Microsoft.AspNetCore.Components.Web upgrade to v6.0.21
+
+</details>
+
+<details><summary>v0.6.0</summary>
 
 >- Fix typo for AngleLines in LinearRadialAxis **Breaking Change**
 
