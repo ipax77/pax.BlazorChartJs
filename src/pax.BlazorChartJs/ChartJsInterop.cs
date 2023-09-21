@@ -288,8 +288,15 @@ public class ChartJsInterop : IAsyncDisposable
 
     internal async ValueTask DisposeChart(Guid configGuid)
     {
-        var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("disposeChart", configGuid).ConfigureAwait(false);
+        try
+        {
+            var module = await moduleTask.Value.ConfigureAwait(false);
+            await module.InvokeVoidAsync("disposeChart", configGuid).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException)
+        {
+            // catch disposed exception for statically rendered components (e.g. RenderMode.Auto)
+        }
     }
 
     private JsonObject? SerializeConfig(ChartJsConfig config)
