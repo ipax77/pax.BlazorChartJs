@@ -15,7 +15,8 @@ This library is using [JavaScript isolation](https://learn.microsoft.com/en-us/a
 * Imported JS no longer pollutes the global namespace.
 * Consumers of a library and components aren't required to import the related JS.
 ## Prerequisites
-dotnet 6
+* dotnet 6/7 for versions < 0.8
+* dotnet 8 for versions >= 0.8
 ## Installation
 
 ```
@@ -143,6 +144,12 @@ Several chart functions are available in the ChartComponent, e.g.:
 We really like people helping us with the project. Nevertheless, take your time to read our contributing guidelines [here](https://github.com/ipax77/pax.BlazorChartJs/blob/master/CONTRIBUTING.md).
 
 ## ChangeLog
+
+<details open="open"><summary>v0.8.0-rc1.0</summary>
+
+>- dotnet 8.rc2
+
+</details>
 
 <details open="open"><summary>v0.6.1</summary>
 
