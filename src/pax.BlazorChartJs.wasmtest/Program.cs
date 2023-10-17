@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using pax.BlazorChartJs.wasmtest.Components;
 using pax.BlazorChartJs;
-using pax.BlazorChartJs.wasmtest;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
+
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 builder.Services.AddChartJs();
 
-await builder.Build().RunAsync().ConfigureAwait(false);
+await builder.Build().RunAsync();

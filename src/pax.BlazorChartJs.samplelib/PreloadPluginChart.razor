@@ -5,7 +5,9 @@
 
 @if (ChartConfig != null)
 {
-    <ChartComponent @ref="ChartComponent" ChartJsConfig="ChartConfig" OnEventTriggered="EventTriggered"></ChartComponent>
+    <div class="chart-container w-75">
+        <ChartComponent @ref="ChartComponent" ChartJsConfig="ChartConfig" OnEventTriggered="EventTriggered"></ChartComponent>
+    </div>
 }
 
 @code {

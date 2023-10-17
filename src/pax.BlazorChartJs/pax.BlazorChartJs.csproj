@@ -14,7 +14,7 @@
     <Authors>Philipp Hetzner</Authors>
     <Version>0.8.0</Version>
 	  <FileVersion>0.8.0.0</FileVersion>
-    <PackageVersion>0.8.0</PackageVersion>
+    <PackageVersion>0.8.0-rc1.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>    
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -45,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0-rc.1.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0-rc.2.*" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.2.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
