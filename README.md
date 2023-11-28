@@ -19,7 +19,7 @@ dotnet 6
 ## Installation
 
 ```
-dotnet add package pax.BlazorChartJs
+dotnet add package pax.BlazorChartJs --version 0.6.2
 ```
 
 Program.cs:
