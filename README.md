@@ -19,8 +19,14 @@ This library is using [JavaScript isolation](https://learn.microsoft.com/en-us/a
 * dotnet 8 for versions >= 0.8
 ## Installation
 
+**dotnet 8**
 ```
 dotnet add package pax.BlazorChartJs
+```
+
+**dotnet 6/7**
+```
+dotnet add package pax.BlazorChartJs --version 0.6.2
 ```
 
 Program.cs:
@@ -38,15 +44,16 @@ Program.cs:
 Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.samplelib) with
 [Sample Chart](https://ipax77.github.io/pax.BlazorChartJs/minchart)
 ```razor
+@using pax.BlazorChartJs
+
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
 </div>
-<div class="w-75 h-50">
-    <ChartComponent
-        @ref="chartComponent"
-        ChartJsConfig="chartJsConfig"
-        OnEventTriggered="ChartEventTriggered">
-    </ChartComponent>    
+<div class="chart-container w-75">
+    <ChartComponent @ref="chartComponent"
+                    ChartJsConfig="chartJsConfig"
+                    OnEventTriggered="ChartEventTriggered">
+    </ChartComponent>
 </div>
 
 @code {
@@ -57,21 +64,21 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
     protected override void OnInitialized()
     {
         chartJsConfig = new ChartJsConfig()
-        {
-            Type = ChartType.bar,
-            Data = new ChartJsData()
             {
-                Labels = new List<string>() { "Jan", "Feb", "Mar" },
-                Datasets = new List<ChartJsDataset>()
+                Type = ChartType.bar,
+                Data = new ChartJsData()
                 {
-                    new BarDataset()
+                    Labels = ["Jan", "Feb", "Mar"],
+                    Datasets = new List<ChartJsDataset>()
                     {
-                        Label = "Dataset 1",
-                        Data = new List<object>() { 1, 2, 3 }
+                        new BarDataset()
+                        {
+                            Label = "Dataset 1",
+                            Data = [ 1, 2, 3 ]
+                        }
                     }
                 }
-            }
-        };
+            };
         base.OnInitialized();
     }
 
@@ -90,7 +97,6 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
             return;
         }
 
-        Random random = new();
         Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 
         foreach (var dataset in chartJsConfig.Data.Datasets)
@@ -100,7 +106,7 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
                 List<object> newData = new();
                 foreach (var data in barDataset.Data)
                 {
-                    newData.Add(random.Next(1, 10));
+                    newData.Add(Random.Shared.Next(1, 10));
                 }
                 chartData[dataset] = new(newData);
             }
@@ -145,13 +151,63 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.8.0-rc1.0</summary>
+<details open="open"><summary>v0.8.0</summary>
 
->- dotnet 8.rc2
+>- dotnet 8 **Breaking Change**
+>- Added missing pie/doughnut dataset options (Cutout, Radius, Animation)
+>- The `IndexableOption` now supports implicit operators, allowing a more concise syntax for initialization.
+
+**New Syntax:**
+```csharp
+BorderColor = new List<string>()
+{
+    "rgba(255, 99, 132, 1)",
+    "rgba(54, 162, 235, 1)"
+},
+BorderWidth = 1
+```
+
+Old Syntax (still possible):
+```csharp
+BorderColor = new IndexableOption<string>(new List<string>()
+{
+    "rgba(255, 99, 132, 1)",
+    "rgba(54, 162, 235, 1)"
+}),
+BorderWidth = new IndexableOption<double>(1)
+```
 
 </details>
 
-<details open="open"><summary>v0.6.1</summary>
+<details><summary>v0.6.2</summary>
+
+>- Microsoft.AspNetCore.Components.Web upgrade to v6.0.25
+>- Added missing pie/doughnut dataset options (Cutout, Radius, Animation)
+>- The `IndexableOption` now supports implicit operators, allowing a more concise syntax for initialization.
+
+**New Syntax:**
+```csharp
+BorderColor = new List<string>()
+{
+    "rgba(255, 99, 132, 1)",
+    "rgba(54, 162, 235, 1)"
+},
+BorderWidth = 1
+```
+
+Old Syntax (still possible):
+```csharp
+BorderColor = new IndexableOption<string>(new List<string>()
+{
+    "rgba(255, 99, 132, 1)",
+    "rgba(54, 162, 235, 1)"
+}),
+BorderWidth = new IndexableOption<double>(1)
+```
+
+</details>
+
+<details><summary>v0.6.1</summary>
 
 >- ChartJsLabelClickEvent and ChartJsLabelHoverEvent with 'nearest' DatasetLabel and DatasetIndex
 >- Microsoft.AspNetCore.Components.Web upgrade to v6.0.21
