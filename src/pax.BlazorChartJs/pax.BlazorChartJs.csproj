@@ -9,12 +9,12 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ipax77/pax.BlazorChartJs</RepositoryUrl>
     <PackageTags>blazor;dotnet;wrapper;chartjs</PackageTags>
-    <AssemblyVersion>0.6.2.0</AssemblyVersion>
+    <AssemblyVersion>0.6.3.0</AssemblyVersion>
     <Owners>Philipp Hetzner</Owners>
     <Authors>Philipp Hetzner</Authors>
-    <Version>0.6.2</Version>
-	  <FileVersion>0.6.2.0</FileVersion>
-    <PackageVersion>0.6.2</PackageVersion>
+    <Version>0.6.3</Version>
+	  <FileVersion>0.6.3.0</FileVersion>
+    <PackageVersion>0.6.3</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>    
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -46,7 +46,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.25" />
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.3.2">
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.2.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
