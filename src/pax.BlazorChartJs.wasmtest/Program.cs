@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using pax.BlazorChartJs.wasmtest.Components;
 using pax.BlazorChartJs;
+using pax.BlazorChartJs.wasmtest.Components;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");

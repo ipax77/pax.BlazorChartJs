@@ -37,16 +37,13 @@
                 Type = ChartType.bar,
                 Data = new ChartJsData()
                 {
-                    Labels = new List<string>()
-                    {
-                        "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
-                    },
+                    Labels = [ "Red", "Blue", "Yellow", "Green", "Purple", "Orange" ],
                     Datasets = new List<ChartJsDataset>()
                     {
                         new BarDataset()
                         {
                             Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
-                            BackgroundColor = new IndexableOption<string>(new List<string>()
+                            BackgroundColor = new List<string>()
                             {
                                 "rgba(255, 99, 132, 0.2)",
                                 "rgba(54, 162, 235, 0.2)",
@@ -54,8 +51,8 @@
                                 "rgba(75, 192, 192, 0.2)",
                                 "rgba(153, 102, 255, 0.2)",
                                 "rgba(255, 159, 64, 0.2)",
-                            }),
-                            BorderColor = new IndexableOption<string>(new List<string>()
+                            },
+                            BorderColor = new List<string>()
                             {
                                 "rgba(255, 99, 132, 1)",
                                 "rgba(54, 162, 235, 1)",
@@ -63,8 +60,8 @@
                                 "rgba(75, 192, 192, 1)",
                                 "rgba(153, 102, 255, 1)",
                                 "rgba(255, 159, 64, 1)",
-                            }),
-                            BorderWidth = new IndexableOption<double>(1)
+                            },
+                            BorderWidth = 1
                         }
                     }
                 },

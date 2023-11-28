@@ -36,14 +36,14 @@ public record ChartJsAxis
 public record ChartJsAxisBorder
 {
     public bool? Display { get; set; }
-    public string? Color { get; set; }    
+    public string? Color { get; set; }
     public double? Width { get; set; }
-    #pragma warning disable CA2227
+#pragma warning disable CA2227
     /// <summary>
     /// Length and spacing of dashes on grid lines. <see  href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash">MDN</see>
     /// </summary>   
     public ICollection<double>? Dash { get; set; }
-    #pragma warning restore CA2227
+#pragma warning restore CA2227
     /// <summary>
     /// Offset for line dashes. <see  href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset">MDN</see>
     /// </summary>   
