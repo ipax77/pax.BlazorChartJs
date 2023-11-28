@@ -1,9 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace pax.BlazorChartJs.samplelib;
 
@@ -34,11 +29,11 @@ public partial class LineChartComp : ComponentBase
                         BorderColor = "lightblue",
                         BorderWidth = 5,
                         Fill = false,
-                        PointBackgroundColor = new IndexableOption<string>("blue"),
-                        PointBorderColor = new IndexableOption<string>("blue"),
-                        PointRadius = new IndexableOption<double>(6),
-                        PointBorderWidth = new IndexableOption<double>(6),
-                        PointHitRadius = new IndexableOption<double>(6),
+                        PointBackgroundColor = "blue",
+                        PointBorderColor = "blue",
+                        PointRadius = 6,
+                        PointBorderWidth = 6,
+                        PointHitRadius = 6,
                         Tension = 0
                     },
                     new LineDataset()
@@ -49,11 +44,11 @@ public partial class LineChartComp : ComponentBase
                         BorderColor = "lightgreen",
                         BorderWidth = 5,
                         Fill = false,
-                        PointBackgroundColor = new IndexableOption<string>("green"),
-                        PointBorderColor = new IndexableOption<string>("green"),
-                        PointRadius = new IndexableOption<double>(6),
-                        PointBorderWidth = new IndexableOption<double>(6),
-                        PointHitRadius = new IndexableOption<double>(6),
+                        PointBackgroundColor = "green",
+                        PointBorderColor = "green",
+                        PointRadius = 6,
+                        PointBorderWidth = 6,
+                        PointHitRadius = 6,
                         Tension = 0
                     }
                 }

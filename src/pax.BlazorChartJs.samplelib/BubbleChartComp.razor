@@ -10,7 +10,7 @@
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
 </div>
 
-<div class="w-75">
+<div class="chart-container w-75">
     <ChartComponent @ref="chartComponent" OnEventTriggered="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
 </div>
 
@@ -74,7 +74,7 @@
                                     R = 12
                                 },
                             },
-                            BackgroundColor = new IndexableOption<string>("rgb(255, 99, 132)")
+                            BackgroundColor = "rgb(255, 99, 132)"
                         }
                     }
                 },

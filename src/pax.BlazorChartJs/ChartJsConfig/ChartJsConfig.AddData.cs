@@ -16,7 +16,7 @@ public partial class ChartJsConfig
         // var backgroundColors = backgroundColor == null ? null : new List<string> { backgroundColor };
         // var borderColors = borderColor == null ? null : new List<string> { borderColor };
         // AddData(label, new List<object>() { data }, backgroundColors, borderColors, atPosition);
-        AddData(label, atPosition, new Dictionary<ChartJsDataset, AddDataObject>() 
+        AddData(label, atPosition, new Dictionary<ChartJsDataset, AddDataObject>()
             {
                 { Data.Datasets.First(), new AddDataObject(data, atPosition, backgroundColor, borderColor)}
             });

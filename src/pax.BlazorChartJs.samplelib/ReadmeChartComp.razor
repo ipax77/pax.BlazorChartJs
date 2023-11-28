@@ -3,12 +3,11 @@
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
 </div>
-<div class="w-75 h-50">
-    <ChartComponent
-        @ref="chartComponent"
-        ChartJsConfig="chartJsConfig"
-        OnEventTriggered="ChartEventTriggered">
-    </ChartComponent>    
+<div class="chart-container w-75">
+    <ChartComponent @ref="chartComponent"
+                    ChartJsConfig="chartJsConfig"
+                    OnEventTriggered="ChartEventTriggered">
+    </ChartComponent>
 </div>
 
 @code {
@@ -19,21 +18,21 @@
     protected override void OnInitialized()
     {
         chartJsConfig = new ChartJsConfig()
-        {
-            Type = ChartType.bar,
-            Data = new ChartJsData()
             {
-                Labels = new List<string>() { "Jan", "Feb", "Mar" },
-                Datasets = new List<ChartJsDataset>()
+                Type = ChartType.bar,
+                Data = new ChartJsData()
                 {
-                    new BarDataset()
+                    Labels = ["Jan", "Feb", "Mar"],
+                    Datasets = new List<ChartJsDataset>()
                     {
-                        Label = "Dataset 1",
-                        Data = new List<object>() { 1, 2, 3 }
+                        new BarDataset()
+                        {
+                            Label = "Dataset 1",
+                            Data = [ 1, 2, 3 ]
+                        }
                     }
                 }
-            }
-        };
+            };
         base.OnInitialized();
     }
 
@@ -52,7 +51,6 @@
             return;
         }
 
-        Random random = new();
         Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 
         foreach (var dataset in chartJsConfig.Data.Datasets)
@@ -62,7 +60,7 @@
                 List<object> newData = new();
                 foreach (var data in barDataset.Data)
                 {
-                    newData.Add(random.Next(1, 10));
+                    newData.Add(Random.Shared.Next(1, 10));
                 }
                 chartData[dataset] = new(newData);
             }

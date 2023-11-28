@@ -6,7 +6,7 @@ namespace pax.BlazorChartJs;
 /// <typeparam name="T">The type of data this <see cref="IndexableOption{T}"/> is supposed to hold.</typeparam>
 public class IndexableOption<T>
 {
-    private IList<T>? _indexedValues;
+    private List<T>? _indexedValues;
 
     /// <summary>
     /// The indexed values represented by this instance.
@@ -58,6 +58,10 @@ public class IndexableOption<T>
         IsIndexed = true;
     }
 
+    public IndexableOption(ICollection<T> value)
+    {
+    }
+
     public int Count => _indexedValues == null ? 0 : _indexedValues.Count;
 
     public void Insert(int index, T item)
@@ -79,6 +83,18 @@ public class IndexableOption<T>
     {
         _indexedValues?.Remove(item);
     }
+
+    public IndexableOption<T> FromT(T value)
+        => new(value);
+
+    public static implicit operator IndexableOption<T>(T value)
+        => new(value);
+
+    public IndexableOption<T> FromListT(List<T> value)
+        => new(value);
+
+    public static implicit operator IndexableOption<T>(List<T> value)
+        => new(value);
 
     internal object GetJsonObject()
     {
