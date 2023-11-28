@@ -144,7 +144,42 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.6.1</summary>
+<details open="open"><summary>v0.6.3</summary>
+
+>- Reverted Microsoft.TypeScript.MSBuild to v5.2.2
+Microsoft.TypeScript.MSBuild v5.3.2 not working for Blazor projects (only working for wasm)
+
+</details>
+
+<details><summary>v0.6.2</summary>
+
+>- Microsoft.AspNetCore.Components.Web upgrade to v6.0.25
+>- Added missing pie/doughnut dataset options (Cutout, Radius, Animation)
+>- The `IndexableOption` now supports implicit operators, allowing a more concise syntax for initialization.
+
+**New Syntax:**
+```csharp
+BorderColor = new List<string>()
+{
+    "rgba(255, 99, 132, 1)",
+    "rgba(54, 162, 235, 1)"
+},
+BorderWidth = 1
+```
+
+Old Syntax (still possible):
+```csharp
+BorderColor = new IndexableOption<string>(new List<string>()
+{
+    "rgba(255, 99, 132, 1)",
+    "rgba(54, 162, 235, 1)"
+}),
+BorderWidth = new IndexableOption<double>(1)
+```
+
+</details>
+
+<details><summary>v0.6.1</summary>
 
 >- ChartJsLabelClickEvent and ChartJsLabelHoverEvent with 'nearest' DatasetLabel and DatasetIndex
 >- Microsoft.AspNetCore.Components.Web upgrade to v6.0.21
