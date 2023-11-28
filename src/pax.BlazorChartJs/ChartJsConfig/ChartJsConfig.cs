@@ -81,7 +81,7 @@ public partial class ChartJsConfig
     {
         EventHandler<DatasetsSetEventArgs>? handler = DatasetsSet;
         handler?.Invoke(this, e);
-    }        
+    }
 
     internal virtual void OnDataAdd(DataAddEventArgs e)
     {

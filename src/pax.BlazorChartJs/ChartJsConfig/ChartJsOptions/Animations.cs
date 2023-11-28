@@ -5,7 +5,7 @@ public record Animations
     /// <summary>
     /// The property names this configuration applies to. Defaults to the key name of this object.
     /// </summary>
-#pragma warning disable CA2227    
+#pragma warning disable CA2227
     public IList<string>? Properties { get; set; }
 #pragma warning restore CA2227    
     /// <summary>

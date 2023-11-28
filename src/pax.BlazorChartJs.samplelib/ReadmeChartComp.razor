@@ -4,11 +4,10 @@
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
 </div>
 <div class="chart-container w-75">
-    <ChartComponent
-        @ref="chartComponent"
-        ChartJsConfig="chartJsConfig"
-        OnEventTriggered="ChartEventTriggered">
-    </ChartComponent>    
+    <ChartComponent @ref="chartComponent"
+                    ChartJsConfig="chartJsConfig"
+                    OnEventTriggered="ChartEventTriggered">
+    </ChartComponent>
 </div>
 
 @code {
@@ -19,21 +18,21 @@
     protected override void OnInitialized()
     {
         chartJsConfig = new ChartJsConfig()
-        {
-            Type = ChartType.bar,
-            Data = new ChartJsData()
             {
-                Labels = new List<string>() { "Jan", "Feb", "Mar" },
-                Datasets = new List<ChartJsDataset>()
+                Type = ChartType.bar,
+                Data = new ChartJsData()
+                {
+                    Labels = ["Jan", "Feb", "Mar"],
+                    Datasets = new List<ChartJsDataset>()
                 {
                     new BarDataset()
                     {
                         Label = "Dataset 1",
-                        Data = new List<object>() { 1, 2, 3 }
+                        Data = [ 1, 2, 3 ]
                     }
                 }
-            }
-        };
+                }
+            };
         base.OnInitialized();
     }
 
