@@ -151,7 +151,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.8.0</summary>
+<details open="open"><summary>v0.8.1</summary>
 
 >- dotnet 8 **Breaking Change**
 >- Added missing pie/doughnut dataset options (Cutout, Radius, Animation)
