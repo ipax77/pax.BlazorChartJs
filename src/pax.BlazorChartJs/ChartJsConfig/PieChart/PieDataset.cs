@@ -75,6 +75,27 @@ public record PieDataset : ChartJsDataset
     public double? Rotation { get; set; }
     public double? Spacing { get; set; }
     public double? Weight { get; set; }
+    /// <summary>
+    /// The portion of the chart that is cut out of the middle. If string and ending with '%', percentage of the chart radius. number is considered to be pixels.
+    /// </summary>  
+    public StringOrDoubleValue? Cutout { get; set; }
+    /// <summary>
+    /// The outer radius of the chart. If string and ending with '%', percentage of the maximum radius. number is considered to be pixels.
+    /// </summary>  
+    public StringOrDoubleValue? Radius { get; set; }
+    public PieDatasetAnimation? Animation { get; set; }
+}
+
+public record PieDatasetAnimation
+{
+    /// <summary>
+    /// If true, the chart will animate in with a rotation animation. This property is in the options.animation object.
+    /// </summary>  
+    public bool? AnimateRotate { get; set; }
+    /// <summary>
+    /// If true, will animate scaling the chart from the center outwards.
+    /// </summary>  
+    public bool? AnimateScale { get; set; }
 }
 
 public record DoughnutDataset : PieDataset
