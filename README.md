@@ -26,7 +26,7 @@ dotnet add package pax.BlazorChartJs
 
 **dotnet 6/7**
 ```
-dotnet add package pax.BlazorChartJs --version 0.6.2
+dotnet add package pax.BlazorChartJs --version 0.6.3
 ```
 
 Program.cs:
@@ -176,6 +176,13 @@ BorderColor = new IndexableOption<string>(new List<string>()
 }),
 BorderWidth = new IndexableOption<double>(1)
 ```
+
+</details>
+
+<details open="open"><summary>v0.6.3</summary>
+
+>- Reverted Microsoft.TypeScript.MSBuild to v5.2.2
+Microsoft.TypeScript.MSBuild v5.3.2 not working for Blazor projects (only working for wasm)
 
 </details>
 
