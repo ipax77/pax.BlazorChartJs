@@ -31,7 +31,13 @@ public class ChartEventsTests : PageTest
             Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
         }
         );
-
+        await Task.Delay(Startup.ChartJsLoadDelay);
+        await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
+            {
+                Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
+            }
+        );
+        await Task.Delay(Startup.ChartJsComputeDelay);
         var clickResult = Page.Locator("p");
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"ChartJsLabelClickEvent"));
     }
@@ -53,23 +59,32 @@ public class ChartEventsTests : PageTest
         // wait for ChartJs to load and finish animation
         await Task.Delay(Startup.ChartJsLoadDelay);
 
-        var clickResult = Page.Locator("p");
-        var textPrev = await clickResult.AllInnerTextsAsync();
+
 
         var removeEvents = Page.GetByText("RemoveEvents");
         await removeEvents.ClickAsync();
 
         // wait for ChartJs
-        await Task.Delay(Startup.ChartJsComputeDelay);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
         {
             Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
         }
         );
-
+        var clickResult = Page.Locator("p");
+        var textPrev = await clickResult.AllInnerTextsAsync();
+        
         // wait for ChartJs
-        await Task.Delay(Startup.ChartJsComputeDelay);
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
+        {
+            Position = new Microsoft.Playwright.Position() { X = 110, Y = 110 }
+        }
+        );
+        // wait for ChartJs
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         var textAfter = await clickResult.AllInnerTextsAsync();
 
@@ -92,6 +107,7 @@ public class ChartEventsTests : PageTest
 
         // wait for ChartJs to load and finish animation
         await Task.Delay(Startup.ChartJsLoadDelay);
+        await Task.Delay(Startup.ChartJsLoadDelay);
 
         var clickResult = Page.Locator("p");
         var textPrev = await clickResult.AllInnerTextsAsync();
@@ -105,9 +121,9 @@ public class ChartEventsTests : PageTest
         await Task.Delay(Startup.ChartJsComputeDelay);
 
         await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
-            {
-                Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
-            }
+        {
+            Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
+        }
         );
 
         // wait for ChartJs
@@ -121,9 +137,9 @@ public class ChartEventsTests : PageTest
         await addEvents.ClickAsync();
 
         await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
-            {
-                Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
-            }
+        {
+            Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
+        }
         );
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"ChartJsLabelClickEvent"));
     }

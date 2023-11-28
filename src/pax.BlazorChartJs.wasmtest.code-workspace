@@ -8,6 +8,12 @@
 		},
 		{
 			"path": "pax.BlazorChartJs"
+		},
+		{
+			"path": "../tests/pax.BlatzorChartJs.pwtests"
+		},
+		{
+			"path": "../tests/pax.BlazorChartJs.tests"
 		}
 	],
 	"settings": {}
