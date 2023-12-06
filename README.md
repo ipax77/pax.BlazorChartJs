@@ -7,7 +7,7 @@
  Release | ChartJs | Tests
  ---|---------------|---------------|
  <= 0.5.0 | **3.9.1** | 3.9.1
- &gt;= 0.5.0 | **4.x**   | 4.4.0
+ &gt;= 0.5.0 | **4.x**   | 4.4.1
  
  
 ## Getting started
@@ -151,7 +151,14 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.8.1</summary>
+<details open="open"><summary>v0.8.2</summary>
+
+>- ChartJs v4.4.1 tests
+>- Catching (more) dispose exeptions when switching from SSR to CSR (rendermode auto - AggregateException, JSDisconnectedException)
+
+</details>
+
+<details><summary>v0.8.1</summary>
 
 >- dotnet 8 **Breaking Change**
 >- Added missing pie/doughnut dataset options (Cutout, Radius, Animation)
