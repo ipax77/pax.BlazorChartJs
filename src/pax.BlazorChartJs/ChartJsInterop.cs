@@ -293,6 +293,8 @@ public class ChartJsInterop : IAsyncDisposable
             var module = await moduleTask.Value.ConfigureAwait(false);
             await module.InvokeVoidAsync("disposeChart", configGuid).ConfigureAwait(false);
         }
+        catch (AggregateException) { }
+        catch (JSDisconnectedException) { }
         catch (InvalidOperationException)
         {
             // catch disposed exception for statically rendered components (e.g. RenderMode.Auto)
