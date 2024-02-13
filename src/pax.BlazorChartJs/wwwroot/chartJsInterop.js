@@ -68,6 +68,11 @@ async function loadPlugins(setupOptions, dotnetConfig) {
             }
             plugins.push(ChartDataLabels);
         }
+
+        if (dotnetConfig['options'].plugins.htmlLegend != undefined) {
+            const htmlLegend = ChartJsInteropModule.htmlLegendPlugin();
+            plugins.push(htmlLegend);
+        }
     }
     return plugins;
 }
@@ -339,6 +344,12 @@ export function showDataset(chartId, datasetIndex, dataIndex) {
     } else {
         chart.show(datasetIndex, dataIndex);
     }
+}
+
+export function getLabels(chartId) {
+    const chart = Chart.getChart(chartId);
+    const items = chart.options.plugins.legend.labels.generateLabels(chart);
+    return items;
 }
 
 export function disposeChart(chartId) {

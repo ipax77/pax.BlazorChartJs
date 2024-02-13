@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using pax.BlazorChartJs.BlazorLegend;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -284,6 +285,12 @@ public class ChartJsInterop : IAsyncDisposable
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
         await module.InvokeVoidAsync("setDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+    }
+
+    internal async ValueTask<List<ChartJsLegendItem>> GetLegendItems(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        return await module.InvokeAsync<List<ChartJsLegendItem>>("getLabels", configGuid).ConfigureAwait(false);
     }
 
     internal async ValueTask DisposeChart(Guid configGuid)

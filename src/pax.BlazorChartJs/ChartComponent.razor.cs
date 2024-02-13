@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using pax.BlazorChartJs.BlazorLegend;
 using System.Text.Json;
 
 namespace pax.BlazorChartJs;
@@ -275,6 +276,15 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     }
 
     /// <summary>
+    /// Sets the visibility for a given dataset. This can be used to build a chart legend in HTML.
+    /// During click on one of the HTML items, you can call setDatasetVisibility to change the appropriate dataset.
+    /// </summary>
+    public async ValueTask SetDatasetVisibility(int datasetIndex, bool value)
+    {
+        await ChartJsInterop.SetDatasetVisibility(ChartJsConfig.ChartJsConfigGuid, datasetIndex, value).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Toggles the visibility of an item in all datasets. A dataset needs to explicitly support this feature for it to have an effect.
     /// From internal chart types, doughnut / pie, polar area, and bar use this.
     /// </summary>
@@ -312,6 +322,15 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     {
         ArgumentNullException.ThrowIfNull(dataset);
         await ChartJsInterop.ShowDataset(ChartJsConfig.ChartJsConfigGuid, ChartJsConfig.Data.Datasets.IndexOf(dataset), index).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Get the current chart legend Items
+    /// </summary>
+    /// <returns>ChartJsLegendItems</returns>
+    public async ValueTask<List<ChartJsLegendItem>> GetLegendItems()
+    {
+        return await ChartJsInterop.GetLegendItems(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
     }
 
     public async ValueTask DisposeAsync()
