@@ -35,7 +35,7 @@ export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) 
         config.plugins = await loadPlugins(setupOptions, dotnetConfig);
         const ctx = document.getElementById(chartId).getContext('2d');
         const chart = new Chart(ctx, config);
-        
+
         if (dotnetConfig['options'] != undefined) {
             registerEvents(dotnetConfig.options, chartId, chart);
         }
@@ -67,11 +67,6 @@ async function loadPlugins(setupOptions, dotnetConfig) {
                 await import(setupOptions['chartJsPluginDatalabelsLocation']);
             }
             plugins.push(ChartDataLabels);
-        }
-
-        if (dotnetConfig['options'].plugins.htmlLegend != undefined) {
-            const htmlLegend = ChartJsInteropModule.htmlLegendPlugin();
-            plugins.push(htmlLegend);
         }
     }
     return plugins;
@@ -350,6 +345,35 @@ export function getLabels(chartId) {
     const chart = Chart.getChart(chartId);
     const items = chart.options.plugins.legend.labels.generateLabels(chart);
     return items;
+}
+
+export function isDatasetVisible(chartId, datasetIndex) {
+    const chart = Chart.getChart(chartId);
+    const isVisible = chart.isDatasetVisible(datasetIndex);
+    return isVisible;
+}
+
+export function setDatasetPointsActive(chartId, datasetIndex) {
+    const chart = Chart.getChart(chartId);
+
+    if (chart.getActiveElements().length > 0) {
+        chart.setActiveElements([]);
+        chart.update();
+    }
+
+    if (datasetIndex == -1 || chart.data.datasets.length <= datasetIndex) {
+        return;
+    }
+
+    var dataset = chart.data.datasets[datasetIndex];
+
+    var elements = [];
+    for (var i = 0; i < dataset.data.length; i++) {
+        elements.push({ datasetIndex: datasetIndex, index: i });
+    }
+
+    chart.setActiveElements(elements);
+    chart.update();
 }
 
 export function disposeChart(chartId) {

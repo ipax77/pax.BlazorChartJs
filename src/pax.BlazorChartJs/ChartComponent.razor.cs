@@ -321,7 +321,8 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     public async ValueTask ShowDataset(ChartJsDataset dataset, int? index)
     {
         ArgumentNullException.ThrowIfNull(dataset);
-        await ChartJsInterop.ShowDataset(ChartJsConfig.ChartJsConfigGuid, ChartJsConfig.Data.Datasets.IndexOf(dataset), index).ConfigureAwait(false);
+        await ChartJsInterop.ShowDataset(ChartJsConfig.ChartJsConfigGuid, ChartJsConfig.Data.Datasets.IndexOf(dataset), index)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -330,7 +331,29 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     /// <returns>ChartJsLegendItems</returns>
     public async ValueTask<List<ChartJsLegendItem>> GetLegendItems()
     {
-        return await ChartJsInterop.GetLegendItems(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
+        return await ChartJsInterop.GetLegendItems(ChartJsConfig.ChartJsConfigGuid)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Get the current dataset visibility
+    /// </summary>
+    /// <param name="datasetIndex"></param>
+    /// <returns>True if the dataset is visible.</returns>
+    public async ValueTask<bool> IsDatasetVisible(int datasetIndex)
+    {
+        return await ChartJsInterop.IsDatasetVisible(ChartJsConfig.ChartJsConfigGuid, datasetIndex)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sets the datset points active. Use -1 to clear all active points.
+    /// </summary>
+    /// <param name="datasetIndex"></param>
+    public async ValueTask SetDatasetPointsActive(int datasetIndex)
+    {
+        await ChartJsInterop.SetDatasetPointsActive(ChartJsConfig.ChartJsConfigGuid, datasetIndex)
+            .ConfigureAwait(false);
     }
 
     public async ValueTask DisposeAsync()
