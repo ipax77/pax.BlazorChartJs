@@ -1,0 +1,43 @@
+@using pax.BlazorChartJs
+@inherits LegendComponentBase
+
+<div>
+    <ul style="display: flex;
+        flex-direction: row;
+        margin: 0;
+        padding: 0;">
+        @* Pie and doughnut charts only have a single dataset and visibility is per item *@
+
+        @foreach (var item in LegendItems)
+        {
+            <li @onclick="e => HandleLegendItemClick(e, item)" 
+                @onmouseover="e => HandleLegendItemHover(e, item)"
+                @onmouseleave="e => HandleLegenItemLeave(e, item)"
+                style="align-items: center;
+                            cursor: pointer;
+                            display: flex;
+                            flex-direction: row;
+                            margin-left: 10px;">
+                <span style="background: @item.FillStyle;
+                            border-color: @item.StrokeStyle;
+                            border-width: @($"{item.LineWidth}px");
+                            display: inline-block;
+                            flex-shrink: 0;
+                            height: 20px;
+                            margin-right: 10px;">
+                    <p style="color: @item.FontColor;
+                                margin: 0;
+                                padding: 0;
+                                text-decoration: @($"{(item.Hidden ? "line-through" : "")}")">
+                        @item.Text
+                    </p>
+                </span>
+            </li>
+        }
+    </ul>
+
+</div>
+
+@code {
+
+}

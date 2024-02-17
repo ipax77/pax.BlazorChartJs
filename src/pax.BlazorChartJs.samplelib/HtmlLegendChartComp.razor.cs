@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Components;
-using pax.BlazorChartJs.BlazorLegend;
+using Microsoft.Extensions.Logging;
 
 namespace pax.BlazorChartJs.samplelib;
 
 public partial class HtmlLegendChartComp : ComponentBase
 {
+    [Inject]
+    private ILogger<HtmlLegendChartComp> Logger { get; set; } = default!;
 
     ChartComponent? chartComponent;
     ChartJsConfig chartJsConfig = null!;
@@ -36,6 +38,8 @@ public partial class HtmlLegendChartComp : ComponentBase
                         PointRadius = 6,
                         PointBorderWidth = 6,
                         PointHitRadius = 6,
+                        PointHoverRadius = 10,
+                        PointHoverBorderWidth = 10,
                         Tension = 0
                     },
                     new LineDataset()
@@ -51,6 +55,8 @@ public partial class HtmlLegendChartComp : ComponentBase
                         PointRadius = 6,
                         PointBorderWidth = 6,
                         PointHitRadius = 6,
+                        PointHoverRadius = 10,
+                        PointHoverBorderWidth = 10,
                         Tension = 0
                     }
                 }
@@ -65,6 +71,10 @@ public partial class HtmlLegendChartComp : ComponentBase
                     {
                         Display = false
                     }
+                },
+                Animation = new Animation()
+                {
+                    OnCompleteEvent = true,
                 },
                 Scales = new ChartJsOptionsScales()
                 {
@@ -176,12 +186,16 @@ public partial class HtmlLegendChartComp : ComponentBase
     {
         if (chartJsEvent is ChartJsInitEvent)
         {
-            legendComponent?.UpdateLegend();
+        }
+        else if (chartJsEvent is ChartJsAnimationCompleteEvent)
+        {
+            UpdateLegend();
         }
     }
 
     public void UpdateLegend()
     {
+        Logger.LogInformation("update legend.");
         legendComponent?.UpdateLegend();
     }
 
@@ -248,7 +262,14 @@ public partial class HtmlLegendChartComp : ComponentBase
     private void AddDataset()
     {
         var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
-        ((LineDataset)dataset).BorderWidth = 3;
+        if (dataset is LineDataset lineDataset)
+        {
+            lineDataset.BorderWidth = 3;
+            lineDataset.PointHitRadius = 6;
+            lineDataset.PointHitRadius = 6;
+            lineDataset.PointHoverRadius = 10;
+            lineDataset.PointHoverBorderWidth = 10;
+        }
         chartJsConfig.AddDataset(dataset);
     }
 

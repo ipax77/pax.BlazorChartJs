@@ -16,6 +16,7 @@ public record ChartJsLegendItem
     public string? PointStyle { get; init; }
     public double? Rotation { get; init; }
     public string? StrokeStyle { get; init; }
+    public int Index { get; init; }
     public int DatasetIndex { get; init; }
     public string? TextAlign { get; init; }
     public bool? Borderradius { get; init; }

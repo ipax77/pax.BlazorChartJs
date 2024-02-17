@@ -293,6 +293,18 @@ public class ChartJsInterop : IAsyncDisposable
         return await module.InvokeAsync<List<ChartJsLegendItem>>("getLabels", configGuid).ConfigureAwait(false);
     }
 
+    internal async ValueTask<bool> IsDatasetVisible(Guid configGuid, int datasetIndex)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        return await module.InvokeAsync<bool>("isDatasetVisible", configGuid, datasetIndex).ConfigureAwait(false);
+    }
+
+    internal async ValueTask SetDatasetPointsActive(Guid configGuid, int datasetIndex)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("setDatasetPointsActive", configGuid, datasetIndex).ConfigureAwait(false);
+    }
+
     internal async ValueTask DisposeChart(Guid configGuid)
     {
         try

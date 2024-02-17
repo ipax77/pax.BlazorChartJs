@@ -1,5 +1,4 @@
 @using pax.BlazorChartJs
-@using pax.BlazorChartJs.BlazorLegend
 
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="ShowChart">ShowChart</button>
@@ -18,7 +17,9 @@
 
 @if (chartComponent is not null)
 {
-    <LegendComponent @ref="legendComponent" ChartJsConfig="chartJsConfig" ChartComponent="chartComponent" />
+    <div class="mt-2 mb-2">
+        <LegendComponent @ref="legendComponent" ChartJsConfig="chartJsConfig" ChartComponent="chartComponent" />
+    </div>
 }
 
 
