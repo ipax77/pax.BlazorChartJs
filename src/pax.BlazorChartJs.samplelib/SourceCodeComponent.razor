@@ -1,44 +1,64 @@
 @using Markdig
-@using Markdig.Prism
+@using Microsoft.JSInterop
 @inject HttpClient httpClient
+@inject IJSRuntime JSRuntime
 
-@* <div>
-    <pre>
-        <code>
-            @rawRazor
-        </code>
-    </pre>
-</div> *@
-
-<div class="" markdown="1">
+<h4>Razor <a href="@Options.RazorUrl">Source</a></h4>
+@if (isLoading)
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+<div>
     @razor
 </div>
 
-<div class="" markdown="1">
-    @cs
-</div>
+@if (!string.IsNullOrEmpty(Options.RawCsUrl))
+{
+    <h4>C# <a href="@Options.CsUrl">Source</a></h4>
+    <div>
+        @cs
+    </div>
+}
 
 @code {
     [Parameter, EditorRequired]
-    public string RawRazorUrl { get; set; } = string.Empty;
-
-    [Parameter]
-    public string? RawCsUrl { get; set; }
+    public SourceCodeOptions Options { get; set; } = default!;
 
     MarkupString? razor = null;
     MarkupString? cs = null;
 
-    private static readonly MarkdownPipeline MarkdownPipeline = new MarkdownPipelineBuilder()
-        .UseAdvancedExtensions()
-        .UsePrism()
-        .Build();
+    bool dataReady;
+    bool pageReady;
+    bool isLoading;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        razor = await GetMarkdownString(RawRazorUrl, "csharp");
-        cs = await GetMarkdownString(RawCsUrl, "csharp");
+        _ = LoadData();
+        base.OnInitialized();
+    }
 
-        await base.OnInitializedAsync();
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            pageReady = true;
+            HighlightCode();
+        }
+        base.OnAfterRender(firstRender);
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        await InvokeAsync(() => StateHasChanged());
+        razor = await GetMarkdownString(Options.RawRazorUrl, "razor");
+        cs = await GetMarkdownString(Options.RawCsUrl, "csharp");
+        isLoading = false;
+        await InvokeAsync(() => StateHasChanged());
+        dataReady = true;
+        HighlightCode();
     }
 
     private async Task<MarkupString?> GetMarkdownString(string? url, string codeStyle)
@@ -54,11 +74,27 @@
 {result}
 ```
 ";
-            var markdown = Markdown.ToHtml(result, MarkdownPipeline);
+            var markdown = Markdown.ToHtml(result);
             return new MarkupString(markdown);
         }
         catch { }
         return null;
     }
 
+    private void HighlightCode()
+    {
+        if (!pageReady || !dataReady)
+        {
+            return;
+        }
+        JSRuntime.InvokeVoidAsync("highlightCode");
+    }
+
+    public record SourceCodeOptions
+    {
+        public string RazorUrl { get; set; } = string.Empty;
+        public string RawRazorUrl { get; set; } = string.Empty;
+        public string? CsUrl { get; set; }
+        public string? RawCsUrl { get; set; }
+    }
 }
