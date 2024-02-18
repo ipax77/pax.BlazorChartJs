@@ -189,10 +189,17 @@ class ChartJsInterop {
     public updateDatasets(chart: any, datasets: Array<any>) {
 
         const datasetMetas = chart.getSortedVisibleDatasetMetas();
-        datasets.forEach(dataset => {
-            const datasetIndex = datasetMetas.findIndex(obj => obj['_dataset']['id'] === dataset['id']);
+        datasets.forEach(newDataset => {
+            const datasetIndex = datasetMetas.findIndex(obj => obj['_dataset']['id'] === newDataset['id']);
             if (datasetIndex >= 0) {
-                chart.data.datasets[datasetIndex] = dataset;
+                const existingDataset = chart.data.datasets[datasetIndex];
+                Object.assign(existingDataset, newDataset);
+
+                for (const prop in existingDataset) {
+                    if (existingDataset.hasOwnProperty(prop) && !newDataset.hasOwnProperty(prop)) {
+                        delete existingDataset[prop];
+                    }
+                }
             }
         });
         chart.update();

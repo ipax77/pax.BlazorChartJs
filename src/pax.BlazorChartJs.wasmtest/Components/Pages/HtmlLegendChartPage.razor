@@ -1,7 +1,15 @@
 ﻿@page "/htmllegendchart"
 
+<PageTitle>Html Legend Chart</PageTitle>
+
 <pax.BlazorChartJs.samplelib.HtmlLegendChartComp />
 
-@code {
+<div class="mt-2">
+    <a href="https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.samplelib/HtmlLegendChartComp.razor.cs">Source Code</a>
+</div>
 
+<pax.BlazorChartJs.samplelib.SourceCodeComponent RawRazorUrl="@rawRazorUrl" />
+
+@code {
+    readonly string rawRazorUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/htmlLegend/src/pax.BlazorChartJs.samplelib/HtmlLegendChartComp.razor.cs";
 }

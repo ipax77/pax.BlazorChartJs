@@ -64,8 +64,9 @@ public partial class ChartJsConfig
     }
 
     /// <summary>
-    /// Updates the dataset and Chart. Be cautious when using this method, as it directly modifies the ChartJsConfig.Data.Datasets collection.
+    /// Updates the Chart dataset.
     /// </summary>
+    /// <param name="dataset">The dataset containing the updated values.</param>
     public void UpdateDataset(ChartJsDataset dataset)
     {
         ArgumentNullException.ThrowIfNull(dataset);
@@ -73,20 +74,23 @@ public partial class ChartJsConfig
     }
 
     /// <summary>
-    /// Updates the datasets and Chart
+    /// Updates the Chart datasets.
     /// </summary>
+    /// <param name="datasets">The datasets containing the updated values.</param>
     public void UpdateDatasets(IList<ChartJsDataset> datasets)
     {
         ArgumentNullException.ThrowIfNull(datasets);
+
+        List<ChartJsDataset> updateDatasets = [];
         foreach (var dataset in datasets)
         {
             var index = Data.Datasets.IndexOf(dataset);
             if (index >= 0)
             {
-                Data.Datasets[index] = dataset;
+                updateDatasets.Add(dataset);
             }
         }
-        OnDatasetsUpdate(new DatasetsUpdateEventArgs(datasets));
+        OnDatasetsUpdate(new DatasetsUpdateEventArgs(updateDatasets));
     }
 
     /// <summary>

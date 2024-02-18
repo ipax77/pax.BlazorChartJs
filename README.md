@@ -151,7 +151,18 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.8.2</summary>
+<details open="open"><summary>v0.8.3</summary>
+
+>- ChartJsConfig.UpdateDataset(s) now updates the ChartJs dataset(s), instead of replacing.
+>- Added BlazorLegendBase that can be used for a [ChartJs Html Legend](https://www.chartjs.org/docs/latest/samples/legend/html.html) - [Sample][https://ipax77.github.io/pax.BlazorChartJs/htmllegendchart]
+>- Added ChartComponent.GetLegendItems()
+>- Added ChartComponent.IsDatasetVisible(int datasetIndex)
+>- Added ChartComponent.SetDatasetPointsActive(int datasetIndex)
+>- BarDataset.BarPercentage changed from int? to double?
+
+</details>
+
+<details><summary>v0.8.2</summary>
 
 >- ChartJs v4.4.1 tests
 >- Catching (more) dispose exeptions when switching from SSR to CSR (rendermode auto - AggregateException, JSDisconnectedException)
@@ -186,7 +197,7 @@ BorderWidth = new IndexableOption<double>(1)
 
 </details>
 
-<details open="open"><summary>v0.6.3</summary>
+<details><summary>v0.6.3</summary>
 
 >- Reverted Microsoft.TypeScript.MSBuild to v5.2.2
 Microsoft.TypeScript.MSBuild v5.3.2 not working for Blazor projects (only working for wasm)

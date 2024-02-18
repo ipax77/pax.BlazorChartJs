@@ -71,7 +71,7 @@ public class LegendComponentBase : ComponentBase
             .ConfigureAwait(false);
     }
 
-    public virtual async Task HandleLegenItemLeave(MouseEventArgs e, ChartJsLegendItem item)
+    public virtual async Task HandleLegendItemLeave(MouseEventArgs e, ChartJsLegendItem item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
