@@ -159,6 +159,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 >- Added ChartComponent.IsDatasetVisible(int datasetIndex)
 >- Added ChartComponent.SetDatasetPointsActive(int datasetIndex)
 >- BarDataset.BarPercentage changed from int? to double?
+>- Microsoft.AspNetCore.Components.Web v8.0.2
 
 </details>
 

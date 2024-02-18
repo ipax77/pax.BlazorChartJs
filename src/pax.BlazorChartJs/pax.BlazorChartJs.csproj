@@ -9,12 +9,12 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ipax77/pax.BlazorChartJs</RepositoryUrl>
     <PackageTags>blazor;dotnet;wrapper;chartjs</PackageTags>
-    <AssemblyVersion>0.8.2.0</AssemblyVersion>
+    <AssemblyVersion>0.8.3.0</AssemblyVersion>
     <Owners>Philipp Hetzner</Owners>
     <Authors>Philipp Hetzner</Authors>
-    <Version>0.8.2</Version>
-	  <FileVersion>0.8.2.0</FileVersion>
-    <PackageVersion>0.8.2</PackageVersion>
+    <Version>0.8.3</Version>
+	  <FileVersion>0.8.3.0</FileVersion>
+    <PackageVersion>0.8.3</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>    
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -45,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.2" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.2.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
