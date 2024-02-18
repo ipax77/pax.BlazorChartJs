@@ -1,4 +1,5 @@
 @using pax.BlazorChartJs
+@using pax.BlazorChartJs.BlazorLegend
 @inherits LegendComponentBase
 
 <div>
@@ -12,7 +13,7 @@
         {
             <li @onclick="e => HandleLegendItemClick(e, item)" 
                 @onmouseover="e => HandleLegendItemHover(e, item)"
-                @onmouseleave="e => HandleLegenItemLeave(e, item)"
+                @onmouseleave="e => HandleLegendItemLeave(e, item)"
                 style="align-items: center;
                             cursor: pointer;
                             display: flex;
@@ -39,5 +40,27 @@
 </div>
 
 @code {
+    public override async Task HandleLegendItemHover(MouseEventArgs e, ChartJsLegendItem item)
+    {
+        var dataset = ChartJsConfig.Data.Datasets.ElementAt(item.DatasetIndex);
+        if (dataset is LineDataset lineDataset)
+        {
+            lineDataset.BorderWidth = 10;
+        }
+        ChartJsConfig.UpdateDataset(dataset);
 
+        await base.HandleLegendItemHover(e, item);
+    }
+
+    public override async Task HandleLegendItemLeave(MouseEventArgs e, ChartJsLegendItem item)
+    {
+        var dataset = ChartJsConfig.Data.Datasets.ElementAt(item.DatasetIndex);
+        if (dataset is LineDataset lineDataset)
+        {
+            lineDataset.BorderWidth = 6;
+        }
+        ChartJsConfig.UpdateDataset(dataset);
+
+        await base.HandleLegendItemLeave(e, item);
+    }
 }

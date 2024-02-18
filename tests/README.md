@@ -5,7 +5,7 @@
 Install [Playwright](https://playwright.dev/dotnet/docs/intro) chromium assets (powershell):
 ```sh
 dotnet build
-pwsh pax.BlatzorChartJs.pwtests/bin/Debug/net6.0/playwright.ps1 install
+pwsh pax.BlatzorChartJs.pwtests/bin/Debug/net8.0/playwright.ps1 install
 ```
 
 To run the pwtests locally you have to start the sample project first - and restart it after changes.

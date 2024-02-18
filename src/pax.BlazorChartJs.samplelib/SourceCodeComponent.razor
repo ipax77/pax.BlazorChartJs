@@ -1,0 +1,64 @@
+@using Markdig
+@using Markdig.Prism
+@inject HttpClient httpClient
+
+@* <div>
+    <pre>
+        <code>
+            @rawRazor
+        </code>
+    </pre>
+</div> *@
+
+<div class="" markdown="1">
+    @razor
+</div>
+
+<div class="" markdown="1">
+    @cs
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string RawRazorUrl { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? RawCsUrl { get; set; }
+
+    MarkupString? razor = null;
+    MarkupString? cs = null;
+
+    private static readonly MarkdownPipeline MarkdownPipeline = new MarkdownPipelineBuilder()
+        .UseAdvancedExtensions()
+        .UsePrism()
+        .Build();
+
+    protected override async Task OnInitializedAsync()
+    {
+        razor = await GetMarkdownString(RawRazorUrl, "csharp");
+        cs = await GetMarkdownString(RawCsUrl, "csharp");
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task<MarkupString?> GetMarkdownString(string? url, string codeStyle)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            return null;
+        }
+        try
+        {
+            var result = await httpClient.GetStringAsync(url);
+            result = $@"```{codeStyle}
+{result}
+```
+";
+            var markdown = Markdown.ToHtml(result, MarkdownPipeline);
+            return new MarkupString(markdown);
+        }
+        catch { }
+        return null;
+    }
+
+}

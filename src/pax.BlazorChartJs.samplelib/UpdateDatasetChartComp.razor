@@ -1,0 +1,141 @@
+@using pax.BlazorChartJs
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDataset">UpdateDataset</button>
+    <button type="button" class="btn btn-primary" @onclick="ResetDataset">ResetDataset</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDataset2">UpdateDataset2</button>
+</div>
+<div class="chart-container w-75">
+    <ChartComponent @ref="chartComponent"
+                    ChartJsConfig="chartJsConfig"
+                    OnEventTriggered="ChartEventTriggered">
+    </ChartComponent>
+</div>
+
+@code {
+    ChartJsConfig chartJsConfig = null!;
+    ChartComponent? chartComponent;
+    private bool chartReady;
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = new ChartJsConfig()
+            {
+                Type = ChartType.bar,
+                Data = new ChartJsData()
+                {
+                    Labels = ["Jan", "Feb", "Mar"],
+                    Datasets = new List<ChartJsDataset>()
+                    {
+                        new BarDataset()
+                        {
+                            Label = "Dataset 1",
+                            Data = [ 1, 2, 3 ]
+                        }
+                    }
+                }
+            };
+        base.OnInitialized();
+    }
+
+    private void ChartEventTriggered(ChartJsEvent chartJsEvent)
+    {
+        if (chartJsEvent is ChartJsInitEvent initEvent)
+        {
+            chartReady = true;
+        }
+    }
+
+    private void Randomize()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        foreach (var dataset in chartJsConfig.Data.Datasets)
+        {
+            if (dataset is BarDataset barDataset)
+            {
+                int dataCount = barDataset.Data.Count;
+                List<int> newData = [];
+                for (int i = 0; i < dataCount; i++)
+                {
+                    newData.Add(Random.Shared.Next(1, 100));
+                }
+                barDataset.Data = newData.Cast<object>().ToList();
+            }
+        }
+        chartJsConfig.UpdateDatasets(chartJsConfig.Data.Datasets);
+    }
+
+    private void UpdateDataset()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        foreach (var dataset in chartJsConfig.Data.Datasets)
+        {
+            if (dataset is BarDataset barDataset)
+            {
+                barDataset.Data = [3, 2, 1];
+                barDataset.BorderColor = new List<string>() { "darkred", "blue", "yellow" };
+                barDataset.BackgroundColor = new List<string>() { "red", "lightblue", "lightyellow" };
+                barDataset.BorderWidth = 3;
+            }
+            chartJsConfig.UpdateDataset(dataset);
+        }
+    }
+
+    private void ResetDataset()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        foreach (var dataset in chartJsConfig.Data.Datasets)
+        {
+            if (dataset is BarDataset barDataset)
+            {
+                barDataset.Data = [1, 2, 3];
+                barDataset.BorderColor = null;
+                barDataset.BackgroundColor = null;
+                barDataset.BorderWidth = null;
+                barDataset.BarPercentage = null;
+                barDataset.BarThickness = null;
+                barDataset.MaxBarThickness = null;
+                barDataset.MinBarLength = null;
+            }
+            chartJsConfig.UpdateDataset(dataset);
+        }
+    }
+
+    private void UpdateDataset2()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        foreach (var dataset in chartJsConfig.Data.Datasets)
+        {
+            if (dataset is BarDataset barDataset)
+            {
+                barDataset.Data = [3, 2, 1];
+                barDataset.BorderColor = new List<string>() { "darkred", "blue", "yellow" };
+                barDataset.BackgroundColor = new List<string>() { "red", "lightblue", "lightyellow" };
+                barDataset.BorderWidth = 3;
+                barDataset.BarPercentage = 0.5;
+                barDataset.BarThickness = 6;
+                barDataset.MaxBarThickness = 8;
+                barDataset.MinBarLength = 2;
+
+            }
+            chartJsConfig.UpdateDataset(dataset);
+        }
+    }
+}
