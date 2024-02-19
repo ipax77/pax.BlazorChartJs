@@ -79,7 +79,6 @@
             return;
         }
 
-        Random random = new();
         Dictionary<ChartJsDataset, SetDataObject> chartData = new();
 
         foreach (var dataset in chartJsConfig.Data.Datasets)
@@ -89,7 +88,7 @@
                 List<object> newData = new();
                 foreach (var data in barDataset.Data)
                 {
-                    newData.Add(random.Next(1, 10));
+                    newData.Add(Random.Shared.Next(1, 10));
                 }
                 chartData[dataset] = new(newData);
             }
