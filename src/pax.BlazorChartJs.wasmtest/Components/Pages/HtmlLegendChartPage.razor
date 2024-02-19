@@ -5,7 +5,10 @@
 
 <pax.BlazorChartJs.samplelib.HtmlLegendChartComp />
 
-<pax.BlazorChartJs.samplelib.SourceCodeComponent Options="options" />
+@* <pax.BlazorChartJs.samplelib.SourceCodeComponent Options="options" /> *@
+
+<h3>Html Legend</h3>
+<pax.BlazorChartJs.samplelib.SourceCodeComponent Options="legendOptions" />
 
 @code {
     SourceCodeOptions options = new()
@@ -14,5 +17,11 @@
             RawRazorUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/htmlLegend/src/pax.BlazorChartJs.samplelib/HtmlLegendChartComp.razor",
             RawCsUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/htmlLegend/src/pax.BlazorChartJs.samplelib/HtmlLegendChartComp.razor.cs",
             CsUrl = "https://github.com/ipax77/pax.BlazorChartJs/blob/htmlLegend/src/pax.BlazorChartJs.samplelib/HtmlLegendChartComp.razor.cs"
+        };
+
+    SourceCodeOptions legendOptions = new()
+        {
+            RawRazorUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/htmlLegend/src/pax.BlazorChartJs.samplelib/LegendComponent.razor",
+            RazorUrl = "https://github.com/ipax77/pax.BlazorChartJs/blob/htmlLegend/src/pax.BlazorChartJs.samplelib/LegendComponent.razor"
         };
 }

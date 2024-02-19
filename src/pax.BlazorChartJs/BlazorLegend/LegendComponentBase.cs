@@ -11,7 +11,7 @@ public class LegendComponentBase : ComponentBase
     public ChartJsConfig ChartJsConfig { get; set; } = default!;
 
     [Parameter, EditorRequired]
-    public ChartComponent ChartComponent { get; set; } = default!;
+    public ChartComponent? ChartComponent { get; set; }
 
 #pragma warning disable CA1002 // Do not expose generic lists
     public virtual List<ChartJsLegendItem> LegendItems { get; private set; } = [];
@@ -21,6 +21,11 @@ public class LegendComponentBase : ComponentBase
 
     public virtual async Task UpdateLegend()
     {
+        if (ChartComponent is null)
+        {
+            return;
+        }
+
         LegendItems = await ChartComponent.GetLegendItems()
             .ConfigureAwait(false);
         await InvokeAsync(() => StateHasChanged())
@@ -29,6 +34,11 @@ public class LegendComponentBase : ComponentBase
 
     public virtual async Task HandleLegendItemClick(MouseEventArgs e, ChartJsLegendItem item)
     {
+        if (ChartComponent is null)
+        {
+            return;
+        }
+
         ArgumentNullException.ThrowIfNull(item);
 
         if (ChartJsConfig.Type == ChartType.pie || ChartJsConfig.Type == ChartType.doughnut)
@@ -54,6 +64,11 @@ public class LegendComponentBase : ComponentBase
 
     public virtual async Task HandleLegendItemHover(MouseEventArgs e, ChartJsLegendItem item)
     {
+        if (ChartComponent is null)
+        {
+            return;
+        }
+
         ArgumentNullException.ThrowIfNull(item);
 
         var itemIndex = GetItemIndex(item);
@@ -73,6 +88,11 @@ public class LegendComponentBase : ComponentBase
 
     public virtual async Task HandleLegendItemLeave(MouseEventArgs e, ChartJsLegendItem item)
     {
+        if (ChartComponent is null)
+        {
+            return;
+        }
+
         ArgumentNullException.ThrowIfNull(item);
 
         if (HoverItemIndex is null)
