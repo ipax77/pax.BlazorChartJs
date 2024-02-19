@@ -2,44 +2,61 @@
 @using pax.BlazorChartJs.BlazorLegend
 @inherits LegendComponentBase
 
-<div>
-    <ul style="display: flex;
-        flex-direction: row;
-        margin: 0;
-        padding: 0;">
-        @* Pie and doughnut charts only have a single dataset and visibility is per item *@
-
-        @foreach (var item in LegendItems)
-        {
-            <li @onclick="e => HandleLegendItemClick(e, item)" 
-                @onmouseover="e => HandleLegendItemHover(e, item)"
-                @onmouseleave="e => HandleLegendItemLeave(e, item)"
-                style="align-items: center;
-                            cursor: pointer;
-                            display: flex;
-                            flex-direction: row;
-                            margin-left: 10px;">
-                <span style="background: @item.FillStyle;
-                            border-color: @item.StrokeStyle;
-                            border-width: @($"{item.LineWidth}px");
-                            display: inline-block;
-                            flex-shrink: 0;
-                            height: 20px;
-                            margin-right: 10px;">
-                    <p style="color: @item.FontColor;
-                                margin: 0;
-                                padding: 0;
-                                text-decoration: @($"{(item.Hidden ? "line-through" : "")}")">
-                        @item.Text
-                    </p>
-                </span>
-            </li>
-        }
-    </ul>
-
+<div class="border rounded p-2">
+    <div class="table-responsive" style="max-height: 80vh; min-width: 125px;">
+        <table class="table table-sm table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Html Legend</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in LegendItems)
+                {
+                    <tr @onclick="e => HandleLegendItemClick(e, item)"
+                        @onmouseover="e => HandleLegendItemHover(e, item)"
+                        @onmouseleave="e => HandleLegendItemLeave(e, item)">
+                        <td>
+                            <div class="d-flex justify-content-between allign-items-center">
+                                <div>
+                                    <span class="d-inline-block" style="background: @item.FillStyle;
+                                        border: 3px solid @item.StrokeStyle;
+                                        border-radius: 5px 5px 5px;
+                                        height: 25px;
+                                        width: 30px;"></span>
+                                </div>
+                                <div>
+                                    <span class="@($"{(item.DatasetIndex == HoverItemIndex || item.DatasetIndex == interestDataset  ? "fw-bold" : "")}")"
+                                          style="text-decoration: @($"{(item.Hidden ? "line-through" : "auto")};");
+                                            color: @item.FontColor;">
+                                        @item.Text
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @code {
+    private int? interestDataset;
+
+    public void HighlightDataset(int? datasetIndex)
+    {
+        if (interestDataset != datasetIndex)
+        {
+            interestDataset = datasetIndex;
+        }
+    }
+
+    public void ClearHighlightDataset()
+    {
+        interestDataset = null;
+    }
+
     public override async Task HandleLegendItemHover(MouseEventArgs e, ChartJsLegendItem item)
     {
         var dataset = ChartJsConfig.Data.Datasets.ElementAt(item.DatasetIndex);
