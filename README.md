@@ -161,6 +161,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 >- Added ChartComponent.SetDatasetPointsActive(int datasetIndex)
 >- BarDataset.BarPercentage changed from int? to double?
 >- Microsoft.AspNetCore.Components.Web v8.0.2
+>- Renamed Layout to ChartJsLayout (CA1724)
 
 </details>
 
