@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pax.BlazorChartJs.sample", "pax.BlazorChartJs.sample\pax.BlazorChartJs.sample.csproj", "{AC71E209-E119-49D6-97CF-346D6A12732B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pax.BlazorChartJs.sample", "pax.BlazorChartJs.sample\pax.BlazorChartJs.sample.csproj", "{AC71E209-E119-49D6-97CF-346D6A12732B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pax.BlazorChartJs.sample.Client", "pax.BlazorChartJs.sample.Client\pax.BlazorChartJs.sample.Client.csproj", "{BD76491E-0D91-4CA9-B219-D3EF9EFCEAE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pax.BlazorChartJs.sample.Client", "pax.BlazorChartJs.sample.Client\pax.BlazorChartJs.sample.Client.csproj", "{BD76491E-0D91-4CA9-B219-D3EF9EFCEAE5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pax.BlazorChartJs.samplelib", "..\pax.BlazorChartJs.samplelib\pax.BlazorChartJs.samplelib.csproj", "{0EE817B0-75F7-40DF-8363-6A8611C22FA6}"
 EndProject
