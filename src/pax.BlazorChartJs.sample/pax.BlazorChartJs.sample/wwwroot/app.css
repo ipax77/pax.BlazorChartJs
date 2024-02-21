@@ -27,3 +27,9 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+.chart-container {
+    position: relative;
+    aspect-ratio: 2;
+    min-width: 400px;
+}
