@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+
 namespace pax.BlazorChartJs;
 /// <summary>
 /// Represents an object that can be either a single value or an IList of values. This is used for type safe js-interop.
@@ -90,10 +92,10 @@ public class IndexableOption<T>
     public static implicit operator IndexableOption<T>(T value)
         => new(value);
 
-    public IndexableOption<T> FromListT(List<T> value)
+    public IndexableOption<T> FromCollection(Collection<T> value)
         => new(value);
 
-    public static implicit operator IndexableOption<T>(List<T> value)
+    public static implicit operator IndexableOption<T>(Collection<T> value)
         => new(value);
 
     internal object GetJsonObject()

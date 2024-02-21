@@ -45,10 +45,7 @@ public static class ChartUtils
 
     public static ICollection<List<object>> GetRandomData(int length, int count, int min = -100, int max = 100)
     {
-        if (min >= max)
-        {
-            throw new ArgumentOutOfRangeException(nameof(max));
-        }
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(min, max);
 
         List<List<object>> data = new List<List<object>>();
 
@@ -61,10 +58,7 @@ public static class ChartUtils
 
     public static ChartJsDataset GetRandomDataset(ChartType chartType, int id, int count, int min = -100, int max = 100)
     {
-        if (min >= max)
-        {
-            throw new ArgumentOutOfRangeException(nameof(max));
-        }
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(min, max);
 
         return chartType switch
         {
@@ -172,10 +166,7 @@ public static class ChartUtils
 
     public static DataAddEventArgs GetRandomData(int count, int min = -100, int max = 100)
     {
-        if (min >= max)
-        {
-            throw new ArgumentOutOfRangeException(nameof(max));
-        }
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(min, max);
 
         var label = Labels[random.Next(Labels.Count)];
         List<object> data = new();

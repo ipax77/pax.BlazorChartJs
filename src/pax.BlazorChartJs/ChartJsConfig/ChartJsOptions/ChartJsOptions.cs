@@ -27,7 +27,7 @@ public record ChartJsOptions
     /// a string with a BCP 47 language tag, leveraging on <see href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat">INTL NumberFormat</see>
     /// </summary>        
     public string? Locale { get; set; }
-    public Layout? Layout { get; set; }
+    public ChartJsLayout? Layout { get; set; }
     /// <summary>
     /// Plugins must define a unique id in order to be configurable. <see href="https://www.chartjs.org/docs/latest/developers/plugins.html#plugin-options">INTL NumberFormat</see>
     /// Use 'new' in a derived ChartJsConfig for custom plugins
