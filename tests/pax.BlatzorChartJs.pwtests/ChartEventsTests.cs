@@ -61,7 +61,7 @@ public class ChartEventsTests : PageTest
 
 
 
-        var removeEvents = Page.GetByText("RemoveEvents");
+        var removeEvents = Page.GetByText("RemoveEvents", new Microsoft.Playwright.PageGetByTextOptions() { Exact = true });
         await removeEvents.ClickAsync();
 
         // wait for ChartJs
@@ -114,7 +114,7 @@ public class ChartEventsTests : PageTest
 
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"ChartJsAnimationCompleteEvent"));
 
-        var removeEvents = Page.GetByText("RemoveEvents");
+        var removeEvents = Page.GetByText("RemoveEvents", new Microsoft.Playwright.PageGetByTextOptions() { Exact = true });
         await removeEvents.ClickAsync();
 
         // wait for ChartJs
@@ -133,7 +133,7 @@ public class ChartEventsTests : PageTest
 
         Assert.That(textAfter, Is.EqualTo(textPrev));
 
-        var addEvents = Page.GetByText("AddEvents");
+        var addEvents = Page.GetByText("AddEvents", new Microsoft.Playwright.PageGetByTextOptions() { Exact = true });
         await addEvents.ClickAsync();
 
         await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()

@@ -162,6 +162,11 @@ We really like people helping us with the project. Nevertheless, take your time 
 >- BarDataset.BarPercentage changed from int? to double?
 >- Microsoft.AspNetCore.Components.Web v8.0.2
 >- Renamed Layout to ChartJsLayout (CA1724)
+>- `IndexableOption` now supports Collection Expressions e.g.
+    ```csharp
+        BorderColor = ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
+        BorderWidth = [1, 2]
+    ```
 
 </details>
 
