@@ -1,3 +1,8 @@
+// v1.1
+
+window.Prism = window.Prism || {};
+Prism.manual = true;
+Prism.disableWorkerMessageHandler = true;
 
 function getChartVersion() {
     if (Chart !== undefined) {
@@ -5,4 +10,9 @@ function getChartVersion() {
     } else {
         return "0.0"
     }
+}
+
+function highlightCode() {
+
+    Prism.highlightAll();
 }
