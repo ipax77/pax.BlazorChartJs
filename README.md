@@ -112,7 +112,7 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
                 updateDatasets.Add(dataset);
             }
         }
-        chartJsConfig.UpdateDatasets(updateDatasets);
+        chartJsConfig.UpdateDatasetsSmooth(updateDatasets);
     }
 }
 ```
@@ -163,10 +163,10 @@ We really like people helping us with the project. Nevertheless, take your time 
 >- BarDataset.BarPercentage changed from int? to double?
 >- Renamed Layout to ChartJsLayout (CA1724)
 >- `IndexableOption` now supports Collection Expressions e.g.
-    ```csharp
-        BorderColor = ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
-        BorderWidth = [1, 2]
-    ```
+```csharp
+    BorderColor = ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
+    BorderWidth = [1, 2]
+```
 >- ChartJs v4.4.2 Tests
 >- Blazor App sample 
 
@@ -283,105 +283,5 @@ BorderWidth = new IndexableOption<double>(1)
 >- Added ScaleAxis X1 and Y1 (override ChartJsOptionsScales for other names)
 >- ```ChartJsConfig.UpdateChartOptions()``` (will replace ```ChartComponent.UpdateChartOptions```)
 >- ```ChartJsConfig.ReinitializeChart()``` (will replace ```ChartComponent.DrawChart```)
-
-</details>
-
-<details><summary>v0.4.1</summary>
-
->- Catch ObjectDisposedException and JSException when disposing the ChartComponent while initializing
->- Microsoft.AspNetCore.Components.Web upgrade to v6.0.12
-
-</details>
-
-<details><summary>v0.4.0</summary>
-
->- Title.Text is now IndexableOptions<string> - **Breaking Change!**
->- chartComponent?.DrawChart() triggeres an InitEvent after the chart is complete
->- ChartJsInitEvent does have the ChartJsConfigGuid set correctly, now
->- RemoveDataset(s) can now handle self referencing and missing
-
-</details>
-
-<details><summary>v0.3.5</summary>
-
->- TimeCartesianAxisTicks fix
->- Interactions fix
->- Playwright tests
->- ghpages
->- ChartComponent DisposeAsync
-
-</details>
-
-<details><summary>v0.3.4</summary>
-
->- Fix #7 - Axis Ticks JsonConverter
->- Added ChartJsInitEvent which is triggered when the chart finished initializing the first time
->- [StackedChart](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/StackedChartComp.razor) Sample
-
-</details>
-
-<details><summary>v0.3.3</summary>
-
->- Fix #6
->- chartComponent.UpdateChartDatasets removed - use chartConfig.SetDatasets() instead
->- Added Hidden option for Datasets
-
-</details>
-
-<details><summary>v0.3.2</summary>
-
->- Chart update refactoring - Breaking Changes!
->- Chart events refactoring - Breaking Changes!
->- Typescript
->- NuGet udpates
-
-</details>
-
-<details><summary>v0.3.1</summary>
-
->- Time Scale Chart
->- Optional javascript location options
->- ChartJs API calls
->- bugfixes
->- refactoring
-
-</details>
-
-<details><summary>v0.3.0</summary>
-
->- IndexableOption - Breaking Change!
-
-</details>
-
-<details><summary>v0.2.0</summary>
-
->- Events
->- Custom Plugin Sample
->- ChartJs API calls
-
-</details>
-
-<details><summary>v0.1.3</summary>
-
->- Nuget Package
-
-</details>
-
-<details><summary>v0.1.2</summary>
-
->- RadarChart
-
-</details>
-
-
-<details><summary>v0.1.1</summary>
-
->- Readme
-
-</details>
-
-<details><summary>v0.1.0</summary>
-
->- Init
 
 </details>
