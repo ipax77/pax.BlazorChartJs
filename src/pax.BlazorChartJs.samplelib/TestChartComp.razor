@@ -49,35 +49,32 @@
                 Type = ChartType.bar,
                 Data = new ChartJsData()
                 {
-                    Labels = new List<string>()
-                    {
-                        "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
-                    },
+                    Labels = [ "Red", "Blue", "Yellow", "Green", "Purple", "Orange" ],
                     Datasets = new List<ChartJsDataset>()
                     {
                         new BarDataset()
                         {
                             Label = "Dataset 1",
-                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
-                            BackgroundColor = new IndexableOption<string>("rgba(255, 99, 132, 0.2)"),
-                            BorderColor = new IndexableOption<string>("rgba(255, 99, 132, 1)"),
-                            BorderWidth = new IndexableOption<double>(1)
+                            Data = [ 12, 19, 3, 5, 2, 3 ],
+                            BackgroundColor = ["rgba(255, 99, 132, 0.2)"],
+                            BorderColor = ["rgba(255, 99, 132, 1)"],
+                            BorderWidth = 1
                         },
                         new BarDataset()
                         {
                             Label = "Dataset 2",
-                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
-                            BackgroundColor = new IndexableOption<string>("rgba(54, 162, 235, 0.2)"),
-                            BorderColor = new IndexableOption<string>("rgba(54, 162, 235, 1)"),
-                            BorderWidth = new IndexableOption<double>(1)
+                            Data = [ 12, 19, 3, 5, 2, 3 ],
+                            BackgroundColor = ["rgba(54, 162, 235, 0.2)"],
+                            BorderColor = ["rgba(54, 162, 235, 1)"],
+                            BorderWidth = 1
                         },
                         new BarDataset()
                         {
                             Label = "Dataset 3",
-                            Data = new List<object>() { 12, 19, 3, 5, 2, 3 },
-                            BackgroundColor = new IndexableOption<string>("rgba(255, 206, 86, 0.2)"),
-                            BorderColor = new IndexableOption<string>("rgba(255, 206, 86, 1)"),
-                            BorderWidth = new IndexableOption<double>(1)
+                            Data = [ 12, 19, 3, 5, 2, 3 ],
+                            BackgroundColor = ["rgba(255, 206, 86, 0.2)"],
+                            BorderColor = ["rgba(255, 206, 86, 1)"],
+                            BorderWidth = 1
                         },
                     }
                 },
@@ -148,15 +145,14 @@
         var dataset = chartJsConfig.Data.Datasets.FirstOrDefault() as PieDataset;
         if (dataset != null)
         {
-            dataset.BackgroundColor = new IndexableOption<string>(new List<string>()
-                            {
+            dataset.BackgroundColor = [
                                 "rgba(255, 99, 132, 0.8)",
                                 "rgba(54, 162, 235, 0.8)",
                                 "rgba(255, 206, 86, 0.8)",
                                 "rgba(75, 192, 192, 0.8)",
                                 "rgba(153, 102, 255, 0.8)",
                                 "rgba(255, 159, 64, 0.8)",
-                            });
+                            ];
             chartJsConfig.SetDatasets();
         }
     }
@@ -166,15 +162,14 @@
         var dataset = chartJsConfig.Data.Datasets.FirstOrDefault() as PieDataset;
         if (dataset != null)
         {
-            dataset.BackgroundColor = new IndexableOption<string>(new List<string>()
-                            {
+            dataset.BackgroundColor = [
                                 "rgba(255, 99, 132, 0.6)",
                                 "rgba(54, 162, 235, 0.6)",
                                 "rgba(255, 206, 86, 0.6)",
                                 "rgba(75, 192, 192, 0.6)",
                                 "rgba(153, 102, 255, 0.6)",
                                 "rgba(255, 159, 64, 0.6)",
-                            });
+                            ];
             chartJsConfig.UpdateDataset(dataset);
         }
     }

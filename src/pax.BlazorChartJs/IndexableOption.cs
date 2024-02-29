@@ -1,10 +1,14 @@
+using System.Collections;
+using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
+
 namespace pax.BlazorChartJs;
 /// <summary>
 /// Represents an object that can be either a single value or an IList of values. This is used for type safe js-interop.
-/// Modified version of <see href="https://github.com/mariusmuntean/ChartJs.Blazor/blob/master/src/ChartJs.Blazor/Common/IndexableOption.cs">ChartJs.Blazor</see>. All credits!
 /// </summary>
 /// <typeparam name="T">The type of data this <see cref="IndexableOption{T}"/> is supposed to hold.</typeparam>
-public class IndexableOption<T>
+[CollectionBuilder(typeof(IndexableOptionBuilder), "Create")]
+public class IndexableOption<T> : IEnumerable<T>
 {
     private List<T>? _indexedValues;
 
@@ -58,8 +62,16 @@ public class IndexableOption<T>
         IsIndexed = true;
     }
 
-    public IndexableOption(ICollection<T> value)
+    public IndexableOption(ICollection<T> values)
     {
+        _indexedValues = new List<T>(values);
+        IsIndexed = true;
+    }
+
+    public IndexableOption(ReadOnlySpan<T> values)
+    {
+        _indexedValues = [.. values];
+        IsIndexed = true;
     }
 
     public int Count => _indexedValues == null ? 0 : _indexedValues.Count;
@@ -90,10 +102,18 @@ public class IndexableOption<T>
     public static implicit operator IndexableOption<T>(T value)
         => new(value);
 
-    public IndexableOption<T> FromListT(List<T> value)
+#pragma warning disable CA1002 // Do not expose generic lists
+    public IndexableOption<T> FromList(List<T> value)
         => new(value);
 
     public static implicit operator IndexableOption<T>(List<T> value)
+        => new(value);
+#pragma warning restore CA1002 // Do not expose generic lists
+
+    public IndexableOption<T> FromCollection(Collection<T> value)
+    => new(value);
+
+    public static implicit operator IndexableOption<T>(Collection<T> value)
         => new(value);
 
     internal object GetJsonObject()
@@ -102,4 +122,32 @@ public class IndexableOption<T>
               IndexedValues ?? throw new ArgumentNullException()
             : SingleValue ?? throw new ArgumentNullException();
     }
+
+    public IEnumerator<T> GetEnumerator()
+    {
+        if (_indexedValues is not null)
+        {
+            return _indexedValues.GetEnumerator();
+        }
+        else if (_singleValue is not null)
+        {
+            return new List<T>() { _singleValue }.GetEnumerator();
+        }
+        else
+        {
+            throw new ArgumentNullException(nameof(IndexedValues));
+        }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 }
+
+
+public static class IndexableOptionBuilder
+{
+    public static IndexableOption<T> Create<T>(ReadOnlySpan<T> values) => new IndexableOption<T>(values);
+}
+

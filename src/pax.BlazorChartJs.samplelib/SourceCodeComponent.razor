@@ -1,0 +1,100 @@
+@using Markdig
+@using Microsoft.JSInterop
+@inject HttpClient httpClient
+@inject IJSRuntime JSRuntime
+
+<h4>Razor <a href="@Options.RazorUrl">Source</a></h4>
+@if (isLoading)
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+<div>
+    @razor
+</div>
+
+@if (!string.IsNullOrEmpty(Options.RawCsUrl))
+{
+    <h4>C# <a href="@Options.CsUrl">Source</a></h4>
+    <div>
+        @cs
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public SourceCodeOptions Options { get; set; } = default!;
+
+    MarkupString? razor = null;
+    MarkupString? cs = null;
+
+    bool dataReady;
+    bool pageReady;
+    bool isLoading;
+
+    protected override void OnInitialized()
+    {
+        _ = LoadData();
+        base.OnInitialized();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            pageReady = true;
+            HighlightCode();
+        }
+        base.OnAfterRender(firstRender);
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        await InvokeAsync(() => StateHasChanged());
+        razor = await GetMarkdownString(Options.RawRazorUrl, "razor");
+        cs = await GetMarkdownString(Options.RawCsUrl, "csharp");
+        isLoading = false;
+        await InvokeAsync(() => StateHasChanged());
+        dataReady = true;
+        HighlightCode();
+    }
+
+    private async Task<MarkupString?> GetMarkdownString(string? url, string codeStyle)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            return null;
+        }
+        try
+        {
+            var result = await httpClient.GetStringAsync(url);
+            result = $@"```{codeStyle}
+{result}
+```
+";
+            var markdown = Markdown.ToHtml(result);
+            return new MarkupString(markdown);
+        }
+        catch { }
+        return null;
+    }
+
+    private void HighlightCode()
+    {
+        if (!pageReady || !dataReady)
+        {
+            return;
+        }
+        JSRuntime.InvokeVoidAsync("highlightCode");
+    }
+
+    public record SourceCodeOptions
+    {
+        public string RazorUrl { get; set; } = string.Empty;
+        public string RawRazorUrl { get; set; } = string.Empty;
+        public string? CsUrl { get; set; }
+        public string? RawCsUrl { get; set; }
+    }
+}

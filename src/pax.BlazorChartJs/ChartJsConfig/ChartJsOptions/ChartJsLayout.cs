@@ -1,6 +1,6 @@
 namespace pax.BlazorChartJs;
 
-public record Layout
+public record ChartJsLayout
 {
     public bool? AutoPadding { get; set; }
     public Padding? Padding { get; set; }

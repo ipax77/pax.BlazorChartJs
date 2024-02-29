@@ -64,8 +64,9 @@ public partial class ChartJsConfig
     }
 
     /// <summary>
-    /// Updates the dataset and Chart. Be cautious when using this method, as it directly modifies the ChartJsConfig.Data.Datasets collection.
+    /// Updates the Chart dataset.
     /// </summary>
+    /// <param name="dataset">The dataset containing the updated values.</param>
     public void UpdateDataset(ChartJsDataset dataset)
     {
         ArgumentNullException.ThrowIfNull(dataset);
@@ -73,20 +74,55 @@ public partial class ChartJsConfig
     }
 
     /// <summary>
-    /// Updates the datasets and Chart
+    /// Updates the Chart datasets.
     /// </summary>
+    /// <param name="datasets">The datasets containing the updated values.</param>
     public void UpdateDatasets(IList<ChartJsDataset> datasets)
     {
         ArgumentNullException.ThrowIfNull(datasets);
+
+        List<ChartJsDataset> updateDatasets = [];
         foreach (var dataset in datasets)
         {
             var index = Data.Datasets.IndexOf(dataset);
             if (index >= 0)
             {
-                Data.Datasets[index] = dataset;
+                updateDatasets.Add(dataset);
             }
         }
-        OnDatasetsUpdate(new DatasetsUpdateEventArgs(datasets));
+        OnDatasetsUpdate(new DatasetsUpdateEventArgs(updateDatasets));
+    }
+
+        /// <summary>
+    /// Updates the Chart dataset smoothly, if possible.
+    /// Note: Updating dataset properties to NULL (default values) or single values is currently not working if they were an array. <see href="https://github.com/chartjs/Chart.js/issues/11679"/>
+    /// </summary>
+    /// <param name="dataset">The dataset containing the updated values.</param>
+    public void UpdateDatasetSmooth(ChartJsDataset dataset)
+    {
+        ArgumentNullException.ThrowIfNull(dataset);
+        UpdateDatasetsSmooth([dataset]);
+    }
+
+    /// <summary>
+    /// Updates the Chart datasets smoothly, if possible.
+    /// Note: Updating dataset properties to NULL (default values) or single values is currently not working if they were an array. <see href="https://github.com/chartjs/Chart.js/issues/11679"/>
+    /// </summary>
+    /// <param name="datasets">The datasets containing the updated values.</param>
+    public void UpdateDatasetsSmooth(IList<ChartJsDataset> datasets)
+    {
+        ArgumentNullException.ThrowIfNull(datasets);
+
+        List<ChartJsDataset> updateDatasets = [];
+        foreach (var dataset in datasets)
+        {
+            var index = Data.Datasets.IndexOf(dataset);
+            if (index >= 0)
+            {
+                updateDatasets.Add(dataset);
+            }
+        }
+        OnDatasetsUpdate(new DatasetsUpdateEventArgs(updateDatasets, smooth: true));
     }
 
     /// <summary>

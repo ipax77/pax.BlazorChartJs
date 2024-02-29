@@ -19,7 +19,7 @@ public record LineDataset : ChartJsDataset
     public IList<double>? BorderDash { get; set; }
     public double? BorderDashOffset { get; set; }
     /// <summary>
-    /// BorderJoinStyle options: 'round'|'bevel'|'miter'
+    /// BorderJoinStyle options: 'round'|'bevel'|'miter' - default 'miter'
     /// </summary>    
     public string? BorderJoinStyle { get; set; }
     // todo: can be object

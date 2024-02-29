@@ -51,8 +51,8 @@
             return;
         }
 
-        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
-
+        List<ChartJsDataset> updateDatasets = [];
+        
         foreach (var dataset in chartJsConfig.Data.Datasets)
         {
             if (dataset is BarDataset barDataset)
@@ -62,9 +62,10 @@
                 {
                     newData.Add(Random.Shared.Next(1, 10));
                 }
-                chartData[dataset] = new(newData);
+                barDataset.Data = newData;
+                updateDatasets.Add(dataset);
             }
         }
-        chartJsConfig.SetData(chartData);
+        chartJsConfig.UpdateDatasetsSmooth(updateDatasets);
     }
 }

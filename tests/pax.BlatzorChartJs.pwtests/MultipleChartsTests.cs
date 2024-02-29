@@ -32,6 +32,8 @@ public class MultipleChartsTests : PageTest
             }
         );
 
+        await Task.Delay(Startup.ChartJsComputeDelay);
+
         var clickResult = Page.Locator("p");
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"chart1$"));
 

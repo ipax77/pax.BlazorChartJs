@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using pax.BlazorChartJs.BlazorLegend;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -274,16 +275,44 @@ public class ChartJsInterop : IAsyncDisposable
         await module.InvokeVoidAsync("removeDatasets", configGuid, datasetIds).ConfigureAwait(false);
     }
 
-    internal async ValueTask UpdateDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
+    internal async ValueTask UpdateDatasets(Guid configGuid, IList<ChartJsDataset> datasets, bool smooth = false)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("updateDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+        if (smooth)
+        {
+            await module.InvokeVoidAsync("updateDatasetsSmooth", configGuid, SerializeDatasets(datasets))
+                .ConfigureAwait(false);
+        }
+        else
+        {
+            await module.InvokeVoidAsync("updateDatasets", configGuid, SerializeDatasets(datasets))
+                .ConfigureAwait(false);
+
+        }
     }
 
     internal async ValueTask SetDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
         await module.InvokeVoidAsync("setDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+    }
+
+    internal async ValueTask<List<ChartJsLegendItem>> GetLegendItems(Guid configGuid)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        return await module.InvokeAsync<List<ChartJsLegendItem>>("getLabels", configGuid).ConfigureAwait(false);
+    }
+
+    internal async ValueTask<bool> IsDatasetVisible(Guid configGuid, int datasetIndex)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        return await module.InvokeAsync<bool>("isDatasetVisible", configGuid, datasetIndex).ConfigureAwait(false);
+    }
+
+    internal async ValueTask SetDatasetPointsActive(Guid configGuid, int datasetIndex)
+    {
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        await module.InvokeVoidAsync("setDatasetPointsActive", configGuid, datasetIndex).ConfigureAwait(false);
     }
 
     internal async ValueTask DisposeChart(Guid configGuid)

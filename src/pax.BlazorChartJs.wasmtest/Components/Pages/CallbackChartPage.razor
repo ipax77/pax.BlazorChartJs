@@ -1,6 +1,16 @@
 @page "/callbackchart"
+@using static pax.BlazorChartJs.samplelib.SourceCodeComponent
 
 <PageTitle>Tick callback Chart</PageTitle>
 
 <pax.BlazorChartJs.samplelib.EventcallbackChartComp />
 
+<pax.BlazorChartJs.samplelib.SourceCodeComponent Options="sourceCodeOptions" />
+
+@code {
+    SourceCodeOptions sourceCodeOptions = new()
+        {
+            RazorUrl = "https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventcallbackChartComp.razor",
+            RawRazorUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/master/src/pax.BlazorChartJs.samplelib/EventcallbackChartComp.razor"
+        };
+}

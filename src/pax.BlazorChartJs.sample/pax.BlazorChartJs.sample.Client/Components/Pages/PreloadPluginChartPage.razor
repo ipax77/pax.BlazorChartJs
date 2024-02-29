@@ -1,0 +1,19 @@
+﻿@page "/preloadpluginchart"
+@rendermode InteractiveAuto
+@using static pax.BlazorChartJs.samplelib.SourceCodeComponent
+
+<PageTitle>Preload Plugin Chart</PageTitle>
+
+<h3>PreloadPluginChart</h3>
+
+<pax.BlazorChartJs.samplelib.PreloadPluginChart></pax.BlazorChartJs.samplelib.PreloadPluginChart>
+
+<pax.BlazorChartJs.samplelib.SourceCodeComponent Options="sourceCodeOptions" />
+
+@code {
+    SourceCodeOptions sourceCodeOptions = new()
+        {
+            RazorUrl = "https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/PreloadPluginChart.razor",
+            RawRazorUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/master/src/pax.BlazorChartJs.samplelib/PreloadPluginChart.razor"
+        };
+}

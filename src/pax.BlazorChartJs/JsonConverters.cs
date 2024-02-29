@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace pax.BlazorChartJs;
 
-internal class IndexableOptionStringConverter : JsonConverter<IndexableOption<string>?>
+internal sealed class IndexableOptionStringConverter : JsonConverter<IndexableOption<string>?>
 {
     public override IndexableOption<string>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
      => throw new NotImplementedException();
@@ -19,7 +19,7 @@ internal class IndexableOptionStringConverter : JsonConverter<IndexableOption<st
     }
 }
 
-internal class IndexableOptionDoubleConverter : JsonConverter<IndexableOption<double>?>
+internal sealed class IndexableOptionDoubleConverter : JsonConverter<IndexableOption<double>?>
 {
     public override IndexableOption<double>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
      => throw new NotImplementedException();
@@ -34,7 +34,7 @@ internal class IndexableOptionDoubleConverter : JsonConverter<IndexableOption<do
     }
 }
 
-internal class IndexableOptionIntConverter : JsonConverter<IndexableOption<int>?>
+internal sealed class IndexableOptionIntConverter : JsonConverter<IndexableOption<int>?>
 {
     public override IndexableOption<int>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
      => throw new NotImplementedException();
@@ -49,7 +49,7 @@ internal class IndexableOptionIntConverter : JsonConverter<IndexableOption<int>?
     }
 }
 
-internal class IndexableOptionBoolConverter : JsonConverter<IndexableOption<bool>?>
+internal sealed class IndexableOptionBoolConverter : JsonConverter<IndexableOption<bool>?>
 {
     public override IndexableOption<bool>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
      => throw new NotImplementedException();
@@ -64,7 +64,7 @@ internal class IndexableOptionBoolConverter : JsonConverter<IndexableOption<bool
     }
 }
 
-internal class StringOrDoubleValueConverter : JsonConverter<StringOrDoubleValue>
+internal sealed class StringOrDoubleValueConverter : JsonConverter<StringOrDoubleValue>
 {
     public override StringOrDoubleValue? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
      => throw new NotImplementedException();
@@ -80,7 +80,7 @@ internal class StringOrDoubleValueConverter : JsonConverter<StringOrDoubleValue>
 
 }
 
-internal class IndexableOptionObjectConverter : JsonConverter<IndexableOption<object>?>
+internal sealed class IndexableOptionObjectConverter : JsonConverter<IndexableOption<object>?>
 {
     public override IndexableOption<object>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
      => throw new NotImplementedException();
@@ -95,23 +95,14 @@ internal class IndexableOptionObjectConverter : JsonConverter<IndexableOption<ob
     }
 }
 
-internal class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset?>
+internal sealed class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset?>
 {
-    public override ChartJsDataset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-     => throw new NotImplementedException();
-
-    public override void Write(Utf8JsonWriter writer, ChartJsDataset? value, JsonSerializerOptions options)
+    private static readonly JsonSerializerOptions writeOptions = new()
     {
-        if (value == null)
-        {
-            return;
-        }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, new JsonSerializerOptions()
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            Converters =
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters =
                 {
                     new JsonStringEnumConverter(),
                     new IndexableOptionStringConverter(),
@@ -121,28 +112,30 @@ internal class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset?>
                     new IndexableOptionObjectConverter(),
                     new StringOrDoubleValueConverter()
                 }
-        }), true);
-    }
-}
+    };
 
-
-internal class ChartJsAxisJsonConverter : JsonConverter<ChartJsAxis?>
-{
-    public override ChartJsAxis? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override ChartJsDataset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
      => throw new NotImplementedException();
 
-    public override void Write(Utf8JsonWriter writer, ChartJsAxis? value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, ChartJsDataset? value, JsonSerializerOptions options)
     {
         if (value == null)
         {
             return;
         }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, new JsonSerializerOptions()
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            Converters =
+        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, writeOptions), true);
+    }
+}
+
+
+internal sealed class ChartJsAxisJsonConverter : JsonConverter<ChartJsAxis?>
+{
+    private static readonly JsonSerializerOptions writeOptoins = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters =
                 {
                     new JsonStringEnumConverter(),
                     new IndexableOptionStringConverter(),
@@ -153,12 +146,39 @@ internal class ChartJsAxisJsonConverter : JsonConverter<ChartJsAxis?>
                     new ChartJsAxisTickJsonConverter(),
                     new StringOrDoubleValueConverter()
                 }
-        }), true);
+    };
+
+    public override ChartJsAxis? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+     => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, ChartJsAxis? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, writeOptoins), true);
     }
 }
 
-internal class ChartJsAxisTickJsonConverter : JsonConverter<ChartJsAxisTick?>
+internal sealed class ChartJsAxisTickJsonConverter : JsonConverter<ChartJsAxisTick?>
 {
+    private static readonly JsonSerializerOptions writeOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters =
+                {
+                    new JsonStringEnumConverter(),
+                    new IndexableOptionStringConverter(),
+                    new IndexableOptionDoubleConverter(),
+                    new IndexableOptionIntConverter(),
+                    new IndexableOptionBoolConverter(),
+                    new IndexableOptionObjectConverter()
+                }
+    };
+
     public override ChartJsAxisTick? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
      => throw new NotImplementedException();
 
@@ -168,20 +188,6 @@ internal class ChartJsAxisTickJsonConverter : JsonConverter<ChartJsAxisTick?>
         {
             return;
         }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, new JsonSerializerOptions()
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            Converters =
-                {
-                    new JsonStringEnumConverter(),
-                    new IndexableOptionStringConverter(),
-                    new IndexableOptionDoubleConverter(),
-                    new IndexableOptionIntConverter(),
-                    new IndexableOptionBoolConverter(),
-                    new IndexableOptionObjectConverter()
-                }
-        }), true);
+        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, writeOptions), true);
     }
 }

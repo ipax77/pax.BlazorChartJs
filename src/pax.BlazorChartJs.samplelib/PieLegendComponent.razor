@@ -1,0 +1,46 @@
+@using pax.BlazorChartJs
+@using pax.BlazorChartJs.BlazorLegend
+@inherits LegendComponentBase
+
+<div class="border rounded p-2">
+    <div class="table-responsive" style="max-height: 80vh; min-width: 125px;">
+        <table class="table table-sm table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Html Legend</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in LegendItems)
+                {
+                    <tr @onclick="e => HandleLegendItemClick(e, item)"
+                        @onmouseover="e => HandleLegendItemHover(e, item)"
+                        @onmouseleave="e => HandleLegendItemLeave(e, item)">
+                        <td>
+                            <div class="d-flex justify-content-between allign-items-center">
+                                <div>
+                                    <span class="d-inline-block" style="background: @item.FillStyle;
+                                        border: 3px solid @item.StrokeStyle;
+                                        border-radius: 5px 5px 5px;
+                                        height: 25px;
+                                        width: 30px;"></span>
+                                </div>
+                                <div>
+                                    <span class="@($"{(item.Index == HoverItemIndex  ? "fw-bold" : "")}")"
+                                          style="text-decoration: @($"{(item.Hidden ? "line-through" : "auto")};");
+                                            color: @item.FontColor;">
+                                        @item.Text
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+
+}
