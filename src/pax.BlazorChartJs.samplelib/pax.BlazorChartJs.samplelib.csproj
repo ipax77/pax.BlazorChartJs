@@ -16,13 +16,18 @@
     <LangVersion>latest</LangVersion>
     <WarningsNotAsErrors>CA5394</WarningsNotAsErrors>
     <DisabledWarnings>1591</DisabledWarnings>
-    <NoWarn>1591, CA5394</NoWarn>	
+    <NoWarn>1591, CA5394, CA2007, CA1034, CA2227</NoWarn>	
   </PropertyGroup>
-
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.CLSCompliantAttribute">
+        <_Parameter1>false</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>  
 
   <ItemGroup>
     <PackageReference Include="Markdig" Version="0.35.0" />

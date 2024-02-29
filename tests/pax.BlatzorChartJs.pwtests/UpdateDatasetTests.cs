@@ -56,7 +56,7 @@ public class UpdateDatasetTests : PageTest
 
         var borderWidthReset = await GetBorderWidth(canvasId);
 
-        Assert.That(borderWidthReset, Is.Null);
+        Assert.That(borderWidthReset, Is.EqualTo(1));
     }
 
     [Test]
@@ -91,7 +91,7 @@ public class UpdateDatasetTests : PageTest
 
         var barThicknessUpdate = await GetBarThickness(canvasId);
 
-        Assert.That(barThicknessUpdate, Is.EqualTo(6));
+        Assert.That(barThicknessUpdate, Is.EqualTo(22));
 
         // create a locator
         var resetDataset = Page.GetByText("ResetDataset", new PageGetByTextOptions() { Exact = true });
@@ -107,7 +107,7 @@ public class UpdateDatasetTests : PageTest
 
         var barThicknessReset = await GetBorderWidth(canvasId);
 
-        Assert.That(barThicknessReset, Is.Null);
+        Assert.That(barThicknessReset, Is.EqualTo(1));
     }
 
     private async Task<double?> GetBorderWidth(string? canvasId, int dataset = 0)

@@ -64,7 +64,7 @@
         {
             lineDataset.BorderWidth = 10;
         }
-        ChartJsConfig.UpdateDataset(dataset);
+        ChartJsConfig.UpdateDatasetSmooth(dataset);
 
         await base.HandleLegendItemHover(e, item);
     }
@@ -76,7 +76,7 @@
         {
             lineDataset.BorderWidth = 6;
         }
-        ChartJsConfig.UpdateDataset(dataset);
+        ChartJsConfig.UpdateDatasetSmooth(dataset);
 
         await base.HandleLegendItemLeave(e, item);
     }

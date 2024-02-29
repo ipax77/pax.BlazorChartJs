@@ -92,12 +92,14 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
 
     private async void ChartJsConfig_DatasetsUpdate(object? sender, DatasetsUpdateEventArgs e)
     {
-        await ChartJsInterop.UpdateDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets).ConfigureAwait(false);
+        await ChartJsInterop.UpdateDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets, e.Smooth)
+            .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_AddDataEvent(object? sender, AddDataEventArgs e)
     {
-        await ChartJsInterop.AddData(ChartJsConfig.ChartJsConfigGuid, e.Label, e.AtPosition, e.Datas).ConfigureAwait(false);
+        await ChartJsInterop.AddData(ChartJsConfig.ChartJsConfigGuid, e.Label, e.AtPosition, e.Datas)
+            .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_LabelsSet(object? sender, LabelsSetEventArgs e)
