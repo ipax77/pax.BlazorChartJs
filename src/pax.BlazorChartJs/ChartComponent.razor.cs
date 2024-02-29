@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using pax.BlazorChartJs.BlazorLegend;
 using System.Text.Json;
 
 namespace pax.BlazorChartJs;
@@ -91,12 +92,14 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
 
     private async void ChartJsConfig_DatasetsUpdate(object? sender, DatasetsUpdateEventArgs e)
     {
-        await ChartJsInterop.UpdateDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets).ConfigureAwait(false);
+        await ChartJsInterop.UpdateDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets, e.Smooth)
+            .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_AddDataEvent(object? sender, AddDataEventArgs e)
     {
-        await ChartJsInterop.AddData(ChartJsConfig.ChartJsConfigGuid, e.Label, e.AtPosition, e.Datas).ConfigureAwait(false);
+        await ChartJsInterop.AddData(ChartJsConfig.ChartJsConfigGuid, e.Label, e.AtPosition, e.Datas)
+            .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_LabelsSet(object? sender, LabelsSetEventArgs e)
@@ -275,6 +278,15 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     }
 
     /// <summary>
+    /// Sets the visibility for a given dataset. This can be used to build a chart legend in HTML.
+    /// During click on one of the HTML items, you can call setDatasetVisibility to change the appropriate dataset.
+    /// </summary>
+    public async ValueTask SetDatasetVisibility(int datasetIndex, bool value)
+    {
+        await ChartJsInterop.SetDatasetVisibility(ChartJsConfig.ChartJsConfigGuid, datasetIndex, value).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Toggles the visibility of an item in all datasets. A dataset needs to explicitly support this feature for it to have an effect.
     /// From internal chart types, doughnut / pie, polar area, and bar use this.
     /// </summary>
@@ -311,7 +323,39 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     public async ValueTask ShowDataset(ChartJsDataset dataset, int? index)
     {
         ArgumentNullException.ThrowIfNull(dataset);
-        await ChartJsInterop.ShowDataset(ChartJsConfig.ChartJsConfigGuid, ChartJsConfig.Data.Datasets.IndexOf(dataset), index).ConfigureAwait(false);
+        await ChartJsInterop.ShowDataset(ChartJsConfig.ChartJsConfigGuid, ChartJsConfig.Data.Datasets.IndexOf(dataset), index)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Get the current chart legend Items
+    /// </summary>
+    /// <returns>ChartJsLegendItems</returns>
+    public async ValueTask<List<ChartJsLegendItem>> GetLegendItems()
+    {
+        return await ChartJsInterop.GetLegendItems(ChartJsConfig.ChartJsConfigGuid)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Get the current dataset visibility
+    /// </summary>
+    /// <param name="datasetIndex"></param>
+    /// <returns>True if the dataset is visible.</returns>
+    public async ValueTask<bool> IsDatasetVisible(int datasetIndex)
+    {
+        return await ChartJsInterop.IsDatasetVisible(ChartJsConfig.ChartJsConfigGuid, datasetIndex)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sets the datset points active. Use -1 to clear all active points.
+    /// </summary>
+    /// <param name="datasetIndex"></param>
+    public async ValueTask SetDatasetPointsActive(int datasetIndex)
+    {
+        await ChartJsInterop.SetDatasetPointsActive(ChartJsConfig.ChartJsConfigGuid, datasetIndex)
+            .ConfigureAwait(false);
     }
 
     public async ValueTask DisposeAsync()

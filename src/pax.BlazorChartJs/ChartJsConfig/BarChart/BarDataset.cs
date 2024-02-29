@@ -2,16 +2,22 @@
 namespace pax.BlazorChartJs;
 
 /// <summary>
-/// Bar chart dataset <see href="https://www.chartjs.org/docs/latest/charts/bar.html">ChartJs docs</see>
+/// Bar chart dataset 
+/// <see href="https://www.chartjs.org/docs/latest/charts/bar.html">ChartJs docs</see>
 /// </summary>
 public record BarDataset : ChartJsDataset
 {
     /// <summary>
-    /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
+    /// Color can either be a single string (css Color) or a list 
+    /// See <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see> for details.
     /// </summary>     
     public IndexableOption<string>? BackgroundColor { get; set; }
     public IndexableOption<double>? Base { get; set; }
-    public int? BarPercentage { get; set; }
+    /// <summary>
+    /// Percent (0-1) of the available width each bar should be within the category width. 1.0 will take the whole category width and put the bars right next to each other.
+    /// <see href="https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage">ChartJs docs</see>
+    /// </summary>
+    public double? BarPercentage { get; set; }
     /// <summary>
     /// If this value is a number, it is applied to the width of each bar, in pixels. When this is enforced, barPercentage and categoryPercentage are ignored.
     /// If set to 'flex', the base sample widths are calculated automatically based on the previous and following samples so that they take the full available widths without overlap. Then, bars are sized using barPercentage and categoryPercentage. There is no gap when the percentage options are 1. This mode generates bars with different widths when data are not evenly spaced.
@@ -20,7 +26,8 @@ public record BarDataset : ChartJsDataset
     /// </summary>
     public object? BarThickness { get; set; }
     /// <summary>
-    /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
+    /// Color can either be a single string (css Color) or a list 
+    /// <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
     public IndexableOption<string>? BorderColor { get; set; }
     /// <summary>

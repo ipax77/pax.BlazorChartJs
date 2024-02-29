@@ -158,6 +158,22 @@ class ChartJsInterop {
         }
         chart.update();
     }
+    updateDatasetsSmooth(chart, datasets) {
+        const datasetMetas = chart.getSortedVisibleDatasetMetas();
+        datasets.forEach(newDataset => {
+            const datasetIndex = datasetMetas.findIndex(obj => obj['_dataset']['id'] === newDataset['id']);
+            if (datasetIndex >= 0) {
+                const existingDataset = chart.data.datasets[datasetIndex];
+                Object.assign(existingDataset, newDataset);
+                for (const prop in existingDataset) {
+                    if (existingDataset.hasOwnProperty(prop) && !newDataset.hasOwnProperty(prop)) {
+                        delete existingDataset[prop];
+                    }
+                }
+            }
+        });
+        chart.update();
+    }
     updateDatasets(chart, datasets) {
         const datasetMetas = chart.getSortedVisibleDatasetMetas();
         datasets.forEach(dataset => {

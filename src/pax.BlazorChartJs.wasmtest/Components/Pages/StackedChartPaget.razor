@@ -1,5 +1,16 @@
 ﻿@page "/stackedchart"
+@using static pax.BlazorChartJs.samplelib.SourceCodeComponent
 
 <PageTitle>StackedChart</PageTitle>
 
 <pax.BlazorChartJs.samplelib.StackedChartComp></pax.BlazorChartJs.samplelib.StackedChartComp>
+
+<pax.BlazorChartJs.samplelib.SourceCodeComponent Options="sourceCodeOptions" />
+
+@code {
+    SourceCodeOptions sourceCodeOptions = new()
+        {
+            RazorUrl = "https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/StackedChartComp.razor",
+            RawRazorUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/master/src/pax.BlazorChartJs.samplelib/StackedChartComp.razor"
+        };
+}

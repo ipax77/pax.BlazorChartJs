@@ -1,0 +1,25 @@
+@using pax.BlazorChartJs
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="UpdateLegend">Update Legend</button>
+</div>
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveLastDataset">Remove Dataset</button>
+</div>
+
+<div class="row">
+    <div class="col-auto">
+        <div class="mt-2 mb-2">
+            <LegendComponent @ref="legendComponent" ChartJsConfig="chartJsConfig" ChartComponent="chartComponent" />
+        </div>
+    </div>
+
+    <div class="col-auto">
+        <div class="border rounded border-secondary" style="min-width: 600px; width: 55vw; height: calc(55vw * 0.5); min-height: 300px;">
+            <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig" OnEventTriggered="ChartEventTriggered" />
+        </div>
+    </div>
+</div>
+
