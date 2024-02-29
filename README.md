@@ -152,7 +152,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.8.3</summary>
+<details open="open"><summary>v0.8.3-rc1</summary>
 
 >- Microsoft.AspNetCore.Components.Web v8.0.2
 >- Added ChartJsConfig.UpdateDatasetsSmooth updates the ChartJs dataset(s), instead of replacing.
@@ -168,6 +168,7 @@ We really like people helping us with the project. Nevertheless, take your time 
         BorderWidth = [1, 2]
     ```
 >- ChartJs v4.4.2 Tests
+>- Blazor App sample 
 
 </details>
 
