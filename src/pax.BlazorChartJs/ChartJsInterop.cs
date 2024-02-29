@@ -275,10 +275,20 @@ public class ChartJsInterop : IAsyncDisposable
         await module.InvokeVoidAsync("removeDatasets", configGuid, datasetIds).ConfigureAwait(false);
     }
 
-    internal async ValueTask UpdateDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
+    internal async ValueTask UpdateDatasets(Guid configGuid, IList<ChartJsDataset> datasets, bool smooth = false)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("updateDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+        if (smooth)
+        {
+            await module.InvokeVoidAsync("updateDatasetsSmooth", configGuid, SerializeDatasets(datasets))
+                .ConfigureAwait(false);
+        }
+        else
+        {
+            await module.InvokeVoidAsync("updateDatasets", configGuid, SerializeDatasets(datasets))
+                .ConfigureAwait(false);
+
+        }
     }
 
     internal async ValueTask SetDatasets(Guid configGuid, IList<ChartJsDataset> datasets)

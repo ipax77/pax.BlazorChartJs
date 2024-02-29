@@ -7,7 +7,7 @@
  Release | ChartJs | Tests
  ---|---------------|---------------|
  <= 0.5.0 | **3.9.1** | 3.9.1
- &gt;= 0.5.0 | **4.x**   | 4.4.1
+ &gt;= 0.5.0 | **4.x**   | 4.4.2
  
  
 ## Getting started
@@ -154,19 +154,20 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 <details open="open"><summary>v0.8.3</summary>
 
->- ChartJsConfig.UpdateDataset(s) now updates the ChartJs dataset(s), instead of replacing.
+>- Microsoft.AspNetCore.Components.Web v8.0.2
+>- Added ChartJsConfig.UpdateDatasetsSmooth updates the ChartJs dataset(s), instead of replacing.
 >- Added BlazorLegendBase that can be used for a [ChartJs Html Legend](https://www.chartjs.org/docs/latest/samples/legend/html.html) - [Sample][https://ipax77.github.io/pax.BlazorChartJs/htmllegendchart]
 >- Added ChartComponent.GetLegendItems()
 >- Added ChartComponent.IsDatasetVisible(int datasetIndex)
 >- Added ChartComponent.SetDatasetPointsActive(int datasetIndex)
 >- BarDataset.BarPercentage changed from int? to double?
->- Microsoft.AspNetCore.Components.Web v8.0.2
 >- Renamed Layout to ChartJsLayout (CA1724)
 >- `IndexableOption` now supports Collection Expressions e.g.
     ```csharp
         BorderColor = ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
         BorderWidth = [1, 2]
     ```
+>- ChartJs v4.4.2 Tests
 
 </details>
 

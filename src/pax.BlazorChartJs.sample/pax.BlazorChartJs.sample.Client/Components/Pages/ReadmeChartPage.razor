@@ -1,0 +1,17 @@
+﻿@page "/minchart"
+@rendermode InteractiveAuto
+@using static pax.BlazorChartJs.samplelib.SourceCodeComponent
+
+<PageTitle>Minimal Sample Chart</PageTitle>
+
+<pax.BlazorChartJs.samplelib.ReadmeChartComp></pax.BlazorChartJs.samplelib.ReadmeChartComp>
+
+<pax.BlazorChartJs.samplelib.SourceCodeComponent Options="sourceCodeOptions" />
+
+@code {
+    SourceCodeOptions sourceCodeOptions = new()
+        {
+            RazorUrl = "https://github.com/ipax77/pax.BlazorChartJs/blob/htmlLegend/src/pax.BlazorChartJs.samplelib/ReadmeChartComp.razor",
+            RawRazorUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/htmlLegend/src/pax.BlazorChartJs.samplelib/ReadmeChartComp.razor"
+        };
+}

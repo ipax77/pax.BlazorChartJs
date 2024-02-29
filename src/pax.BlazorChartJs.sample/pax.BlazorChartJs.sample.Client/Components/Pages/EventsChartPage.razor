@@ -1,0 +1,17 @@
+﻿@page "/eventschart"
+@rendermode InteractiveAuto
+@using static pax.BlazorChartJs.samplelib.SourceCodeComponent
+
+<PageTitle>EventsChart</PageTitle>
+
+<pax.BlazorChartJs.samplelib.EventsComp></pax.BlazorChartJs.samplelib.EventsComp>
+
+<pax.BlazorChartJs.samplelib.SourceCodeComponent Options="sourceCodeOptions" />
+
+@code {
+    SourceCodeOptions sourceCodeOptions = new()
+        {
+            RazorUrl = "https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventsComp.razor",
+            RawRazorUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/master/src/pax.BlazorChartJs.samplelib/EventsComp.razor"
+        };
+}

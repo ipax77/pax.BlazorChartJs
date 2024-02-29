@@ -31,7 +31,10 @@
                         new BarDataset()
                         {
                             Label = "Dataset 1",
-                            Data = [ 1, 2, 3 ]
+                            Data = [ 1, 2, 3 ],
+                            BorderColor = "slateblue",
+                            BackgroundColor = "dodgerblue",
+                            BorderWidth = 1
                         }
                     }
                 }
@@ -67,7 +70,7 @@
                 barDataset.Data = newData.Cast<object>().ToList();
             }
         }
-        chartJsConfig.UpdateDatasets(chartJsConfig.Data.Datasets);
+        chartJsConfig.UpdateDatasetsSmooth(chartJsConfig.Data.Datasets);
     }
 
     private void UpdateDataset()
@@ -86,7 +89,7 @@
                 barDataset.BackgroundColor = [ "red", "lightblue", "lightyellow" ];
                 barDataset.BorderWidth = 3;
             }
-            chartJsConfig.UpdateDataset(dataset);
+            chartJsConfig.UpdateDatasetSmooth(dataset);
         }
     }
 
@@ -102,15 +105,15 @@
             if (dataset is BarDataset barDataset)
             {
                 barDataset.Data = [1, 2, 3];
-                barDataset.BorderColor = null;
-                barDataset.BackgroundColor = null;
-                barDataset.BorderWidth = null;
+                barDataset.BorderColor = ["slateblue", "slateblue", "slateblue"];
+                barDataset.BackgroundColor = ["dodgerblue", "dodgerblue", "dodgerblue"];
+                barDataset.BorderWidth = 1;
                 barDataset.BarPercentage = null;
                 barDataset.BarThickness = null;
                 barDataset.MaxBarThickness = null;
                 barDataset.MinBarLength = null;
             }
-            chartJsConfig.UpdateDataset(dataset);
+            chartJsConfig.UpdateDatasetSmooth(dataset);
         }
     }
 
@@ -130,12 +133,12 @@
                 barDataset.BackgroundColor = [ "red", "lightblue", "lightyellow" ];
                 barDataset.BorderWidth = 3;
                 barDataset.BarPercentage = 0.5;
-                barDataset.BarThickness = 6;
-                barDataset.MaxBarThickness = 8;
+                barDataset.BarThickness = 22;
+                barDataset.MaxBarThickness = 22;
                 barDataset.MinBarLength = 2;
 
             }
-            chartJsConfig.UpdateDataset(dataset);
+            chartJsConfig.UpdateDatasetSmooth(dataset);
         }
     }
 }

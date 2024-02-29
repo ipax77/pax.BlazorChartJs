@@ -93,6 +93,38 @@ public partial class ChartJsConfig
         OnDatasetsUpdate(new DatasetsUpdateEventArgs(updateDatasets));
     }
 
+        /// <summary>
+    /// Updates the Chart dataset smoothly, if possible.
+    /// Note: Updating dataset properties to NULL (default values) or single values is currently not working if they were an array. <see href="https://github.com/chartjs/Chart.js/issues/11679"/>
+    /// </summary>
+    /// <param name="dataset">The dataset containing the updated values.</param>
+    public void UpdateDatasetSmooth(ChartJsDataset dataset)
+    {
+        ArgumentNullException.ThrowIfNull(dataset);
+        UpdateDatasetsSmooth([dataset]);
+    }
+
+    /// <summary>
+    /// Updates the Chart datasets smoothly, if possible.
+    /// Note: Updating dataset properties to NULL (default values) or single values is currently not working if they were an array. <see href="https://github.com/chartjs/Chart.js/issues/11679"/>
+    /// </summary>
+    /// <param name="datasets">The datasets containing the updated values.</param>
+    public void UpdateDatasetsSmooth(IList<ChartJsDataset> datasets)
+    {
+        ArgumentNullException.ThrowIfNull(datasets);
+
+        List<ChartJsDataset> updateDatasets = [];
+        foreach (var dataset in datasets)
+        {
+            var index = Data.Datasets.IndexOf(dataset);
+            if (index >= 0)
+            {
+                updateDatasets.Add(dataset);
+            }
+        }
+        OnDatasetsUpdate(new DatasetsUpdateEventArgs(updateDatasets, smooth: true));
+    }
+
     /// <summary>
     /// Updates the Chart with the current Datasets
     /// </summary>

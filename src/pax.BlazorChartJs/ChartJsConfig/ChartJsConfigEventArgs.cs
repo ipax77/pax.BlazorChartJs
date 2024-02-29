@@ -21,12 +21,14 @@ public class DatasetsRemoveEventArgs : EventArgs
 
 public class DatasetsUpdateEventArgs : EventArgs
 {
-    public DatasetsUpdateEventArgs(IList<ChartJsDataset> datasets)
+    public DatasetsUpdateEventArgs(IList<ChartJsDataset> datasets, bool smooth = false)
     {
         Datasets = datasets;
+        Smooth = smooth;
     }
 
     public IList<ChartJsDataset> Datasets { get; init; }
+    public bool Smooth { get; init; }
 }
 
 public class DatasetsSetEventArgs : EventArgs

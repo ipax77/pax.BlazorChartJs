@@ -1,3 +1,4 @@
+// v0.8.3
 import ChartJsInteropModule from './ChartJsInteropModule.js';
 
 class AsyncLock {
@@ -218,6 +219,11 @@ export function addDatasets(chartId, datasets) {
 export function removeDatasets(chartId, datasets) {
     const chart = Chart.getChart(chartId);
     ChartJsInteropModule.removeDatasets(chart, datasets);
+}
+
+export function updateDatasetsSmooth(chartId, datasets) {
+    const chart = Chart.getChart(chartId);
+    ChartJsInteropModule.updateDatasetsSmooth(chart, datasets);
 }
 
 export function updateDatasets(chartId, datasets) {
