@@ -122,7 +122,7 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
 * To update the chart with smooth animations there are several helper functions available, e.g.:
     - ```ChartJsConfig.SetLabels(...)```
     - ```ChartJsConfig.AddData(...)```
-    - ```ChartJsConfig.AddDataset(...)```
+    - ```ChartJsConfig.AddDatasetSmooth(...)```
     - ```ChartJsConfig.SetData(...)```
 * use ```ChartJsConfig.UpdateChartOptions()``` to update the chart options, only (e.g. [StepSize](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/StackedChartComp.razor#L106))
 
@@ -152,7 +152,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.8.3-rc1</summary>
+<details open="open"><summary>v0.8.3</summary>
 
 >- Microsoft.AspNetCore.Components.Web v8.0.2
 >- Added ChartJsConfig.UpdateDatasetsSmooth updates the ChartJs dataset(s), instead of replacing.

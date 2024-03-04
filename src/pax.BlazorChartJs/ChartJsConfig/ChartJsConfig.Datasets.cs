@@ -93,7 +93,7 @@ public partial class ChartJsConfig
         OnDatasetsUpdate(new DatasetsUpdateEventArgs(updateDatasets));
     }
 
-        /// <summary>
+    /// <summary>
     /// Updates the Chart dataset smoothly, if possible.
     /// Note: Updating dataset properties to NULL (default values) or single values is currently not working if they were an array. <see href="https://github.com/chartjs/Chart.js/issues/11679"/>
     /// </summary>
