@@ -9,7 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\pax.BlazorChartJs.samplelib\pax.BlazorChartJs.samplelib.csproj" />
     <ProjectReference Include="..\pax.BlazorChartJs.sample.Client\pax.BlazorChartJs.sample.Client.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.8" />
   </ItemGroup>
 
 </Project>
