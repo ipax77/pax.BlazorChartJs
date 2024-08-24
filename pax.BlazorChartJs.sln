@@ -1,25 +1,43 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35219.272
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{58C50EF5-F4D6-4CB4-B84C-39C2D6FF8E9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pax.BlazorChartJs", "src\pax.BlazorChartJs\pax.BlazorChartJs.csproj", "{0E79F862-BBDD-4067-8F96-52BACCC35783}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pax.BlazorChartJs", "src\pax.BlazorChartJs\pax.BlazorChartJs.csproj", "{0E79F862-BBDD-4067-8F96-52BACCC35783}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pax.BlazorChartJs.wasmtest", "src\pax.BlazorChartJs.wasmtest\pax.BlazorChartJs.wasmtest.csproj", "{8C1F6F8B-3966-4F7A-9B40-79927E701E32}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pax.BlazorChartJs.samplelib", "src\pax.BlazorChartJs.samplelib\pax.BlazorChartJs.samplelib.csproj", "{81E10B4B-0460-491E-8F32-6581D0DE48F0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pax.BlatzorChartJs.pwtests", "tests\pax.BlatzorChartJs.pwtests\pax.BlatzorChartJs.pwtests.csproj", "{BEB096C4-FC15-4E7C-BE9E-286D1F2A77B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0E79F862-BBDD-4067-8F96-52BACCC35783}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0E79F862-BBDD-4067-8F96-52BACCC35783}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E79F862-BBDD-4067-8F96-52BACCC35783}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E79F862-BBDD-4067-8F96-52BACCC35783}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C1F6F8B-3966-4F7A-9B40-79927E701E32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C1F6F8B-3966-4F7A-9B40-79927E701E32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C1F6F8B-3966-4F7A-9B40-79927E701E32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C1F6F8B-3966-4F7A-9B40-79927E701E32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81E10B4B-0460-491E-8F32-6581D0DE48F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81E10B4B-0460-491E-8F32-6581D0DE48F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81E10B4B-0460-491E-8F32-6581D0DE48F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81E10B4B-0460-491E-8F32-6581D0DE48F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEB096C4-FC15-4E7C-BE9E-286D1F2A77B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEB096C4-FC15-4E7C-BE9E-286D1F2A77B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEB096C4-FC15-4E7C-BE9E-286D1F2A77B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEB096C4-FC15-4E7C-BE9E-286D1F2A77B3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0E79F862-BBDD-4067-8F96-52BACCC35783} = {58C50EF5-F4D6-4CB4-B84C-39C2D6FF8E9C}

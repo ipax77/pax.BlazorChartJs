@@ -7,7 +7,7 @@
  Release | ChartJs | Tests
  ---|---------------|---------------|
  <= 0.5.0 | **3.9.1** | 3.9.1
- &gt;= 0.5.0 | **4.x**   | 4.4.3
+ &gt;= 0.5.0 | **4.x**   | 4.4.4
  
  
 ## Getting started
@@ -152,7 +152,14 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.8.3</summary>
+<details open="open"><summary>v0.8.4</summary>
+
+>- Microsoft.AspNetCore.Components.Web v8.0.8
+>- ChartJs v4.4.4 tests
+
+</details>
+
+<details><summary>v0.8.3</summary>
 
 >- Microsoft.AspNetCore.Components.Web v8.0.2
 >- Added ChartJsConfig.UpdateDatasetsSmooth updates the ChartJs dataset(s), instead of replacing.
