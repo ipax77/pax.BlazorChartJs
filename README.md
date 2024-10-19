@@ -7,7 +7,7 @@
  Release | ChartJs | Tests
  ---|---------------|---------------|
  <= 0.5.0 | **3.9.1** | 3.9.1
- &gt;= 0.5.0 | **4.x**   | 4.4.4
+ &gt;= 0.5.0 | **4.x**   | 4.4.5
  
  
 ## Getting started
@@ -156,11 +156,11 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 >- Microsoft.AspNetCore.Components.Web v8.0.*
 >- ChartJs v4.4.5 tests
->- Test/Sample projects update to dotent v8.0.10
+>- Test/Sample projects update to dotnet v8.0.10
 
 </details>
 
-<details open="open"><summary>v0.8.4</summary>
+<details><summary>v0.8.4</summary>
 
 >- Microsoft.AspNetCore.Components.Web v8.0.8
 >- ChartJs v4.4.4 tests
