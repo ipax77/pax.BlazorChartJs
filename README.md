@@ -152,6 +152,14 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
+<details open="open"><summary>v0.8.5</summary>
+
+>- Microsoft.AspNetCore.Components.Web v8.0.*
+>- ChartJs v4.4.5 tests
+>- Test/Sample projects update to dotent v8.0.10
+
+</details>
+
 <details open="open"><summary>v0.8.4</summary>
 
 >- Microsoft.AspNetCore.Components.Web v8.0.8
