@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "pax.BlazorChartJs.wasmtest",
   "resources": {
-    "hash": "sha256-iMnLwpWfs6vwB9OlOh3/gwxqmsQXX2hOAjKzFBfNR3k=",
+    "hash": "sha256-GwH7ZH6x1VRsx9l/8eJXRB6d1/9gCVkIA5LWm3rrjaA=",
     "jsModuleNative": {
       "dotnet.native.8.0.10.4xsnm8lwn6.js": "sha256-QVxMlY7ohmjgde/bZMA0dlWDAeuUP+tEfkiSdg4DFcE="
     },
@@ -34,9 +34,9 @@
       "Microsoft.Extensions.Primitives.wasm": "sha256-Ms2HR5Gpug/0uRAzdk4SUNT76Ml3CjFv9Jo+dUIMGac=",
       "Microsoft.JSInterop.wasm": "sha256-3S0JtmsxVpI85qNsNEgzyTvOWXNjz5qFallGeshFZTU=",
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-r/+bWAAxKn2+Wu3MRYDXvKEbHjLNuptflgNuNhQdK6w=",
-      "pax.BlazorChartJs.samplelib.wasm": "sha256-Ab4EE6SlZDmOCDmER2l9hLT3xREE0/cfwvO1hUgh3Mg=",
-      "pax.BlazorChartJs.wasm": "sha256-muc0Vizt/5PcdWqyqWvSsTcW3mtPV/+D5G2FT0Txh/A=",
-      "pax.BlazorChartJs.wasmtest.wasm": "sha256-pczLQShETeR8P65F+T5O5nvTNCGV4WzSXC7HAFwtgMA=",
+      "pax.BlazorChartJs.samplelib.wasm": "sha256-uY1u2kFF30MflToa/RnCcnzoGlJg3TuUPdyNqaWZ7jo=",
+      "pax.BlazorChartJs.wasm": "sha256-6nV54PC82p7JNVLqLaYFBQodLa5sem6g6LsrpTkPQPw=",
+      "pax.BlazorChartJs.wasmtest.wasm": "sha256-KWGMHvm0eBtPnVSSPsrPcg98Ft3583NrzgnlB112mp4=",
       "System.Collections.Concurrent.wasm": "sha256-gy8BZkoJemsHSxemD7w9za4sm6jtn1TS43mdpoKF2nA=",
       "System.Collections.NonGeneric.wasm": "sha256-R6tGraLhH99tBkTCN7pTkL4qGkdF9Z/0YrBnX2zNfWU=",
       "System.Collections.Specialized.wasm": "sha256-/GCKy/NDtHNN69DlQZZZBNn9KsXROjOCUoOjXnTndX4=",
