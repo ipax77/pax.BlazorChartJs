@@ -7,30 +7,22 @@
  Release | ChartJs | Tests
  ---|---------------|---------------|
  <= 0.5.0 | **3.9.1** | 3.9.1
- &gt;= 0.5.0 | **4.x**   | 4.4.6
+ &gt;= 0.5.0 | **4.x**   | 4.4.7
  
  
 ## Getting started
 This library is using [JavaScript isolation](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/?view=aspnetcore-6.0#javascript-isolation-in-javascript-modules-1). JS isolation provides the following benefits:
 * Imported JS no longer pollutes the global namespace.
 * Consumers of a library and components aren't required to import the related JS.
-## Prerequisites
-* dotnet 6/7 for versions < 0.8
-* dotnet 8 for versions >= 0.8
+
 ## Installation
 
-**dotnet 8**
-```
+```powershell
 dotnet add package pax.BlazorChartJs
 ```
 
-**dotnet 6/7**
-```
-dotnet add package pax.BlazorChartJs --version 0.6.3
-```
-
 Program.cs:
-``` cs
+```csharp
     builder.Services.AddChartJs(options =>
     {
         // default
