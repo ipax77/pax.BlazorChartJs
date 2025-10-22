@@ -20,12 +20,12 @@
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
 </div>
 
-<div class="chart-container w-75">
+<div class="chart-container w-75" style="position: relative">
     <ChartComponent @ref="chartComponent"
         OnEventTriggered="ChartEventTriggered"
         ChartJsConfig="chartJsConfig"
     />
-    <p id="chartVersion" style="position: absolute; right: 10px; top: 10px;">ChartJs v@(chartVersion)</p>
+    <p id="chartVersion" style="position: absolute; right: 10px; top: 10px; z-index: 9999;">ChartJs v@(chartVersion)</p>
 </div>
 
 <div>

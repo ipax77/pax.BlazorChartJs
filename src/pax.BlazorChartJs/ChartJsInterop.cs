@@ -8,13 +8,6 @@ using System.Text.Json.Serialization;
 
 namespace pax.BlazorChartJs;
 
-// This class provides an example of how JavaScript functionality can be wrapped
-// in a .NET class for easy consumption. The associated JavaScript module is
-// loaded on demand when first needed.
-//
-// This class can be registered as scoped DI service and then injected into Blazor
-// components for use.
-
 /// <summary>
 /// ChartJsInterop
 /// </summary>
@@ -44,7 +37,9 @@ public class ChartJsInterop : IAsyncDisposable
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         Converters =
             {
-                new JsonStringEnumConverter(),
+                new JsonStringEnumConverter<ChartType>(),
+                new JsonStringEnumConverter<ChartJsEventType>(),
+                new JsonStringEnumConverter<ChartJsEventSource>(),
                 new IndexableOptionStringConverter(),
                 new IndexableOptionDoubleConverter(),
                 new IndexableOptionIntConverter(),
@@ -362,17 +357,6 @@ public class ChartJsInterop : IAsyncDisposable
         return JsonSerializer.Deserialize<JsonObject>(json);
     }
 
-    private List<JsonObject?> SerializeConfigDatasets(ChartJsConfig config)
-    {
-        List<JsonObject?> jsonObjects = new();
-        for (int i = 0; i < config.Data.Datasets.Count; i++)
-        {
-            var json = JsonSerializer.Serialize(config.Data.Datasets.ElementAt(i), jsonOptions);
-            jsonObjects.Add(JsonSerializer.Deserialize<JsonObject>(json));
-        }
-        return jsonObjects;
-    }
-
     private JsonObject? SerializeConfigDataset(object dataset)
     {
         var json = JsonSerializer.Serialize(dataset, jsonOptions);
@@ -381,7 +365,7 @@ public class ChartJsInterop : IAsyncDisposable
 
     private List<JsonObject?> SerializeDatasets(IList<ChartJsDataset> datasets)
     {
-        List<JsonObject?> jsonObjects = new();
+        List<JsonObject?> jsonObjects = [];
         for (int i = 0; i < datasets.Count; i++)
         {
             var json = JsonSerializer.Serialize(datasets[i], jsonOptions);
