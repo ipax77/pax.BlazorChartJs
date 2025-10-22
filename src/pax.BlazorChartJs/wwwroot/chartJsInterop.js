@@ -1,4 +1,4 @@
-// v0.8.3
+// v0.8.6-rc2
 import ChartJsInteropModule from './ChartJsInteropModule.js';
 
 class AsyncLock {

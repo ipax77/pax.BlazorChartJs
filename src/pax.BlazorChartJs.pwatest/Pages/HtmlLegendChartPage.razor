@@ -1,0 +1,27 @@
+﻿@page "/htmllegendchart"
+@using static pax.BlazorChartJs.samplelib.SourceCodeComponent
+
+<PageTitle>Html Legend Chart</PageTitle>
+
+<pax.BlazorChartJs.samplelib.HtmlLegendChartComp />
+
+@* <pax.BlazorChartJs.samplelib.SourceCodeComponent Options="options" /> *@
+
+<h3>Html Legend</h3>
+<pax.BlazorChartJs.samplelib.SourceCodeComponent Options="legendOptions" />
+
+@code {
+    SourceCodeOptions options = new()
+        {
+            RazorUrl = "https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/HtmlLegendChartComp.razor",
+            RawRazorUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/master/src/pax.BlazorChartJs.samplelib/HtmlLegendChartComp.razor",
+            RawCsUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/master/src/pax.BlazorChartJs.samplelib/HtmlLegendChartComp.razor.cs",
+            CsUrl = "https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/HtmlLegendChartComp.razor.cs"
+        };
+
+    SourceCodeOptions legendOptions = new()
+        {
+            RawRazorUrl = "https://raw.githubusercontent.com/ipax77/pax.BlazorChartJs/master/src/pax.BlazorChartJs.samplelib/LegendComponent.razor",
+            RazorUrl = "https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/LegendComponent.razor"
+        };
+}

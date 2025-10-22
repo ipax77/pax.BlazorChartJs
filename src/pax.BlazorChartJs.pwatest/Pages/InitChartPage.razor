@@ -1,0 +1,46 @@
+﻿@page "/timeschart"
+@using pax.BlazorChartJs.samplelib
+
+<PageTitle>TimesChart</PageTitle>
+
+<h3>InitChartPage</h3>
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="ShowChart">Show Chart</button>
+    <button type="button" class="btn btn-primary" @onclick="DisposeChart">Dispose Chart</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowAndDisposeChart">ShowAndDispose Chart</button>
+</div>
+
+@if (showChart)
+{
+    <TimesChartComp @ref="timesChartComp"></TimesChartComp>
+}
+
+@code {
+    TimesChartComp? timesChartComp;
+
+    private bool showChart;
+
+    private void ShowChart()
+    {
+        showChart = true;
+        StateHasChanged();
+    }
+
+    private void DisposeChart()
+    {
+        timesChartComp?.chartComponent?.DisposeAsync();
+        showChart = false;
+        StateHasChanged();
+    }
+
+    private async void ShowAndDisposeChart()
+    {
+        showChart = true;
+        StateHasChanged();
+        await Task.Delay(5);
+        timesChartComp?.chartComponent?.DisposeAsync();
+        showChart = false;
+        StateHasChanged();
+    }
+}
