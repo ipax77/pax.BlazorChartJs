@@ -11,7 +11,7 @@ namespace pax.BlazorChartJs;
 /// <summary>
 /// ChartJsInterop
 /// </summary>
-public class ChartJsInterop : IAsyncDisposable
+public class ChartJsInterop : IAsyncDisposable, IChartJsInterop
 {
     /// <summary>
     /// ChartJsInterop
@@ -37,9 +37,7 @@ public class ChartJsInterop : IAsyncDisposable
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         Converters =
             {
-                new JsonStringEnumConverter<ChartType>(),
-                new JsonStringEnumConverter<ChartJsEventType>(),
-                new JsonStringEnumConverter<ChartJsEventSource>(),
+                new JsonStringEnumConverter(),
                 new IndexableOptionStringConverter(),
                 new IndexableOptionDoubleConverter(),
                 new IndexableOptionIntConverter(),
@@ -182,6 +180,11 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Reset the chart to its state before the initial animation. 
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <returns></returns>
     public async ValueTask ResetChart(Guid configGuid)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
@@ -189,6 +192,11 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Triggers a redraw of all chart elements. Note, this does not update elements for new data. Use .update() in that case.
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <returns></returns>
     public async ValueTask RenderChart(Guid configGuid)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
@@ -196,6 +204,12 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Use this to stop any current animation. This will pause the chart during any current animation frame.
+    /// Call .render() to re-animate.
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <returns></returns>
     public async ValueTask StopChart(Guid configGuid)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
@@ -203,6 +217,14 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Sets the visibility for a given dataset. This can be used to build a chart legend in HTML.
+    /// During click on one of the HTML items, you can call setDatasetVisibility to change the appropriate dataset.
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <param name="datasetIndex"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public async ValueTask SetDatasetVisibility(Guid configGuid, int datasetIndex, bool value)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
@@ -210,6 +232,13 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Toggles the visibility of an item in all datasets. A dataset needs to explicitly support this feature for it to have an effect.
+    /// From internal chart types, doughnut / pie, polar area, and bar use this.
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <param name="index"></param>
+    /// <returns></returns>
     public async ValueTask ToggleDataVisibility(Guid configGuid, int index)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
@@ -217,6 +246,13 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Returns the stored visibility state of a data index for all datasets. Set by toggleDataVisibility.
+    /// A dataset controller should use this method to determine if an item should not be visible.
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <param name="index"></param>
+    /// <returns></returns>
     public async ValueTask<bool> GetDataVisibility(Guid configGuid, int index)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
@@ -224,6 +260,14 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// If dataIndex is not specified, sets the visibility for the given dataset to false. Updates the chart and animates the dataset with 'hide' mode.
+    /// If dataIndex is specified, sets the hidden flag of that element to true and updates the chart.
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <param name="dataset"></param>
+    /// <param name="index"></param>
+    /// <returns></returns>
     public async ValueTask HideDataset(Guid configGuid, ChartJsDataset dataset, int? index)
     {
         ArgumentNullException.ThrowIfNull(dataset);
@@ -233,6 +277,14 @@ public class ChartJsInterop : IAsyncDisposable
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// If dataIndex is not specified, sets the visibility for the given dataset to true. Updates the chart and animates the dataset with 'show' mode.
+    /// If dataIndex is specified, sets the hidden flag of that element to false and updates the chart.
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <param name="datasetIndex"></param>
+    /// <param name="index"></param>
+    /// <returns></returns>
     public async ValueTask ShowDataset(Guid configGuid, int datasetIndex, int? index)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
@@ -298,13 +350,25 @@ public class ChartJsInterop : IAsyncDisposable
         return await module.InvokeAsync<List<ChartJsLegendItem>>("getLabels", configGuid).ConfigureAwait(false);
     }
 
-    internal async ValueTask<bool> IsDatasetVisible(Guid configGuid, int datasetIndex)
+    /// <summary>
+    /// Returns a boolean if a dataset at the given index is currently visible.
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <param name="datasetIndex"></param>
+    /// <returns></returns>
+    public async ValueTask<bool> IsDatasetVisible(Guid configGuid, int datasetIndex)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
         return await module.InvokeAsync<bool>("isDatasetVisible", configGuid, datasetIndex).ConfigureAwait(false);
     }
 
-    internal async ValueTask SetDatasetPointsActive(Guid configGuid, int datasetIndex)
+    /// <summary>
+    /// Sets the active (hovered) elements for the chart. See the "Programmatic Events" sample file to see this in action.
+    /// </summary>
+    /// <param name="configGuid"></param>
+    /// <param name="datasetIndex"></param>
+    /// <returns></returns>
+    public async ValueTask SetDatasetPointsActive(Guid configGuid, int datasetIndex)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
         await module.InvokeVoidAsync("setDatasetPointsActive", configGuid, datasetIndex).ConfigureAwait(false);
