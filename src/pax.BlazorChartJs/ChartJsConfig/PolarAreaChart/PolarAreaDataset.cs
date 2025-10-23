@@ -1,4 +1,5 @@
 ﻿namespace pax.BlazorChartJs;
+
 public record PolarAreaDataset : ChartJsDataset
 {
     /// <summary>

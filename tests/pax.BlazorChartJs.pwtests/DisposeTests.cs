@@ -1,7 +1,5 @@
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.Playwright.NUnit;
-using NUnit.Framework;
+using System.Text.RegularExpressions;
 
 namespace PlaywrightTests;
 
@@ -18,7 +16,7 @@ public class DisposeTests : PageTest
         await Expect(Page).ToHaveTitleAsync(new Regex("TimesChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         // Provoke ChartComponent.Dispose while initializing
-                // create a locator
+        // create a locator
         var showAndDispose = Page.GetByText("ShowAndDispose Chart", new Microsoft.Playwright.PageGetByTextOptions() { Exact = true });
 
         // Expect an attribute "to be strictly equal" to the value.

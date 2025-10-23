@@ -1,7 +1,5 @@
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.Playwright.NUnit;
-using NUnit.Framework;
+using System.Text.RegularExpressions;
 
 namespace PlaywrightTests;
 
@@ -33,9 +31,9 @@ public class ChartEventsTests : PageTest
         );
         await Task.Delay(Startup.ChartJsLoadDelay);
         await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
-            {
-                Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
-            }
+        {
+            Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
+        }
         );
         await Task.Delay(Startup.ChartJsComputeDelay);
         var clickResult = Page.Locator("p");
@@ -74,7 +72,7 @@ public class ChartEventsTests : PageTest
         );
         var clickResult = Page.Locator("p");
         var textPrev = await clickResult.AllInnerTextsAsync();
-        
+
         // wait for ChartJs
         await Task.Delay(Startup.ChartJsLoadDelay);
 

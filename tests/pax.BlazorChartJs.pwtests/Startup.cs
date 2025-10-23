@@ -1,7 +1,7 @@
 
-using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Playwright.NUnit;
+using System.Diagnostics;
 
 namespace PlaywrightTests;
 
@@ -13,8 +13,8 @@ public static class Startup
     internal static TimeSpan ChartJsLoadDelay = TimeSpan.FromMilliseconds(1500);
     // time to wait for ChartJs to compute actions (e.g. addData)
     internal static TimeSpan ChartJsComputeDelay = TimeSpan.FromMilliseconds(10);
-    
-    
+
+
     private static string sampleBaseUrl = "";
 
     private static readonly SemaphoreSlim ssStart = new(1, 1);
@@ -45,17 +45,17 @@ public static class Startup
             .Build();
 
         sampleBaseUrl = configuration["SampleBaseUrl"] ?? "";
-        
+
         if (int.TryParse(configuration["WasmLoadDelay"], out int wasmMs))
         {
             WasmLoadDelay = TimeSpan.FromMilliseconds(wasmMs);
         }
-        
+
         if (int.TryParse(configuration["ChartJsLoadDelay"], out int chartLoadMs))
         {
             ChartJsLoadDelay = TimeSpan.FromMilliseconds(chartLoadMs);
         }
-        
+
         if (int.TryParse(configuration["ChartJsComputeDelay"], out int chartComputeDelay))
         {
             ChartJsComputeDelay = TimeSpan.FromMilliseconds(chartComputeDelay);

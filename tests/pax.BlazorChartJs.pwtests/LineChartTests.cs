@@ -1,7 +1,5 @@
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.Playwright.NUnit;
-using NUnit.Framework;
+using System.Text.RegularExpressions;
 
 namespace PlaywrightTests;
 
@@ -43,7 +41,7 @@ public class LineChartTests : PageTest
         await addData.ClickAsync();
 
         // wait for Chartjs
-        await Task.Delay(Startup.ChartJsComputeDelay);        
+        await Task.Delay(Startup.ChartJsComputeDelay);
 
         int countAfter = await GetDatasetDataCount(canvasId);
 
@@ -82,7 +80,7 @@ public class LineChartTests : PageTest
         await removeData.ClickAsync();
 
         // wait for Chartjs
-        await Task.Delay(Startup.ChartJsComputeDelay);        
+        await Task.Delay(Startup.ChartJsComputeDelay);
 
         int countAfter = await GetDatasetDataCount(canvasId);
 
