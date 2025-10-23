@@ -11,7 +11,7 @@ namespace pax.BlazorChartJs;
 /// <summary>
 /// ChartJsInterop
 /// </summary>
-public class ChartJsInterop : IAsyncDisposable, IChartJsInterop
+public class ChartJsInterop : IAsyncDisposable
 {
     /// <summary>
     /// ChartJsInterop
