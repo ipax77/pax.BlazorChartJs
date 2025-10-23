@@ -6,6 +6,7 @@ namespace pax.BlazorChartJs;
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    GenerationMode = JsonSourceGenerationMode.Serialization,
     Converters = new[]
     {
         typeof(JsonStringEnumConverter<ChartType>),
@@ -35,6 +36,11 @@ namespace pax.BlazorChartJs;
 [JsonSerializable(typeof(StringOrDoubleValue))]
 [JsonSerializable(typeof(ChartJsOptions))]
 [JsonSerializable(typeof(Plugins))]
+[JsonSerializable(typeof(ChartJsData))]
+[JsonSerializable(typeof(AddDataObject))]
+[JsonSerializable(typeof(SetDataObject))]
+[JsonSerializable(typeof(CartesianAxisTick))]
+[JsonSerializable(typeof(ChartJsAxisBorder))]
 
 // Datasets
 [JsonSerializable(typeof(BarDataset))]
@@ -83,6 +89,15 @@ namespace pax.BlazorChartJs;
 [JsonSerializable(typeof(ChartJsEventType))]
 [JsonSerializable(typeof(ChartJsEventSource))]
 
+// Defaults
+[JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(bool))]
+[JsonSerializable(typeof(int))]
+[JsonSerializable(typeof(float))]
+[JsonSerializable(typeof(double))]
+[JsonSerializable(typeof(decimal))]
+
+// preperation for AOT friendly version
 internal sealed partial class ChartJsJsonContext : JsonSerializerContext
 {
     public static JsonSerializerOptions CreateDefaultOptions()
