@@ -74,7 +74,7 @@ public partial class BarChartComp : ComponentBase
                         Title = new Title()
                         {
                             Display = true,
-                            Text = new List<string>() { "$ y-axis title test", "€ y-axis title test" }
+                            Text = new List<string>() { "$ y-axis title test", "ï¿½ y-axis title test" }
                         },
                         SuggestedMax = 25
                     }
@@ -150,32 +150,32 @@ public partial class BarChartComp : ComponentBase
         }
 
         List<ChartIconsConfig> icons = new()
-    {
-        new()
         {
-            XWidth = 30,
-            YWidth = 30,
-            YOffset = 0,
-            ImageSrc = "_content/pax.BlazorChartJs.samplelib/images/abathur-min.png",
-            Cmdr = "abathur"
-        },
-        new()
-        {
-            XWidth = 30,
-            YWidth = 30,
-            YOffset = 0,
-            ImageSrc = "_content/pax.BlazorChartJs.samplelib/images/alarak-min.png",
-            Cmdr = "alarak"
-        },
-        new()
-        {
-            XWidth = 30,
-            YWidth = 30,
-            YOffset = 0,
-            ImageSrc = "_content/pax.BlazorChartJs.samplelib/images/artanis-min.png",
-            Cmdr = "artanis"
-        },
-    };
+            new()
+            {
+                XWidth = 30,
+                YWidth = 30,
+                YOffset = 0,
+                ImageSrc = "_content/pax.BlazorChartJs.samplelib/images/abathur-min.png",
+                Cmdr = "abathur"
+            },
+            new()
+            {
+                XWidth = 30,
+                YWidth = 30,
+                YOffset = 0,
+                ImageSrc = "_content/pax.BlazorChartJs.samplelib/images/alarak-min.png",
+                Cmdr = "alarak"
+            },
+            new()
+            {
+                XWidth = 30,
+                YWidth = 30,
+                YOffset = 0,
+                ImageSrc = "_content/pax.BlazorChartJs.samplelib/images/artanis-min.png",
+                Cmdr = "artanis"
+            },
+        };
 
         chartJsConfig.Options.Plugins.BarIcons = icons;
 
