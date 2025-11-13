@@ -144,7 +144,15 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## ChangeLog
 
-<details open="open"><summary>v0.8.5</summary>
+<details open="open"><summary>v0.8.6</summary>
+
+>- .NET 10
+>- ChartJs v4.4.6 tests
+>- Improved Json serialization to be more AOT friendly
+
+</details>
+
+<details><summary>v0.8.5</summary>
 
 >- Microsoft.AspNetCore.Components.Web v8.0.*
 >- ChartJs v4.4.5 tests
