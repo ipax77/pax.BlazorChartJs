@@ -1,0 +1,24 @@
+
+<div>
+    <CustomChartComp @ref="customChartComp" />
+</div>
+
+<div>
+    <button class="btn btn-primary" @onclick="TryDisposeAndAdd">Dispose and Add</button>
+</div>
+
+@code {
+    CustomChartComp? customChartComp;
+
+
+    private async Task TryDisposeAndAdd()
+    {
+        if (customChartComp == null)
+        {
+            return;
+        }
+        var disposeTask = customChartComp.DisposeAsync();
+        customChartComp.Randomize();
+        await disposeTask;
+    }
+}
