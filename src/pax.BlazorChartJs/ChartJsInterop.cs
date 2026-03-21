@@ -463,8 +463,14 @@ public class ChartJsInterop : IAsyncDisposable
 
         if (moduleTask.IsValueCreated)
         {
-            var module = await moduleTask.Value.ConfigureAwait(false);
-            await module.DisposeAsync().ConfigureAwait(false);
+            try
+            {
+                var module = await moduleTask.Value.ConfigureAwait(false);
+                await module.DisposeAsync().ConfigureAwait(false);
+            }
+            catch (JSDisconnectedException)
+            {
+            }
         }
     }
 }
