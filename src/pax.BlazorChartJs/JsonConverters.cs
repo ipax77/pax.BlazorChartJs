@@ -104,7 +104,9 @@ internal sealed class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         Converters =
                 {
-                    new JsonStringEnumConverter(),
+                    new JsonStringEnumConverter<ChartType>(),
+                    new JsonStringEnumConverter<ChartJsEventType>(),
+                    new JsonStringEnumConverter<ChartJsEventSource>(),
                     new IndexableOptionStringConverter(),
                     new IndexableOptionDoubleConverter(),
                     new IndexableOptionIntConverter(),

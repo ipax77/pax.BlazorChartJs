@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+    <WasmEnableMultiThreading>true</WasmEnableMultiThreading>
+    <WasmHeadlessHost>true</WasmHeadlessHost>
+    <RunAOTCompilation>true</RunAOTCompilation>
+    <RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
+  </PropertyGroup>
+
+  <PropertyGroup>
+	<WasmFingerprintAssets>false</WasmFingerprintAssets>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Remove="Microsoft.DotNet.HotReload.WebAssembly.Browser" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Remove="Microsoft.DotNet.HotReload.WebAssembly.Browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.*" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\pax.BlazorChartJs\pax.BlazorChartJs.csproj" />
+    <ProjectReference Include="..\pax.BlazorChartJs.samplelib\pax.BlazorChartJs.samplelib.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -2,7 +2,7 @@
 @using pax.BlazorChartJs
 
 @inject IJSRuntime jsRuntime
-@implements IDisposable
+@implements IAsyncDisposable
 
 <h3>CustomChartPage</h3>
 
@@ -106,7 +106,7 @@
         chartComponent?.ResizeChart(200, 200);
     }
 
-    private void Randomize()
+    public void Randomize()
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
@@ -138,6 +138,21 @@
         {
             var module = moduleTask.Value.GetAwaiter().GetResult();
             module.DisposeAsync();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore();
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        if (moduleTask != null && moduleTask.IsValueCreated)
+        {
+            var module = await moduleTask.Value.ConfigureAwait(false);
+            await module.DisposeAsync();
         }
     }
 }
