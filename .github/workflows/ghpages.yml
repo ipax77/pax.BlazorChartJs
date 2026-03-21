@@ -8,12 +8,12 @@ jobs:
     deploy-to-github-pages:
         runs-on: ubuntu-latest
         steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v4
 
         - name: Setup .NET Core SDK
-          uses: actions/setup-dotnet@v3
+          uses: actions/setup-dotnet@v4
           with:
-            dotnet-version: '8.0.x'
+            dotnet-version: '10.0.x'
 
         - name: Publish .NET Core Project
           run: dotnet publish src/pax.BlazorChartJs.wasmtest/pax.BlazorChartJs.wasmtest.csproj -c Release -o release --nologo

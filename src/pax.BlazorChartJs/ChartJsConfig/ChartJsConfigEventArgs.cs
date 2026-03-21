@@ -1,4 +1,5 @@
 ﻿namespace pax.BlazorChartJs;
+
 public class DatasetsAddEventArgs : EventArgs
 {
     public DatasetsAddEventArgs(IList<ChartJsDataset> datasets)

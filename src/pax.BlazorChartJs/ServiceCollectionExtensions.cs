@@ -17,6 +17,7 @@ public static class ServiceCollectionExtensions
         {
             services.Configure(setupAction);
         }
+
         return services.AddScoped<ChartJsInterop, ChartJsInterop>();
     }
 
@@ -26,12 +27,14 @@ public static class ServiceCollectionExtensions
 public record ChartJsSetupOptions
 {
     /// <summary>
-    /// Chart.js Javascript location (default cdn.jsdelivr.net)
+    /// Chart.js Javascript location (default cdn.jsdelivr.net).
+    /// It can also be a local path to wwwroot folder e.g. "/_content/myrazorclasslib/js/chart.umd.min.js".
     /// </summary>
     public string ChartJsLocation { get; set; } = "https://cdn.jsdelivr.net/npm/chart.js";
     /// <summary>
     /// chartjs-plugin-datalabsle.js location (default cdn.jsdelivr.net)
     /// The plugin will only be loaded if it is set in the chart options.
+    /// It can also be a local path to wwwroot folder e.g. "/_content/myrazorclasslib/js/chartjs-plugin-annotation.min.js".
     /// </summary>
     public string ChartJsPluginDatalabelsLocation { get; set; } = "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2";
 }
