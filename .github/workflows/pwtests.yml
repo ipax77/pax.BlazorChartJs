@@ -14,7 +14,7 @@ jobs:
           uses: actions/setup-dotnet@v4
           with:
             dotnet-version: '10.0.x'
-        - run: dotnet build ./tests/pax.BlatzorChartJs.pwtests/pax.BlatzorChartJs.pwtests.csproj
+        - run: dotnet build ./tests/pax.BlazorChartJs.pwtests/pax.BlazorChartJs.pwtests.csproj
         - name: Ensure browsers are installed
           run: pwsh ./tests/pax.BlatzorChartJs.pwtests/bin/Debug/net10.0/playwright.ps1 install --with-deps
         - name: Run your tests
