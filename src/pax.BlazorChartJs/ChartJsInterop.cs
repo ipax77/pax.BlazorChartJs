@@ -13,6 +13,7 @@ namespace pax.BlazorChartJs;
 /// </summary>
 public class ChartJsInterop : IAsyncDisposable
 {
+    private const string ChartJsInteropVersion = "0.8.6";
     /// <summary>
     /// ChartJsInterop
     /// </summary>
@@ -21,7 +22,7 @@ public class ChartJsInterop : IAsyncDisposable
                           IOptions<ChartJsSetupOptions>? options)
     {
         moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-            "import", "./_content/pax.BlazorChartJs/chartJsInterop.js").AsTask());
+            "import", $"./_content/pax.BlazorChartJs/chartJsInterop.js?v={ChartJsInteropVersion}").AsTask());
 
         setupOptions = options?.Value;
         JsRuntime = jsRuntime;
