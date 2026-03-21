@@ -3,11 +3,10 @@
 
 # Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js)
  
- The following versions of ChartJs are compatible with published releases of `pax.BlazorChartJs`
+ The current release is compatible with the following ChartJs versions
  Release | ChartJs | Tests
- ---|---------------|---------------|
- <= 0.5.0 | **3.9.1** | 3.9.1
- &gt;= 0.5.0 | **4.x**   | 4.5.1
+ ---|---|---
+ &gt;= 0.5.0 | **4.x** | 4.5.1
  
  
 ## Getting started
@@ -28,6 +27,15 @@ Program.cs:
         // default
         options.ChartJsLocation = "https://cdn.jsdelivr.net/npm/chart.js";
         options.ChartJsPluginDatalabelsLocation = "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2";
+    });
+```
+If you want to serve Chart.js locally, you can provide your own URLs:
+```csharp
+    builder.Services.AddChartJs(options =>
+    {
+        var version = "4.5.1";
+        options.ChartJsLocation = $"/_content/dsstats.weblib/js/chart.umd.min.js?v={version}";
+        options.ChartJsPluginDatalabelsLocation = "/_content/dsstats.weblib/js/chartjs-plugin-datalabels.min.js";
     });
 ```
 
@@ -142,13 +150,14 @@ Several chart functions are available in the ChartComponent, e.g.:
 
 We really like people helping us with the project. Nevertheless, take your time to read our contributing guidelines [here](https://github.com/ipax77/pax.BlazorChartJs/blob/master/CONTRIBUTING.md).
 
-## ChangeLog
+## Changelog
 
 <details open="open"><summary>v0.8.6</summary>
 
->- .NET 10
->- ChartJs v4.4.6 tests
->- Improved Json serialization to be more AOT friendly
+>- Updated to .NET 10
+>- Full JavaScript generation from TypeScript
+>- Chart.js v4.5.1 test coverage
+>- Improved JSON serialization to be more AOT‑friendly
 
 </details>
 
@@ -300,3 +309,4 @@ BorderWidth = new IndexableOption<double>(1)
 >- ```ChartJsConfig.ReinitializeChart()``` (will replace ```ChartComponent.DrawChart```)
 
 </details>
+
