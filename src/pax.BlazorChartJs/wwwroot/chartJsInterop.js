@@ -1,4 +1,4 @@
-export const chartJsInteropVersion = "0.8.6";
+export const chartJsInteropVersion = "0.8.7";
 class LoadInfo {
     constructor() {
         this.chartJsLoaded = false;
@@ -247,7 +247,11 @@ export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) 
         }
         const config = await ChartJsInteropModule.initChart(setupOptions, chartId, dotnetConfig, dotnetRef);
         config.plugins = await loadPlugins(setupOptions, dotnetConfig);
-        const ctx = document.getElementById(chartId).getContext('2d');
+        const element = document.getElementById(chartId);
+        if (!element) {
+            return false;
+        }
+        const ctx = element.getContext('2d');
         const chart = new Chart(ctx, config);
         if (dotnetConfig['options'] != undefined) {
             registerEvents(dotnetConfig.options, chartId, chart);
@@ -412,6 +416,9 @@ export function setDatasets(chartId, datasets) {
 }
 export function setLabels(chartId, labels) {
     const chart = Chart.getChart(chartId);
+    if (!chart || !chart.data) {
+        return;
+    }
     chart.data.labels = labels;
     chart.update();
 }
