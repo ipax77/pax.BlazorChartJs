@@ -1,5 +1,5 @@
-// v0.8.6
-export const chartJsInteropVersion = "0.8.6";
+// v0.8.7
+export const chartJsInteropVersion = "0.8.7";
 
 declare const Chart: any;
 declare const ChartDataLabels: any;
@@ -301,7 +301,11 @@ export async function initChart(setupOptions: any, chartId: string, dotnetConfig
 
         const config = await ChartJsInteropModule.initChart(setupOptions, chartId, dotnetConfig, dotnetRef);
         config.plugins = await loadPlugins(setupOptions, dotnetConfig);
-        const ctx = (document.getElementById(chartId) as HTMLCanvasElement).getContext('2d');
+        const element = document.getElementById(chartId) as HTMLCanvasElement;
+        if (!element) {
+            return false;
+        }
+        const ctx = element.getContext('2d');
         const chart = new Chart(ctx, config);
 
         if (dotnetConfig['options'] != undefined) {
@@ -505,6 +509,9 @@ export function setDatasets(chartId: string, datasets: any[]) {
 // - ts
 export function setLabels(chartId: string, labels: string[]) {
     const chart = Chart.getChart(chartId);
+    if (!chart || !chart.data) {
+        return;
+    }
     chart.data.labels = labels;
     chart.update();
 }
