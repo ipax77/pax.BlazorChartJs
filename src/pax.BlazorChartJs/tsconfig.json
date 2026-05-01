@@ -1,12 +1,12 @@
 {
-    "compilerOptions": {
-      "module": "ES2020",
-      "target": "ES2020",
-      "removeComments": true,
-      "preserveConstEnums": true,
-      "baseUrl": "TypeScript",
-      "outDir": "wwwroot",
-      "sourceMap": false
-    },
-    "include": ["./TypeScript/*.ts"]
-  }
+  "compilerOptions": {
+    "module": "ES2020",
+    "target": "ES2020",
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "rootDir": "./TypeScript",
+    "outDir": "./wwwroot",
+    "sourceMap": false
+  },
+  "include": ["./TypeScript/*.ts"]
+}
