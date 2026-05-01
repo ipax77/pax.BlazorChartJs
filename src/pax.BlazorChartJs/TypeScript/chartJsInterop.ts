@@ -308,6 +308,7 @@ export async function initChart(setupOptions: any, chartId: string, dotnetConfig
 
         if (dotnetConfig['options'] != undefined) {
             registerEvents(dotnetConfig.options, chartId, chart);
+            chart.options.onResize?.(chart, { height: chart.height, width: chart.width });
         }
     } finally {
     }
@@ -409,7 +410,12 @@ function registerEvents(dotnetConfigOptions: any, chartId: string, chart: any) {
 
     if (dotnetConfigOptions.onResizeEvent == true) {
         chart.options.onResize = (chart: any, size: any) => {
-            triggerEvent(chartId, "resize", "chart", { Height: size.height, Width: size.width });
+            triggerEvent(chartId, "resize", "chart", {
+                Height: size.height,
+                Width: size.width,
+                WindowHeight: window.innerHeight,
+                WindowWidth: window.innerWidth
+            });
         };
     }
 
@@ -524,6 +530,7 @@ export function resizeChart(chartId: string, width?: number, height?: number) {
     } else {
         chart.resize(width, height);
     }
+    chart.options.onResize?.(chart, { height: chart.height, width: chart.width });
 }
 
 export function getChartImage(chartId: string, type?: string, quality?: number, width?: number, height?: number) {

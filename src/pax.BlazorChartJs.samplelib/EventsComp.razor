@@ -8,6 +8,7 @@
     <button type="button" class="btn btn-primary" @onclick="AddData">Add Data</button>
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataset">Remove Dataset</button>
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
+    <button type="button" class="btn btn-primary" @onclick="ResizeChart">ResizeChart</button>
 </div>
 <div class="btn-group ms-3">
     <button type="button" class="btn btn-primary" @onclick="RemoveEvents">RemoveEvents</button>
@@ -25,12 +26,19 @@
             @latestchartJsEvent.GetType(): @latestchartJsEvent
         </p>
     }
+    @if (latestResizeEvent != null)
+    {
+        <p data-testid="latest-resize-event">
+            @latestResizeEvent.GetType(): @latestResizeEvent
+        </p>
+    }
 </div>
 
 @code {
     ChartComponent? chartComponent;
     ChartJsConfig chartJsConfig = null!;
     ChartJsEvent? latestchartJsEvent = null;
+    ChartJsResizeEvent? latestResizeEvent = null;
 
     protected override void OnInitialized()
     {
@@ -110,9 +118,21 @@
         chartJsConfig.ReinitializeChart();
     }
 
+    private async Task ResizeChart()
+    {
+        if (chartComponent is not null)
+        {
+            await chartComponent.ResizeChart(640, 360);
+        }
+    }
+
     private void EventTriggered(ChartJsEvent chartJsEvent)
     {
         latestchartJsEvent = chartJsEvent;
+        if (chartJsEvent is ChartJsResizeEvent resizeEvent)
+        {
+            latestResizeEvent = resizeEvent;
+        }
 
         if (chartJsEvent is ChartJsLegendClickEvent legendClickEvent)
         {

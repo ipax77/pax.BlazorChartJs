@@ -152,7 +152,14 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## Changelog
 
-<details open="open"><summary>v0.8.6</summary>
+<details open="open"><summary>v0.8.7</summary>
+
+>- Resize events now include browser viewport dimensions via `WindowWidth` and `WindowHeight`.
+>- `ChartJsResizeEvent.Width` and `Height` remain chart/container dimensions; use `WindowWidth` and `WindowHeight` for viewport breakpoint logic.
+
+</details>
+
+<details><summary>v0.8.6</summary>
 
 >- Updated to .NET 10
 >- Full JavaScript generation from TypeScript
