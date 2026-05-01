@@ -8,6 +8,50 @@ namespace PlaywrightTests;
 public class ChartEventsTests : PageTest
 {
     [Test]
+    public async Task ResizeEventIncludesViewportDimensionsTest()
+    {
+        await Page.SetViewportSizeAsync(1280, 900);
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/eventschart");
+
+        await Expect(Page).ToHaveTitleAsync(new Regex("EventsChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvas = Page.Locator("canvas").First;
+        var canvasId = await canvas.GetAttributeAsync("id");
+        Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
+
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await Page.SetViewportSizeAsync(960, 900);
+        await Page.GetByText("ResizeChart", new Microsoft.Playwright.PageGetByTextOptions() { Exact = true }).ClickAsync();
+
+        var resizeText = await WaitForLatestResizeEventTextAsync(new Regex(@"ChartJsResizeEvent.*WindowHeight = 900.*WindowWidth = 960"));
+        var dimensions = await Page.EvaluateAsync<BrowserDimensions>(
+            """
+            () => {
+                const canvas = document.querySelector('canvas');
+                return {
+                    CanvasWidth: canvas.clientWidth,
+                    WindowHeight: window.innerHeight,
+                    WindowWidth: window.innerWidth
+                };
+            }
+            """);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(resizeText, Does.Contain("ChartJsResizeEvent"));
+            Assert.That(resizeText, Does.Match(@"Height = [1-9]\d*"));
+            Assert.That(resizeText, Does.Match(@"Width = [1-9]\d*"));
+            Assert.That(resizeText, Does.Contain("WindowHeight = 900"));
+            Assert.That(resizeText, Does.Contain("WindowWidth = 960"));
+            Assert.That(dimensions.WindowHeight, Is.EqualTo(900));
+            Assert.That(dimensions.WindowWidth, Is.EqualTo(960));
+            Assert.That(dimensions.CanvasWidth, Is.Positive);
+            Assert.That(dimensions.CanvasWidth, Is.Not.EqualTo(dimensions.WindowWidth));
+        });
+    }
+
+    [Test]
     public async Task ClickEventTest()
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/eventschart");
@@ -140,5 +184,59 @@ public class ChartEventsTests : PageTest
         }
         );
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"ChartJsLabelClickEvent"));
+    }
+
+    private async Task<string> WaitForLatestEventTextAsync(Regex expected)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(10);
+        var latestText = "";
+
+        while (DateTime.UtcNow < deadline)
+        {
+            var eventTexts = await Page.Locator("p").AllInnerTextsAsync();
+            latestText = eventTexts.LastOrDefault() ?? "";
+
+            if (expected.IsMatch(latestText))
+            {
+                return latestText;
+            }
+
+            await Task.Delay(250);
+        }
+
+        Assert.Fail($"Expected latest event text to match '{expected}', but was '{latestText}'.");
+        return latestText;
+    }
+
+    private async Task<string> WaitForLatestResizeEventTextAsync(Regex expected)
+    {
+        var resizeEvent = Page.GetByTestId("latest-resize-event");
+        var deadline = DateTime.UtcNow.AddSeconds(10);
+        var latestText = "";
+
+        while (DateTime.UtcNow < deadline)
+        {
+            if (await resizeEvent.CountAsync() > 0)
+            {
+                latestText = await resizeEvent.InnerTextAsync();
+
+                if (expected.IsMatch(latestText))
+                {
+                    return latestText;
+                }
+            }
+
+            await Task.Delay(250);
+        }
+
+        Assert.Fail($"Expected latest resize event text to match '{expected}', but was '{latestText}'.");
+        return latestText;
+    }
+
+    private sealed class BrowserDimensions
+    {
+        public double CanvasWidth { get; set; }
+        public double WindowHeight { get; set; }
+        public double WindowWidth { get; set; }
     }
 }
