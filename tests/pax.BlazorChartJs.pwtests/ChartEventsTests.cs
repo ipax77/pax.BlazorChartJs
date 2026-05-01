@@ -80,8 +80,35 @@ public class ChartEventsTests : PageTest
         }
         );
         await Task.Delay(Startup.ChartJsComputeDelay);
-        var clickResult = Page.Locator("p");
+        var clickResult = Page.GetByTestId("latest-chart-event");
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"ChartJsLabelClickEvent"));
+    }
+
+    [Test]
+    public async Task HoverEventTest()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/eventschart");
+
+        // Expect a title "to contain" a substring.
+        await Expect(Page).ToHaveTitleAsync(new Regex("EventsChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        // GetCanvasId
+        var canvas = Page.Locator("canvas").First;
+
+        var canvasId = await canvas.GetAttributeAsync("id");
+        Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
+
+        // wait for ChartJs to load
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await canvas.HoverAsync(new Microsoft.Playwright.LocatorHoverOptions()
+        {
+            Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
+        });
+
+        var hoverText = await WaitForLatestEventTextAsync(new Regex(@"ChartJsLabelHoverEvent"));
+
+        Assert.That(hoverText, Does.Contain("ChartJsLabelHoverEvent"));
     }
 
     [Test]
@@ -114,7 +141,7 @@ public class ChartEventsTests : PageTest
             Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
         }
         );
-        var clickResult = Page.Locator("p");
+        var clickResult = Page.GetByTestId("latest-chart-event");
         var textPrev = await clickResult.AllInnerTextsAsync();
 
         // wait for ChartJs
@@ -151,7 +178,7 @@ public class ChartEventsTests : PageTest
         await Task.Delay(Startup.ChartJsLoadDelay);
         await Task.Delay(Startup.ChartJsLoadDelay);
 
-        var clickResult = Page.Locator("p");
+        var clickResult = Page.GetByTestId("latest-chart-event");
         var textPrev = await clickResult.AllInnerTextsAsync();
 
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"ChartJsAnimationCompleteEvent"));
@@ -188,17 +215,20 @@ public class ChartEventsTests : PageTest
 
     private async Task<string> WaitForLatestEventTextAsync(Regex expected)
     {
+        var chartEvent = Page.GetByTestId("latest-chart-event");
         var deadline = DateTime.UtcNow.AddSeconds(10);
         var latestText = "";
 
         while (DateTime.UtcNow < deadline)
         {
-            var eventTexts = await Page.Locator("p").AllInnerTextsAsync();
-            latestText = eventTexts.LastOrDefault() ?? "";
-
-            if (expected.IsMatch(latestText))
+            if (await chartEvent.CountAsync() > 0)
             {
-                return latestText;
+                latestText = await chartEvent.InnerTextAsync();
+
+                if (expected.IsMatch(latestText))
+                {
+                    return latestText;
+                }
             }
 
             await Task.Delay(250);
