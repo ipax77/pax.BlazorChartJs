@@ -9,7 +9,9 @@ class LoadInfo {
 class ChartJsInterop {
     constructor() {
         this.dotnetRefs = new Map();
+        this.charts = new Map();
         this.loadInfo = new LoadInfo();
+        this.chartInitPromises = new Map();
     }
     async initChart(setupOptions, chartId, dotnetConfig, dotnetRef) {
         this.dotnetRefs.set(chartId, dotnetRef);
@@ -237,20 +239,33 @@ async function ensureChartJsLoaded(setupOptions) {
     await chartJsLoadPromise;
 }
 export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) {
+    const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve(true);
+    const initPromise = runningInit
+        .catch(() => true)
+        .then(() => initChartCore(setupOptions, chartId, dotnetConfig, dotnetRef));
+    ChartJsInteropModule.chartInitPromises.set(chartId, initPromise);
+    try {
+        return await initPromise;
+    }
+    finally {
+        if (ChartJsInteropModule.chartInitPromises.get(chartId) === initPromise) {
+            ChartJsInteropModule.chartInitPromises.delete(chartId);
+        }
+    }
+}
+async function initChartCore(setupOptions, chartId, dotnetConfig, dotnetRef) {
     try {
         await ensureChartJsLoaded(setupOptions);
-        const oldChart = Chart.getChart(chartId);
-        if (oldChart != undefined) {
-            oldChart.destroy();
-        }
         const config = await ChartJsInteropModule.initChart(setupOptions, chartId, dotnetConfig, dotnetRef);
         config.plugins = await loadPlugins(setupOptions, dotnetConfig);
         const element = document.getElementById(chartId);
         if (!element) {
             return false;
         }
+        destroyExistingChart(chartId, element);
         const ctx = element.getContext('2d');
         const chart = new Chart(ctx, config);
+        ChartJsInteropModule.charts.set(chartId, chart);
         if (dotnetConfig['options'] != undefined) {
             registerEvents(dotnetConfig.options, chartId, chart);
             chart.options.onResize?.(chart, { height: chart.height, width: chart.width });
@@ -259,6 +274,22 @@ export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) 
     finally {
     }
     return true;
+}
+function destroyExistingChart(chartId, element) {
+    const charts = [
+        ChartJsInteropModule.charts.get(chartId)
+    ];
+    if (typeof Chart !== "undefined") {
+        charts.push(element ? Chart.getChart(element) : undefined, Chart.getChart(chartId));
+    }
+    const destroyedCharts = new Set();
+    for (const chart of charts) {
+        if (chart != undefined && !destroyedCharts.has(chart)) {
+            destroyedCharts.add(chart);
+            chart.destroy();
+        }
+    }
+    ChartJsInteropModule.charts.delete(chartId);
 }
 async function loadPlugins(setupOptions, dotnetConfig) {
     const plugins = [];
@@ -536,5 +567,6 @@ export function setDatasetPointsActive(chartId, datasetIndex) {
     chart.update();
 }
 export function disposeChart(chartId) {
+    destroyExistingChart(chartId);
     ChartJsInteropModule.disposeChart(chartId);
 }

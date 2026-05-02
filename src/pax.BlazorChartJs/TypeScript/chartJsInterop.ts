@@ -12,7 +12,9 @@ class LoadInfo {
 
 class ChartJsInterop {
     public dotnetRefs = new Map<string, any>();
+    public charts = new Map<string, any>();
     public loadInfo = new LoadInfo();
+    public chartInitPromises = new Map<string, Promise<boolean>>();
 
     public async initChart(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<any> {
         this.dotnetRefs.set(chartId, dotnetRef);
@@ -289,13 +291,25 @@ async function ensureChartJsLoaded(setupOptions: any): Promise<void> {
 }
 
 export async function initChart(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<boolean> {
+    const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve(true);
+    const initPromise = runningInit
+        .catch(() => true)
+        .then(() => initChartCore(setupOptions, chartId, dotnetConfig, dotnetRef));
+
+    ChartJsInteropModule.chartInitPromises.set(chartId, initPromise);
+
+    try {
+        return await initPromise;
+    } finally {
+        if (ChartJsInteropModule.chartInitPromises.get(chartId) === initPromise) {
+            ChartJsInteropModule.chartInitPromises.delete(chartId);
+        }
+    }
+}
+
+async function initChartCore(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<boolean> {
     try {
         await ensureChartJsLoaded(setupOptions);
-
-        const oldChart = Chart.getChart(chartId);
-        if (oldChart != undefined) {
-            oldChart.destroy();
-        }
 
         const config = await ChartJsInteropModule.initChart(setupOptions, chartId, dotnetConfig, dotnetRef);
         config.plugins = await loadPlugins(setupOptions, dotnetConfig);
@@ -303,8 +317,10 @@ export async function initChart(setupOptions: any, chartId: string, dotnetConfig
         if (!element) {
             return false;
         }
+        destroyExistingChart(chartId, element);
         const ctx = element.getContext('2d');
         const chart = new Chart(ctx, config);
+        ChartJsInteropModule.charts.set(chartId, chart);
 
         if (dotnetConfig['options'] != undefined) {
             registerEvents(dotnetConfig.options, chartId, chart);
@@ -313,6 +329,25 @@ export async function initChart(setupOptions: any, chartId: string, dotnetConfig
     } finally {
     }
     return true;
+}
+
+function destroyExistingChart(chartId: string, element?: HTMLCanvasElement | null) {
+    const charts = [
+        ChartJsInteropModule.charts.get(chartId)
+    ];
+    if (typeof Chart !== "undefined") {
+        charts.push(
+            element ? Chart.getChart(element) : undefined,
+            Chart.getChart(chartId));
+    }
+    const destroyedCharts = new Set<any>();
+    for (const chart of charts) {
+        if (chart != undefined && !destroyedCharts.has(chart)) {
+            destroyedCharts.add(chart);
+            chart.destroy();
+        }
+    }
+    ChartJsInteropModule.charts.delete(chartId);
 }
 
 async function loadPlugins(setupOptions: any, dotnetConfig: any): Promise<any[]> {
@@ -659,5 +694,6 @@ export function setDatasetPointsActive(chartId: string, datasetIndex: number) {
 }
 
 export function disposeChart(chartId: string) {
+    destroyExistingChart(chartId);
     ChartJsInteropModule.disposeChart(chartId);
 }

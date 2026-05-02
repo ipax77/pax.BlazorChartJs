@@ -62,19 +62,24 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
 
     private async void ChartJsConfig_ChartRedraw(object? sender, EventArgs e)
     {
-        if (dotNetHelper != null)
+        try
         {
-            var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-            if (initResult == true)
+            if (dotNetHelper != null)
             {
-                await InvokeAsync(() =>
-                    OnEventTriggered.InvokeAsync(new ChartJsInitEvent()
-                    {
-                        ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid
-                    }))
-                .ConfigureAwait(false);
+                var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+                if (initResult == true)
+                {
+                    await InvokeAsync(() =>
+                        OnEventTriggered.InvokeAsync(new ChartJsInitEvent()
+                        {
+                            ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid
+                        }))
+                    .ConfigureAwait(false);
+                }
             }
         }
+        catch (ObjectDisposedException) { }
+        catch (OperationCanceledException) { }
     }
 
     private async void ChartJsConfig_ChartOptionsUpdate(object? sender, EventArgs e)
@@ -157,6 +162,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
                 }
             }
             catch (ObjectDisposedException) { }
+            catch (OperationCanceledException) { }
             catch (JSException) { }
         }
         base.OnAfterRender(firstRender);
