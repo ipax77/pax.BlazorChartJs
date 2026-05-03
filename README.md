@@ -158,6 +158,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 >- Resize events now include browser viewport dimensions via `WindowWidth` and `WindowHeight`.
 >- `ChartJsResizeEvent.Width` and `Height` remain chart/container dimensions; use `WindowWidth` and `WindowHeight` for viewport breakpoint logic.
 >- `ChartJsInitEvent` now includes initial chart and viewport dimensions via `Width`, `Height`, `WindowWidth`, and `WindowHeight`.
+>- Dataset updates now match by dataset id across all chart datasets, including hidden datasets.
 
 </details>
 
