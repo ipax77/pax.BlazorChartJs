@@ -13,7 +13,7 @@ namespace pax.BlazorChartJs;
 /// </summary>
 public class ChartJsInterop : IAsyncDisposable
 {
-    private const string ChartJsInteropVersion = "0.8.6";
+    private const string ChartJsInteropVersion = "0.8.7";
     /// <summary>
     /// ChartJsInterop
     /// </summary>
@@ -57,15 +57,26 @@ public class ChartJsInterop : IAsyncDisposable
     /// <summary>
     /// (Re-)initializes chart
     /// </summary>
-    public async ValueTask<bool> InitChart(ChartJsConfig config, DotNetObjectReference<ChartComponent> dotnetRef)
+    public async ValueTask<ChartJsInitResult> InitChart(ChartJsConfig config, DotNetObjectReference<ChartComponent> dotnetRef)
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(dotnetRef);
 
-        var module = await moduleTask.Value.ConfigureAwait(false);
-        var serializedConfig = SerializeConfig(config);
-        return await module.InvokeAsync<bool>("initChart", setupOptions, config.ChartJsConfigGuid, serializedConfig, dotnetRef)
-            .ConfigureAwait(false);
+        try
+        {
+            var module = await moduleTask.Value.ConfigureAwait(false);
+            var serializedConfig = SerializeConfig(config);
+            return await module.InvokeAsync<ChartJsInitResult>("initChart", setupOptions, config.ChartJsConfigGuid, serializedConfig, dotnetRef)
+                .ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            return new ChartJsInitResult { Success = false };
+        }
+        catch (JSDisconnectedException)
+        {
+            return new ChartJsInitResult { Success = false };
+        }
     }
 
     /// <summary>
@@ -383,6 +394,7 @@ public class ChartJsInterop : IAsyncDisposable
             await module.InvokeVoidAsync("disposeChart", configGuid).ConfigureAwait(false);
         }
         catch (AggregateException) { }
+        catch (OperationCanceledException) { }
         catch (JSDisconnectedException) { }
         catch (InvalidOperationException)
         {

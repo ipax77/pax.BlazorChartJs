@@ -152,7 +152,17 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## Changelog
 
-<details open="open"><summary>v0.8.6</summary>
+<details open="open"><summary>v0.8.7</summary>
+
+>- Hardened chart initialization to better handle rapid reinitialization and existing Chart.js instances for the same canvas.
+>- Resize events now include browser viewport dimensions via `WindowWidth` and `WindowHeight`.
+>- `ChartJsResizeEvent.Width` and `Height` remain chart/container dimensions; use `WindowWidth` and `WindowHeight` for viewport breakpoint logic.
+>- `ChartJsInitEvent` now includes initial chart and viewport dimensions via `Width`, `Height`, `WindowWidth`, and `WindowHeight`.
+>- Dataset updates now match by dataset id across all chart datasets, including hidden datasets.
+
+</details>
+
+<details><summary>v0.8.6</summary>
 
 >- Updated to .NET 10
 >- Full JavaScript generation from TypeScript

@@ -1,5 +1,5 @@
-// v0.8.6
-export const chartJsInteropVersion = "0.8.6";
+// v0.8.7
+export const chartJsInteropVersion = "0.8.7";
 
 declare const Chart: any;
 declare const ChartDataLabels: any;
@@ -12,19 +12,17 @@ class LoadInfo {
 
 class ChartJsInterop {
     public dotnetRefs = new Map<string, any>();
+    public charts = new Map<string, any>();
     public loadInfo = new LoadInfo();
+    public chartInitPromises = new Map<string, Promise<ChartInitResult>>();
 
-    public async initChart(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<any> {
-        this.dotnetRefs.set(chartId, dotnetRef);
-
-        const config: any = {
-            'type': dotnetConfig['type'],
-            data: dotnetConfig['data'],
-            options: dotnetConfig['options'] ?? {},
-            // plugins: await this.loadPlugins(setupOptions, dotnetConfig)
+    public buildChartConfig(dotnetConfig: any): any {
+        return {
+            type: dotnetConfig.type,
+            data: dotnetConfig.data,
+            options: dotnetConfig.options ?? {},
             plugins: []
         };
-        return config;
     }
 
     private async loadPlugins(setupOptions: any, dotnetConfig: any): Promise<Array<object>> {
@@ -193,9 +191,8 @@ class ChartJsInterop {
 
     public updateDatasetsSmooth(chart: any, datasets: any[]) {
 
-        const datasetMetas = chart.getSortedVisibleDatasetMetas();
         datasets.forEach((newDataset: any) => {
-            const datasetIndex = datasetMetas.findIndex((obj: any) => obj['_dataset']['id'] === newDataset['id']);
+            const datasetIndex = chart.data.datasets.findIndex((dataset: any) => dataset['id'] === newDataset['id']);
             if (datasetIndex >= 0) {
                 const existingDataset = chart.data.datasets[datasetIndex];
 
@@ -213,9 +210,8 @@ class ChartJsInterop {
 
     public updateDatasets(chart: any, datasets: any[]) {
 
-        const datasetMetas = chart.getSortedVisibleDatasetMetas();
         datasets.forEach((dataset: any) => {
-            const datasetIndex = datasetMetas.findIndex((obj: any) => obj['_dataset']['id'] === dataset['id']);
+            const datasetIndex = chart.data.datasets.findIndex((existingDataset: any) => existingDataset['id'] === dataset['id']);
             if (datasetIndex >= 0) {
                 chart.data.datasets[datasetIndex] = dataset;
             }
@@ -290,26 +286,79 @@ async function ensureChartJsLoaded(setupOptions: any): Promise<void> {
     await chartJsLoadPromise;
 }
 
-export async function initChart(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<boolean> {
+export async function initChart(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<ChartInitResult> {
+    const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve({ success: true });
+    const initPromise = runningInit
+        .catch(() => ({ success: true }))
+        .then(() => initChartCore(setupOptions, chartId, dotnetConfig, dotnetRef));
+
+    ChartJsInteropModule.chartInitPromises.set(chartId, initPromise);
+
+    try {
+        return await initPromise;
+    } finally {
+        if (ChartJsInteropModule.chartInitPromises.get(chartId) === initPromise) {
+            ChartJsInteropModule.chartInitPromises.delete(chartId);
+        }
+    }
+}
+
+async function initChartCore(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<ChartInitResult> {
     try {
         await ensureChartJsLoaded(setupOptions);
 
-        const oldChart = Chart.getChart(chartId);
-        if (oldChart != undefined) {
-            oldChart.destroy();
+        const element = document.getElementById(chartId) as HTMLCanvasElement;
+        if (!element) {
+            return { success: false };
         }
 
-        const config = await ChartJsInteropModule.initChart(setupOptions, chartId, dotnetConfig, dotnetRef);
+        destroyExistingChart(chartId, element);
+
+        const config = ChartJsInteropModule.buildChartConfig(dotnetConfig);
         config.plugins = await loadPlugins(setupOptions, dotnetConfig);
-        const ctx = (document.getElementById(chartId) as HTMLCanvasElement).getContext('2d');
+        
+        const ctx = element.getContext('2d');
+        if (!ctx) {
+            return { success: false };
+        }
+        
         const chart = new Chart(ctx, config);
+        ChartJsInteropModule.charts.set(chartId, chart);
+        ChartJsInteropModule.dotnetRefs.set(chartId, dotnetRef);
 
         if (dotnetConfig['options'] != undefined) {
             registerEvents(dotnetConfig.options, chartId, chart);
         }
+
+        return {
+            success: true,
+            height: chart.height,
+            width: chart.width,
+            windowHeight: window.innerHeight,
+            windowWidth: window.innerWidth
+        };
     } finally {
     }
-    return true;
+}
+
+function destroyExistingChart(chartId: string, element?: HTMLCanvasElement | null) {
+    const charts = [
+        ChartJsInteropModule.charts.get(chartId)
+    ];
+    if (typeof Chart !== "undefined") {
+        charts.push(
+            element ? Chart.getChart(element) : undefined,
+            Chart.getChart(chartId));
+    }
+    const destroyedCharts = new Set<any>();
+    for (const chart of charts) {
+        if (chart != undefined && !destroyedCharts.has(chart)) {
+            destroyedCharts.add(chart);
+            chart.destroy();
+        }
+    }
+    ChartJsInteropModule.charts.delete(chartId);
+    ChartJsInteropModule.dotnetRefs.delete(chartId);
 }
 
 async function loadPlugins(setupOptions: any, dotnetConfig: any): Promise<any[]> {
@@ -339,114 +388,117 @@ async function loadPlugins(setupOptions: any, dotnetConfig: any): Promise<any[]>
     return plugins;
 }
 
+function registerChartPointEvent(
+    chart: any,
+    chartId: string,
+    eventName: "click" | "hover",
+    optionName: "onClick" | "onHover"
+) {
+    chart.options[optionName] = (e: any) => {
+        triggerEvent(chartId, eventName, "label", getChartPointEventArgs(e, chart));
+    };
+}
+
 function registerEvents(dotnetConfigOptions: any, chartId: string, chart: any) {
     // chart events
     if (dotnetConfigOptions.onClickEvent == true) {
-        chart.options.onClick = (e: any) => {
-            const points = chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-            let label = "";
-            let value = 0;
-            let dataX = 0;
-            let dataY = 0;
-            let datasetLabel: string | null = null;
-            let datasetIndex: number | null = null;
-
-            const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
-
-            // Substitute the appropriate scale IDs
-            // todo: not working on pie.. charts
-            try {
-                dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
-            } catch { }
-            try {
-                dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
-            } catch { }
-
-            if (points.length) {
-                const firstPoint = points[0];
-                label = chart.data.labels[firstPoint.index];
-                datasetIndex = firstPoint.datasetIndex;
-                value = chart.data.datasets[datasetIndex].data[firstPoint.index];
-                datasetLabel = chart.data.datasets[datasetIndex].label;
-            }
-            triggerEvent(chartId, "click", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY, DatasetLabel: datasetLabel, DatasetIndex: datasetIndex });
-        };
+        registerChartPointEvent(chart, chartId, "click", "onClick");
     }
 
     if (dotnetConfigOptions.onHoverEvent == true) {
-        chart.options.onHover = (e: any) => {
-            const points = chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-            let label = "";
-            let value = 0;
-            let dataX = 0;
-            let dataY = 0;
-            let datasetLabel: string | null = null;
-            let datasetIndex: number | null = null;
-
-            const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
-
-            // Substitute the appropriate scale IDs
-            // todo: not working on pie.. charts
-            try {
-                dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
-            } catch { }
-            try {
-                dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
-            } catch { }
-
-            if (points.length) {
-                const firstPoint = points[0];
-                label = chart.data.labels[firstPoint.index];
-                datasetIndex = firstPoint.datasetIndex;
-                value = chart.data.datasets[datasetIndex].data[firstPoint.index];
-                datasetLabel = chart.data.datasets[datasetIndex].label;
-            }
-            triggerEvent(chartId, "hover", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY, DatasetLabel: datasetLabel, DatasetIndex: datasetIndex });
-        };
+        registerChartPointEvent(chart, chartId, "hover", "onHover");
     }
 
     if (dotnetConfigOptions.onResizeEvent == true) {
-        chart.options.onResize = (chart: any, size: any) => {
-            triggerEvent(chartId, "resize", "chart", { Height: size.height, Width: size.width });
+        chart.options.onResize = (_chart: any, size: any) => {
+            triggerEvent(chartId, "resize", "chart", {
+                Height: size.height,
+                Width: size.width,
+                WindowHeight: window.innerHeight,
+                WindowWidth: window.innerWidth
+            });
         };
     }
 
     // legend events
     if (dotnetConfigOptions.plugins?.legend?.onClickEvent == true) {
-
-        chart.options.plugins.legend.onClick = (event: any, legendItem: any, legend: any) => {
+        chart.options.plugins.legend.onClick = (_event: any, legendItem: any, _legend: any) => {
             triggerEvent(chartId, "click", "legend", { Label: legendItem.text });
         };
     }
 
     if (dotnetConfigOptions.plugins?.legend?.onHoverEvent == true) {
-
-        chart.options.plugins.legend.onHover = (event: any, legendItem: any, legend: any) => {
+        chart.options.plugins.legend.onHover = (_event: any, legendItem: any, _legend: any) => {
             triggerEvent(chartId, "hover", "legend", { Label: legendItem.text });
         };
     }
 
     if (dotnetConfigOptions.plugins?.legend?.onLeaveEvent == true) {
-
-        chart.options.plugins.legend.onLeave = (event: any, legendItem: any, legend: any) => {
+        chart.options.plugins.legend.onLeave = (_event: any, legendItem: any, _legend: any) => {
             triggerEvent(chartId, "leave", "legend", { Label: legendItem.text });
         };
     }
 
     // animation events
     if (dotnetConfigOptions.animation?.onProgressEvent == true) {
-
         chart.options.animation.onProgress = (context: any) => {
-            triggerEvent(chartId, "progress", "animation", { CurrentStep: context.currentStep, NumSteps: context.numSteps });
+            triggerEvent(chartId, "progress", "animation", {
+                CurrentStep: context.currentStep,
+                NumSteps: context.numSteps
+            });
         };
     }
 
     if (dotnetConfigOptions.animation?.onCompleteEvent == true) {
-
         chart.options.animation.onComplete = (context: any) => {
-            triggerEvent(chartId, "complete", "animation", { Initial: context.initial });
+            triggerEvent(chartId, "complete", "animation", {
+                Initial: context.initial
+            });
         };
     }
+}
+
+function getChartPointEventArgs(e: any, chart: any) {
+    const points = chart.getElementsAtEventForMode(e, "nearest", { intersect: true }, true);
+
+    let label = "";
+    let value = 0;
+    let dataX = 0;
+    let dataY = 0;
+    let datasetLabel: string | null = null;
+    let datasetIndex: number | null = null;
+
+    const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+
+    // Substitute the appropriate scale IDs.
+    // Not all chart types have x/y scales, e.g. pie/doughnut charts.
+    try {
+        dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+    } catch { }
+
+    try {
+        dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
+    } catch { }
+
+    if (points.length) {
+        const firstPoint = points[0];
+        const currentDatasetIndex = firstPoint.datasetIndex;
+        const currentDataset = chart.data.datasets[currentDatasetIndex];
+
+        label = chart.data.labels?.[firstPoint.index] ?? "";
+        datasetIndex = currentDatasetIndex;
+        value = currentDataset.data[firstPoint.index];
+        datasetLabel = currentDataset.label ?? null;
+    }
+
+    return {
+        Label: label,
+        Value: value,
+        DataX: dataX,
+        DataY: dataY,
+        DatasetLabel: datasetLabel,
+        DatasetIndex: datasetIndex
+    };
 }
 
 async function triggerEvent(chartId: string, event: string, source: string, data: any) {
@@ -505,6 +557,9 @@ export function setDatasets(chartId: string, datasets: any[]) {
 // - ts
 export function setLabels(chartId: string, labels: string[]) {
     const chart = Chart.getChart(chartId);
+    if (!chart || !chart.data) {
+        return;
+    }
     chart.data.labels = labels;
     chart.update();
 }
@@ -519,6 +574,7 @@ export function resizeChart(chartId: string, width?: number, height?: number) {
     } else {
         chart.resize(width, height);
     }
+    chart.options.onResize?.(chart, { height: chart.height, width: chart.width });
 }
 
 export function getChartImage(chartId: string, type?: string, quality?: number, width?: number, height?: number) {
@@ -649,5 +705,18 @@ export function setDatasetPointsActive(chartId: string, datasetIndex: number) {
 }
 
 export function disposeChart(chartId: string) {
+    destroyExistingChart(chartId);
     ChartJsInteropModule.disposeChart(chartId);
 }
+
+type ChartInitResult =
+    | {
+        success: true;
+        height: number;
+        width: number;
+        windowHeight: number;
+        windowWidth: number;
+    }
+    | {
+        success: false;
+    };

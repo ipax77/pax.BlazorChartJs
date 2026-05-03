@@ -1,4 +1,4 @@
-export const chartJsInteropVersion = "0.8.6";
+export const chartJsInteropVersion = "0.8.7";
 class LoadInfo {
     constructor() {
         this.chartJsLoaded = false;
@@ -9,17 +9,17 @@ class LoadInfo {
 class ChartJsInterop {
     constructor() {
         this.dotnetRefs = new Map();
+        this.charts = new Map();
         this.loadInfo = new LoadInfo();
+        this.chartInitPromises = new Map();
     }
-    async initChart(setupOptions, chartId, dotnetConfig, dotnetRef) {
-        this.dotnetRefs.set(chartId, dotnetRef);
-        const config = {
-            'type': dotnetConfig['type'],
-            data: dotnetConfig['data'],
-            options: dotnetConfig['options'] ?? {},
+    buildChartConfig(dotnetConfig) {
+        return {
+            type: dotnetConfig.type,
+            data: dotnetConfig.data,
+            options: dotnetConfig.options ?? {},
             plugins: []
         };
-        return config;
     }
     async loadPlugins(setupOptions, dotnetConfig) {
         const plugins = [];
@@ -160,9 +160,8 @@ class ChartJsInterop {
         chart.update();
     }
     updateDatasetsSmooth(chart, datasets) {
-        const datasetMetas = chart.getSortedVisibleDatasetMetas();
         datasets.forEach((newDataset) => {
-            const datasetIndex = datasetMetas.findIndex((obj) => obj['_dataset']['id'] === newDataset['id']);
+            const datasetIndex = chart.data.datasets.findIndex((dataset) => dataset['id'] === newDataset['id']);
             if (datasetIndex >= 0) {
                 const existingDataset = chart.data.datasets[datasetIndex];
                 Object.assign(existingDataset, newDataset);
@@ -176,9 +175,8 @@ class ChartJsInterop {
         chart.update();
     }
     updateDatasets(chart, datasets) {
-        const datasetMetas = chart.getSortedVisibleDatasetMetas();
         datasets.forEach((dataset) => {
-            const datasetIndex = datasetMetas.findIndex((obj) => obj['_dataset']['id'] === dataset['id']);
+            const datasetIndex = chart.data.datasets.findIndex((existingDataset) => existingDataset['id'] === dataset['id']);
             if (datasetIndex >= 0) {
                 chart.data.datasets[datasetIndex] = dataset;
             }
@@ -239,23 +237,67 @@ async function ensureChartJsLoaded(setupOptions) {
     await chartJsLoadPromise;
 }
 export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) {
+    const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve({ success: true });
+    const initPromise = runningInit
+        .catch(() => ({ success: true }))
+        .then(() => initChartCore(setupOptions, chartId, dotnetConfig, dotnetRef));
+    ChartJsInteropModule.chartInitPromises.set(chartId, initPromise);
+    try {
+        return await initPromise;
+    }
+    finally {
+        if (ChartJsInteropModule.chartInitPromises.get(chartId) === initPromise) {
+            ChartJsInteropModule.chartInitPromises.delete(chartId);
+        }
+    }
+}
+async function initChartCore(setupOptions, chartId, dotnetConfig, dotnetRef) {
     try {
         await ensureChartJsLoaded(setupOptions);
-        const oldChart = Chart.getChart(chartId);
-        if (oldChart != undefined) {
-            oldChart.destroy();
+        const element = document.getElementById(chartId);
+        if (!element) {
+            return { success: false };
         }
-        const config = await ChartJsInteropModule.initChart(setupOptions, chartId, dotnetConfig, dotnetRef);
+        destroyExistingChart(chartId, element);
+        const config = ChartJsInteropModule.buildChartConfig(dotnetConfig);
         config.plugins = await loadPlugins(setupOptions, dotnetConfig);
-        const ctx = document.getElementById(chartId).getContext('2d');
+        const ctx = element.getContext('2d');
+        if (!ctx) {
+            return { success: false };
+        }
         const chart = new Chart(ctx, config);
+        ChartJsInteropModule.charts.set(chartId, chart);
+        ChartJsInteropModule.dotnetRefs.set(chartId, dotnetRef);
         if (dotnetConfig['options'] != undefined) {
             registerEvents(dotnetConfig.options, chartId, chart);
         }
+        return {
+            success: true,
+            height: chart.height,
+            width: chart.width,
+            windowHeight: window.innerHeight,
+            windowWidth: window.innerWidth
+        };
     }
     finally {
     }
-    return true;
+}
+function destroyExistingChart(chartId, element) {
+    const charts = [
+        ChartJsInteropModule.charts.get(chartId)
+    ];
+    if (typeof Chart !== "undefined") {
+        charts.push(element ? Chart.getChart(element) : undefined, Chart.getChart(chartId));
+    }
+    const destroyedCharts = new Set();
+    for (const chart of charts) {
+        if (chart != undefined && !destroyedCharts.has(chart)) {
+            destroyedCharts.add(chart);
+            chart.destroy();
+        }
+    }
+    ChartJsInteropModule.charts.delete(chartId);
+    ChartJsInteropModule.dotnetRefs.delete(chartId);
 }
 async function loadPlugins(setupOptions, dotnetConfig) {
     const plugins = [];
@@ -279,93 +321,93 @@ async function loadPlugins(setupOptions, dotnetConfig) {
     }
     return plugins;
 }
+function registerChartPointEvent(chart, chartId, eventName, optionName) {
+    chart.options[optionName] = (e) => {
+        triggerEvent(chartId, eventName, "label", getChartPointEventArgs(e, chart));
+    };
+}
 function registerEvents(dotnetConfigOptions, chartId, chart) {
     if (dotnetConfigOptions.onClickEvent == true) {
-        chart.options.onClick = (e) => {
-            const points = chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-            let label = "";
-            let value = 0;
-            let dataX = 0;
-            let dataY = 0;
-            let datasetLabel = null;
-            let datasetIndex = null;
-            const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
-            try {
-                dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
-            }
-            catch { }
-            try {
-                dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
-            }
-            catch { }
-            if (points.length) {
-                const firstPoint = points[0];
-                label = chart.data.labels[firstPoint.index];
-                datasetIndex = firstPoint.datasetIndex;
-                value = chart.data.datasets[datasetIndex].data[firstPoint.index];
-                datasetLabel = chart.data.datasets[datasetIndex].label;
-            }
-            triggerEvent(chartId, "click", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY, DatasetLabel: datasetLabel, DatasetIndex: datasetIndex });
-        };
+        registerChartPointEvent(chart, chartId, "click", "onClick");
     }
     if (dotnetConfigOptions.onHoverEvent == true) {
-        chart.options.onHover = (e) => {
-            const points = chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-            let label = "";
-            let value = 0;
-            let dataX = 0;
-            let dataY = 0;
-            let datasetLabel = null;
-            let datasetIndex = null;
-            const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
-            try {
-                dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
-            }
-            catch { }
-            try {
-                dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
-            }
-            catch { }
-            if (points.length) {
-                const firstPoint = points[0];
-                label = chart.data.labels[firstPoint.index];
-                datasetIndex = firstPoint.datasetIndex;
-                value = chart.data.datasets[datasetIndex].data[firstPoint.index];
-                datasetLabel = chart.data.datasets[datasetIndex].label;
-            }
-            triggerEvent(chartId, "hover", "label", { Label: label, Value: value, DataX: dataX, DataY: dataY, DatasetLabel: datasetLabel, DatasetIndex: datasetIndex });
-        };
+        registerChartPointEvent(chart, chartId, "hover", "onHover");
     }
     if (dotnetConfigOptions.onResizeEvent == true) {
-        chart.options.onResize = (chart, size) => {
-            triggerEvent(chartId, "resize", "chart", { Height: size.height, Width: size.width });
+        chart.options.onResize = (_chart, size) => {
+            triggerEvent(chartId, "resize", "chart", {
+                Height: size.height,
+                Width: size.width,
+                WindowHeight: window.innerHeight,
+                WindowWidth: window.innerWidth
+            });
         };
     }
     if (dotnetConfigOptions.plugins?.legend?.onClickEvent == true) {
-        chart.options.plugins.legend.onClick = (event, legendItem, legend) => {
+        chart.options.plugins.legend.onClick = (_event, legendItem, _legend) => {
             triggerEvent(chartId, "click", "legend", { Label: legendItem.text });
         };
     }
     if (dotnetConfigOptions.plugins?.legend?.onHoverEvent == true) {
-        chart.options.plugins.legend.onHover = (event, legendItem, legend) => {
+        chart.options.plugins.legend.onHover = (_event, legendItem, _legend) => {
             triggerEvent(chartId, "hover", "legend", { Label: legendItem.text });
         };
     }
     if (dotnetConfigOptions.plugins?.legend?.onLeaveEvent == true) {
-        chart.options.plugins.legend.onLeave = (event, legendItem, legend) => {
+        chart.options.plugins.legend.onLeave = (_event, legendItem, _legend) => {
             triggerEvent(chartId, "leave", "legend", { Label: legendItem.text });
         };
     }
     if (dotnetConfigOptions.animation?.onProgressEvent == true) {
         chart.options.animation.onProgress = (context) => {
-            triggerEvent(chartId, "progress", "animation", { CurrentStep: context.currentStep, NumSteps: context.numSteps });
+            triggerEvent(chartId, "progress", "animation", {
+                CurrentStep: context.currentStep,
+                NumSteps: context.numSteps
+            });
         };
     }
     if (dotnetConfigOptions.animation?.onCompleteEvent == true) {
         chart.options.animation.onComplete = (context) => {
-            triggerEvent(chartId, "complete", "animation", { Initial: context.initial });
+            triggerEvent(chartId, "complete", "animation", {
+                Initial: context.initial
+            });
         };
     }
+}
+function getChartPointEventArgs(e, chart) {
+    const points = chart.getElementsAtEventForMode(e, "nearest", { intersect: true }, true);
+    let label = "";
+    let value = 0;
+    let dataX = 0;
+    let dataY = 0;
+    let datasetLabel = null;
+    let datasetIndex = null;
+    const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+    try {
+        dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+    }
+    catch { }
+    try {
+        dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
+    }
+    catch { }
+    if (points.length) {
+        const firstPoint = points[0];
+        const currentDatasetIndex = firstPoint.datasetIndex;
+        const currentDataset = chart.data.datasets[currentDatasetIndex];
+        label = chart.data.labels?.[firstPoint.index] ?? "";
+        datasetIndex = currentDatasetIndex;
+        value = currentDataset.data[firstPoint.index];
+        datasetLabel = currentDataset.label ?? null;
+    }
+    return {
+        Label: label,
+        Value: value,
+        DataX: dataX,
+        DataY: dataY,
+        DatasetLabel: datasetLabel,
+        DatasetIndex: datasetIndex
+    };
 }
 async function triggerEvent(chartId, event, source, data) {
     await ChartJsInteropModule.triggerEvent(chartId, event, source, data);
@@ -412,6 +454,9 @@ export function setDatasets(chartId, datasets) {
 }
 export function setLabels(chartId, labels) {
     const chart = Chart.getChart(chartId);
+    if (!chart || !chart.data) {
+        return;
+    }
     chart.data.labels = labels;
     chart.update();
 }
@@ -426,6 +471,7 @@ export function resizeChart(chartId, width, height) {
     else {
         chart.resize(width, height);
     }
+    chart.options.onResize?.(chart, { height: chart.height, width: chart.width });
 }
 export function getChartImage(chartId, type, quality, width, height) {
     const chart = Chart.getChart(chartId);
@@ -529,5 +575,6 @@ export function setDatasetPointsActive(chartId, datasetIndex) {
     chart.update();
 }
 export function disposeChart(chartId) {
+    destroyExistingChart(chartId);
     ChartJsInteropModule.disposeChart(chartId);
 }
