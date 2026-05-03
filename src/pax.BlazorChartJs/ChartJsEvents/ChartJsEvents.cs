@@ -26,6 +26,41 @@ public enum ChartJsEventSource
     chart = 4,
 }
 
+/// <summary>
+/// Event raised after a chart has been successfully initialized.
+/// </summary>
 public record ChartJsInitEvent : ChartJsEvent
 {
+    /// <summary>
+    /// Initial height of the chart canvas, in CSS pixels.
+    /// </summary>
+    public double Height { get; init; }
+
+    /// <summary>
+    /// Initial width of the chart canvas, in CSS pixels.
+    /// </summary>
+    public double Width { get; init; }
+
+    /// <summary>
+    /// Browser viewport height at initialization time, from window.innerHeight.
+    /// </summary>
+    public double WindowHeight { get; init; }
+
+    /// <summary>
+    /// Browser viewport width at initialization time, from window.innerWidth.
+    /// </summary>
+    public double WindowWidth { get; init; }
+}
+
+public sealed record ChartJsInitResult
+{
+    public bool Success { get; init; }
+
+    public double Height { get; init; }
+
+    public double Width { get; init; }
+
+    public double WindowHeight { get; init; }
+
+    public double WindowWidth { get; init; }
 }

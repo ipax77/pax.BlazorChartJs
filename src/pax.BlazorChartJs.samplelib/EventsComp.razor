@@ -16,10 +16,21 @@
 </div>
 
 <div class="chart-container w-75">
-    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig" OnEventTriggered="EventTriggered"></ChartComponent>
+    <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig" OnEventTriggered="EventTriggered">
+    </ChartComponent>
 </div>
 
 <div>
+    @if (latestInitEvent != null)
+    {
+        <p data-testid="latest-init-event">
+            @latestInitEvent.GetType(): @latestInitEvent
+        </p>
+    }
+
+    <p data-testid="init-event-count">@initEventCount</p>
+    <p data-testid="resize-event-count">@resizeEventCount</p>
+
     @if (latestchartJsEvent != null)
     {
         <p data-testid="latest-chart-event">
@@ -38,20 +49,24 @@
     ChartComponent? chartComponent;
     ChartJsConfig chartJsConfig = null!;
     ChartJsEvent? latestchartJsEvent = null;
+    ChartJsInitEvent? latestInitEvent = null;
     ChartJsResizeEvent? latestResizeEvent = null;
+
+    int initEventCount = 0;
+    int resizeEventCount = 0;
 
     protected override void OnInitialized()
     {
         chartJsConfig = new()
+        {
+            Type = ChartType.bar,
+            Data = new ChartJsData()
             {
-                Type = ChartType.bar,
-                Data = new ChartJsData()
-                {
-                    Labels = new List<string>()
+                Labels = new List<string>()
                     {
                         "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
                     },
-                    Datasets = new List<ChartJsDataset>()
+                Datasets = new List<ChartJsDataset>()
                     {
                         new BarDataset()
                         {
@@ -78,37 +93,37 @@
                             BorderWidth = new IndexableOption<double>(1)
                         }
                     }
-                },
-                Options = new ChartJsOptions()
+            },
+            Options = new ChartJsOptions()
+            {
+                Responsive = true,
+                MaintainAspectRatio = true,
+                OnClickEvent = true,
+                OnHoverEvent = true,
+                OnResizeEvent = true,
+                Animation = new Animation()
                 {
-                    Responsive = true,
-                    MaintainAspectRatio = true,
-                    OnClickEvent = true,
-                    OnHoverEvent = true,
-                    OnResizeEvent = true,
-                    Animation = new Animation()
+                    OnProgressEvent = true,
+                    OnCompleteEvent = true
+                },
+                Plugins = new Plugins()
+                {
+                    Legend = new Legend()
                     {
-                        OnProgressEvent = true,
-                        OnCompleteEvent = true
-                    },
-                    Plugins = new Plugins()
+                        OnClickEvent = true,
+                        OnHoverEvent = true,
+                        OnLeaveEvent = true
+                    }
+                },
+                Scales = new ChartJsOptionsScales()
+                {
+                    Y = new LinearAxis()
                     {
-                        Legend = new Legend()
-                        {
-                            OnClickEvent = true,
-                            OnHoverEvent = true,
-                            OnLeaveEvent = true
-                        }
-                    },
-                    Scales = new ChartJsOptionsScales()
-                    {
-                        Y = new LinearAxis()
-                        {
-                            SuggestedMax = 25
-                        }
+                        SuggestedMax = 25
                     }
                 }
-            };
+            }
+        };
         base.OnInitialized();
     }
 
@@ -129,9 +144,17 @@
     private void EventTriggered(ChartJsEvent chartJsEvent)
     {
         latestchartJsEvent = chartJsEvent;
+
+        if (chartJsEvent is ChartJsInitEvent initEvent)
+        {
+            latestInitEvent = initEvent;
+            initEventCount++;
+        }
+
         if (chartJsEvent is ChartJsResizeEvent resizeEvent)
         {
             latestResizeEvent = resizeEvent;
+            resizeEventCount++;
         }
 
         if (chartJsEvent is ChartJsLegendClickEvent legendClickEvent)
@@ -168,68 +191,68 @@
     private void RemoveEvents()
     {
         chartJsConfig.Options = new ChartJsOptions()
+        {
+            Responsive = true,
+            MaintainAspectRatio = true,
+            OnClickEvent = false,
+            OnHoverEvent = false,
+            OnResizeEvent = false,
+            Animation = new Animation()
             {
-                Responsive = true,
-                MaintainAspectRatio = true,
-                OnClickEvent = false,
-                OnHoverEvent = false,
-                OnResizeEvent = false,
-                Animation = new Animation()
+                OnProgressEvent = false,
+                OnCompleteEvent = false
+            },
+            Plugins = new Plugins()
+            {
+                Legend = new Legend()
                 {
-                    OnProgressEvent = false,
-                    OnCompleteEvent = false
-                },
-                Plugins = new Plugins()
-                {
-                    Legend = new Legend()
-                    {
-                        OnClickEvent = false,
-                        OnHoverEvent = false,
-                        OnLeaveEvent = false
-                    }
-                },
-                Scales = new ChartJsOptionsScales()
-                {
-                    Y = new LinearAxis()
-                    {
-                        SuggestedMax = 25
-                    }
+                    OnClickEvent = false,
+                    OnHoverEvent = false,
+                    OnLeaveEvent = false
                 }
-            };
+            },
+            Scales = new ChartJsOptionsScales()
+            {
+                Y = new LinearAxis()
+                {
+                    SuggestedMax = 25
+                }
+            }
+        };
         chartJsConfig.UpdateChartOptions();
     }
 
     private void AddEvents()
     {
         chartJsConfig.Options = new ChartJsOptions()
+        {
+            Responsive = true,
+            MaintainAspectRatio = true,
+            OnClickEvent = true,
+            OnHoverEvent = true,
+            OnResizeEvent = true,
+            Animation = new Animation()
             {
-                Responsive = true,
-                MaintainAspectRatio = true,
-                OnClickEvent = true,
-                OnHoverEvent = true,
-                OnResizeEvent = true,
-                Animation = new Animation()
+                OnProgressEvent = true,
+                OnCompleteEvent = true
+            },
+            Plugins = new Plugins()
+            {
+                Legend = new Legend()
                 {
-                    OnProgressEvent = true,
-                    OnCompleteEvent = true
-                },
-                Plugins = new Plugins()
-                {
-                    Legend = new Legend()
-                    {
-                        OnClickEvent = true,
-                        OnHoverEvent = true,
-                        OnLeaveEvent = true
-                    }
-                },
-                Scales = new ChartJsOptionsScales()
-                {
-                    Y = new LinearAxis()
-                    {
-                        SuggestedMax = 25
-                    }
+                    OnClickEvent = true,
+                    OnHoverEvent = true,
+                    OnLeaveEvent = true
                 }
-            };
+            },
+            Scales = new ChartJsOptionsScales()
+            {
+                Y = new LinearAxis()
+                {
+                    SuggestedMax = 25
+                }
+            }
+        };
         chartJsConfig.UpdateChartOptions();
     }
 
@@ -241,7 +264,8 @@
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             ChartJsDataset dataset = chartJsConfig.Data.Datasets[i];
-            datas.Add(dataset, new AddDataObject(dataAddEventArgs.Data[i], null, dataAddEventArgs.BackgroundColors?[i], dataAddEventArgs.BorderColors?[i]));
+            datas.Add(dataset, new AddDataObject(dataAddEventArgs.Data[i], null, dataAddEventArgs.BackgroundColors?[i],
+dataAddEventArgs.BorderColors?[i]));
         }
         chartJsConfig.AddData(dataAddEventArgs.Label, null, datas);
     }
@@ -263,7 +287,8 @@
 
     private void AddDataset()
     {
-        var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
+        var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value,
+chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
         chartJsConfig.AddDataset(dataset);
     }
 

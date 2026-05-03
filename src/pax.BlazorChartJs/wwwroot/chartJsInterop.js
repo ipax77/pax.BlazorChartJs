@@ -13,15 +13,13 @@ class ChartJsInterop {
         this.loadInfo = new LoadInfo();
         this.chartInitPromises = new Map();
     }
-    async initChart(setupOptions, chartId, dotnetConfig, dotnetRef) {
-        this.dotnetRefs.set(chartId, dotnetRef);
-        const config = {
-            'type': dotnetConfig['type'],
-            data: dotnetConfig['data'],
-            options: dotnetConfig['options'] ?? {},
+    buildChartConfig(dotnetConfig) {
+        return {
+            type: dotnetConfig.type,
+            data: dotnetConfig.data,
+            options: dotnetConfig.options ?? {},
             plugins: []
         };
-        return config;
     }
     async loadPlugins(setupOptions, dotnetConfig) {
         const plugins = [];
@@ -239,9 +237,9 @@ async function ensureChartJsLoaded(setupOptions) {
     await chartJsLoadPromise;
 }
 export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) {
-    const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve(true);
+    const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve({ success: true });
     const initPromise = runningInit
-        .catch(() => true)
+        .catch(() => ({ success: true }))
         .then(() => initChartCore(setupOptions, chartId, dotnetConfig, dotnetRef));
     ChartJsInteropModule.chartInitPromises.set(chartId, initPromise);
     try {
@@ -256,24 +254,33 @@ export async function initChart(setupOptions, chartId, dotnetConfig, dotnetRef) 
 async function initChartCore(setupOptions, chartId, dotnetConfig, dotnetRef) {
     try {
         await ensureChartJsLoaded(setupOptions);
-        const config = await ChartJsInteropModule.initChart(setupOptions, chartId, dotnetConfig, dotnetRef);
-        config.plugins = await loadPlugins(setupOptions, dotnetConfig);
         const element = document.getElementById(chartId);
         if (!element) {
-            return false;
+            return { success: false };
         }
         destroyExistingChart(chartId, element);
+        const config = ChartJsInteropModule.buildChartConfig(dotnetConfig);
+        config.plugins = await loadPlugins(setupOptions, dotnetConfig);
         const ctx = element.getContext('2d');
+        if (!ctx) {
+            return { success: false };
+        }
         const chart = new Chart(ctx, config);
         ChartJsInteropModule.charts.set(chartId, chart);
+        ChartJsInteropModule.dotnetRefs.set(chartId, dotnetRef);
         if (dotnetConfig['options'] != undefined) {
             registerEvents(dotnetConfig.options, chartId, chart);
-            chart.options.onResize?.(chart, { height: chart.height, width: chart.width });
         }
+        return {
+            success: true,
+            height: chart.height,
+            width: chart.width,
+            windowHeight: window.innerHeight,
+            windowWidth: window.innerWidth
+        };
     }
     finally {
     }
-    return true;
 }
 function destroyExistingChart(chartId, element) {
     const charts = [
@@ -290,6 +297,7 @@ function destroyExistingChart(chartId, element) {
         }
     }
     ChartJsInteropModule.charts.delete(chartId);
+    ChartJsInteropModule.dotnetRefs.delete(chartId);
 }
 async function loadPlugins(setupOptions, dotnetConfig) {
     const plugins = [];

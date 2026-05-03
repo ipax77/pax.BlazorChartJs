@@ -67,12 +67,16 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             if (dotNetHelper != null)
             {
                 var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-                if (initResult == true)
+                if (initResult.Success == true)
                 {
                     await InvokeAsync(() =>
                         OnEventTriggered.InvokeAsync(new ChartJsInitEvent()
                         {
-                            ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid
+                            ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid,
+                            Height = initResult.Height,
+                            Width = initResult.Width,
+                            WindowHeight = initResult.WindowHeight,
+                            WindowWidth = initResult.WindowWidth
                         }))
                     .ConfigureAwait(false);
                 }
@@ -154,10 +158,17 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             try
             {
                 var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-                if (initResult == true)
+                if (initResult.Success == true)
                 {
                     await InvokeAsync(() => OnEventTriggered
-                        .InvokeAsync(new ChartJsInitEvent() { ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid }))
+                        .InvokeAsync(new ChartJsInitEvent() 
+                        { 
+                            ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid,
+                            Height = initResult.Height,
+                            Width = initResult.Width,
+                            WindowHeight = initResult.WindowHeight,
+                            WindowWidth = initResult.WindowWidth
+                        }))
                     .ConfigureAwait(false);
                 }
             }
@@ -177,12 +188,16 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
         if (dotNetHelper != null)
         {
             var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-            if (initResult == true)
+            if (initResult.Success == true)
             {
                 await InvokeAsync(() =>
                     OnEventTriggered.InvokeAsync(new ChartJsInitEvent()
                     {
-                        ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid
+                        ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid,
+                        Height = initResult.Height,
+                        Width = initResult.Width,
+                        WindowHeight = initResult.WindowHeight,
+                        WindowWidth = initResult.WindowWidth
                     }))
                 .ConfigureAwait(false);
             }

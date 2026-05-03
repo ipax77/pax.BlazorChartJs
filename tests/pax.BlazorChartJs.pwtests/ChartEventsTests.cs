@@ -213,6 +213,80 @@ public class ChartEventsTests : PageTest
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"ChartJsLabelClickEvent"));
     }
 
+    [Test]
+    public async Task InitEventIncludesInitialViewportDimensionsTest()
+    {
+        await Page.SetViewportSizeAsync(1280, 900);
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/eventschart");
+
+        await Expect(Page).ToHaveTitleAsync(
+            new Regex("EventsChart"),
+            new Microsoft.Playwright.PageAssertionsToHaveTitleOptions()
+            {
+                Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds
+            });
+
+        var canvas = Page.Locator("canvas").First;
+        var canvasId = await canvas.GetAttributeAsync("id");
+        Assert.That(Guid.TryParse(canvasId, out _), Is.True);
+
+        var initText = await WaitForLatestInitEventTextAsync(
+            new Regex(@"ChartJsInitEvent.*WindowHeight = 900.*WindowWidth = 1280"));
+
+        var dimensions = await Page.EvaluateAsync<BrowserDimensions>(
+            """
+        () => {
+            const canvas = document.querySelector('canvas');
+            return {
+                CanvasWidth: canvas.clientWidth,
+                CanvasHeight: canvas.clientHeight,
+                WindowHeight: window.innerHeight,
+                WindowWidth: window.innerWidth
+            };
+        }
+        """);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(initText, Does.Contain("ChartJsInitEvent"));
+            Assert.That(initText, Does.Match(@"Height = [1-9]\d*"));
+            Assert.That(initText, Does.Match(@"Width = [1-9]\d*"));
+            Assert.That(initText, Does.Contain("WindowHeight = 900"));
+            Assert.That(initText, Does.Contain("WindowWidth = 1280"));
+
+            Assert.That(dimensions.WindowHeight, Is.EqualTo(900));
+            Assert.That(dimensions.WindowWidth, Is.EqualTo(1280));
+            Assert.That(dimensions.CanvasWidth, Is.Positive);
+            Assert.That(dimensions.CanvasHeight, Is.Positive);
+        });
+    }
+
+    [Test]
+    public async Task InitEventIncludesViewportDimensionsTest()
+    {
+        await Page.SetViewportSizeAsync(1280, 900);
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/eventschart");
+
+        await Expect(Page).ToHaveTitleAsync(
+            new Regex("EventsChart"),
+            new Microsoft.Playwright.PageAssertionsToHaveTitleOptions()
+            {
+                Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds
+            });
+
+        var initText = await WaitForLatestInitEventTextAsync(
+            new Regex(@"ChartJsInitEvent.*WindowHeight = 900.*WindowWidth = 1280"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(initText, Does.Contain("ChartJsInitEvent"));
+            Assert.That(initText, Does.Match(@"Height = [1-9]\d*"));
+            Assert.That(initText, Does.Match(@"Width = [1-9]\d*"));
+            Assert.That(initText, Does.Contain("WindowHeight = 900"));
+            Assert.That(initText, Does.Contain("WindowWidth = 1280"));
+        });
+    }
+
     private async Task<string> WaitForLatestEventTextAsync(Regex expected)
     {
         var chartEvent = Page.GetByTestId("latest-chart-event");
@@ -263,8 +337,34 @@ public class ChartEventsTests : PageTest
         return latestText;
     }
 
+    private async Task<string> WaitForLatestInitEventTextAsync(Regex expected)
+    {
+        var initEvent = Page.GetByTestId("latest-init-event");
+        var deadline = DateTime.UtcNow.AddSeconds(10);
+        var latestText = "";
+
+        while (DateTime.UtcNow < deadline)
+        {
+            if (await initEvent.CountAsync() > 0)
+            {
+                latestText = await initEvent.InnerTextAsync();
+
+                if (expected.IsMatch(latestText))
+                {
+                    return latestText;
+                }
+            }
+
+            await Task.Delay(250);
+        }
+
+        Assert.Fail($"Expected latest init event text to match '{expected}', but was '{latestText}'.");
+        return latestText;
+    }
+
     private sealed class BrowserDimensions
     {
+        public double CanvasHeight { get; set; }
         public double CanvasWidth { get; set; }
         public double WindowHeight { get; set; }
         public double WindowWidth { get; set; }

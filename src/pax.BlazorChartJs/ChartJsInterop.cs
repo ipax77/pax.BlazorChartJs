@@ -57,7 +57,7 @@ public class ChartJsInterop : IAsyncDisposable
     /// <summary>
     /// (Re-)initializes chart
     /// </summary>
-    public async ValueTask<bool> InitChart(ChartJsConfig config, DotNetObjectReference<ChartComponent> dotnetRef)
+    public async ValueTask<ChartJsInitResult> InitChart(ChartJsConfig config, DotNetObjectReference<ChartComponent> dotnetRef)
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(dotnetRef);
@@ -66,16 +66,16 @@ public class ChartJsInterop : IAsyncDisposable
         {
             var module = await moduleTask.Value.ConfigureAwait(false);
             var serializedConfig = SerializeConfig(config);
-            return await module.InvokeAsync<bool>("initChart", setupOptions, config.ChartJsConfigGuid, serializedConfig, dotnetRef)
+            return await module.InvokeAsync<ChartJsInitResult>("initChart", setupOptions, config.ChartJsConfigGuid, serializedConfig, dotnetRef)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
-            return false;
+            return new ChartJsInitResult { Success = false };
         }
         catch (JSDisconnectedException)
         {
-            return false;
+            return new ChartJsInitResult { Success = false };
         }
     }
 
