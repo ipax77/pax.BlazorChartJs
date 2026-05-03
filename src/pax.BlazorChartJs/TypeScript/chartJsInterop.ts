@@ -14,19 +14,15 @@ class ChartJsInterop {
     public dotnetRefs = new Map<string, any>();
     public charts = new Map<string, any>();
     public loadInfo = new LoadInfo();
-    public chartInitPromises = new Map<string, Promise<boolean>>();
+    public chartInitPromises = new Map<string, Promise<ChartInitResult>>();
 
-    public async initChart(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<any> {
-        this.dotnetRefs.set(chartId, dotnetRef);
-
-        const config: any = {
-            'type': dotnetConfig['type'],
-            data: dotnetConfig['data'],
-            options: dotnetConfig['options'] ?? {},
-            // plugins: await this.loadPlugins(setupOptions, dotnetConfig)
+    public buildChartConfig(dotnetConfig: any): any {
+        return {
+            type: dotnetConfig.type,
+            data: dotnetConfig.data,
+            options: dotnetConfig.options ?? {},
             plugins: []
         };
-        return config;
     }
 
     private async loadPlugins(setupOptions: any, dotnetConfig: any): Promise<Array<object>> {
@@ -290,10 +286,10 @@ async function ensureChartJsLoaded(setupOptions: any): Promise<void> {
     await chartJsLoadPromise;
 }
 
-export async function initChart(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<boolean> {
-    const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve(true);
+export async function initChart(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<ChartInitResult> {
+    const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve({ success: true });
     const initPromise = runningInit
-        .catch(() => true)
+        .catch(() => ({ success: true }))
         .then(() => initChartCore(setupOptions, chartId, dotnetConfig, dotnetRef));
 
     ChartJsInteropModule.chartInitPromises.set(chartId, initPromise);
@@ -307,28 +303,42 @@ export async function initChart(setupOptions: any, chartId: string, dotnetConfig
     }
 }
 
-async function initChartCore(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<boolean> {
+async function initChartCore(setupOptions: any, chartId: string, dotnetConfig: any, dotnetRef: any): Promise<ChartInitResult> {
     try {
         await ensureChartJsLoaded(setupOptions);
 
-        const config = await ChartJsInteropModule.initChart(setupOptions, chartId, dotnetConfig, dotnetRef);
-        config.plugins = await loadPlugins(setupOptions, dotnetConfig);
         const element = document.getElementById(chartId) as HTMLCanvasElement;
         if (!element) {
-            return false;
+            return { success: false };
         }
+
         destroyExistingChart(chartId, element);
+
+        const config = ChartJsInteropModule.buildChartConfig(dotnetConfig);
+        config.plugins = await loadPlugins(setupOptions, dotnetConfig);
+        
         const ctx = element.getContext('2d');
+        if (!ctx) {
+            return { success: false };
+        }
+        
         const chart = new Chart(ctx, config);
         ChartJsInteropModule.charts.set(chartId, chart);
+        ChartJsInteropModule.dotnetRefs.set(chartId, dotnetRef);
 
         if (dotnetConfig['options'] != undefined) {
             registerEvents(dotnetConfig.options, chartId, chart);
-            chart.options.onResize?.(chart, { height: chart.height, width: chart.width });
         }
+
+        return {
+            success: true,
+            height: chart.height,
+            width: chart.width,
+            windowHeight: window.innerHeight,
+            windowWidth: window.innerWidth
+        };
     } finally {
     }
-    return true;
 }
 
 function destroyExistingChart(chartId: string, element?: HTMLCanvasElement | null) {
@@ -348,6 +358,7 @@ function destroyExistingChart(chartId: string, element?: HTMLCanvasElement | nul
         }
     }
     ChartJsInteropModule.charts.delete(chartId);
+    ChartJsInteropModule.dotnetRefs.delete(chartId);
 }
 
 async function loadPlugins(setupOptions: any, dotnetConfig: any): Promise<any[]> {
@@ -697,3 +708,15 @@ export function disposeChart(chartId: string) {
     destroyExistingChart(chartId);
     ChartJsInteropModule.disposeChart(chartId);
 }
+
+type ChartInitResult =
+    | {
+        success: true;
+        height: number;
+        width: number;
+        windowHeight: number;
+        windowWidth: number;
+    }
+    | {
+        success: false;
+    };
