@@ -32,12 +32,12 @@ public enum ChartJsEventSource
 public record ChartJsInitEvent : ChartJsEvent
 {
     /// <summary>
-    /// Initial height of the chart canvas, in CSS pixels.
+    /// Chart height after initialization, in CSS pixels.
     /// </summary>
     public double Height { get; init; }
 
     /// <summary>
-    /// Initial width of the chart canvas, in CSS pixels.
+    /// Chart width after initialization, in CSS pixels.
     /// </summary>
     public double Width { get; init; }
 
