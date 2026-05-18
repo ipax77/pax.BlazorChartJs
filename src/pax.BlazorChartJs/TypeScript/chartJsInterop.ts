@@ -1,5 +1,5 @@
-// v0.8.7
-export const chartJsInteropVersion = "0.8.7";
+// v0.8.8
+export const chartJsInteropVersion = "0.8.8";
 
 declare const Chart: any;
 declare const ChartDataLabels: any;
@@ -126,6 +126,9 @@ class ChartJsInterop {
     }
 
     public removeData(chart: any) {
+        if (!chart || !chart.data) {
+            return;
+        }
 
         if (!(chart.data.labels.length == 0)) {
             chart.data.labels.pop();
@@ -150,6 +153,10 @@ class ChartJsInterop {
     }
 
     public setData(chart: any, labels: string[], datas: any) {
+        if (!chart || !chart.data) {
+            return;
+        }
+
         if (labels != undefined) {
             chart.data.labels = labels;
         }
@@ -173,6 +180,10 @@ class ChartJsInterop {
     }
 
     public addDatasets(chart: any, datasets: any[]) {
+        if (!chart || !chart.data) {
+            return;
+        }
+
         for (let i = 0; i < datasets.length; i++) {
             chart.data.datasets.push(datasets[i]);
         }
@@ -180,6 +191,10 @@ class ChartJsInterop {
     }
 
     public removeDatasets(chart: any, datasetIds: string[]) {
+        if (!chart || !chart.data) {
+            return;
+        }
+
         for (const index of this.reverseKeys(chart.data.datasets)) {
             const dataset = chart.data.datasets[index];
             if (datasetIds.includes(dataset['id'])) {
@@ -190,6 +205,9 @@ class ChartJsInterop {
     }
 
     public updateDatasetsSmooth(chart: any, datasets: any[]) {
+        if (!chart || !chart.data) {
+            return;
+        }
 
         datasets.forEach((newDataset: any) => {
             const datasetIndex = chart.data.datasets.findIndex((dataset: any) => dataset['id'] === newDataset['id']);
@@ -209,6 +227,9 @@ class ChartJsInterop {
     }
 
     public updateDatasets(chart: any, datasets: any[]) {
+        if (!chart || !chart.data) {
+            return;
+        }
 
         datasets.forEach((dataset: any) => {
             const datasetIndex = chart.data.datasets.findIndex((existingDataset: any) => existingDataset['id'] === dataset['id']);
@@ -220,6 +241,10 @@ class ChartJsInterop {
     }
 
     public setDatasets(chart: any, datasets: any[]) {
+        if (!chart || !chart.data) {
+            return;
+        }
+
         chart.data.datasets = datasets;
         chart.update();
     }
@@ -505,8 +530,17 @@ async function triggerEvent(chartId: string, event: string, source: string, data
     await ChartJsInteropModule.triggerEvent(chartId, event, source, data);
 }
 
+function getLiveChart(chartId: string): any | undefined {
+    if (typeof Chart === "undefined") {
+        return undefined;
+    }
+
+    const chart = Chart.getChart(chartId) ?? ChartJsInteropModule.charts.get(chartId);
+    return chart && chart.data ? chart : undefined;
+}
+
 export function updateChartOptions(chartId: string, options: any) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
     if (chart != undefined) {
         chart.options = options;
         chart.update();
@@ -515,49 +549,70 @@ export function updateChartOptions(chartId: string, options: any) {
 }
 
 export function addData(chartId: string, label: string, pos: number, datas: any) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
     ChartJsInteropModule.addData(chart, label, pos, datas);
 }
 
 export function removeData(chartId: string) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     ChartJsInteropModule.removeData(chart);
 }
 
 export function setData(chartId: string, labels: string[], datas: any) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     ChartJsInteropModule.setData(chart, labels, datas);
 }
 
 export function addDatasets(chartId: string, datasets: any[]) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     ChartJsInteropModule.addDatasets(chart, datasets);
 }
 
 export function removeDatasets(chartId: string, datasets: string[]) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     ChartJsInteropModule.removeDatasets(chart, datasets);
 }
 
 export function updateDatasetsSmooth(chartId: string, datasets: any[]) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     ChartJsInteropModule.updateDatasetsSmooth(chart, datasets);
 }
 
 export function updateDatasets(chartId: string, datasets: any[]) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     ChartJsInteropModule.updateDatasets(chart, datasets);
 }
 
 export function setDatasets(chartId: string, datasets: any[]) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     ChartJsInteropModule.setDatasets(chart, datasets);
 }
 
 // - ts
 export function setLabels(chartId: string, labels: string[]) {
-    const chart = Chart.getChart(chartId);
-    if (!chart || !chart.data) {
+    const chart = getLiveChart(chartId);
+    if (!chart) {
         return;
     }
     chart.data.labels = labels;
@@ -565,7 +620,7 @@ export function setLabels(chartId: string, labels: string[]) {
 }
 
 export function resizeChart(chartId: string, width?: number, height?: number) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
     if (chart == undefined) {
         return;
     }
@@ -579,7 +634,10 @@ export function resizeChart(chartId: string, width?: number, height?: number) {
 
 export function getChartImage(chartId: string, type?: string, quality?: number, width?: number, height?: number) {
 
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return "";
+    }
     let currentWidth = 0;
     let currentHeight = 0;
     if (!(width == undefined || height == undefined)) {
@@ -618,39 +676,60 @@ export function getChartImage(chartId: string, type?: string, quality?: number, 
 }
 
 export function resetChart(chartId: string) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     chart.reset();
 }
 
 export function renderChart(chartId: string) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     chart.render();
 }
 
 export function stopChart(chartId: string) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     chart.stop();
 }
 
 export function setDatasetVisibility(chartId: string, datasetIndex: number, value: boolean) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     chart.setDatasetVisibility(datasetIndex, value);
     chart.update();
 }
 
 export function toggleDataVisibility(chartId: string, index: number) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     chart.toggleDataVisibility(index);
     chart.update();
 }
 
 export function getDataVisibility(chartId: string, index: number): boolean {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return false;
+    }
     return chart.getDataVisibility(index);
 }
 
 export function hideDataset(chartId: string, datasetId: string, dataIndex?: number) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     const datasetMetas = chart.getSortedVisibleDatasetMetas();
     const datasetIndex = datasetMetas.findIndex((obj: any) => obj._dataset.id === datasetId);
     if (dataIndex == undefined) {
@@ -661,7 +740,10 @@ export function hideDataset(chartId: string, datasetId: string, dataIndex?: numb
 }
 
 export function showDataset(chartId: string, datasetIndex: number, dataIndex?: number) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
     if (dataIndex == undefined) {
         chart.show(datasetIndex);
     } else {
@@ -670,19 +752,28 @@ export function showDataset(chartId: string, datasetIndex: number, dataIndex?: n
 }
 
 export function getLabels(chartId: string) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return [];
+    }
     const items = chart.options.plugins.legend.labels.generateLabels(chart);
     return items;
 }
 
 export function isDatasetVisible(chartId: string, datasetIndex: number): boolean {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return false;
+    }
     const isVisible = chart.isDatasetVisible(datasetIndex);
     return isVisible;
 }
 
 export function setDatasetPointsActive(chartId: string, datasetIndex: number) {
-    const chart = Chart.getChart(chartId);
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
 
     if (chart.getActiveElements().length > 0) {
         chart.setActiveElements([]);

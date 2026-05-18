@@ -13,7 +13,7 @@ namespace pax.BlazorChartJs;
 /// </summary>
 public class ChartJsInterop : IAsyncDisposable
 {
-    private const string ChartJsInteropVersion = "0.8.7";
+    private const string ChartJsInteropVersion = "0.8.8";
     /// <summary>
     /// ChartJsInterop
     /// </summary>
