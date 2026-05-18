@@ -62,89 +62,98 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
 
     private async void ChartJsConfig_ChartRedraw(object? sender, EventArgs e)
     {
-        try
+        await InvokeChartInteropAsync(async () =>
         {
-            if (dotNetHelper != null)
+            if (dotNetHelper == null)
             {
-                var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-                if (initResult.Success == true)
-                {
-                    await InvokeAsync(() =>
-                        OnEventTriggered.InvokeAsync(new ChartJsInitEvent()
-                        {
-                            ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid,
-                            Height = initResult.Height,
-                            Width = initResult.Width,
-                            WindowHeight = initResult.WindowHeight,
-                            WindowWidth = initResult.WindowWidth
-                        }))
-                    .ConfigureAwait(false);
-                }
+                return;
             }
-        }
-        catch (ObjectDisposedException) { }
-        catch (OperationCanceledException) { }
+
+            var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+            if (initResult.Success == true)
+            {
+                await InvokeAsync(() =>
+                    OnEventTriggered.InvokeAsync(new ChartJsInitEvent()
+                    {
+                        ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid,
+                        Height = initResult.Height,
+                        Width = initResult.Width,
+                        WindowHeight = initResult.WindowHeight,
+                        WindowWidth = initResult.WindowWidth
+                    }))
+                .ConfigureAwait(false);
+            }
+        }).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_ChartOptionsUpdate(object? sender, EventArgs e)
     {
-        if (dotNetHelper != null)
+        await InvokeChartInteropAsync(async () =>
         {
-            await ChartJsInterop.UpdateChartOptions(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-        }
+            if (dotNetHelper != null)
+            {
+                await ChartJsInterop.UpdateChartOptions(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
+            }
+        }).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DatasetsSet(object? sender, DatasetsSetEventArgs e)
     {
-        await ChartJsInterop.SetDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets).ConfigureAwait(false);
+        await InvokeChartInteropAsync(() => ChartJsInterop.SetDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets))
+            .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DatasetsUpdate(object? sender, DatasetsUpdateEventArgs e)
     {
-        await ChartJsInterop.UpdateDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets, e.Smooth)
+        await InvokeChartInteropAsync(() => ChartJsInterop.UpdateDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets, e.Smooth))
             .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_AddDataEvent(object? sender, AddDataEventArgs e)
     {
-        await ChartJsInterop.AddData(ChartJsConfig.ChartJsConfigGuid, e.Label, e.AtPosition, e.Datas)
+        await InvokeChartInteropAsync(() => ChartJsInterop.AddData(ChartJsConfig.ChartJsConfigGuid, e.Label, e.AtPosition, e.Datas))
             .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_LabelsSet(object? sender, LabelsSetEventArgs e)
     {
-        await ChartJsInterop.SetLabels(ChartJsConfig.ChartJsConfigGuid, e.Labels).ConfigureAwait(false);
+        await InvokeChartInteropAsync(() => ChartJsInterop.SetLabels(ChartJsConfig.ChartJsConfigGuid, e.Labels))
+            .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DataSet(object? sender, DataSetEventArgs e)
     {
-        await ChartJsInterop.SetData(ChartJsConfig.ChartJsConfigGuid, e.Labels, e.Datas).ConfigureAwait(false);
+        await InvokeChartInteropAsync(() => ChartJsInterop.SetData(ChartJsConfig.ChartJsConfigGuid, e.Labels, e.Datas))
+            .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DataRemove(object? sender, DataRemoveEventArgs e)
     {
-        await ChartJsInterop.RemoveData(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
+        await InvokeChartInteropAsync(() => ChartJsInterop.RemoveData(ChartJsConfig.ChartJsConfigGuid))
+            .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DataAdd(object? sender, DataAddEventArgs e)
     {
-        await ChartJsInterop.AddDataToDataset(
+        await InvokeChartInteropAsync(() => ChartJsInterop.AddDataToDataset(
             ChartJsConfig.ChartJsConfigGuid,
             e.Label,
             e.Data,
             e.BackgroundColors,
             e.BorderColors,
-            e.AtPostion).ConfigureAwait(false);
+            e.AtPostion)).ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DatasetsRemove(object? sender, DatasetsRemoveEventArgs e)
     {
-        await ChartJsInterop.RemoveDatasets(ChartJsConfig.ChartJsConfigGuid, e.DatasetIds).ConfigureAwait(false);
+        await InvokeChartInteropAsync(() => ChartJsInterop.RemoveDatasets(ChartJsConfig.ChartJsConfigGuid, e.DatasetIds))
+            .ConfigureAwait(false);
     }
 
     private async void ChartJsConfig_DatasetsAdd(object? sender, DatasetsAddEventArgs e)
     {
-        await ChartJsInterop.AddDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets).ConfigureAwait(false);
+        await InvokeChartInteropAsync(() => ChartJsInterop.AddDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets))
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -395,7 +404,6 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
 
         if (disposing)
         {
-            await ChartJsInterop.DisposeChart(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
             ChartJsConfig.DatasetsAdd -= ChartJsConfig_DatasetsAdd;
             ChartJsConfig.DatasetsRemove -= ChartJsConfig_DatasetsRemove;
             ChartJsConfig.DatasetsUpdate -= ChartJsConfig_DatasetsUpdate;
@@ -407,8 +415,26 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             ChartJsConfig.AddDataEvent -= ChartJsConfig_AddDataEvent;
             ChartJsConfig.ChartOptionsUpdate -= ChartJsConfig_ChartOptionsUpdate;
             ChartJsConfig.ChartRedraw -= ChartJsConfig_ChartRedraw;
+            isDisposed = true;
+
+            await ChartJsInterop.DisposeChart(ChartJsConfig.ChartJsConfigGuid).ConfigureAwait(false);
+        }
+    }
+
+    private async ValueTask InvokeChartInteropAsync(Func<ValueTask> action)
+    {
+        if (isDisposed)
+        {
+            return;
         }
 
-        isDisposed = true;
+        try
+        {
+            await action().ConfigureAwait(false);
+        }
+        catch (ObjectDisposedException) { }
+        catch (OperationCanceledException) { }
+        catch (JSDisconnectedException) { }
+        catch (JSException) when (isDisposed) { }
     }
 }
