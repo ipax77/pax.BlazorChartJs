@@ -1,7 +1,6 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Playwright.NUnit;
-using System.Diagnostics;
 
 namespace PlaywrightTests;
 
@@ -17,10 +16,6 @@ public static class Startup
 
     private static string sampleBaseUrl = "";
 
-    private static readonly SemaphoreSlim ssStart = new(1, 1);
-    private static readonly SemaphoreSlim ssStop = new(1, 1);
-    private static int runners;
-    private static readonly TimeSpan delay = TimeSpan.FromMilliseconds(30000);
     private static readonly object lockobject = new();
 
     public static string GetSampleBaseUrl()
@@ -45,6 +40,10 @@ public static class Startup
             .Build();
 
         sampleBaseUrl = configuration["SampleBaseUrl"] ?? "";
+        if (String.IsNullOrWhiteSpace(sampleBaseUrl))
+        {
+            throw new InvalidOperationException("SampleBaseUrl must be configured for Playwright tests.");
+        }
 
         if (int.TryParse(configuration["WasmLoadDelay"], out int wasmMs))
         {
@@ -62,74 +61,18 @@ public static class Startup
         }
     }
 
-    public static async Task Init()
+    public static Task Init()
     {
-        await ssStart.WaitAsync();
-
-        try
-        {
-            runners++;
-
-            if (runners > 1)
-            {
-                return;
-            }
-
-            var processes = Process.GetProcessesByName("pax.BlazorChartJs.sample");
-            var sampleProcess = processes.FirstOrDefault();
-
-            if (sampleProcess != null)
-            {
-                StopSampleProject(sampleProcess);
-            }
-            await RunSampleProject();
-        }
-        finally
-        {
-            ssStart.Release();
-        }
-
+        // CI runs against the published GitHub Pages app from appsettings.json.
+        // Local runs use ASPNETCORE_ENVIRONMENT=Development after the host is
+        // started manually with the commands in tests/README.md.
+        GetSampleBaseUrl();
+        return Task.CompletedTask;
     }
 
-    public static async Task Stop()
+    public static Task Stop()
     {
-        await ssStop.WaitAsync();
-        try
-        {
-            runners--;
-
-            if (runners == 0)
-            {
-                var processes = Process.GetProcessesByName("pax.BlazorChartJs.sample");
-                var sampleProcess = processes.FirstOrDefault();
-
-                if (sampleProcess != null)
-                {
-                    StopSampleProject(sampleProcess);
-                }
-            }
-        }
-        finally
-        {
-            ssStop.Release();
-        }
-    }
-
-    private static void StopSampleProject(Process process)
-    {
-        process.Kill();
-    }
-
-    private static async Task RunSampleProject()
-    {
-        Process.Start(new ProcessStartInfo()
-        {
-            FileName = "dotnet",
-            Arguments = "run --project ../../../../../src/pax.BlazorChartJs.wasmsample"
-        });
-
-        // wait for dotnet
-        await Task.Delay(delay);
+        return Task.CompletedTask;
     }
 }
 

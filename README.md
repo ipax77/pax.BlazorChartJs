@@ -152,7 +152,15 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## Changelog
 
-<details open="open"><summary>v0.8.7</summary>
+<details open="open"><summary>v0.8.8</summary>
+
+>- Dataset interop calls are ignored safely when the target chart was already disposed.
+>- Reduced allocation and lookup work while resolving and disposing Chart.js instances.
+>- Refactored library and sample code for .NET 11 analyzer/style guidance.
+
+</details>
+
+<details><summary>v0.8.7</summary>
 
 >- Hardened chart initialization to better handle rapid reinitialization and existing Chart.js instances for the same canvas.
 >- Resize events now include browser viewport dimensions via `WindowWidth` and `WindowHeight`.

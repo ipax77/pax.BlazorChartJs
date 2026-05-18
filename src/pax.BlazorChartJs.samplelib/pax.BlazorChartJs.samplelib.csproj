@@ -16,7 +16,7 @@
     <LangVersion>latest</LangVersion>
     <WarningsNotAsErrors>CA5394</WarningsNotAsErrors>
     <DisabledWarnings>1591</DisabledWarnings>
-    <NoWarn>1591, CA5394, CA2007, CA1034, CA2227</NoWarn>	
+    <NoWarn>1591, CA5394, CA2007, CA1034, CA2227, IDE0160, IDE0040, IDE0008</NoWarn>	
   </PropertyGroup>
 
   <ItemGroup>

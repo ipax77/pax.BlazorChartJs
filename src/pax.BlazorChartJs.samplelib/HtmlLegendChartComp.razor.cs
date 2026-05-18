@@ -15,16 +15,14 @@ public partial class HtmlLegendChartComp : ComponentBase
             Type = ChartType.line,
             Data = new ChartJsData()
             {
-                Labels = new List<string>()
-                {
+                Labels = [
                     "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
-                },
-                Datasets = new List<ChartJsDataset>()
-                {
+                ],
+                Datasets = [
                     new LineDataset()
                     {
                         Label = "Team 1",
-                        Data = new List<object>() { 1, 2, 3, 4, 5, 6 },
+                        Data = [ 1, 2, 3, 4, 5, 6 ],
                         BackgroundColor = "lightblue",
                         BorderColor = "blue",
                         BorderWidth = 5,
@@ -37,7 +35,7 @@ public partial class HtmlLegendChartComp : ComponentBase
                     new LineDataset()
                     {
                         Label = "Team 2",
-                        Data = new List<object>() { 6, 5, 4, 3, 2, 1 },
+                        Data = [ 6, 5, 4, 3, 2, 1 ],
                         BackgroundColor = "lightgreen",
                         BorderColor = "green",
                         BorderWidth = 5,
@@ -47,7 +45,7 @@ public partial class HtmlLegendChartComp : ComponentBase
                         PointHoverRadius = 10,
                         PointHoverBorderWidth = 10,
                     }
-                }
+                ]
             },
             Options = new ChartJsOptions()
             {
@@ -55,7 +53,7 @@ public partial class HtmlLegendChartComp : ComponentBase
                 OnHoverEvent = true,
                 Plugins = new Plugins()
                 {
-                    ArbitraryLines = new List<ArbitraryLineConfig>(),
+                    ArbitraryLines = [],
                     Legend = new Legend()
                     {
                         Display = false
@@ -71,16 +69,16 @@ public partial class HtmlLegendChartComp : ComponentBase
         base.OnInitialized();
     }
 
-    private void ChartEventTriggered(ChartJsEvent chartJsEvent)
+    private async Task ChartEventTriggered(ChartJsEvent chartJsEvent)
     {
         if (chartJsEvent is ChartJsInitEvent)
         {
-            InvokeAsync(() => StateHasChanged()).Wait();
-            UpdateLegend();
+            await InvokeAsync(StateHasChanged).ConfigureAwait(false);
+            await UpdateLegend().ConfigureAwait(false);
         }
         else if (chartJsEvent is ChartJsAnimationCompleteEvent)
         {
-            // UpdateLegend();
+            // await UpdateLegend().ConfigureAwait(false);
         }
         else if (chartJsEvent is ChartJsLabelHoverEvent labelHoverEvent)
         {
@@ -88,16 +86,19 @@ public partial class HtmlLegendChartComp : ComponentBase
         }
     }
 
-    public void UpdateLegend()
+    public async Task UpdateLegend()
     {
-        legendComponent?.UpdateLegend();
+        if (legendComponent != null)
+        {
+            await legendComponent.UpdateLegend().ConfigureAwait(false);
+        }
     }
 
     private void Randomize()
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = [];
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
@@ -108,7 +109,7 @@ public partial class HtmlLegendChartComp : ComponentBase
         chartJsConfig.SetData(chartData);
     }
 
-    private void AddDataset()
+    private async Task AddDataset()
     {
         var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
         if (dataset is LineDataset lineDataset)
@@ -120,15 +121,15 @@ public partial class HtmlLegendChartComp : ComponentBase
             lineDataset.PointHoverBorderWidth = 10;
         }
         chartJsConfig.AddDataset(dataset);
-        UpdateLegend();
+        await UpdateLegend().ConfigureAwait(false);
     }
 
-    private void RemoveLastDataset()
+    private async Task RemoveLastDataset()
     {
         if (chartJsConfig.Data.Datasets.Count > 0)
         {
             chartJsConfig.RemoveDataset(chartJsConfig.Data.Datasets.Last());
-            UpdateLegend();
+            await UpdateLegend().ConfigureAwait(false);
         }
     }
 }

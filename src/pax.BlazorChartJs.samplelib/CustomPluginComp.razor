@@ -1,7 +1,7 @@
 ﻿@using Microsoft.JSInterop
 @using pax.BlazorChartJs
 @using System.Text.Json
-@implements IDisposable
+@implements IAsyncDisposable
 
 @inject IJSRuntime jsRuntime
 
@@ -150,12 +150,12 @@
 
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         if (moduleTask != null && moduleTask.IsValueCreated)
         {
-            var module = moduleTask.Value.GetAwaiter().GetResult();
-            module.DisposeAsync();
+            var module = await moduleTask.Value.ConfigureAwait(false);
+            await module.DisposeAsync().ConfigureAwait(false);
         }
     }
 }
