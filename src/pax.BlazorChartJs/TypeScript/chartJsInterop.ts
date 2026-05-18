@@ -367,21 +367,30 @@ async function initChartCore(setupOptions: any, chartId: string, dotnetConfig: a
 }
 
 function destroyExistingChart(chartId: string, element?: HTMLCanvasElement | null) {
-    const charts = [
-        ChartJsInteropModule.charts.get(chartId)
-    ];
-    if (typeof Chart !== "undefined") {
-        charts.push(
-            element ? Chart.getChart(element) : undefined,
-            Chart.getChart(chartId));
+    const mappedChart = ChartJsInteropModule.charts.get(chartId);
+    let destroyedChart: any | undefined;
+    let destroyedElementChart: any | undefined;
+
+    if (mappedChart != undefined) {
+        mappedChart.destroy();
+        destroyedChart = mappedChart;
     }
-    const destroyedCharts = new Set<any>();
-    for (const chart of charts) {
-        if (chart != undefined && !destroyedCharts.has(chart)) {
-            destroyedCharts.add(chart);
-            chart.destroy();
+
+    if (typeof Chart !== "undefined") {
+        const elementChart = element ? Chart.getChart(element) : undefined;
+        if (elementChart != undefined && elementChart !== destroyedChart) {
+            elementChart.destroy();
+            destroyedElementChart = elementChart;
+        }
+
+        const idChart = Chart.getChart(chartId);
+        if (idChart != undefined
+            && idChart !== destroyedChart
+            && idChart !== destroyedElementChart) {
+            idChart.destroy();
         }
     }
+
     ChartJsInteropModule.charts.delete(chartId);
     ChartJsInteropModule.dotnetRefs.delete(chartId);
 }
@@ -531,11 +540,16 @@ async function triggerEvent(chartId: string, event: string, source: string, data
 }
 
 function getLiveChart(chartId: string): any | undefined {
+    const mappedChart = ChartJsInteropModule.charts.get(chartId);
+    if (mappedChart && mappedChart.data) {
+        return mappedChart;
+    }
+
     if (typeof Chart === "undefined") {
         return undefined;
     }
 
-    const chart = Chart.getChart(chartId) ?? ChartJsInteropModule.charts.get(chartId);
+    const chart = Chart.getChart(chartId);
     return chart && chart.data ? chart : undefined;
 }
 
