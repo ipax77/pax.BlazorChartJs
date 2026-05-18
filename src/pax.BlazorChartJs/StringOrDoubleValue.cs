@@ -18,40 +18,47 @@ public record StringOrDoubleValue
         DoubleValue = doubleValue;
     }
 
-    public string? AsString() => StringValue;
-    public double? AsDouble() => DoubleValue;
+    public string? AsString()
+    {
+        return StringValue;
+    }
+
+    public double? AsDouble()
+    {
+        return DoubleValue;
+    }
 
     public bool IsString => StringValue != null;
     public bool IsDouble => DoubleValue != null;
 
     public static StringOrDoubleValue FromString(string stringValue)
-        => new(stringValue);
+    {
+        return new(stringValue);
+    }
 
     public static StringOrDoubleValue FromDouble(double doubleValue)
-        => new(doubleValue);
+    {
+        return new(doubleValue);
+    }
 
     public static implicit operator StringOrDoubleValue(string stringValue)
-        => new(stringValue);
+    {
+        return new(stringValue);
+    }
 
     public static implicit operator StringOrDoubleValue(double doubleValue)
-        => new(doubleValue);
+    {
+        return new(doubleValue);
+    }
 
     public override string ToString()
-        => IsString ? AsString()! : AsDouble()?.ToString(CultureInfo.InvariantCulture)! ?? "";
+    {
+        return IsString ? AsString()! : AsDouble()?.ToString(CultureInfo.InvariantCulture)! ?? "";
+    }
 
     internal object GetJsonObject()
     {
-        if (StringValue != null)
-        {
-            return StringValue;
-        }
-        else if (DoubleValue != null)
-        {
-            return DoubleValue.Value;
-        }
-        else
-        {
-            throw new ArgumentNullException("String and Double values are null");
-        }
+        return StringValue ?? (DoubleValue != null ? (object)DoubleValue.Value
+        : throw new ArgumentNullException("String and Double values are null"));
     }
 }

@@ -28,7 +28,7 @@ public class LegendComponentBase : ComponentBase
 
         LegendItems = await ChartComponent.GetLegendItems()
             .ConfigureAwait(false);
-        await InvokeAsync(() => StateHasChanged())
+        await InvokeAsync(StateHasChanged)
             .ConfigureAwait(false);
     }
 
@@ -41,7 +41,7 @@ public class LegendComponentBase : ComponentBase
 
         ArgumentNullException.ThrowIfNull(item);
 
-        if (ChartJsConfig.Type == ChartType.pie || ChartJsConfig.Type == ChartType.doughnut)
+        if (ChartJsConfig.Type is ChartType.pie or ChartType.doughnut)
         {
             await ChartComponent.ToggleDataVisibility(item.Index)
                 .ConfigureAwait(false);
@@ -58,7 +58,8 @@ public class LegendComponentBase : ComponentBase
 
             item.Hidden = isVisible;
         }
-        await InvokeAsync(() => StateHasChanged())
+
+        await InvokeAsync(StateHasChanged)
             .ConfigureAwait(false);
     }
 
@@ -82,7 +83,7 @@ public class LegendComponentBase : ComponentBase
         await ChartComponent.SetDatasetPointsActive(item.DatasetIndex)
             .ConfigureAwait(false);
 
-        await InvokeAsync(() => StateHasChanged())
+        await InvokeAsync(StateHasChanged)
             .ConfigureAwait(false);
     }
 
@@ -105,19 +106,12 @@ public class LegendComponentBase : ComponentBase
 
         HoverItemIndex = null;
 
-        await InvokeAsync(() => StateHasChanged())
+        await InvokeAsync(StateHasChanged)
             .ConfigureAwait(false);
     }
 
     private int GetItemIndex(ChartJsLegendItem item)
     {
-        if (ChartJsConfig.Type == ChartType.pie || ChartJsConfig.Type == ChartType.doughnut)
-        {
-            return item.Index;
-        }
-        else
-        {
-            return item.DatasetIndex;
-        }
+        return ChartJsConfig.Type is ChartType.pie or ChartType.doughnut ? item.Index : item.DatasetIndex;
     }
 }

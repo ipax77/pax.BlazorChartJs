@@ -9,12 +9,12 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ipax77/pax.BlazorChartJs</RepositoryUrl>
     <PackageTags>blazor;dotnet;wrapper;chartjs</PackageTags>
-    <AssemblyVersion>0.8.7.0</AssemblyVersion>
+    <AssemblyVersion>0.8.8.0</AssemblyVersion>
     <Owners>Philipp Hetzner</Owners>
     <Authors>Philipp Hetzner</Authors>
-    <Version>0.8.7</Version>
-	  <FileVersion>0.8.7.0</FileVersion>
-    <PackageVersion>0.8.7</PackageVersion>
+    <Version>0.8.8</Version>
+	  <FileVersion>0.8.8.0</FileVersion>
+    <PackageVersion>0.8.8</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>    
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -30,7 +30,7 @@
     <LangVersion>latest</LangVersion>
     <WarningsNotAsErrors></WarningsNotAsErrors>
     <DisabledWarnings>1591</DisabledWarnings>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591, IDE0160, IDE0130, IDE0008, IDE0072</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

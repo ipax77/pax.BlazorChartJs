@@ -52,11 +52,11 @@
     private async Task LoadData()
     {
         isLoading = true;
-        await InvokeAsync(() => StateHasChanged());
+        await InvokeAsync(StateHasChanged);
         razor = await GetMarkdownString(Options.RawRazorUrl, "razor");
         cs = await GetMarkdownString(Options.RawCsUrl, "csharp");
         isLoading = false;
-        await InvokeAsync(() => StateHasChanged());
+        await InvokeAsync(StateHasChanged);
         dataReady = true;
         HighlightCode();
     }

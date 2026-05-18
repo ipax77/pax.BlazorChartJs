@@ -28,7 +28,7 @@ public partial class ChartJsConfig
 
         AddLabel(label, atPosition);
 
-        Dictionary<string, AddDataObject> jsData = new();
+        Dictionary<string, AddDataObject> jsData = [];
         foreach (var data in datas)
         {
             AddDatasetData(data.Key, data.Value.Data, data.Value.AtPosition);

@@ -14,7 +14,7 @@ public record ChartJsDataset
     /// <summary>
     /// can be object|object[]| number[]|string[]
     /// </summary>    
-    public IList<object> Data { get; set; } = new List<object>();
+    public IList<object> Data { get; set; } = [];
     public ChartType? Type { get; set; }
     /// <summary>
     /// If you have a lot of data points, it can be more performant to enable spanGaps. 

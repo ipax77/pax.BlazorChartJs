@@ -133,7 +133,7 @@
     private async void SetChartVersion()
     {
         chartVersion = await jsRuntime.InvokeAsync<string>("getChartVersion");
-        await InvokeAsync(() => StateHasChanged());
+        await InvokeAsync(StateHasChanged);
     }
 
     private void ShowDataLabels()

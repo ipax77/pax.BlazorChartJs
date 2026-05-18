@@ -31,7 +31,7 @@
             var chartModule = await chartJsModuleTask.Value;
             var pluginModule = await pluginModuleTask.Value;
             ChartConfig = GetChartConfig();
-            await InvokeAsync(() => StateHasChanged());
+            await InvokeAsync(StateHasChanged);
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -97,12 +97,18 @@
         if (chartJsModuleTask.IsValueCreated)
         {
             var module = await chartJsModuleTask.Value;
-            module?.DisposeAsync();
+            if (module != null)
+            {
+                await module.DisposeAsync();
+            }
         }
         if (pluginModuleTask.IsValueCreated)
         {
             var module = await pluginModuleTask.Value;
-            module?.DisposeAsync();
+            if (module != null)
+            {
+                await module.DisposeAsync();
+            }
         }
     }
 }

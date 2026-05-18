@@ -10,7 +10,7 @@ public partial class ChartJsConfig
     {
         ArgumentNullException.ThrowIfNull(dataset);
 
-        AddDatasets(new List<ChartJsDataset> { dataset });
+        AddDatasets([dataset]);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public partial class ChartJsConfig
     public void RemoveDataset(ChartJsDataset dataset)
     {
         ArgumentNullException.ThrowIfNull(dataset);
-        RemoveDatasets(new List<ChartJsDataset>() { dataset });
+        RemoveDatasets([dataset]);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public partial class ChartJsConfig
     {
         ArgumentNullException.ThrowIfNull(datasets);
 
-        List<string> removeDatasetIds = new();
+        List<string> removeDatasetIds = [];
 
         foreach (var dataset in datasets.ToArray())
         {
@@ -70,7 +70,7 @@ public partial class ChartJsConfig
     public void UpdateDataset(ChartJsDataset dataset)
     {
         ArgumentNullException.ThrowIfNull(dataset);
-        UpdateDatasets(new List<ChartJsDataset>() { dataset });
+        UpdateDatasets([dataset]);
     }
 
     /// <summary>

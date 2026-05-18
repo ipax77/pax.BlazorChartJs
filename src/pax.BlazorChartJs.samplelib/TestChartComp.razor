@@ -204,6 +204,6 @@
     {
         var task = chartComponent?.GetDataVisibility(0);
         isVisible = await task.GetValueOrDefault();
-        await InvokeAsync(() => StateHasChanged());
+        await InvokeAsync(StateHasChanged);
     }
 }
