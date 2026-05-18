@@ -4,8 +4,6 @@ namespace pax.BlazorChartJs.samplelib;
 
 public partial class LineChartComp : ComponentBase
 {
-
-    ChartComponent? chartComponent;
     ChartJsConfig chartJsConfig = null!;
 
     protected override void OnInitialized()
@@ -15,16 +13,14 @@ public partial class LineChartComp : ComponentBase
             Type = ChartType.line,
             Data = new ChartJsData()
             {
-                Labels = new List<string>()
-                {
+                Labels = [
                     "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
-                },
-                Datasets = new List<ChartJsDataset>()
-                {
+                ],
+                Datasets = [
                     new LineDataset()
                     {
                         Label = "Team 1",
-                        Data = new List<object>() { 1, 2, 3, 4, 5, 6 },
+                        Data = [ 1, 2, 3, 4, 5, 6 ],
                         BackgroundColor = "lightblue",
                         BorderColor = "lightblue",
                         BorderWidth = 5,
@@ -39,7 +35,7 @@ public partial class LineChartComp : ComponentBase
                     new LineDataset()
                     {
                         Label = "Team 2",
-                        Data = new List<object>() { 6, 5, 4, 3, 2, 1 },
+                        Data = [ 6, 5, 4, 3, 2, 1 ],
                         BackgroundColor = "lightgreen",
                         BorderColor = "lightgreen",
                         BorderWidth = 5,
@@ -51,14 +47,14 @@ public partial class LineChartComp : ComponentBase
                         PointHitRadius = 6,
                         Tension = 0
                     }
-                }
+                ]
             },
             Options = new ChartJsOptions()
             {
                 Responsive = true,
                 Plugins = new Plugins()
                 {
-                    ArbitraryLines = new List<ArbitraryLineConfig>()
+                    ArbitraryLines = []
                 },
                 Scales = new ChartJsOptionsScales()
                 {
@@ -70,7 +66,7 @@ public partial class LineChartComp : ComponentBase
                         Title = new Title()
                         {
                             Display = true,
-                            Text = new IndexableOption<string>("GameTime"),
+                            Text = "GameTime",
                             Color = "black",
                             Font = new()
                             {
@@ -183,8 +179,7 @@ public partial class LineChartComp : ComponentBase
             chartJsConfig.Options.Plugins = new();
         }
 
-        chartJsConfig.Options.Plugins.ArbitraryLines = new List<ArbitraryLineConfig>()
-        {
+        chartJsConfig.Options.Plugins.ArbitraryLines = [
             new ArbitraryLineConfig()
             {
                 ArbitraryLineColor = "blue",
@@ -192,7 +187,8 @@ public partial class LineChartComp : ComponentBase
                 XWidth = 3,
                 Text = "Plugin Test"
             }
-        };
+        ];
+
         chartJsConfig.UpdateChartOptions();
     }
 
@@ -201,7 +197,7 @@ public partial class LineChartComp : ComponentBase
         var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
         // chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
 
-        Dictionary<ChartJsDataset, AddDataObject> data = new Dictionary<ChartJsDataset, AddDataObject>();
+        Dictionary<ChartJsDataset, AddDataObject> data = [];
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             ChartJsDataset dataset = chartJsConfig.Data.Datasets[i];
@@ -215,7 +211,7 @@ public partial class LineChartComp : ComponentBase
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = [];
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {

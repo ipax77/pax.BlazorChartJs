@@ -15,16 +15,14 @@ public partial class HtmlLegendChartComp : ComponentBase
             Type = ChartType.line,
             Data = new ChartJsData()
             {
-                Labels = new List<string>()
-                {
+                Labels = [
                     "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
-                },
-                Datasets = new List<ChartJsDataset>()
-                {
+                ],
+                Datasets = [
                     new LineDataset()
                     {
                         Label = "Team 1",
-                        Data = new List<object>() { 1, 2, 3, 4, 5, 6 },
+                        Data = [ 1, 2, 3, 4, 5, 6 ],
                         BackgroundColor = "lightblue",
                         BorderColor = "blue",
                         BorderWidth = 5,
@@ -37,7 +35,7 @@ public partial class HtmlLegendChartComp : ComponentBase
                     new LineDataset()
                     {
                         Label = "Team 2",
-                        Data = new List<object>() { 6, 5, 4, 3, 2, 1 },
+                        Data = [ 6, 5, 4, 3, 2, 1 ],
                         BackgroundColor = "lightgreen",
                         BorderColor = "green",
                         BorderWidth = 5,
@@ -47,7 +45,7 @@ public partial class HtmlLegendChartComp : ComponentBase
                         PointHoverRadius = 10,
                         PointHoverBorderWidth = 10,
                     }
-                }
+                ]
             },
             Options = new ChartJsOptions()
             {
@@ -55,7 +53,7 @@ public partial class HtmlLegendChartComp : ComponentBase
                 OnHoverEvent = true,
                 Plugins = new Plugins()
                 {
-                    ArbitraryLines = new List<ArbitraryLineConfig>(),
+                    ArbitraryLines = [],
                     Legend = new Legend()
                     {
                         Display = false
@@ -75,7 +73,7 @@ public partial class HtmlLegendChartComp : ComponentBase
     {
         if (chartJsEvent is ChartJsInitEvent)
         {
-            InvokeAsync(() => StateHasChanged()).Wait();
+            InvokeAsync(StateHasChanged).Wait();
             UpdateLegend();
         }
         else if (chartJsEvent is ChartJsAnimationCompleteEvent)
@@ -90,14 +88,14 @@ public partial class HtmlLegendChartComp : ComponentBase
 
     public void UpdateLegend()
     {
-        legendComponent?.UpdateLegend();
+        _ = legendComponent?.UpdateLegend();
     }
 
     private void Randomize()
     {
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count, chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = [];
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
