@@ -11,26 +11,17 @@ namespace pax.BlazorChartJs;
 /// <summary>
 /// ChartJsInterop
 /// </summary>
-public class ChartJsInterop : IAsyncDisposable
+/// <remarks>
+/// ChartJsInterop
+/// </remarks>
+public class ChartJsInterop(IJSRuntime jsRuntime,
+                      // ILogger<ChartJsInterop> logger,
+                      IOptions<ChartJsSetupOptions>? options) : IAsyncDisposable
 {
     private const string ChartJsInteropVersion = "0.8.8";
-    /// <summary>
-    /// ChartJsInterop
-    /// </summary>
-    public ChartJsInterop(IJSRuntime jsRuntime,
-                          // ILogger<ChartJsInterop> logger,
-                          IOptions<ChartJsSetupOptions>? options)
-    {
-        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+    private readonly ChartJsSetupOptions? setupOptions = options?.Value;
+    private readonly Lazy<Task<IJSObjectReference>> moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
             "import", $"./_content/pax.BlazorChartJs/chartJsInterop.js?v={ChartJsInteropVersion}").AsTask());
-
-        setupOptions = options?.Value;
-        JsRuntime = jsRuntime;
-
-        // this.logger = logger;
-    }
-    private readonly ChartJsSetupOptions? setupOptions;
-    private readonly Lazy<Task<IJSObjectReference>> moduleTask;
     // private readonly ILogger<ChartJsInterop> logger;
     private readonly JsonSerializerOptions jsonOptions = new()
     {
@@ -50,7 +41,7 @@ public class ChartJsInterop : IAsyncDisposable
             }
     };
 
-    public IJSRuntime JsRuntime { get; }
+    public IJSRuntime JsRuntime { get; } = jsRuntime;
 
 
 
@@ -101,7 +92,7 @@ public class ChartJsInterop : IAsyncDisposable
 
         var module = await moduleTask.Value.ConfigureAwait(false);
 
-        List<object> jsData = new();
+        List<object> jsData = [];
         foreach (var ent in data)
         {
             jsData.Add(new
@@ -404,13 +395,7 @@ public class ChartJsInterop : IAsyncDisposable
 
     private JsonObject? SerializeConfig(ChartJsConfig config)
     {
-        var json = JsonSerializer.Serialize<object>(config, jsonOptions);
-
-        if (json == null)
-        {
-            throw new ArgumentNullException(nameof(config));
-        }
-
+        var json = JsonSerializer.Serialize<object>(config, jsonOptions) ?? throw new ArgumentNullException(nameof(config));
         return JsonSerializer.Deserialize<JsonObject>(json);
     }
 
@@ -424,13 +409,7 @@ public class ChartJsInterop : IAsyncDisposable
             return null;
         }
 
-        var json = JsonSerializer.Serialize<object>(options, jsonOptions);
-
-        if (json == null)
-        {
-            throw new ArgumentNullException(nameof(config));
-        }
-
+        var json = JsonSerializer.Serialize<object>(options, jsonOptions) ?? throw new ArgumentNullException(nameof(config));
         return JsonSerializer.Deserialize<JsonObject>(json);
     }
 

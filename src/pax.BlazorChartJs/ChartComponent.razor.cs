@@ -70,7 +70,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             }
 
             var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-            if (initResult.Success == true)
+            if (initResult.Success)
             {
                 await InvokeAsync(() =>
                     OnEventTriggered.InvokeAsync(new ChartJsInitEvent()
@@ -167,11 +167,11 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             try
             {
                 var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-                if (initResult.Success == true)
+                if (initResult.Success)
                 {
                     await InvokeAsync(() => OnEventTriggered
-                        .InvokeAsync(new ChartJsInitEvent() 
-                        { 
+                        .InvokeAsync(new ChartJsInitEvent()
+                        {
                             ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid,
                             Height = initResult.Height,
                             Width = initResult.Width,
@@ -197,7 +197,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
         if (dotNetHelper != null)
         {
             var initResult = await ChartJsInterop.InitChart(ChartJsConfig, dotNetHelper).ConfigureAwait(false);
-            if (initResult.Success == true)
+            if (initResult.Success)
             {
                 await InvokeAsync(() =>
                     OnEventTriggered.InvokeAsync(new ChartJsInitEvent()
@@ -250,7 +250,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             if (chartJsEvent != null)
             {
                 chartJsEvent.ChartJsConfigGuid = ChartJsConfig.ChartJsConfigGuid;
-                OnEventTriggered.InvokeAsync(chartJsEvent);
+                _ = OnEventTriggered.InvokeAsync(chartJsEvent);
             }
         }
     }
