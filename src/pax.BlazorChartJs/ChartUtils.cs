@@ -1,10 +1,10 @@
 ﻿namespace pax.BlazorChartJs;
+
 #pragma warning disable CA5394
 public static class ChartUtils
 {
-    private static Random random = new Random();
-    private static readonly List<string> Labels = new()
-    {
+    private static readonly List<string> Labels =
+    [
         "January",
         "February",
         "March",
@@ -17,9 +17,9 @@ public static class ChartUtils
         "October",
         "November",
         "December",
-    };
-    private static readonly List<string> Colors = new()
-    {
+    ];
+    private static readonly List<string> Colors =
+    [
         "#000000",
         "#FFFFFF",
         "#FF0000",
@@ -36,18 +36,18 @@ public static class ChartUtils
         "#800080",
         "#008080",
         "#000080",
-    };
+    ];
 
     public static string GetRandomColor()
     {
-        return Colors[random.Next(Colors.Count)];
+        return Colors[Random.Shared.Next(Colors.Count)];
     }
 
     public static ICollection<List<object>> GetRandomData(int length, int count, int min = -100, int max = 100)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(min, max);
 
-        List<List<object>> data = new List<List<object>>();
+        List<List<object>> data = [];
 
         for (int i = 0; i < length; i++)
         {
@@ -64,7 +64,7 @@ public static class ChartUtils
         {
             ChartType.bar => GetRandomBarDataset(id, count, min, max),
             ChartType.line => GetRandomLineDataset(id, count, min, max),
-            ChartType.pie => GetRandomPieDataset(id, count, min, max),
+            ChartType.pie => GetRandomPieDataset(count, min, max),
             ChartType.radar => GetRandomRadarDataset(id, count, min, max),
             ChartType.scatter => GetRandomScatterDataset(id, count, min, max),
             ChartType.bubble => GetRandomBubbleDataset(id, count, min, max),
@@ -77,9 +77,9 @@ public static class ChartUtils
         return new BarDataset()
         {
             Label = $"Dataset {id}",
-            BackgroundColor = new IndexableOption<string>(GetRandomColors(count)),
-            BorderColor = new IndexableOption<string>(GetRandomColors(count)),
-            BorderWidth = new IndexableOption<double>(1),
+            BackgroundColor = GetRandomColors(count),
+            BorderColor = GetRandomColors(count),
+            BorderWidth = 1,
             Data = GetRandomNumbers(count, min, max)
         };
     }
@@ -94,13 +94,14 @@ public static class ChartUtils
             Data = GetRandomNumbers(count, min, max)
         };
     }
-    private static PieDataset GetRandomPieDataset(int id, int count, int min, int max)
+
+    private static PieDataset GetRandomPieDataset(int count, int min, int max)
     {
         return new PieDataset()
         {
-            BackgroundColor = new IndexableOption<string>(GetRandomColors(count)),
-            BorderColor = new IndexableOption<string>(GetRandomColors(count)),
-            BorderWidth = new IndexableOption<double>(1),
+            BackgroundColor = GetRandomColors(count),
+            BorderColor = GetRandomColors(count),
+            BorderWidth = 1,
             Data = GetRandomNumbers(count, min, max)
         };
     }
@@ -128,8 +129,8 @@ public static class ChartUtils
         {
             data.Add(new DataPoint()
             {
-                X = random.Next(min, max),
-                Y = random.Next(min, max)
+                X = Random.Shared.Next(min, max),
+                Y = Random.Shared.Next(min, max)
             });
         }
 
@@ -145,21 +146,21 @@ public static class ChartUtils
     {
         var backgroundColor = GetRandomColors(1).First();
 
-        List<object> data = new();
+        List<object> data = [];
         for (int i = 0; i < count; i++)
         {
             data.Add(new BubbleDataPoint()
             {
-                X = random.Next(min, max),
-                Y = random.Next(min, max),
-                R = random.Next(1, 15)
+                X = Random.Shared.Next(min, max),
+                Y = Random.Shared.Next(min, max),
+                R = Random.Shared.Next(1, 15)
             });
         }
 
         return new BubbleDataset()
         {
             Label = $"Dataset {id}",
-            BackgroundColor = new IndexableOption<string>(backgroundColor),
+            BackgroundColor = backgroundColor,
             Data = data
         };
     }
@@ -168,16 +169,16 @@ public static class ChartUtils
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(min, max);
 
-        var label = Labels[random.Next(Labels.Count)];
-        List<object> data = new();
-        List<string> backgroundColors = new();
-        List<string> borderColors = new();
+        var label = Labels[Random.Shared.Next(Labels.Count)];
+        List<object> data = [];
+        List<string> backgroundColors = [];
+        List<string> borderColors = [];
 
         for (int i = 0; i < count; i++)
         {
-            data.Add(random.Next(min, max));
-            backgroundColors.Add(Colors[random.Next(Colors.Count)]);
-            borderColors.Add(Colors[random.Next(Colors.Count)]);
+            data.Add(Random.Shared.Next(min, max));
+            backgroundColors.Add(Colors[Random.Shared.Next(Colors.Count)]);
+            borderColors.Add(Colors[Random.Shared.Next(Colors.Count)]);
         }
 
         return new DataAddEventArgs(label, data, backgroundColors, borderColors, null);
@@ -188,7 +189,7 @@ public static class ChartUtils
         var colors = new List<string>();
         for (int i = 0; i < count; i++)
         {
-            colors.Add(Colors[random.Next(Colors.Count)]);
+            colors.Add(Colors[Random.Shared.Next(Colors.Count)]);
         }
         return colors;
     }
@@ -198,7 +199,7 @@ public static class ChartUtils
         var numbers = new List<object>();
         for (int i = 0; i < count; i++)
         {
-            numbers.Add(random.Next(min, max));
+            numbers.Add(Random.Shared.Next(min, max));
         }
         return numbers;
     }

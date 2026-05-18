@@ -10,31 +10,17 @@ namespace pax.BlazorChartJs;
 [CollectionBuilder(typeof(IndexableOptionBuilder), "Create")]
 public class IndexableOption<T> : IEnumerable<T>
 {
-    private List<T>? _indexedValues;
+    private readonly List<T>? _indexedValues;
 
     /// <summary>
     /// The indexed values represented by this instance.
     /// </summary>
-    public IList<T>? IndexedValues
-    {
-        get
-        {
-            return _indexedValues;
-        }
-    }
-
-    private T? _singleValue;
+    public IList<T>? IndexedValues => _indexedValues;
 
     /// <summary>
     /// The single value represented by this instance.
     /// </summary>
-    public T? SingleValue
-    {
-        get
-        {
-            return _singleValue;
-        }
-    }
+    public T? SingleValue { get; }
 
     /// <summary>
     /// Gets the value indicating whether the option wrapped in this <see cref="IndexableOption{T}"/> is indexed.
@@ -48,7 +34,7 @@ public class IndexableOption<T> : IEnumerable<T>
     /// <param name="singleValue">The single value this <see cref="IndexableOption{T}"/> should represent.</param>
     public IndexableOption(T singleValue)
     {
-        _singleValue = singleValue;
+        SingleValue = singleValue;
         IsIndexed = false;
     }
 
@@ -58,13 +44,13 @@ public class IndexableOption<T> : IEnumerable<T>
     /// <param name="indexedValues">The IList of values this <see cref="IndexableOption{T}"/> should represent.</param>
     public IndexableOption(IList<T> indexedValues)
     {
-        _indexedValues = new List<T>(indexedValues);
+        _indexedValues = [.. indexedValues];
         IsIndexed = true;
     }
 
     public IndexableOption(ICollection<T> values)
     {
-        _indexedValues = new List<T>(values);
+        _indexedValues = [.. values];
         IsIndexed = true;
     }
 
@@ -93,28 +79,40 @@ public class IndexableOption<T> : IEnumerable<T>
 
     public void Remove(T item)
     {
-        _indexedValues?.Remove(item);
+        _ = _indexedValues?.Remove(item);
     }
 
     public IndexableOption<T> FromT(T value)
-        => new(value);
+    {
+        return new(value);
+    }
 
     public static implicit operator IndexableOption<T>(T value)
-        => new(value);
+    {
+        return new(value);
+    }
 
 #pragma warning disable CA1002 // Do not expose generic lists
     public IndexableOption<T> FromList(List<T> value)
-        => new(value);
+    {
+        return [.. value];
+    }
 
     public static implicit operator IndexableOption<T>(List<T> value)
-        => new(value);
+    {
+        return [.. value];
+    }
 #pragma warning restore CA1002 // Do not expose generic lists
 
     public IndexableOption<T> FromCollection(Collection<T> value)
-    => new(value);
+    {
+        return [.. value];
+    }
 
     public static implicit operator IndexableOption<T>(Collection<T> value)
-        => new(value);
+    {
+        return [.. value];
+    }
 
     internal object GetJsonObject()
     {
@@ -125,18 +123,11 @@ public class IndexableOption<T> : IEnumerable<T>
 
     public IEnumerator<T> GetEnumerator()
     {
-        if (_indexedValues is not null)
-        {
-            return _indexedValues.GetEnumerator();
-        }
-        else if (_singleValue is not null)
-        {
-            return new List<T>() { _singleValue }.GetEnumerator();
-        }
-        else
-        {
-            throw new ArgumentNullException(nameof(IndexedValues));
-        }
+        return _indexedValues is not null
+            ? _indexedValues.GetEnumerator()
+            : SingleValue is not null
+                ? (IEnumerator<T>)new List<T>() { SingleValue }.GetEnumerator()
+                : throw new ArgumentNullException(nameof(IndexedValues));
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -148,6 +139,9 @@ public class IndexableOption<T> : IEnumerable<T>
 
 public static class IndexableOptionBuilder
 {
-    public static IndexableOption<T> Create<T>(ReadOnlySpan<T> values) => new IndexableOption<T>(values);
+    public static IndexableOption<T> Create<T>(ReadOnlySpan<T> values)
+    {
+        return new IndexableOption<T>(values);
+    }
 }
 

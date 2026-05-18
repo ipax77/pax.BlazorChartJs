@@ -16,7 +16,7 @@ public partial class ChartJsConfig
             Data.Labels = labels;
         }
 
-        Dictionary<string, SetDataObject> jsData = new();
+        Dictionary<string, SetDataObject> jsData = [];
         foreach (var data in datas)
         {
             data.Key.Data = data.Value.Data;

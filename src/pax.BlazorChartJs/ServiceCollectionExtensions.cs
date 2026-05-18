@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
     {
         if (setupAction != null)
         {
-            services.Configure(setupAction);
+            _ = services.Configure(setupAction);
         }
 
         return services.AddScoped<ChartJsInterop, ChartJsInterop>();

@@ -7,7 +7,9 @@ namespace pax.BlazorChartJs;
 internal sealed class IndexableOptionStringConverter : JsonConverter<IndexableOption<string>?>
 {
     public override IndexableOption<string>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-     => throw new NotImplementedException();
+    {
+        throw new NotImplementedException();
+    }
 
     public override void Write(Utf8JsonWriter writer, IndexableOption<string>? value, JsonSerializerOptions options)
     {
@@ -22,7 +24,9 @@ internal sealed class IndexableOptionStringConverter : JsonConverter<IndexableOp
 internal sealed class IndexableOptionDoubleConverter : JsonConverter<IndexableOption<double>?>
 {
     public override IndexableOption<double>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-     => throw new NotImplementedException();
+    {
+        throw new NotImplementedException();
+    }
 
     public override void Write(Utf8JsonWriter writer, IndexableOption<double>? value, JsonSerializerOptions options)
     {
@@ -37,7 +41,9 @@ internal sealed class IndexableOptionDoubleConverter : JsonConverter<IndexableOp
 internal sealed class IndexableOptionIntConverter : JsonConverter<IndexableOption<int>?>
 {
     public override IndexableOption<int>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-     => throw new NotImplementedException();
+    {
+        throw new NotImplementedException();
+    }
 
     public override void Write(Utf8JsonWriter writer, IndexableOption<int>? value, JsonSerializerOptions options)
     {
@@ -52,7 +58,9 @@ internal sealed class IndexableOptionIntConverter : JsonConverter<IndexableOptio
 internal sealed class IndexableOptionBoolConverter : JsonConverter<IndexableOption<bool>?>
 {
     public override IndexableOption<bool>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-     => throw new NotImplementedException();
+    {
+        throw new NotImplementedException();
+    }
 
     public override void Write(Utf8JsonWriter writer, IndexableOption<bool>? value, JsonSerializerOptions options)
     {
@@ -67,7 +75,9 @@ internal sealed class IndexableOptionBoolConverter : JsonConverter<IndexableOpti
 internal sealed class StringOrDoubleValueConverter : JsonConverter<StringOrDoubleValue>
 {
     public override StringOrDoubleValue? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-     => throw new NotImplementedException();
+    {
+        throw new NotImplementedException();
+    }
 
     public override void Write(Utf8JsonWriter writer, StringOrDoubleValue? value, JsonSerializerOptions options)
     {
@@ -83,7 +93,9 @@ internal sealed class StringOrDoubleValueConverter : JsonConverter<StringOrDoubl
 internal sealed class IndexableOptionObjectConverter : JsonConverter<IndexableOption<object>?>
 {
     public override IndexableOption<object>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-     => throw new NotImplementedException();
+    {
+        throw new NotImplementedException();
+    }
 
     public override void Write(Utf8JsonWriter writer, IndexableOption<object>? value, JsonSerializerOptions options)
     {
@@ -117,7 +129,9 @@ internal sealed class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset
     };
 
     public override ChartJsDataset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-     => throw new NotImplementedException();
+    {
+        throw new NotImplementedException();
+    }
 
     public override void Write(Utf8JsonWriter writer, ChartJsDataset? value, JsonSerializerOptions options)
     {
@@ -125,7 +139,7 @@ internal sealed class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset
         {
             return;
         }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, writeOptions), true);
+        writer.WriteRawValue(JsonSerializer.Serialize<object>(value, writeOptions), true);
     }
 }
 
@@ -151,7 +165,9 @@ internal sealed class ChartJsAxisJsonConverter : JsonConverter<ChartJsAxis?>
     };
 
     public override ChartJsAxis? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-     => throw new NotImplementedException();
+    {
+        throw new NotImplementedException();
+    }
 
     public override void Write(Utf8JsonWriter writer, ChartJsAxis? value, JsonSerializerOptions options)
     {
@@ -159,7 +175,7 @@ internal sealed class ChartJsAxisJsonConverter : JsonConverter<ChartJsAxis?>
         {
             return;
         }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, writeOptoins), true);
+        writer.WriteRawValue(JsonSerializer.Serialize<object>(value, writeOptoins), true);
     }
 }
 
@@ -182,7 +198,9 @@ internal sealed class ChartJsAxisTickJsonConverter : JsonConverter<ChartJsAxisTi
     };
 
     public override ChartJsAxisTick? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-     => throw new NotImplementedException();
+    {
+        throw new NotImplementedException();
+    }
 
     public override void Write(Utf8JsonWriter writer, ChartJsAxisTick? value, JsonSerializerOptions options)
     {
@@ -190,6 +208,6 @@ internal sealed class ChartJsAxisTickJsonConverter : JsonConverter<ChartJsAxisTi
         {
             return;
         }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>((object)value, writeOptions), true);
+        writer.WriteRawValue(JsonSerializer.Serialize<object>(value, writeOptions), true);
     }
 }

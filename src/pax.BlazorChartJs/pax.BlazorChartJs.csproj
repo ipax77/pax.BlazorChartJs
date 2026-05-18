@@ -30,7 +30,7 @@
     <LangVersion>latest</LangVersion>
     <WarningsNotAsErrors></WarningsNotAsErrors>
     <DisabledWarnings>1591</DisabledWarnings>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591, IDE0160, IDE0130, IDE0008, IDE0072</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

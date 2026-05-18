@@ -4,8 +4,8 @@ public record ChartJsData
 {
     public ChartJsData()
     {
-        Labels = new List<string>();
-        Datasets = new List<ChartJsDataset>();
+        Labels = [];
+        Datasets = [];
 
     }
 
