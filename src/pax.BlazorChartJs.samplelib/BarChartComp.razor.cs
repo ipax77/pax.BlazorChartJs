@@ -9,7 +9,6 @@ public partial class BarChartComp : ComponentBase
     IconsChartJsConfig chartJsConfig = null!;
     private string? labelClicked;
     private string? imageString;
-    private string? canvasInfo;
     private Lazy<Task<IJSObjectReference>> moduleTask = null!;
     private string chartVersion = "unknown";
 
@@ -23,12 +22,10 @@ public partial class BarChartComp : ComponentBase
             Type = ChartType.bar,
             Data = new ChartJsData()
             {
-                Labels = new List<string>()
-                {
+                Labels = [
                     "Red", "Blue", "Yellow", "Green", "Purple", "Orange"
-                },
-                Datasets = new List<ChartJsDataset>()
-                {
+                ],
+                Datasets = [
                     new BarDataset()
                     {
                         Label = "# of Votes",
@@ -51,7 +48,7 @@ public partial class BarChartComp : ComponentBase
                         ],
                         BorderWidth = 1
                     }
-                }
+                ]
             },
             Options = new()
             {
@@ -107,7 +104,7 @@ public partial class BarChartComp : ComponentBase
 
     private void ChartEventTriggered(ChartJsEvent chartJsEvent)
     {
-        if (chartJsEvent is ChartJsInitEvent initEvent)
+        if (chartJsEvent is ChartJsInitEvent)
         {
             SetChartVersion();
         }
@@ -121,7 +118,7 @@ public partial class BarChartComp : ComponentBase
     private async void SetChartVersion()
     {
         chartVersion = await jsRuntime.InvokeAsync<string>("getChartVersion");
-        await InvokeAsync(() => StateHasChanged());
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task MakeImage()
@@ -129,7 +126,7 @@ public partial class BarChartComp : ComponentBase
         if (chartComponent != null)
         {
             imageString = await chartComponent.GetChartImage();
-            await InvokeAsync(() => StateHasChanged());
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -149,8 +146,8 @@ public partial class BarChartComp : ComponentBase
             chartJsConfig.Options.Plugins = new();
         }
 
-        List<ChartIconsConfig> icons = new()
-        {
+        List<ChartIconsConfig> icons =
+        [
             new()
             {
                 XWidth = 30,
@@ -175,7 +172,7 @@ public partial class BarChartComp : ComponentBase
                 ImageSrc = "_content/pax.BlazorChartJs.samplelib/images/artanis-min.png",
                 Cmdr = "artanis"
             },
-        };
+        ];
 
         chartJsConfig.Options.Plugins.BarIcons = icons;
 
@@ -209,22 +206,11 @@ public partial class BarChartComp : ComponentBase
         chartJsConfig.ReinitializeChart();
     }
 
-    private async Task GetCanvasInfo()
-    {
-        if (moduleTask != null)
-        {
-            var module = await moduleTask.Value.ConfigureAwait(false);
-            canvasInfo = await module.InvokeAsync<string>("getCanvasInfo", chartJsConfig.ChartJsConfigGuid)
-                .ConfigureAwait(false);
-            await InvokeAsync(() => StateHasChanged());
-        }
-    }
-
     private void AddData()
     {
         var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
 
-        Dictionary<ChartJsDataset, AddDataObject> datas = new();
+        Dictionary<ChartJsDataset, AddDataObject> datas = [];
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             ChartJsDataset dataset = chartJsConfig.Data.Datasets[i];
@@ -242,7 +228,7 @@ public partial class BarChartComp : ComponentBase
         var data = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count,
          chartJsConfig.Data.Labels.Count, -100, 100);
 
-        Dictionary<ChartJsDataset, SetDataObject> chartData = new();
+        Dictionary<ChartJsDataset, SetDataObject> chartData = [];
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {

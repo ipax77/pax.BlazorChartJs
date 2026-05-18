@@ -31,7 +31,7 @@
             var chartModule = await chartJsModuleTask.Value;
             var pluginModule = await pluginModuleTask.Value;
             ChartConfig = GetChartConfig();
-            await InvokeAsync(() => StateHasChanged());
+            await InvokeAsync(StateHasChanged);
         }
         await base.OnAfterRenderAsync(firstRender);
     }

@@ -82,7 +82,7 @@
     {
         if (chartJsEvent is ChartJsInitEvent initEvent)
         {
-            InvokeAsync(() => StateHasChanged()).Wait();
+            InvokeAsync(StateHasChanged).Wait();
             pieLegendComponent?.UpdateLegend();
         }
     }
