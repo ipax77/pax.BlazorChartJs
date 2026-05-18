@@ -78,12 +78,15 @@
         base.OnInitialized();
     }
 
-    public void ChartEventTriggered(ChartJsEvent chartJsEvent)
+    public async Task ChartEventTriggered(ChartJsEvent chartJsEvent)
     {
         if (chartJsEvent is ChartJsInitEvent initEvent)
         {
-            InvokeAsync(StateHasChanged).Wait();
-            pieLegendComponent?.UpdateLegend();
+            await InvokeAsync(StateHasChanged).ConfigureAwait(false);
+            if (pieLegendComponent != null)
+            {
+                await pieLegendComponent.UpdateLegend().ConfigureAwait(false);
+            }
         }
     }
 
@@ -108,16 +111,22 @@
         chartJsConfig.SetData(chartData);
     }
 
-    private void AddData()
+    private async Task AddData()
     {
         var dataAddEventArgs = ChartUtils.GetRandomData(chartJsConfig.Data.Datasets.Count);
         chartJsConfig.AddData(dataAddEventArgs.Label, dataAddEventArgs.Data);
-        pieLegendComponent?.UpdateLegend();
+        if (pieLegendComponent != null)
+        {
+            await pieLegendComponent.UpdateLegend().ConfigureAwait(false);
+        }
     }
 
-    private void RemoveLastDataFromDatasets()
+    private async Task RemoveLastDataFromDatasets()
     {
         chartJsConfig.RemoveData();
-        pieLegendComponent?.UpdateLegend();
+        if (pieLegendComponent != null)
+        {
+            await pieLegendComponent.UpdateLegend().ConfigureAwait(false);
+        }
     }
 }

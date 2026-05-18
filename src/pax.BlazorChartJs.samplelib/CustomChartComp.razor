@@ -132,15 +132,6 @@
         chartJsConfig.RemoveData();
     }
 
-    public void Dispose()
-    {
-        if (moduleTask != null && moduleTask.IsValueCreated)
-        {
-            var module = moduleTask.Value.GetAwaiter().GetResult();
-            module.DisposeAsync();
-        }
-    }
-
     public async ValueTask DisposeAsync()
     {
         await DisposeAsyncCore();

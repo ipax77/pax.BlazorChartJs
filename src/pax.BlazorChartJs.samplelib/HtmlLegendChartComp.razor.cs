@@ -69,16 +69,16 @@ public partial class HtmlLegendChartComp : ComponentBase
         base.OnInitialized();
     }
 
-    private void ChartEventTriggered(ChartJsEvent chartJsEvent)
+    private async Task ChartEventTriggered(ChartJsEvent chartJsEvent)
     {
         if (chartJsEvent is ChartJsInitEvent)
         {
-            InvokeAsync(StateHasChanged).Wait();
-            UpdateLegend();
+            await InvokeAsync(StateHasChanged).ConfigureAwait(false);
+            await UpdateLegend().ConfigureAwait(false);
         }
         else if (chartJsEvent is ChartJsAnimationCompleteEvent)
         {
-            // UpdateLegend();
+            // await UpdateLegend().ConfigureAwait(false);
         }
         else if (chartJsEvent is ChartJsLabelHoverEvent labelHoverEvent)
         {
@@ -86,9 +86,12 @@ public partial class HtmlLegendChartComp : ComponentBase
         }
     }
 
-    public void UpdateLegend()
+    public async Task UpdateLegend()
     {
-        _ = legendComponent?.UpdateLegend();
+        if (legendComponent != null)
+        {
+            await legendComponent.UpdateLegend().ConfigureAwait(false);
+        }
     }
 
     private void Randomize()
@@ -106,7 +109,7 @@ public partial class HtmlLegendChartComp : ComponentBase
         chartJsConfig.SetData(chartData);
     }
 
-    private void AddDataset()
+    private async Task AddDataset()
     {
         var dataset = ChartUtils.GetRandomDataset(chartJsConfig.Type == null ? ChartType.bar : chartJsConfig.Type.Value, chartJsConfig.Data.Datasets.Count + 1, chartJsConfig.Data.Labels.Count);
         if (dataset is LineDataset lineDataset)
@@ -118,15 +121,15 @@ public partial class HtmlLegendChartComp : ComponentBase
             lineDataset.PointHoverBorderWidth = 10;
         }
         chartJsConfig.AddDataset(dataset);
-        UpdateLegend();
+        await UpdateLegend().ConfigureAwait(false);
     }
 
-    private void RemoveLastDataset()
+    private async Task RemoveLastDataset()
     {
         if (chartJsConfig.Data.Datasets.Count > 0)
         {
             chartJsConfig.RemoveDataset(chartJsConfig.Data.Datasets.Last());
-            UpdateLegend();
+            await UpdateLegend().ConfigureAwait(false);
         }
     }
 }

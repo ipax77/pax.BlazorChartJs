@@ -3,7 +3,7 @@
 @using Microsoft.JSInterop
 
 @inject IJSRuntime jsRuntime
-@implements IDisposable
+@implements IAsyncDisposable
 
 <h3>TimeChart</h3>
 
@@ -144,14 +144,20 @@
         }
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        if (moduleTask != null && moduleTask.IsValueCreated)
+        try
         {
-            var module = moduleTask.Value.GetAwaiter().GetResult();
-            module.DisposeAsync();
+            if (moduleTask != null && moduleTask.IsValueCreated)
+            {
+                var module = await moduleTask.Value.ConfigureAwait(false);
+                await module.DisposeAsync().ConfigureAwait(false);
+            }
         }
-        editContext.OnFieldChanged -= FieldChanged;
+        finally
+        {
+            editContext.OnFieldChanged -= FieldChanged;
+        }
     }
 
     public record TimeOptions
