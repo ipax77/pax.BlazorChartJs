@@ -56,14 +56,13 @@ public class DisposeTests : PageTest
         await Page.GotoAsync(Startup.GetSampleBaseUrl());
 
         await Page.EvaluateAsync(
-            @"(chartId) => {
-                const chartInterop = window.ChartJsInterop;
-                const chart = typeof Chart === 'undefined' ? undefined : Chart.getChart(chartId);
+            @"async (chartId) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.8.8');
                 const dataset = { id: 'disposed-test', label: 'Disposed Test', data: [1, 2, 3] };
-                chartInterop.addDatasets(chart, [dataset]);
-                chartInterop.updateDatasets(chart, [dataset]);
-                chartInterop.removeDatasets(chart, [dataset.id]);
-                chartInterop.setDatasets(chart, [dataset]);
+                chartInterop.addDatasets(chartId, [dataset]);
+                chartInterop.updateDatasets(chartId, [dataset]);
+                chartInterop.removeDatasets(chartId, [dataset.id]);
+                chartInterop.setDatasets(chartId, [dataset]);
             }",
             canvasId);
 

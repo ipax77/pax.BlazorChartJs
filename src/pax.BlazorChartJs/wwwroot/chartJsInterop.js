@@ -304,17 +304,24 @@ async function initChartCore(setupOptions, chartId, dotnetConfig, dotnetRef) {
     }
 }
 function destroyExistingChart(chartId, element) {
-    const charts = [
-        ChartJsInteropModule.charts.get(chartId)
-    ];
-    if (typeof Chart !== "undefined") {
-        charts.push(element ? Chart.getChart(element) : undefined, Chart.getChart(chartId));
+    const mappedChart = ChartJsInteropModule.charts.get(chartId);
+    let destroyedChart;
+    let destroyedElementChart;
+    if (mappedChart != undefined) {
+        mappedChart.destroy();
+        destroyedChart = mappedChart;
     }
-    const destroyedCharts = new Set();
-    for (const chart of charts) {
-        if (chart != undefined && !destroyedCharts.has(chart)) {
-            destroyedCharts.add(chart);
-            chart.destroy();
+    if (typeof Chart !== "undefined") {
+        const elementChart = element ? Chart.getChart(element) : undefined;
+        if (elementChart != undefined && elementChart !== destroyedChart) {
+            elementChart.destroy();
+            destroyedElementChart = elementChart;
+        }
+        const idChart = Chart.getChart(chartId);
+        if (idChart != undefined
+            && idChart !== destroyedChart
+            && idChart !== destroyedElementChart) {
+            idChart.destroy();
         }
     }
     ChartJsInteropModule.charts.delete(chartId);
@@ -434,10 +441,14 @@ async function triggerEvent(chartId, event, source, data) {
     await ChartJsInteropModule.triggerEvent(chartId, event, source, data);
 }
 function getLiveChart(chartId) {
+    const mappedChart = ChartJsInteropModule.charts.get(chartId);
+    if (mappedChart && mappedChart.data) {
+        return mappedChart;
+    }
     if (typeof Chart === "undefined") {
         return undefined;
     }
-    const chart = Chart.getChart(chartId) ?? ChartJsInteropModule.charts.get(chartId);
+    const chart = Chart.getChart(chartId);
     return chart && chart.data ? chart : undefined;
 }
 export function updateChartOptions(chartId, options) {
