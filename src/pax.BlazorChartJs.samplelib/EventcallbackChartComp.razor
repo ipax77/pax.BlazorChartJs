@@ -2,7 +2,7 @@
 @using Microsoft.JSInterop
 
 @inject IJSRuntime jsRuntime
-@implements IDisposable
+@implements IAsyncDisposable
 
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
@@ -96,12 +96,12 @@
         chartJsConfig.SetData(chartData);
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         if (moduleTask is not null && moduleTask.IsValueCreated)
         {
-            var module = moduleTask.Value.GetAwaiter().GetResult();
-            module.DisposeAsync();
+            var module = await moduleTask.Value.ConfigureAwait(false);
+            await module.DisposeAsync().ConfigureAwait(false);
         }
     }
 }

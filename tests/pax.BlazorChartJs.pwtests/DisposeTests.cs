@@ -10,13 +10,31 @@ public class DisposeTests : PageTest
     [Test]
     public async Task DisposeTest()
     {
+        var rendererErrors = TrackRendererErrors();
+
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/timeschart");
 
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("TimesChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
-        // Provoke ChartComponent.Dispose while initializing
-        // create a locator
+        var showChart = Page.GetByText("Show Chart", new Microsoft.Playwright.PageGetByTextOptions() { Exact = true });
+        await Expect(showChart).ToHaveAttributeAsync("type", "button");
+        await showChart.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"() => {
+                const canvas = document.querySelector('canvas');
+                if (!canvas || typeof Chart === 'undefined') {
+                    return false;
+                }
+
+                const chart = Chart.getChart(canvas.id);
+                return chart?.options?.scales?.x?.type === 'time';
+            }",
+            null,
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        // Provoke ChartComponent.Dispose after TimesChartComp initialized its JS module.
         var showAndDispose = Page.GetByText("ShowAndDispose Chart", new Microsoft.Playwright.PageGetByTextOptions() { Exact = true });
 
         // Expect an attribute "to be strictly equal" to the value.
@@ -36,6 +54,7 @@ public class DisposeTests : PageTest
 
         var error = Page.GetByText("An unhandled error has occurred.", new Microsoft.Playwright.PageGetByTextOptions() { Exact = false });
         await Expect(error).ToHaveCSSAsync("display", "none");
+        Assert.That(rendererErrors, Is.Empty, string.Join(Environment.NewLine, rendererErrors));
     }
 
     [Test]
@@ -68,5 +87,35 @@ public class DisposeTests : PageTest
 
         var error = Page.GetByText("An unhandled error has occurred.", new Microsoft.Playwright.PageGetByTextOptions() { Exact = false });
         await Expect(error).ToHaveCSSAsync("display", "none");
+    }
+
+    private List<string> TrackRendererErrors()
+    {
+        List<string> rendererErrors = [];
+
+        Page.Console += (_, message) =>
+        {
+            if (message.Type == "error" && IsRendererError(message.Text))
+            {
+                rendererErrors.Add(message.Text);
+            }
+        };
+
+        Page.PageError += (_, error) =>
+        {
+            if (IsRendererError(error))
+            {
+                rendererErrors.Add(error);
+            }
+        };
+
+        return rendererErrors;
+    }
+
+    private static bool IsRendererError(string message)
+    {
+        return message.Contains("Unhandled exception rendering component", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("Cannot wait on monitors", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("PlatformNotSupportedException", StringComparison.OrdinalIgnoreCase);
     }
 }
