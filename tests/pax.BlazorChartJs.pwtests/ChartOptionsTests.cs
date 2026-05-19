@@ -57,6 +57,33 @@ public class ChartOptionsTests : PageTest
     }
 
     [Test]
+    public async Task IndexableOptionBackgroundColorResolvesRegisteredPatternCallback()
+    {
+        var canvasId = await OpenCallbackChart();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return typeof chart?.data?.datasets?.[0]?.backgroundColor === 'function';
+            }",
+            canvasId,
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var result = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                const backgroundColor = chart.data.datasets[0].backgroundColor;
+                const firstPattern = backgroundColor({ chart });
+                const secondPattern = backgroundColor({ chart });
+
+                return `${typeof backgroundColor}|${firstPattern instanceof CanvasPattern}|${Object.is(firstPattern, secondPattern)}`;
+            }",
+            canvasId);
+
+        Assert.That(result, Is.EqualTo("function|true|true"));
+    }
+
+    [Test]
     public async Task TickCallbackResolvesRegisteredCallbackForCustomScaleId()
     {
         var canvasId = await OpenCallbackChart();
