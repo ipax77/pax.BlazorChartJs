@@ -1,4 +1,5 @@
 const fillPatternCache = new WeakMap();
+const externalTooltipCache = new WeakMap();
 
 function createFillPattern(chart) {
     let pattern = fillPatternCache.get(chart);
@@ -23,6 +24,48 @@ function createFillPattern(chart) {
     return pattern;
 }
 
+function getTooltipRawValue(item) {
+    return Number(item?.raw ?? item?.parsed?.y ?? 0);
+}
+
+function getTooltipTotal(items) {
+    return items.reduce((total, item) => total + getTooltipRawValue(item), 0);
+}
+
+function getOrCreateExternalTooltip(chart) {
+    let tooltipElement = externalTooltipCache.get(chart);
+    if (tooltipElement) {
+        return tooltipElement;
+    }
+
+    tooltipElement = document.createElement('div');
+    tooltipElement.className = 'chartjs-external-tooltip';
+    tooltipElement.style.background = '#111827';
+    tooltipElement.style.border = '1px solid #38bdf8';
+    tooltipElement.style.borderRadius = '4px';
+    tooltipElement.style.color = '#f8fafc';
+    tooltipElement.style.font = '12px sans-serif';
+    tooltipElement.style.opacity = '0';
+    tooltipElement.style.padding = '8px 10px';
+    tooltipElement.style.pointerEvents = 'none';
+    tooltipElement.style.position = 'absolute';
+    tooltipElement.style.transform = 'translate(-50%, calc(-100% - 10px))';
+    tooltipElement.style.transition = 'opacity 120ms ease';
+    tooltipElement.style.whiteSpace = 'nowrap';
+    tooltipElement.style.zIndex = '10';
+
+    const parent = chart.canvas.parentNode;
+    if (parent instanceof HTMLElement) {
+        if (getComputedStyle(parent).position === 'static') {
+            parent.style.position = 'relative';
+        }
+        parent.appendChild(tooltipElement);
+    }
+
+    externalTooltipCache.set(chart, tooltipElement);
+    return tooltipElement;
+}
+
 const callbacks = Object.assign(Object.create(null), {
     formatPercent(value, context) {
         return `${Math.round(value * 100)}%`;
@@ -38,6 +81,66 @@ const callbacks = Object.assign(Object.create(null), {
     },
     labelWithIndex(value, context) {
         return `${context.dataIndex}: ${value}`;
+    },
+    formatTooltipContentTitle(items) {
+        const first = items?.[0];
+        return `Sales ${first?.label ?? ''}`;
+    },
+    formatTooltipColorTitle(items) {
+        const first = items?.[0];
+        return `Color ${first?.label ?? ''}`;
+    },
+    formatTooltipPointTitle(items) {
+        const first = items?.[0];
+        return `Point ${first?.label ?? ''}`;
+    },
+    formatTooltipExternalTitle(items) {
+        const first = items?.[0];
+        return `External ${first?.label ?? ''}`;
+    },
+    formatTooltipContentLabel(context) {
+        return `${context.dataset.label}: ${context.formattedValue ?? context.raw} units`;
+    },
+    formatTooltipContentFooter(items) {
+        return `Total: ${getTooltipTotal(items)} units`;
+    },
+    tooltipLabelColor(context) {
+        const backgroundColor = context.datasetIndex === 0 ? '#60a5fa' : '#fdba74';
+        const borderColor = context.datasetIndex === 0 ? '#1d4ed8' : '#c2410c';
+
+        return {
+            backgroundColor,
+            borderColor,
+            borderWidth: 2,
+            borderRadius: 2
+        };
+    },
+    tooltipLabelTextColor(context) {
+        return context.datasetIndex === 0 ? '#1e3a8a' : '#7c2d12';
+    },
+    tooltipLabelPointStyle(context) {
+        return {
+            pointStyle: context.datasetIndex === 0 ? 'triangle' : 'rectRounded',
+            rotation: context.datasetIndex === 0 ? 0 : 45
+        };
+    },
+    renderExternalTooltip(context) {
+        const { chart, tooltip } = context;
+        const tooltipElement = getOrCreateExternalTooltip(chart);
+
+        if (!tooltip || tooltip.opacity === 0) {
+            tooltipElement.style.opacity = '0';
+            return;
+        }
+
+        const title = tooltip.title?.join(' ') ?? '';
+        const body = tooltip.body?.map((bodyItem) => bodyItem.lines.join(' ')).join(' | ') ?? '';
+        const footer = tooltip.footer?.join(' ') ?? '';
+
+        tooltipElement.textContent = [title, body, footer].filter(Boolean).join(' - ');
+        tooltipElement.style.left = `${tooltip.caretX}px`;
+        tooltipElement.style.top = `${tooltip.caretY}px`;
+        tooltipElement.style.opacity = '1';
     },
     createRepeatFillPattern(context) {
         return createFillPattern(context.chart);
