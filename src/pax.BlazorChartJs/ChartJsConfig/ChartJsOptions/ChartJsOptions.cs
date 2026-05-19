@@ -57,8 +57,12 @@ public record ChartJsOptions
     /// <summary>
     /// The events option defines the browser events that the chart should listen to for.
     /// Each of these events trigger hover and are passed to plugins. <see href="https://www.chartjs.org/docs/latest/configuration/interactions.html#event-option">more...</see>
-    /// </summary>
+    /// </summary>   
     public IList<string>? Events { get; set; }
+    /// <summary>
+    /// How Chart.js parses data. Set to false for better performance when data is already in the internal format.
+    /// </summary>
+    public object? Parsing { get; set; }
     /// <summary>
     /// Registers OnHover Event - ChartJsEvent type = ChartJsLabelHoverEvent
     /// </summary>   

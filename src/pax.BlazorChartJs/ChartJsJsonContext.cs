@@ -86,6 +86,7 @@ namespace pax.BlazorChartJs;
 [JsonSerializable(typeof(ArbitraryLineConfig))]
 [JsonSerializable(typeof(BarAvatarConfig))]
 [JsonSerializable(typeof(DataLabelsConfig))]
+[JsonSerializable(typeof(DecimationConfig))]
 
 // Enums
 [JsonSerializable(typeof(ChartType))]
