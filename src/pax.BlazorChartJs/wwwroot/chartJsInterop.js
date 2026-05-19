@@ -1,4 +1,4 @@
-export const chartJsInteropVersion = "0.8.8";
+export const chartJsInteropVersion = "0.9.0-preview";
 const chartJsFunctionMarker = "__chartJsFunction";
 const chartJsFunctionNamePattern = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 const reservedChartJsFunctionNames = new Set([

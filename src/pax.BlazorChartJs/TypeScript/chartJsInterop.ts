@@ -1,5 +1,5 @@
-// v0.8.8
-export const chartJsInteropVersion = "0.8.8";
+// v0.9.0-preview
+export const chartJsInteropVersion = "0.9.0-preview";
 
 declare const Chart: any;
 declare const ChartDataLabels: any;

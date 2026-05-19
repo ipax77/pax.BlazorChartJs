@@ -152,7 +152,20 @@ We really like people helping us with the project. Nevertheless, take your time 
 
 ## Changelog
 
-<details open="open"><summary>v0.8.8</summary>
+<details open="open"><summary>v0.9.0-preview</summary>
+
+>- Added `ChartJsFunction` to reference registered JavaScript callbacks from C# chart configuration without serializing raw JavaScript.
+>- Added callback module configuration and marker revival for chart initialization, option updates, and dataset add/update/set interop calls.
+>- Added scriptable callback support for datalabel formatters, axis ticks, tooltip callbacks, legend callbacks, and indexable color options.
+>- Expanded `IndexableOption<T>` to support single values, indexed values, and `ChartJsFunction` callback values.
+>- Hardened callback resolution with flat JavaScript identifier validation and reserved-name checks.
+>- Updated sample callback charts to use a shared `chartJsCallbacks.js` callback registry.
+>- Added a fast MSTest project for JSON serialization coverage, including Chart.js docs parity tests for bubble, mixed, and radar chart samples.
+>- Added a focused GitHub Actions workflow for the MSTest JSON serialization test project.
+
+</details>
+
+<details><summary>v0.8.8</summary>
 
 >- Dataset interop calls are ignored safely when the target chart was already disposed.
 >- Reduced allocation and lookup work while resolving and disposing Chart.js instances.
