@@ -17,6 +17,7 @@ namespace pax.BlazorChartJs;
         typeof(IndexableOptionIntConverter),
         typeof(IndexableOptionBoolConverter),
         typeof(IndexableOptionObjectConverter),
+        typeof(PaddingJsonConverter),
         typeof(ChartJsDatasetJsonConverter),
         typeof(ChartJsAxisJsonConverter),
         typeof(ChartJsAxisTickJsonConverter)
@@ -120,6 +121,7 @@ internal sealed partial class ChartJsJsonContext : JsonSerializerContext
                         new IndexableOptionIntConverter(),
                         new IndexableOptionBoolConverter(),
                         new IndexableOptionObjectConverter(),
+                        new PaddingJsonConverter(),
                         new ChartJsDatasetJsonConverter(),
                         new ChartJsAxisJsonConverter(),
                         new ChartJsAxisTickJsonConverter(),

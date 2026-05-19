@@ -1,0 +1,117 @@
+@using Microsoft.JSInterop
+@using pax.BlazorChartJs
+@implements IAsyncDisposable
+
+@inject IJSRuntime JsRuntime
+
+<h3>Scriptable Padding</h3>
+
+<div class="chart-container w-75" style="height: 320px;">
+    <ChartComponent ChartJsConfig="chartJsConfig" OnEventTriggered="ChartEventTriggered"></ChartComponent>
+</div>
+
+@code {
+    private readonly Lazy<Task<IJSObjectReference>> pluginModuleTask;
+    private ScriptablePaddingChartJsConfig chartJsConfig = null!;
+    private bool registeredLatestValueLabelPlugin;
+    private bool reinitializedWithPlugin;
+
+    public ScriptablePaddingChartComp()
+    {
+        pluginModuleTask = new(() => JsRuntime.InvokeAsync<IJSObjectReference>(
+            "import",
+            "./_content/pax.BlazorChartJs.samplelib/latestValueLabelPlugin.js").AsTask());
+    }
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = new()
+        {
+            Type = ChartType.bar,
+            Data = new ChartJsData()
+            {
+                Labels = ["Jan", "Feb", "Mar", "Apr", "May"],
+                Datasets =
+                [
+                    new BarDataset()
+                    {
+                        Label = "Revenue",
+                        Data = [12, 19, 8, 15, 22],
+                        BackgroundColor = "#60a5fa",
+                        BorderColor = "#2563eb",
+                        BorderWidth = 1
+                    }
+                ]
+            },
+            Options = new ScriptablePaddingChartJsOptions()
+            {
+                Responsive = true,
+                MaintainAspectRatio = false,
+                Layout = new ChartJsLayout()
+                {
+                    Padding = ChartJsFunction.FromName("responsiveLatestLabelPadding")
+                },
+                Plugins = new ScriptablePaddingPlugins()
+                {
+                    Legend = new Legend()
+                    {
+                        Display = false
+                    },
+                    LatestValueLabel = new LatestValueLabelOptions()
+                    {
+                        Display = true,
+                        Text = "Latest"
+                    }
+                }
+            }
+        };
+    }
+
+    private async void ChartEventTriggered(ChartJsEvent chartJsEvent)
+    {
+        if (chartJsEvent is not ChartJsInitEvent || reinitializedWithPlugin)
+        {
+            return;
+        }
+
+        var module = await pluginModuleTask.Value.ConfigureAwait(false);
+        registeredLatestValueLabelPlugin = await module.InvokeAsync<bool>("registerLatestValueLabelPlugin").ConfigureAwait(false);
+        if (registeredLatestValueLabelPlugin)
+        {
+            reinitializedWithPlugin = true;
+            chartJsConfig.ReinitializeChart();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (pluginModuleTask.IsValueCreated)
+        {
+            var module = await pluginModuleTask.Value.ConfigureAwait(false);
+            await module.DisposeAsync().ConfigureAwait(false);
+        }
+
+        GC.SuppressFinalize(this);
+    }
+
+    public class ScriptablePaddingChartJsConfig : ChartJsConfig
+    {
+        public new ScriptablePaddingChartJsOptions? Options { get; set; }
+    }
+
+    public record ScriptablePaddingChartJsOptions : ChartJsOptions
+    {
+        public new ScriptablePaddingPlugins? Plugins { get; set; }
+    }
+
+    public record ScriptablePaddingPlugins : Plugins
+    {
+        public LatestValueLabelOptions? LatestValueLabel { get; set; }
+    }
+
+    public record LatestValueLabelOptions
+    {
+        public bool? Display { get; set; }
+        public string? Text { get; set; }
+    }
+}

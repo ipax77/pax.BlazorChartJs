@@ -94,6 +94,69 @@ internal sealed class StringOrDoubleValueConverter : JsonConverter<StringOrDoubl
 
 }
 
+internal sealed class PaddingJsonConverter : JsonConverter<Padding>
+{
+    public override Padding? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Write(Utf8JsonWriter writer, Padding? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+
+        switch (value.Kind)
+        {
+            case PaddingKind.Number:
+                writer.WriteNumberValue(value.NumericValue ?? throw new InvalidOperationException("Numeric padding value is null."));
+                break;
+
+            case PaddingKind.Function:
+                WriteFunction(writer, value.FunctionValue);
+                break;
+
+            case PaddingKind.Object:
+                WriteObject(writer, value);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unsupported {nameof(PaddingKind)}: {value.Kind}.");
+        }
+    }
+
+    private static void WriteFunction(Utf8JsonWriter writer, ChartJsFunction? value)
+    {
+        var function = value ?? throw new InvalidOperationException("Function padding value is null.");
+        writer.WriteStartObject();
+        writer.WriteString("__chartJsFunction", function.Name);
+        writer.WriteEndObject();
+    }
+
+    private static void WriteObject(Utf8JsonWriter writer, Padding value)
+    {
+        writer.WriteStartObject();
+        WriteNumber(writer, "left", value.Left);
+        WriteNumber(writer, "top", value.Top);
+        WriteNumber(writer, "right", value.Right);
+        WriteNumber(writer, "bottom", value.Bottom);
+        WriteNumber(writer, "x", value.X);
+        WriteNumber(writer, "y", value.Y);
+        WriteNumber(writer, "z", value.Z);
+        writer.WriteEndObject();
+    }
+
+    private static void WriteNumber(Utf8JsonWriter writer, string propertyName, double? value)
+    {
+        if (value.HasValue)
+        {
+            writer.WriteNumber(propertyName, value.Value);
+        }
+    }
+}
+
 internal sealed class IndexableOptionObjectConverter : JsonConverter<IndexableOption<object>?>
 {
     public override IndexableOption<object>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -243,6 +306,7 @@ internal sealed class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset
                     new IndexableOptionIntConverter(),
                     new IndexableOptionBoolConverter(),
                     new IndexableOptionObjectConverter(),
+                    new PaddingJsonConverter(),
                     new StringOrDoubleValueConverter()
                 }
     };
@@ -278,6 +342,7 @@ internal sealed class ChartJsAxisJsonConverter : JsonConverter<ChartJsAxis?>
                     new IndexableOptionIntConverter(),
                     new IndexableOptionBoolConverter(),
                     new IndexableOptionObjectConverter(),
+                    new PaddingJsonConverter(),
                     new ChartJsAxisTickJsonConverter(),
                     new StringOrDoubleValueConverter()
                 }
@@ -312,7 +377,8 @@ internal sealed class ChartJsAxisTickJsonConverter : JsonConverter<ChartJsAxisTi
                     new IndexableOptionDoubleConverter(),
                     new IndexableOptionIntConverter(),
                     new IndexableOptionBoolConverter(),
-                    new IndexableOptionObjectConverter()
+                    new IndexableOptionObjectConverter(),
+                    new PaddingJsonConverter()
                 }
     };
 
