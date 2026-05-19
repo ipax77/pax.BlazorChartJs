@@ -7,6 +7,48 @@ namespace pax.BlazorChartJs.tests;
 public sealed class RealWorldChartSerializationTests
 {
     [TestMethod]
+    public void MixedChartDocsSampleMatchesChartJsConfigShape()
+    {
+        var actual = NormalizeChartJsJson(SerializeToNode(CreateMixedDocsSampleConfig()));
+        var expected = ParseNode(
+            """
+            {
+              "type": "scatter",
+              "data": {
+                "labels": [
+                  "January",
+                  "February",
+                  "March",
+                  "April"
+                ],
+                "datasets": [{
+                  "type": "bar",
+                  "label": "Bar Dataset",
+                  "data": [10, 20, 30, 40],
+                  "borderColor": "rgb(255, 99, 132)",
+                  "backgroundColor": "rgba(255, 99, 132, 0.2)"
+                }, {
+                  "type": "line",
+                  "label": "Line Dataset",
+                  "data": [50, 50, 50, 50],
+                  "fill": false,
+                  "borderColor": "rgb(54, 162, 235)"
+                }]
+              },
+              "options": {
+                "scales": {
+                  "y": {
+                    "beginAtZero": true
+                  }
+                }
+              }
+            }
+            """);
+
+        JsonAssert.AreEquivalent(expected, actual);
+    }
+
+    [TestMethod]
     public void BubbleChartDocsSampleMatchesChartJsConfigShape()
     {
         var actual = NormalizeChartJsJson(SerializeToNode(CreateBubbleDocsSampleConfig()));
@@ -37,6 +79,52 @@ public sealed class RealWorldChartSerializationTests
     }
 
     [TestMethod]
+    public void RadarChartDocsSampleMatchesChartJsDataShape()
+    {
+        var actual = NormalizeChartJsJson(SerializeToNode(CreateRadarDocsSampleConfig()));
+        var expected = ParseNode(
+            """
+            {
+              "type": "radar",
+              "data": {
+                "labels": [
+                  "Eating",
+                  "Drinking",
+                  "Sleeping",
+                  "Designing",
+                  "Coding",
+                  "Cycling",
+                  "Running"
+                ],
+                "datasets": [{
+                  "label": "My First Dataset",
+                  "data": [65, 59, 90, 81, 56, 55, 40],
+                  "fill": true,
+                  "backgroundColor": "rgba(255, 99, 132, 0.2)",
+                  "borderColor": "rgb(255, 99, 132)",
+                  "pointBackgroundColor": "rgb(255, 99, 132)",
+                  "pointBorderColor": "#fff",
+                  "pointHoverBackgroundColor": "#fff",
+                  "pointHoverBorderColor": "rgb(255, 99, 132)"
+                }, {
+                  "label": "My Second Dataset",
+                  "data": [28, 48, 40, 19, 96, 27, 100],
+                  "fill": true,
+                  "backgroundColor": "rgba(54, 162, 235, 0.2)",
+                  "borderColor": "rgb(54, 162, 235)",
+                  "pointBackgroundColor": "rgb(54, 162, 235)",
+                  "pointBorderColor": "#fff",
+                  "pointHoverBackgroundColor": "#fff",
+                  "pointHoverBorderColor": "rgb(54, 162, 235)"
+                }]
+              }
+            }
+            """);
+
+        JsonAssert.AreEquivalent(expected, actual);
+    }
+
+    [TestMethod]
     public void BubbleDataPointSerializesUsingChartJsPointPropertyNames()
     {
         BubbleDataPoint point = new()
@@ -50,6 +138,47 @@ public sealed class RealWorldChartSerializationTests
         var expected = ParseNode("""{ "x": 20, "y": 30, "r": 15 }""");
 
         JsonAssert.AreEquivalent(expected, actual);
+    }
+
+    private static ChartJsConfig CreateMixedDocsSampleConfig()
+    {
+        return new ChartJsConfig
+        {
+            Type = ChartType.scatter,
+            Data = new ChartJsData
+            {
+                Labels = ["January", "February", "March", "April"],
+                Datasets =
+                [
+                    new BarDataset
+                    {
+                        Type = ChartType.bar,
+                        Label = "Bar Dataset",
+                        Data = [10, 20, 30, 40],
+                        BorderColor = "rgb(255, 99, 132)",
+                        BackgroundColor = "rgba(255, 99, 132, 0.2)"
+                    },
+                    new LineDataset
+                    {
+                        Type = ChartType.line,
+                        Label = "Line Dataset",
+                        Data = [50, 50, 50, 50],
+                        Fill = false,
+                        BorderColor = "rgb(54, 162, 235)"
+                    }
+                ]
+            },
+            Options = new ChartJsOptions
+            {
+                Scales = new ChartJsOptionsScales
+                {
+                    Y = new LinearAxis
+                    {
+                        BeginAtZero = true
+                    }
+                }
+            }
+        };
     }
 
     private static ChartJsConfig CreateBubbleDocsSampleConfig()
@@ -84,6 +213,45 @@ public sealed class RealWorldChartSerializationTests
                 ]
             },
             Options = new ChartJsOptions()
+        };
+    }
+
+    private static ChartJsConfig CreateRadarDocsSampleConfig()
+    {
+        return new ChartJsConfig
+        {
+            Type = ChartType.radar,
+            Data = new ChartJsData
+            {
+                Labels = ["Eating", "Drinking", "Sleeping", "Designing", "Coding", "Cycling", "Running"],
+                Datasets =
+                [
+                    new RadarDataset
+                    {
+                        Label = "My First Dataset",
+                        Data = [65, 59, 90, 81, 56, 55, 40],
+                        Fill = true,
+                        BackgroundColor = "rgba(255, 99, 132, 0.2)",
+                        BorderColor = "rgb(255, 99, 132)",
+                        PointBackgroundColor = "rgb(255, 99, 132)",
+                        PointBorderColor = "#fff",
+                        PointHoverBackgroundColor = "#fff",
+                        PointHoverBorderColor = "rgb(255, 99, 132)"
+                    },
+                    new RadarDataset
+                    {
+                        Label = "My Second Dataset",
+                        Data = [28, 48, 40, 19, 96, 27, 100],
+                        Fill = true,
+                        BackgroundColor = "rgba(54, 162, 235, 0.2)",
+                        BorderColor = "rgb(54, 162, 235)",
+                        PointBackgroundColor = "rgb(54, 162, 235)",
+                        PointBorderColor = "#fff",
+                        PointHoverBackgroundColor = "#fff",
+                        PointHoverBorderColor = "rgb(54, 162, 235)"
+                    }
+                ]
+            }
         };
     }
 

@@ -67,16 +67,16 @@ public class DisposeTests : PageTest
         Assert.That(Guid.TryParse(canvasId, out _), Is.True);
 
         var chartInteropVersion = await Page.EvaluateAsync<string>("() => window.chartJsInteropVersion ?? ''");
-        if (chartInteropVersion != "0.8.8")
+        if (chartInteropVersion != "0.9.0-preview")
         {
-            Assert.Ignore($"The configured sample site is serving pax.BlazorChartJs {chartInteropVersion}; this regression requires 0.8.8.");
+            Assert.Ignore($"The configured sample site is serving pax.BlazorChartJs {chartInteropVersion}; this regression requires 0.9.0-preview.");
         }
 
         await Page.GotoAsync(Startup.GetSampleBaseUrl());
 
         await Page.EvaluateAsync(
             @"async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.8.8');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
                 const dataset = { id: 'disposed-test', label: 'Disposed Test', data: [1, 2, 3] };
                 chartInterop.addDatasets(chartId, [dataset]);
                 chartInterop.updateDatasets(chartId, [dataset]);
