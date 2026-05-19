@@ -41,6 +41,7 @@ namespace pax.BlazorChartJs;
 [JsonSerializable(typeof(SetDataObject))]
 [JsonSerializable(typeof(CartesianAxisTick))]
 [JsonSerializable(typeof(ChartJsAxisBorder))]
+[JsonSerializable(typeof(ChartJsFunction))]
 
 // Datasets
 [JsonSerializable(typeof(BarDataset))]

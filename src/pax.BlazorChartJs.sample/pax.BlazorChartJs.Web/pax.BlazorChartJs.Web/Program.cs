@@ -10,7 +10,10 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
-builder.Services.AddChartJs();
+builder.Services.AddChartJs(options =>
+{
+    options.ChartJsCallbacksModuleLocation = "/_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js";
+});
 
 var app = builder.Build();
 

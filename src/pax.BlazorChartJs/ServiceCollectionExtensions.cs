@@ -37,4 +37,9 @@ public record ChartJsSetupOptions
     /// It can also be a local path to wwwroot folder e.g. "/_content/myrazorclasslib/js/chartjs-plugin-annotation.min.js".
     /// </summary>
     public string ChartJsPluginDatalabelsLocation { get; set; } = "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2";
+
+    /// <summary>
+    /// JavaScript module location exporting a chartJsCallbacks object for no-eval callback resolution.
+    /// </summary>
+    public string? ChartJsCallbacksModuleLocation { get; set; }
 }
