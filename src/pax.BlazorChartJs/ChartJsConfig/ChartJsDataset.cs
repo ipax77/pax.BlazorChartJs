@@ -21,6 +21,10 @@ public record ChartJsDataset
     /// This disables segmentation of the line, which can be an unneeded step.
     /// </summary>  
     public object? SpanGaps { get; set; }
+    /// <summary>
+    /// How Chart.js parses dataset data. Set to false for better performance when data is already in the internal format.
+    /// </summary>
+    public object? Parsing { get; set; }
     public bool? Hidden { get; set; }
     /// <summary>
     /// DataLabelsConfig per Dataset <see href="https://chartjs-plugin-datalabels.netlify.app/guide/">ChartJs datalabels plugin</see>

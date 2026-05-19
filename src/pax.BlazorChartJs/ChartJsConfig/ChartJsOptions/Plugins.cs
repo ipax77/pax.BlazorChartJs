@@ -19,6 +19,6 @@ public record Plugins
     public ICollection<ArbitraryLineConfig>? ArbitraryLines { get; set; }
 #pragma warning restore CA2227
     public DataLabelsConfig? Datalabels { get; set; }
+    public DecimationConfig? Decimation { get; set; }
 }
-
 
