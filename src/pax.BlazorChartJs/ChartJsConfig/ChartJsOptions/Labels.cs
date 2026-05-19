@@ -2,6 +2,7 @@ namespace pax.BlazorChartJs;
 
 public record Labels
 {
+    public double? BorderRadius { get; set; }
     public double? BoxWidth { get; set; }
     public double? BoxHeight { get; set; }
     /// <summary>
@@ -44,6 +45,7 @@ public record Labels
     /// This disables segmentation of the line, which can be an unneeded step.
     /// </summary>  
     public bool? SpanGaps { get; set; }
+    public bool? UseBorderRadius { get; set; }
 }
 
 

@@ -15,6 +15,7 @@ public record ChartJsAxis
     /// Controls the axis global visibility (visible when true, hidden when false). When display: 'auto', the axis is visible only if at least one associated dataset is visible.
     /// </summary>   
     public object? Display { get; set; }
+    public bool? Clip { get; set; }
     public ChartJsGrid? Grid { get; set; }
     public double? Min { get; set; }
     public double? Max { get; set; }

@@ -42,6 +42,7 @@ public record LineDataset : ChartJsDataset
     /// If left untouched (undefined), the global options.elements.line.cubicInterpolationMode property is used
     /// </summary>        
     public string? CubicInterpolationMode { get; set; }
+    public IndexableOption<bool>? CapBezierPoints { get; set; }
     public IndexableOption<bool>? DrawActiveElementsOnTop { get; set; }
     /// <summary>
     /// Fill - boolean|string

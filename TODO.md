@@ -20,7 +20,7 @@ Sources:
 - https://www.chartjs.org/docs/latest/api/interfaces/BorderOptions.html
 - https://www.chartjs.org/docs/latest/api/interfaces/TickOptions.html
 
-## Missing Properties
+## Missing Properties Still Outstanding
 
 ### Global Chart Options
 
@@ -38,111 +38,25 @@ Sources:
 - `ChartJsOptions.OnHover`
 - `ChartJsOptions.OnResize`
 
+## Missing Properties Implemented In Non-Global Pass
+
 ### Dataset-Level Common Options
 
-- `BarDataset.Animation`
-- `BarDataset.Animations`
-- `BarDataset.Normalized`
-- `BarDataset.Transitions`
-- `LineDataset.Animation`
-- `LineDataset.Animations`
-- `LineDataset.Normalized`
-- `LineDataset.Transitions`
-- `BubbleDataset.Normalized`
-- `PieDataset.Animations`
-- `PieDataset.Normalized`
-- `PieDataset.Transitions`
-- `PolarAreaDataset.Animation`
-- `PolarAreaDataset.Animations`
-- `PolarAreaDataset.Normalized`
-- `PolarAreaDataset.Transitions`
-- `RadarDataset.Animation`
-- `RadarDataset.Animations`
-- `RadarDataset.Normalized`
-- `RadarDataset.Transitions`
+- Added to `ChartJsDataset`: `Animation`, `Animations`, `Transitions`, `Normalized`.
 
-### Bar Dataset
+### Dataset-Specific Options
 
-- No chart-specific missing properties found beyond common dataset animation/normalization options.
+- Added to `LineDataset`: `CapBezierPoints`.
+- Added to `BubbleDataset`: `IndexAxis`, `Stack`, `XAxisID`, `YAxisID`.
+- Added to `PieDataset`: `BorderDash`, `BorderDashOffset`, `Circular`, `HoverBorderDash`, `HoverBorderDashOffset`, `IndexAxis`, `Label`, `Order`, `SelfJoin`, `Stack`.
+- Added to `PolarAreaDataset`: `Angle`, `BorderDash`, `BorderDashOffset`, `BorderJoinStyle`, `BorderRadius`, `Circumference`, `HoverBorderDash`, `HoverBorderDashOffset`, `HoverOffset`, `IndexAxis`, `Label`, `Offset`, `Order`, `Rotation`, `SelfJoin`, `Spacing`, `Stack`, `Weight`.
+- Added to `RadarDataset`: `CapBezierPoints`, `CubicInterpolationMode`, `DrawActiveElementsOnTop`, `HitRadius`, `HoverRadius`, `IndexAxis`, `Radius`, `Rotation`, `Segment`, `ShowLine`, `Stack`, `Stepped`, `XAxisID`, `YAxisID`.
 
-### Line Dataset
+### Other Non-Global Options
 
-- `LineDataset.CapBezierPoints`
-
-### Bubble Dataset
-
-- `BubbleDataset.IndexAxis`
-- `BubbleDataset.Stack`
-- `BubbleDataset.XAxisID`
-- `BubbleDataset.YAxisID`
-
-### Pie/Doughnut Dataset
-
-- `PieDataset.BorderDash`
-- `PieDataset.BorderDashOffset`
-- `PieDataset.Circular`
-- `PieDataset.HoverBorderDash`
-- `PieDataset.HoverBorderDashOffset`
-- `PieDataset.IndexAxis`
-- `PieDataset.Label`
-- `PieDataset.Order`
-- `PieDataset.SelfJoin`
-- `PieDataset.Stack`
-
-### Polar Area Dataset
-
-- `PolarAreaDataset.Angle`
-- `PolarAreaDataset.BorderDash`
-- `PolarAreaDataset.BorderDashOffset`
-- `PolarAreaDataset.BorderJoinStyle`
-- `PolarAreaDataset.BorderRadius`
-- `PolarAreaDataset.Circumference`
-- `PolarAreaDataset.HoverBorderDash`
-- `PolarAreaDataset.HoverBorderDashOffset`
-- `PolarAreaDataset.HoverOffset`
-- `PolarAreaDataset.IndexAxis`
-- `PolarAreaDataset.Label`
-- `PolarAreaDataset.Offset`
-- `PolarAreaDataset.Order`
-- `PolarAreaDataset.Rotation`
-- `PolarAreaDataset.SelfJoin`
-- `PolarAreaDataset.Spacing`
-- `PolarAreaDataset.Stack`
-- `PolarAreaDataset.Weight`
-
-### Radar Dataset
-
-- `RadarDataset.CapBezierPoints`
-- `RadarDataset.CubicInterpolationMode`
-- `RadarDataset.DrawActiveElementsOnTop`
-- `RadarDataset.HitRadius`
-- `RadarDataset.HoverRadius`
-- `RadarDataset.IndexAxis`
-- `RadarDataset.Radius`
-- `RadarDataset.Rotation`
-- `RadarDataset.Segment`
-- `RadarDataset.ShowLine`
-- `RadarDataset.Stack`
-- `RadarDataset.Stepped`
-- `RadarDataset.XAxisID`
-- `RadarDataset.YAxisID`
-
-### Scale Options
-
-- `ChartJsAxis.Clip`
-- `CartesianAxis.Clip`
-
-### Tooltip Options
-
-- `Tooltip.Animation`
-- `Tooltip.Animations`
-- `Tooltip.Axis`
-- `Tooltip.IncludeInvisible`
-
-### Legend Labels
-
-- `Labels.BorderRadius`
-- `Labels.UseBorderRadius`
+- Added to `ChartJsAxis`: `Clip`; inherited by cartesian axes.
+- Added to `Tooltip`: `Animation`, `Animations`, `Axis`, `IncludeInvisible`.
+- Added to `Labels`: `BorderRadius`, `UseBorderRadius`.
 
 ## Existing Properties Missing Scriptable Support
 

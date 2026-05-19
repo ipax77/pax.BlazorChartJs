@@ -5,6 +5,11 @@ public record Tooltip
     public bool? Enabled { get; set; }
     public ChartJsFunction? External { get; set; }
     /// <summary>
+    /// false or new Animation()
+    /// </summary>
+    public object? Animation { get; set; }
+    public object? Animations { get; set; }
+    /// <summary>
     /// Modes
     /// When configuring the interaction with the graph via interaction, hover or tooltips, a number of different modes are available.
     /// 
@@ -16,6 +21,8 @@ public record Tooltip
     /// </summary>      
     public string? Mode { get; set; }
     public bool? Intersect { get; set; }
+    public string? Axis { get; set; }
+    public bool? IncludeInvisible { get; set; }
     public string? Position { get; set; }
     public TooltipCallbacks? Callbacks { get; set; }
     public ChartJsFunction? ItemSort { get; set; }

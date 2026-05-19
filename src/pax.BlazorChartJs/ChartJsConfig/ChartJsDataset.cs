@@ -25,6 +25,19 @@ public record ChartJsDataset
     /// How Chart.js parses dataset data. Set to false for better performance when data is already in the internal format.
     /// </summary>
     public object? Parsing { get; set; }
+    /// <summary>
+    /// Per-dataset animation options. Set to false to disable animations for this dataset.
+    /// </summary>
+    public object? Animation { get; set; }
+    public Animations? Animations { get; set; }
+    /// <summary>
+    /// Per-dataset transition options keyed by transition mode.
+    /// </summary>
+    public Dictionary<string, object>? Transitions { get; set; }
+    /// <summary>
+    /// Set to true when data indices are unique, sorted, and consistent across datasets for better performance.
+    /// </summary>
+    public bool? Normalized { get; set; }
     public bool? Hidden { get; set; }
     /// <summary>
     /// DataLabelsConfig per Dataset <see href="https://chartjs-plugin-datalabels.netlify.app/guide/">ChartJs datalabels plugin</see>
