@@ -171,6 +171,43 @@ new LinearAxisTick()
 
 Callback names are validated and resolved from the configured module, which avoids raw JavaScript serialization in the chart config. See the full [ChartJsFunction callback sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventcallbackChartComp.razor).
 
+## Additional AddChartJs options
+
+Beyond the basic script locations shown in the installation section, `AddChartJs(...)` can configure callback modules and app-wide Chart.js defaults.
+
+```csharp
+builder.Services.AddChartJs(options =>
+{
+    options.ChartJsCallbacksModuleLocation = $"{builder.HostEnvironment.BaseAddress}_content/my-app/chartJsCallbacks.js";
+
+    options.Defaults = new ChartJsDefaultsOptions()
+    {
+        Color = "#1f2937",
+        BorderColor = "#d1d5db",
+        Font = new Font()
+        {
+            Family = "Inter, system-ui, sans-serif",
+            Size = 12
+        },
+        Datasets = new ChartJsOptionsDatasets()
+        {
+            Bar = new
+            {
+                barPercentage = 0.8,
+                categoryPercentage = 0.9
+            },
+            Line = new
+            {
+                tension = 0.25
+            }
+        },
+        OnClick = ChartJsFunction.FromName("globalChartClick")
+    };
+});
+```
+
+`Defaults` maps to `Chart.defaults` and is applied after Chart.js is loaded and before the first chart is constructed. Per-chart `ChartJsConfig.Options` still override the global defaults. `ChartJsFunction` values in defaults use the same callback registry configured by `ChartJsCallbacksModuleLocation`.
+
 ## Supported Plugins
 * [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
 * [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
@@ -198,7 +235,10 @@ We really like people helping us with the project. Nevertheless, take your time 
 >- Added a scriptable padding sample with a sample-only `Latest` label plugin.
 >- Hardened callback resolution with flat JavaScript identifier validation and reserved-name checks.
 >- Updated sample callback charts to use a shared `chartJsCallbacks.js` callback registry.
->- Added missing properties
+>- Added missing global/core Chart.js options to `ChartJsOptions`: `BackgroundColor`, `BorderColor`, `Clip`, `Color`, `Datasets`, `Font`, `Hover`, `HoverBackgroundColor`, `HoverBorderColor`, `Normalized`, `OnClick`, `OnHover`, and `OnResize`.
+>- Added `ChartJsSetupOptions.Defaults` / `ChartJsDefaultsOptions` to configure app-wide `Chart.defaults` values through `AddChartJs(...)`.
+>- Added `ChartJsOptionsDatasets` for `options.datasets` and `Chart.defaults.datasets` chart-type defaults.
+>- Chart.js native `OnClick`, `OnHover`, and `OnResize` callbacks are preserved when the Blazor/C# event bridge flags are enabled.
 
 </details>
 
