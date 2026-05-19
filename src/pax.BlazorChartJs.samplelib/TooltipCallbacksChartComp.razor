@@ -1,0 +1,162 @@
+@using pax.BlazorChartJs
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="ShowContentTooltip">Content</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowColorTooltip">Color</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowPointTooltip">Point</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowExternalTooltip">External</button>
+</div>
+
+<div class="chart-container w-75">
+    <ChartComponent ChartJsConfig="chartJsConfig"></ChartComponent>
+</div>
+
+@code {
+    private static readonly TooltipCallbacks ContentCallbacks = new()
+        {
+            Title = ChartJsFunction.FromName("formatTooltipContentTitle"),
+            Label = ChartJsFunction.FromName("formatTooltipContentLabel"),
+            Footer = ChartJsFunction.FromName("formatTooltipContentFooter")
+        };
+
+    private static readonly TooltipCallbacks ColorCallbacks = new()
+        {
+            Title = ChartJsFunction.FromName("formatTooltipColorTitle"),
+            Label = ChartJsFunction.FromName("formatTooltipContentLabel"),
+            LabelColor = ChartJsFunction.FromName("tooltipLabelColor"),
+            LabelTextColor = ChartJsFunction.FromName("tooltipLabelTextColor"),
+            Footer = ChartJsFunction.FromName("formatTooltipContentFooter")
+        };
+
+    private static readonly TooltipCallbacks PointCallbacks = new()
+        {
+            Title = ChartJsFunction.FromName("formatTooltipPointTitle"),
+            Label = ChartJsFunction.FromName("formatTooltipContentLabel"),
+            LabelPointStyle = ChartJsFunction.FromName("tooltipLabelPointStyle"),
+            Footer = ChartJsFunction.FromName("formatTooltipContentFooter")
+        };
+
+    private static readonly TooltipCallbacks ExternalCallbacks = new()
+        {
+            Title = ChartJsFunction.FromName("formatTooltipExternalTitle"),
+            Label = ChartJsFunction.FromName("formatTooltipContentLabel"),
+            Footer = ChartJsFunction.FromName("formatTooltipContentFooter")
+        };
+
+    private static readonly ChartJsFunction ExternalTooltip = ChartJsFunction.FromName("renderExternalTooltip");
+
+    private ChartJsConfig chartJsConfig = null!;
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = new()
+            {
+                Type = ChartType.line,
+                Data = new ChartJsData()
+                {
+                    Labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                    Datasets =
+                    [
+                        new LineDataset()
+                        {
+                            Label = "Revenue",
+                            Data = [18, 24, 20, 32, 28, 36],
+                            BorderColor = "#2563eb",
+                            BackgroundColor = "rgba(37, 99, 235, 0.18)",
+                            BorderWidth = 3,
+                            PointRadius = 4,
+                            PointHoverRadius = 6,
+                            Tension = 0.3
+                        },
+                        new LineDataset()
+                        {
+                            Label = "Pipeline",
+                            Data = [12, 16, 22, 24, 31, 34],
+                            BorderColor = "#f97316",
+                            BackgroundColor = "rgba(249, 115, 22, 0.16)",
+                            BorderWidth = 3,
+                            PointRadius = 4,
+                            PointHoverRadius = 6,
+                            Tension = 0.3
+                        }
+                    ]
+                },
+                Options = new ChartJsOptions()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = true,
+                    Interaction = new Interactions()
+                    {
+                        Mode = "index",
+                        Intersect = false
+                    },
+                    Plugins = new Plugins()
+                    {
+                        Title = new Title()
+                        {
+                            Display = true,
+                            Text = new IndexableOption<string>("Tooltip callback designs")
+                        },
+                        Tooltip = new Tooltip()
+                        {
+                            Enabled = true,
+                            Callbacks = ContentCallbacks,
+                            DisplayColors = true
+                        }
+                    },
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        Y = new LinearAxis()
+                        {
+                            BeginAtZero = true
+                        }
+                    }
+                }
+            };
+
+        base.OnInitialized();
+    }
+
+    private void ShowContentTooltip()
+    {
+        ApplyTooltipDesign(ContentCallbacks, enabled: true, external: null, usePointStyle: false);
+    }
+
+    private void ShowColorTooltip()
+    {
+        ApplyTooltipDesign(ColorCallbacks, enabled: true, external: null, usePointStyle: false);
+    }
+
+    private void ShowPointTooltip()
+    {
+        ApplyTooltipDesign(PointCallbacks, enabled: true, external: null, usePointStyle: true);
+    }
+
+    private void ShowExternalTooltip()
+    {
+        ApplyTooltipDesign(
+            ExternalCallbacks,
+            enabled: false,
+            external: ExternalTooltip,
+            usePointStyle: false);
+    }
+
+    private void ApplyTooltipDesign(
+        TooltipCallbacks callbacks,
+        bool enabled,
+        ChartJsFunction? external,
+        bool usePointStyle)
+    {
+        var tooltip = chartJsConfig.Options?.Plugins?.Tooltip;
+        if (tooltip == null)
+        {
+            return;
+        }
+
+        tooltip.Enabled = enabled;
+        tooltip.External = external;
+        tooltip.Callbacks = callbacks;
+        tooltip.UsePointStyle = usePointStyle;
+        chartJsConfig.UpdateChartOptions();
+    }
+}
