@@ -23,6 +23,7 @@ class ChartJsInterop {
         this.loadInfo = new LoadInfo();
         this.chartInitPromises = new Map();
         this.chartJsCallbackRegistryPromises = new Map();
+        this.appliedDefaultsKey = null;
     }
     buildChartConfig(dotnetConfig) {
         return {
@@ -244,6 +245,20 @@ class ChartJsInterop {
         const callbacks = await this.getChartJsCallbackRegistryIfConfigured(setupOptions);
         this.reviveChartJsFunctions(config, callbacks, "$", null, null, null);
     }
+    async applyDefaults(setupOptions, defaults, hasChartJsFunctions, defaultsKey) {
+        if (defaults == undefined) {
+            return;
+        }
+        const resolvedDefaultsKey = typeof defaultsKey === "string" && defaultsKey.length > 0
+            ? defaultsKey
+            : JSON.stringify(defaults);
+        if (this.appliedDefaultsKey === resolvedDefaultsKey) {
+            return;
+        }
+        await this.resolveChartJsFunctions(setupOptions, defaults, hasChartJsFunctions);
+        Chart.defaults.set(defaults);
+        this.appliedDefaultsKey = resolvedDefaultsKey;
+    }
     reviveChartJsFunctions(value, callbacks, path, key, parentKey, grandparentKey) {
         if (value == null || typeof value !== "object") {
             return value;
@@ -414,11 +429,11 @@ async function ensureChartJsLoaded(setupOptions) {
     }
     await chartJsLoadPromise;
 }
-export async function initChart(setupOptions, chartId, dotnetConfig, hasChartJsFunctions, dotnetRef) {
+export async function initChart(setupOptions, chartId, dotnetConfig, hasChartJsFunctions, dotnetRef, defaults, hasDefaultChartJsFunctions, defaultsKey) {
     const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve({ success: true });
     const initPromise = runningInit
         .catch(() => ({ success: true }))
-        .then(() => initChartCore(setupOptions, chartId, dotnetConfig, hasChartJsFunctions, dotnetRef));
+        .then(() => initChartCore(setupOptions, chartId, dotnetConfig, hasChartJsFunctions, dotnetRef, defaults, hasDefaultChartJsFunctions, defaultsKey));
     ChartJsInteropModule.chartInitPromises.set(chartId, initPromise);
     try {
         return await initPromise;
@@ -429,9 +444,10 @@ export async function initChart(setupOptions, chartId, dotnetConfig, hasChartJsF
         }
     }
 }
-async function initChartCore(setupOptions, chartId, dotnetConfig, hasChartJsFunctions, dotnetRef) {
+async function initChartCore(setupOptions, chartId, dotnetConfig, hasChartJsFunctions, dotnetRef, defaults, hasDefaultChartJsFunctions, defaultsKey) {
     try {
         await ensureChartJsLoaded(setupOptions);
+        await ChartJsInteropModule.applyDefaults(setupOptions, defaults, hasDefaultChartJsFunctions === true, defaultsKey);
         const element = document.getElementById(chartId);
         if (!element) {
             return { success: false };
@@ -508,7 +524,11 @@ async function loadPlugins(setupOptions, dotnetConfig) {
     return plugins;
 }
 function registerChartPointEvent(chart, chartId, eventName, optionName) {
-    chart.options[optionName] = (e) => {
+    const nativeCallback = typeof chart.options[optionName] === "function"
+        ? chart.options[optionName]
+        : undefined;
+    chart.options[optionName] = (e, elements, chartInstance) => {
+        nativeCallback?.call(chart, e, elements, chartInstance ?? chart);
         triggerEvent(chartId, eventName, "label", getChartPointEventArgs(e, chart));
     };
 }
@@ -520,7 +540,11 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
         registerChartPointEvent(chart, chartId, "hover", "onHover");
     }
     if (dotnetConfigOptions.onResizeEvent == true) {
+        const nativeOnResize = typeof chart.options.onResize === "function"
+            ? chart.options.onResize
+            : undefined;
         chart.options.onResize = (_chart, size) => {
+            nativeOnResize?.call(chart, _chart, size);
             triggerEvent(chartId, "resize", "chart", {
                 Height: size.height,
                 Width: size.width,

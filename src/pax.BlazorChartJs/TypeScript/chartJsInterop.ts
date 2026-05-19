@@ -29,6 +29,7 @@ class ChartJsInterop {
     public loadInfo = new LoadInfo();
     public chartInitPromises = new Map<string, Promise<ChartInitResult>>();
     public chartJsCallbackRegistryPromises = new Map<string, Promise<ChartJsCallbackRegistry>>();
+    public appliedDefaultsKey: string | null = null;
 
     public buildChartConfig(dotnetConfig: any): any {
         return {
@@ -292,6 +293,29 @@ class ChartJsInterop {
         this.reviveChartJsFunctions(config, callbacks, "$", null, null, null);
     }
 
+    public async applyDefaults(
+        setupOptions: any,
+        defaults: any,
+        hasChartJsFunctions: boolean,
+        defaultsKey: string | null | undefined
+    ): Promise<void> {
+        if (defaults == undefined) {
+            return;
+        }
+
+        const resolvedDefaultsKey = typeof defaultsKey === "string" && defaultsKey.length > 0
+            ? defaultsKey
+            : JSON.stringify(defaults);
+
+        if (this.appliedDefaultsKey === resolvedDefaultsKey) {
+            return;
+        }
+
+        await this.resolveChartJsFunctions(setupOptions, defaults, hasChartJsFunctions);
+        Chart.defaults.set(defaults);
+        this.appliedDefaultsKey = resolvedDefaultsKey;
+    }
+
     private reviveChartJsFunctions(
         value: any,
         callbacks: ChartJsCallbackRegistry | undefined,
@@ -519,11 +543,28 @@ async function ensureChartJsLoaded(setupOptions: any): Promise<void> {
     await chartJsLoadPromise;
 }
 
-export async function initChart(setupOptions: any, chartId: string, dotnetConfig: any, hasChartJsFunctions: boolean, dotnetRef: any): Promise<ChartInitResult> {
+export async function initChart(
+    setupOptions: any,
+    chartId: string,
+    dotnetConfig: any,
+    hasChartJsFunctions: boolean,
+    dotnetRef: any,
+    defaults?: any,
+    hasDefaultChartJsFunctions?: boolean,
+    defaultsKey?: string
+): Promise<ChartInitResult> {
     const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve({ success: true });
     const initPromise = runningInit
         .catch(() => ({ success: true }))
-        .then(() => initChartCore(setupOptions, chartId, dotnetConfig, hasChartJsFunctions, dotnetRef));
+        .then(() => initChartCore(
+            setupOptions,
+            chartId,
+            dotnetConfig,
+            hasChartJsFunctions,
+            dotnetRef,
+            defaults,
+            hasDefaultChartJsFunctions,
+            defaultsKey));
 
     ChartJsInteropModule.chartInitPromises.set(chartId, initPromise);
 
@@ -536,9 +577,19 @@ export async function initChart(setupOptions: any, chartId: string, dotnetConfig
     }
 }
 
-async function initChartCore(setupOptions: any, chartId: string, dotnetConfig: any, hasChartJsFunctions: boolean, dotnetRef: any): Promise<ChartInitResult> {
+async function initChartCore(
+    setupOptions: any,
+    chartId: string,
+    dotnetConfig: any,
+    hasChartJsFunctions: boolean,
+    dotnetRef: any,
+    defaults?: any,
+    hasDefaultChartJsFunctions?: boolean,
+    defaultsKey?: string
+): Promise<ChartInitResult> {
     try {
         await ensureChartJsLoaded(setupOptions);
+        await ChartJsInteropModule.applyDefaults(setupOptions, defaults, hasDefaultChartJsFunctions === true, defaultsKey);
 
         const element = document.getElementById(chartId) as HTMLCanvasElement;
         if (!element) {
@@ -637,7 +688,12 @@ function registerChartPointEvent(
     eventName: "click" | "hover",
     optionName: "onClick" | "onHover"
 ) {
-    chart.options[optionName] = (e: any) => {
+    const nativeCallback = typeof chart.options[optionName] === "function"
+        ? chart.options[optionName]
+        : undefined;
+
+    chart.options[optionName] = (e: any, elements: any[], chartInstance: any) => {
+        nativeCallback?.call(chart, e, elements, chartInstance ?? chart);
         triggerEvent(chartId, eventName, "label", getChartPointEventArgs(e, chart));
     };
 }
@@ -653,7 +709,12 @@ function registerEvents(dotnetConfigOptions: any, chartId: string, chart: any) {
     }
 
     if (dotnetConfigOptions.onResizeEvent == true) {
+        const nativeOnResize = typeof chart.options.onResize === "function"
+            ? chart.options.onResize
+            : undefined;
+
         chart.options.onResize = (_chart: any, size: any) => {
+            nativeOnResize?.call(chart, _chart, size);
             triggerEvent(chartId, "resize", "chart", {
                 Height: size.height,
                 Width: size.width,

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json.Serialization;
 
 namespace pax.BlazorChartJs;
 
@@ -42,4 +43,10 @@ public record ChartJsSetupOptions
     /// JavaScript module location exporting a chartJsCallbacks object for no-eval callback resolution.
     /// </summary>
     public string? ChartJsCallbacksModuleLocation { get; set; }
+
+    /// <summary>
+    /// Global Chart.js defaults applied to Chart.defaults after Chart.js is loaded.
+    /// </summary>
+    [JsonIgnore]
+    public ChartJsDefaultsOptions? Defaults { get; set; }
 }

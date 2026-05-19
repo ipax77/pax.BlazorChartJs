@@ -329,6 +329,47 @@ public class ChartOptionsTests : PageTest
     }
 
     [Test]
+    public async Task SetupDefaultsApplyBeforeChartCreationAndResolveCallbacks()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/barchart");
+        await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("canvas").GetAttributeAsync("id");
+        Assert.That(Guid.TryParse(canvasId, out _), Is.True);
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                if (typeof Chart === 'undefined') {
+                    return false;
+                }
+
+                const chart = Chart.getChart(chartId);
+                return chart != undefined
+                    && Chart.defaults.color === '#123456'
+                    && typeof Chart.defaults.onClick === 'function';
+            }",
+            canvasId,
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var snapshot = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return [
+                    Chart.defaults.color,
+                    Chart.defaults.borderColor,
+                    Chart.defaults.datasets.bar.barPercentage,
+                    typeof Chart.defaults.onClick,
+                    Chart.defaults.onClick(),
+                    chart.options.color,
+                    chart.options.borderColor
+                ].join('|');
+            }",
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("#123456|#654321|0.72|function|true|#123456|#654321"));
+    }
+
+    [Test]
     public async Task ScriptableLayoutPaddingResolvesRegisteredCallback()
     {
         var canvasId = await OpenScriptablePaddingChart();
