@@ -5,7 +5,7 @@ namespace pax.BlazorChartJs;
 public record ChartJsGrid
 {
     [Obsolete("In ChartJs v4.x use Border.Color instead")]
-    public object? BorderColor { get; set; }
+    public IndexableOption<string>? BorderColor { get; set; }
     [Obsolete("In ChartJs v4.x use Border.Width instead")]
     public int? BorderWidth { get; set; }
     [Obsolete("In ChartJs v4.x use Border.Dash instead")]
@@ -13,7 +13,7 @@ public record ChartJsGrid
     [Obsolete("In ChartJs v4.x use Border.DashOffset instead")]
     public double? BorderDashOffset { get; set; }
     public bool? Circular { get; set; }
-    public object? Color { get; set; }
+    public IndexableOption<string>? Color { get; set; }
     public bool? Display { get; set; }
     [Obsolete("In ChartJs v4.x use Border.Display instead")]
     public bool? DrawBorder { get; set; }
@@ -23,7 +23,7 @@ public record ChartJsGrid
     public bool? Offset { get; set; }
     public ICollection<double>? TickBorderDash { get; set; }
     public double? TickBorderDashOffset { get; set; }
-    public object? TickColor { get; set; }
+    public IndexableOption<string>? TickColor { get; set; }
     public double? TickLength { get; set; }
     public double? TickWidth { get; set; }
     public int? Z { get; set; }

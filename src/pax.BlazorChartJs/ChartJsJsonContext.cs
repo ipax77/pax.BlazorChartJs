@@ -26,6 +26,7 @@ namespace pax.BlazorChartJs;
 // This context defines all *built-in* ChartJs types known at compile-time.
 [JsonSerializable(typeof(ChartJsConfig))]
 [JsonSerializable(typeof(ChartJsDataset))]
+[JsonSerializable(typeof(ChartJsDatasetTooltip))]
 [JsonSerializable(typeof(ChartJsAxis))]
 [JsonSerializable(typeof(ChartJsAxisTick))]
 [JsonSerializable(typeof(IndexableOption<string>))]
@@ -79,6 +80,7 @@ namespace pax.BlazorChartJs;
 [JsonSerializable(typeof(Padding))]
 [JsonSerializable(typeof(Title))]
 [JsonSerializable(typeof(Tooltip))]
+[JsonSerializable(typeof(TooltipCallbacks))]
 
 // Plugins
 [JsonSerializable(typeof(ArbitraryLineConfig))]

@@ -35,6 +35,13 @@
                 {
                     Plugins = new Plugins()
                     {
+                        Legend = new Legend()
+                        {
+                            Labels = new Labels()
+                            {
+                                Filter = ChartJsFunction.FromName("showLegendItem")
+                            }
+                        },
                         Title = new Title() 
                         {
                             Display = true,

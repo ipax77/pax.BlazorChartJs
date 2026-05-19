@@ -7,33 +7,33 @@ public record RadarDataset : ChartJsDataset
 {
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
-    /// </summary>   
-    public string? BackgroundColor { get; set; }
+    /// </summary>
+    public IndexableOption<string>? BackgroundColor { get; set; }
     /// <summary>
     /// BorderCapStyle options: 'butt'|'round'|'square' <see href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap">MDN</see>
-    /// </summary>    
+    /// </summary>
     public string? BorderCapStyle { get; set; }
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
-    /// </summary>   
-    public string? BorderColor { get; set; }
+    /// </summary>
+    public IndexableOption<string>? BorderColor { get; set; }
     /// <summary>
     /// BorderDash <see href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash">MDN</see>
-    /// </summary>    
+    /// </summary>
 #pragma warning disable CA2227
     public IList<double>? BorderDash { get; set; }
     /// <summary>
     /// BorderDashOffset <see href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset">MDN</see>
-    /// </summary>  
+    /// </summary>
     public double? BorderDashOffset { get; set; }
     /// <summary>
     /// BorderJoinStyle options: 'round'|'bevel'|'miter'
     /// </summary>    
     public string? BorderJoinStyle { get; set; }
     public double? BorderWidth { get; set; }
-    public object? HoverBackgroundColor { get; set; }
+    public IndexableOption<string>? HoverBackgroundColor { get; set; }
     public string? HoverBorderCapStyle { get; set; }
-    public object? HoverBorderColor { get; set; }
+    public IndexableOption<string>? HoverBorderColor { get; set; }
     public IList<double>? HoverBorderDash { get; set; }
 #pragma warning restore CA2227    
     public double? HoverBorderDashOffset { get; set; }

@@ -33,6 +33,9 @@ const callbacks = Object.assign(Object.create(null), {
     formatTooltipLabel(context) {
         return `tooltip:${context.raw}`;
     },
+    showLegendItem() {
+        return true;
+    },
     labelWithIndex(value, context) {
         return `${context.dataIndex}: ${value}`;
     },

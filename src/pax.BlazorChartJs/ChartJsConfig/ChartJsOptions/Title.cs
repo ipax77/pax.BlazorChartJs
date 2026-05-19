@@ -11,7 +11,7 @@ public record Title
     /// 'end'    
     /// </summary>
     public string? Align { get; set; }
-    public object? Color { get; set; }
+    public IndexableOption<string>? Color { get; set; }
     public bool? Display { get; set; }
     public bool? FullSize { get; set; }
     /// <summary>

@@ -84,6 +84,29 @@ public class ChartOptionsTests : PageTest
     }
 
     [Test]
+    public async Task LegendLabelFilterResolvesRegisteredCallbackFromTypedConfig()
+    {
+        var canvasId = await OpenCallbackChart();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return typeof chart?.config?.options?.plugins?.legend?.labels?.filter === 'function';
+            }",
+            canvasId,
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var result = await Page.EvaluateAsync<bool>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart.config.options.plugins.legend.labels.filter({}, chart.data);
+            }",
+            canvasId);
+
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
     public async Task TickCallbackResolvesRegisteredCallbackForCustomScaleId()
     {
         var canvasId = await OpenCallbackChart();

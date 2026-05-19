@@ -17,7 +17,8 @@ internal sealed class IndexableOptionStringConverter : JsonConverter<IndexableOp
         {
             return;
         }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
+
+        IndexableOptionJsonWriter.WriteString(writer, value, options);
     }
 }
 
@@ -34,7 +35,8 @@ internal sealed class IndexableOptionDoubleConverter : JsonConverter<IndexableOp
         {
             return;
         }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
+
+        IndexableOptionJsonWriter.WriteDouble(writer, value, options);
     }
 }
 
@@ -51,7 +53,8 @@ internal sealed class IndexableOptionIntConverter : JsonConverter<IndexableOptio
         {
             return;
         }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
+
+        IndexableOptionJsonWriter.WriteInt(writer, value, options);
     }
 }
 
@@ -68,7 +71,8 @@ internal sealed class IndexableOptionBoolConverter : JsonConverter<IndexableOpti
         {
             return;
         }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
+
+        IndexableOptionJsonWriter.WriteBool(writer, value, options);
     }
 }
 
@@ -103,7 +107,122 @@ internal sealed class IndexableOptionObjectConverter : JsonConverter<IndexableOp
         {
             return;
         }
-        writer.WriteRawValue(JsonSerializer.Serialize<object>(value.GetJsonObject()), true);
+
+        IndexableOptionJsonWriter.WriteObject(writer, value, options);
+    }
+}
+
+internal static class IndexableOptionJsonWriter
+{
+    public static void WriteString(Utf8JsonWriter writer, IndexableOption<string> value, JsonSerializerOptions options)
+    {
+        switch (value.Kind)
+        {
+            case IndexableOptionKind.SingleValue:
+                writer.WriteStringValue(value.SingleValue ?? throw new InvalidOperationException("Single value is null."));
+                break;
+
+            case IndexableOptionKind.Indexed:
+                JsonSerializer.Serialize(writer, value.IndexedValues ?? throw new InvalidOperationException("Indexed values are null."), options);
+                break;
+
+            case IndexableOptionKind.Function:
+                WriteFunction(writer, value.FunctionValue);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unsupported {nameof(IndexableOptionKind)}: {value.Kind}.");
+        }
+    }
+
+    public static void WriteDouble(Utf8JsonWriter writer, IndexableOption<double> value, JsonSerializerOptions options)
+    {
+        switch (value.Kind)
+        {
+            case IndexableOptionKind.SingleValue:
+                writer.WriteNumberValue(value.SingleValue);
+                break;
+
+            case IndexableOptionKind.Indexed:
+                JsonSerializer.Serialize(writer, value.IndexedValues ?? throw new InvalidOperationException("Indexed values are null."), options);
+                break;
+
+            case IndexableOptionKind.Function:
+                WriteFunction(writer, value.FunctionValue);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unsupported {nameof(IndexableOptionKind)}: {value.Kind}.");
+        }
+    }
+
+    public static void WriteInt(Utf8JsonWriter writer, IndexableOption<int> value, JsonSerializerOptions options)
+    {
+        switch (value.Kind)
+        {
+            case IndexableOptionKind.SingleValue:
+                writer.WriteNumberValue(value.SingleValue);
+                break;
+
+            case IndexableOptionKind.Indexed:
+                JsonSerializer.Serialize(writer, value.IndexedValues ?? throw new InvalidOperationException("Indexed values are null."), options);
+                break;
+
+            case IndexableOptionKind.Function:
+                WriteFunction(writer, value.FunctionValue);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unsupported {nameof(IndexableOptionKind)}: {value.Kind}.");
+        }
+    }
+
+    public static void WriteBool(Utf8JsonWriter writer, IndexableOption<bool> value, JsonSerializerOptions options)
+    {
+        switch (value.Kind)
+        {
+            case IndexableOptionKind.SingleValue:
+                writer.WriteBooleanValue(value.SingleValue);
+                break;
+
+            case IndexableOptionKind.Indexed:
+                JsonSerializer.Serialize(writer, value.IndexedValues ?? throw new InvalidOperationException("Indexed values are null."), options);
+                break;
+
+            case IndexableOptionKind.Function:
+                WriteFunction(writer, value.FunctionValue);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unsupported {nameof(IndexableOptionKind)}: {value.Kind}.");
+        }
+    }
+
+    public static void WriteObject(Utf8JsonWriter writer, IndexableOption<object> value, JsonSerializerOptions options)
+    {
+        switch (value.Kind)
+        {
+            case IndexableOptionKind.SingleValue:
+            case IndexableOptionKind.Indexed:
+                var jsonObject = value.GetJsonObject();
+                JsonSerializer.Serialize(writer, jsonObject, jsonObject.GetType(), options);
+                break;
+
+            case IndexableOptionKind.Function:
+                WriteFunction(writer, value.FunctionValue);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unsupported {nameof(IndexableOptionKind)}: {value.Kind}.");
+        }
+    }
+
+    private static void WriteFunction(Utf8JsonWriter writer, ChartJsFunction? value)
+    {
+        var function = value ?? throw new InvalidOperationException("Function value is null.");
+        writer.WriteStartObject();
+        writer.WriteString("__chartJsFunction", function.Name);
+        writer.WriteEndObject();
     }
 }
 
