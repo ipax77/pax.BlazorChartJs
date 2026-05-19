@@ -1,5 +1,7 @@
 const fillPatternCache = new WeakMap();
 const externalTooltipCache = new WeakMap();
+const latestLabelPaddingSmall = Object.freeze({ top: 20, left: 8, bottom: 8, right: 70 });
+const latestLabelPaddingLarge = Object.freeze({ top: 20, left: 8, bottom: 8, right: 30 });
 
 function createFillPattern(chart) {
     let pattern = fillPatternCache.get(chart);
@@ -165,6 +167,11 @@ const callbacks = Object.assign(Object.create(null), {
     },
     createRepeatFillPattern(context) {
         return createFillPattern(context.chart);
+    },
+    responsiveLatestLabelPadding(context) {
+        return context.chart.width < 480
+            ? latestLabelPaddingSmall
+            : latestLabelPaddingLarge;
     }
 });
 

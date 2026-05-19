@@ -328,6 +328,57 @@ public class ChartOptionsTests : PageTest
         Assert.That(result, Is.EqualTo("missingLabelCallback|missingDataCallback"));
     }
 
+    [Test]
+    public async Task ScriptableLayoutPaddingResolvesRegisteredCallback()
+    {
+        var canvasId = await OpenScriptablePaddingChart();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return typeof chart?.config?.options?.layout?.padding === 'function'
+                    && chart?.config?.options?.plugins?.latestValueLabel?.display === true
+                    && Boolean(Chart.registry?.plugins?.get?.('latestValueLabel'));
+            }",
+            canvasId,
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var result = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                const padding = chart.config.options.layout.padding;
+                const small = padding({ chart: { width: 400 } });
+                const large = padding({ chart: { width: 640 } });
+                const enabled = chart.config.options.plugins.latestValueLabel.display === true;
+                const pluginRegistered = Boolean(Chart.registry?.plugins?.get?.('latestValueLabel'));
+
+                return `${typeof padding}|${small.right}|${large.right}|${enabled}|${pluginRegistered}`;
+            }",
+            canvasId);
+
+        Assert.That(result, Is.EqualTo("function|70|30|true|true"));
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/barchart");
+        await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var barCanvasId = await Page.Locator("canvas").GetAttributeAsync("id");
+        Assert.That(Guid.TryParse(barCanvasId, out _), Is.True);
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => typeof Chart !== 'undefined' && Chart.getChart(chartId) != undefined",
+            barCanvasId,
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var latestValueLabelOptions = await Page.EvaluateAsync<bool>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.config?.options?.plugins?.latestValueLabel === undefined;
+            }",
+            barCanvasId);
+
+        Assert.That(latestValueLabelOptions, Is.True);
+    }
+
     private async Task<int> GetChartStepSize(string? canvasId)
     {
         return await Page.EvaluateAsync<int>(@"() => {
@@ -377,6 +428,22 @@ public class ChartOptionsTests : PageTest
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/callbackchart");
         await Expect(Page).ToHaveTitleAsync(new Regex("Tick callback Chart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("canvas").GetAttributeAsync("id");
+        Assert.That(Guid.TryParse(canvasId, out _), Is.True);
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => typeof Chart !== 'undefined' && Chart.getChart(chartId) != undefined && window.ChartJsInterop != undefined",
+            canvasId,
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        return canvasId!;
+    }
+
+    private async Task<string> OpenScriptablePaddingChart()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/scriptablepaddingchart");
+        await Expect(Page).ToHaveTitleAsync(new Regex("Scriptable Padding Chart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         var canvasId = await Page.Locator("canvas").GetAttributeAsync("id");
         Assert.That(Guid.TryParse(canvasId, out _), Is.True);
