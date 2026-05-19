@@ -61,13 +61,7 @@ public class ChartOptionsTests : PageTest
     {
         var canvasId = await OpenCallbackChart();
 
-        await Page.WaitForFunctionAsync(
-            @"(chartId) => {
-                const chart = Chart.getChart(chartId);
-                return typeof chart?.data?.datasets?.[0]?.backgroundColor === 'function';
-            }",
-            canvasId,
-            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+        await WaitForBackgroundColorCallback(canvasId);
 
         var result = await Page.EvaluateAsync<string>(
             @"(chartId) => {
@@ -81,6 +75,29 @@ public class ChartOptionsTests : PageTest
             canvasId);
 
         Assert.That(result, Is.EqualTo("function|true|true"));
+    }
+
+    [Test]
+    public async Task DatasetColorCallbackSwitchesWithDatasetUpdateApis()
+    {
+        var canvasId = await OpenCallbackChart();
+
+        await WaitForBackgroundColorCallback(canvasId);
+
+        await AssertBackgroundColorCallback(
+            canvasId,
+            "UpdateDataset Color Callback",
+            "#dc2626");
+
+        await AssertBackgroundColorCallback(
+            canvasId,
+            "UpdateDatasets Color Callback",
+            "#16a34a");
+
+        await AssertBackgroundColorCallback(
+            canvasId,
+            "UpdateDatasetSmooth Color Callback",
+            "#7c3aed");
     }
 
     [Test]
@@ -317,6 +334,43 @@ public class ChartOptionsTests : PageTest
                 const chart = Chart.getChart(""" + canvasId + @""");
                 return chart.options.scales.x.ticks.stepSize;
             }");
+    }
+
+    private async Task WaitForBackgroundColorCallback(string canvasId)
+    {
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return typeof chart?.data?.datasets?.[0]?.backgroundColor === 'function';
+            }",
+            canvasId,
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+    }
+
+    private async Task AssertBackgroundColorCallback(string canvasId, string buttonText, string expectedColor)
+    {
+        var button = Page.GetByText(buttonText, new Microsoft.Playwright.PageGetByTextOptions { Exact = true });
+        await Expect(button).ToHaveAttributeAsync("type", "button");
+        await button.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"([chartId, expectedColor]) => {
+                const chart = Chart.getChart(chartId);
+                const backgroundColor = chart?.data?.datasets?.[0]?.backgroundColor;
+                return typeof backgroundColor === 'function'
+                    && backgroundColor({ chart, dataIndex: 0 }) === expectedColor;
+            }",
+            new[] { canvasId, expectedColor },
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var color = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart.data.datasets[0].backgroundColor({ chart, dataIndex: 0 });
+            }",
+            canvasId);
+
+        Assert.That(color, Is.EqualTo(expectedColor));
     }
 
     private async Task<string> OpenCallbackChart()

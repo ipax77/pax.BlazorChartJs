@@ -2,6 +2,9 @@
 
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetColorCallback">UpdateDataset Color Callback</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetsColorCallback">UpdateDatasets Color Callback</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetSmoothColorCallback">UpdateDatasetSmooth Color Callback</button>
 </div>
 <div class="chart-container w-75">
     <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig" OnEventTriggered="ChartEventTriggered">
@@ -12,6 +15,12 @@
     ChartJsConfig chartJsConfig = null!;
     ChartComponent? chartComponent;
     private bool chartReady;
+    private enum DatasetUpdateMode
+    {
+        Dataset,
+        Datasets,
+        Smooth
+    }
 
     protected override void OnInitialized()
     {
@@ -93,5 +102,43 @@
             }
         }
         chartJsConfig.SetData(chartData);
+    }
+
+    private void UpdateDatasetColorCallback()
+    {
+        UpdateBackgroundColorCallback("updateDatasetColor", DatasetUpdateMode.Dataset);
+    }
+
+    private void UpdateDatasetsColorCallback()
+    {
+        UpdateBackgroundColorCallback("updateDatasetsColor", DatasetUpdateMode.Datasets);
+    }
+
+    private void UpdateDatasetSmoothColorCallback()
+    {
+        UpdateBackgroundColorCallback("updateDatasetSmoothColor", DatasetUpdateMode.Smooth);
+    }
+
+    private void UpdateBackgroundColorCallback(string callbackName, DatasetUpdateMode updateMode)
+    {
+        if (!chartReady || chartJsConfig.Data.Datasets.Count == 0 || chartJsConfig.Data.Datasets[0] is not BarDataset barDataset)
+        {
+            return;
+        }
+
+        barDataset.BackgroundColor = ChartJsFunction.FromName(callbackName);
+
+        switch (updateMode)
+        {
+            case DatasetUpdateMode.Dataset:
+                chartJsConfig.UpdateDataset(barDataset);
+                break;
+            case DatasetUpdateMode.Datasets:
+                chartJsConfig.UpdateDatasets([barDataset]);
+                break;
+            case DatasetUpdateMode.Smooth:
+                chartJsConfig.UpdateDatasetSmooth(barDataset);
+                break;
+        }
     }
 }
