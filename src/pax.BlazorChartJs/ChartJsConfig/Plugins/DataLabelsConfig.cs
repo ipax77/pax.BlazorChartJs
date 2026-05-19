@@ -16,7 +16,7 @@ public record DataLabelsConfig
     public object? Color { get; set; }
     public object? Display { get; set; }
     public Font? Font { get; set; }
-    public object? Formatter { get; set; }
+    public ChartJsFunction? Formatter { get; set; }
     public object? Labels { get; set; }
     public object? Listeners { get; set; }
     public double? Offset { get; set; }

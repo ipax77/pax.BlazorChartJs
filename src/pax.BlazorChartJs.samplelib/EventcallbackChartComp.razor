@@ -1,8 +1,4 @@
 @using pax.BlazorChartJs
-@using Microsoft.JSInterop
-
-@inject IJSRuntime jsRuntime
-@implements IAsyncDisposable
 
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
@@ -16,12 +12,9 @@
     ChartJsConfig chartJsConfig = null!;
     ChartComponent? chartComponent;
     private bool chartReady;
-    private Lazy<Task<IJSObjectReference>>? moduleTask;
+
     protected override void OnInitialized()
     {
-        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-        "import", "./_content/pax.BlazorChartJs.samplelib/callbackChart.js").AsTask());
-
         chartJsConfig = new ChartJsConfig()
             {
                 Type = ChartType.bar,
@@ -46,6 +39,16 @@
                             Display = true,
                             Text = new IndexableOption<string>("Add \"$\" to y-axis ticks")
                         }
+                    },
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        Y = new LinearAxis()
+                        {
+                            Ticks = new LinearAxisTick()
+                            {
+                                Callback = ChartJsFunction.FromName("formatCurrency")
+                            }
+                        }
                     }
                 }
         };
@@ -57,19 +60,7 @@
         if (chartJsEvent is ChartJsInitEvent initEvent)
         {
             chartReady = true;
-            _ = SetTickCallback();
         }
-    }
-
-    private async Task SetTickCallback()
-    {
-        if (moduleTask is null)
-        {
-            return;
-        }
-        var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("setTickCallback", chartJsConfig.ChartJsConfigGuid)
-            .ConfigureAwait(false);
     }
 
     private void Randomize()
@@ -94,14 +85,5 @@
             }
         }
         chartJsConfig.SetData(chartData);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (moduleTask is not null && moduleTask.IsValueCreated)
-        {
-            var module = await moduleTask.Value.ConfigureAwait(false);
-            await module.DisposeAsync().ConfigureAwait(false);
-        }
     }
 }

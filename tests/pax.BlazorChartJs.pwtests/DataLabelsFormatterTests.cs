@@ -63,7 +63,8 @@ public class DataLabelsFormatterTests : PageTest
                     await chartInterop.updateChartOptions(
                         chartId,
                         { chartJsCallbacksModuleLocation: callbacksUrl },
-                        { plugins: { datalabels: { formatter: { __chartJsFunction: 'missingFormatter' } } } });
+                        { plugins: { datalabels: { formatter: { __chartJsFunction: 'missingFormatter' } } } },
+                        true);
                     return '';
                 } catch (error) {
                     return error?.message ?? String(error);
@@ -72,6 +73,33 @@ public class DataLabelsFormatterTests : PageTest
             canvasId);
 
         Assert.That(errorMessage, Does.Contain("missingFormatter"));
+    }
+
+    [Test]
+    public async Task InvalidDataLabelsFormatterCallbackNameFailsClosed()
+    {
+        var canvasId = await OpenDataLabelsChart();
+
+        var errorMessage = await Page.EvaluateAsync<string>(
+            @"async (chartId) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.8.8');
+                const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
+
+                try {
+                    await chartInterop.updateChartOptions(
+                        chartId,
+                        { chartJsCallbacksModuleLocation: callbacksUrl },
+                        { plugins: { datalabels: { formatter: { __chartJsFunction: 'bad.name' } } } },
+                        true);
+                    return '';
+                } catch (error) {
+                    return error?.message ?? String(error);
+                }
+            }",
+            canvasId);
+
+        Assert.That(errorMessage, Does.Contain("Invalid Chart.js callback name"));
+        Assert.That(errorMessage, Does.Contain("bad.name"));
     }
 
     private async Task<string> OpenDataLabelsChart()
