@@ -4,6 +4,10 @@ export const chartJsInteropVersion = "0.8.8";
 declare const Chart: any;
 declare const ChartDataLabels: any;
 
+const chartJsFunctionMarker = "__chartJsFunction";
+
+type ChartJsCallbackRegistry = Record<string, (...args: any[]) => any>;
+
 class LoadInfo {
     public chartJsLoaded: boolean = false;
     public chartJsDatalabels: boolean = false;
@@ -15,6 +19,7 @@ class ChartJsInterop {
     public charts = new Map<string, any>();
     public loadInfo = new LoadInfo();
     public chartInitPromises = new Map<string, Promise<ChartInitResult>>();
+    public chartJsCallbackRegistryPromises = new Map<string, Promise<ChartJsCallbackRegistry>>();
 
     public buildChartConfig(dotnetConfig: any): any {
         return {
@@ -190,6 +195,26 @@ class ChartJsInterop {
         chart.update();
     }
 
+    public addDataset(chart: any, dataset: any, afterDatasetId: string | null | undefined) {
+        if (!chart || !chart.data) {
+            return;
+        }
+
+        if (afterDatasetId == undefined) {
+            chart.data.datasets.push(dataset);
+        } else {
+            const datasetIndex = chart.data.datasets.findIndex((existingDataset: any) => existingDataset['id'] === afterDatasetId);
+            if (datasetIndex >= 0) {
+                chart.data.datasets.splice(datasetIndex + 1, 0, dataset);
+            } else {
+                chart.data.datasets.push(dataset);
+            }
+        }
+
+        chart.update();
+    }
+
+
     public removeDatasets(chart: any, datasetIds: string[]) {
         if (!chart || !chart.data) {
             return;
@@ -247,6 +272,97 @@ class ChartJsInterop {
 
         chart.data.datasets = datasets;
         chart.update();
+    }
+
+    public async resolveChartJsFunctions(setupOptions: any, config: any): Promise<void> {
+        if (!this.hasChartJsFunctionMarkers(config)) {
+            return;
+        }
+
+        const callbacks = await this.getChartJsCallbackRegistry(setupOptions);
+        this.resolveDataLabelsFormatter(config?.options?.plugins?.datalabels, callbacks);
+
+        const datasets = config?.data?.datasets;
+        if (Array.isArray(datasets)) {
+            for (let i = 0; i < datasets.length; i++) {
+                this.resolveDataLabelsFormatter(datasets[i]?.datalabels, callbacks);
+            }
+        }
+    }
+
+    private hasChartJsFunctionMarkers(config: any): boolean {
+        if (this.isChartJsFunctionReference(config?.options?.plugins?.datalabels?.formatter)) {
+            return true;
+        }
+
+        const datasets = config?.data?.datasets;
+        if (!Array.isArray(datasets)) {
+            return false;
+        }
+
+        for (let i = 0; i < datasets.length; i++) {
+            if (this.isChartJsFunctionReference(datasets[i]?.datalabels?.formatter)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private resolveDataLabelsFormatter(dataLabels: any, callbacks: ChartJsCallbackRegistry) {
+        if (dataLabels == undefined || !this.isChartJsFunctionReference(dataLabels.formatter)) {
+            return;
+        }
+
+        dataLabels.formatter = this.resolveChartJsFunction(dataLabels.formatter, callbacks);
+    }
+
+    private isChartJsFunctionReference(value: any): boolean {
+        return value != undefined
+            && typeof value === "object"
+            && typeof value[chartJsFunctionMarker] === "string";
+    }
+
+    private async getChartJsCallbackRegistry(setupOptions: any): Promise<ChartJsCallbackRegistry> {
+        const moduleLocation = setupOptions?.chartJsCallbacksModuleLocation;
+        if (typeof moduleLocation !== "string" || moduleLocation.length === 0) {
+            throw new Error("ChartJsFunction callbacks require ChartJsSetupOptions.ChartJsCallbacksModuleLocation.");
+        }
+
+        let registryPromise = this.chartJsCallbackRegistryPromises.get(moduleLocation);
+        if (!registryPromise) {
+            registryPromise = import(moduleLocation)
+                .then((module) => {
+                    const callbacks = module?.chartJsCallbacks;
+                    if (callbacks == undefined || typeof callbacks !== "object") {
+                        throw new Error(`Chart.js callback module '${moduleLocation}' must export a chartJsCallbacks object.`);
+                    }
+
+                    return callbacks as ChartJsCallbackRegistry;
+                })
+                .catch((error) => {
+                    this.chartJsCallbackRegistryPromises.delete(moduleLocation);
+                    throw error;
+                });
+
+            this.chartJsCallbackRegistryPromises.set(moduleLocation, registryPromise);
+        }
+
+        return await registryPromise;
+    }
+
+    private resolveChartJsFunction(reference: any, callbacks: ChartJsCallbackRegistry): (...args: any[]) => any {
+        const callbackName = reference[chartJsFunctionMarker];
+        if (!Object.prototype.hasOwnProperty.call(callbacks, callbackName)) {
+            throw new Error(`Chart.js callback '${callbackName}' was not found in chartJsCallbacks.`);
+        }
+
+        const callback = callbacks[callbackName];
+        if (typeof callback !== "function") {
+            throw new Error(`Chart.js callback '${callbackName}' must be a function.`);
+        }
+
+        return callback;
     }
 
     public disposeChart(chartId: string) {
@@ -340,6 +456,7 @@ async function initChartCore(setupOptions: any, chartId: string, dotnetConfig: a
         destroyExistingChart(chartId, element);
 
         const config = ChartJsInteropModule.buildChartConfig(dotnetConfig);
+        await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, config);
         config.plugins = await loadPlugins(setupOptions, dotnetConfig);
         
         const ctx = element.getContext('2d');
@@ -553,12 +670,17 @@ function getLiveChart(chartId: string): any | undefined {
     return chart && chart.data ? chart : undefined;
 }
 
-export function updateChartOptions(chartId: string, options: any) {
+export async function updateChartOptions(chartId: string, setupOptionsOrOptions: any, options?: any) {
+    const hasSetupOptions = arguments.length >= 3;
+    const setupOptions = hasSetupOptions ? setupOptionsOrOptions : undefined;
+    const resolvedOptions = hasSetupOptions ? options : setupOptionsOrOptions;
+    await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { options: resolvedOptions });
+
     const chart = getLiveChart(chartId);
     if (chart != undefined) {
-        chart.options = options;
+        chart.options = resolvedOptions;
         chart.update();
-        registerEvents(options, chartId, chart);
+        registerEvents(resolvedOptions, chartId, chart);
     }
 }
 
@@ -583,13 +705,35 @@ export function setData(chartId: string, labels: string[], datas: any) {
     ChartJsInteropModule.setData(chart, labels, datas);
 }
 
-export function addDatasets(chartId: string, datasets: any[]) {
+export async function addDatasets(chartId: string, setupOptionsOrDatasets: any, datasets?: any[]) {
+    const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
+    const resolvedDatasets = Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets;
+    await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } });
+
     const chart = getLiveChart(chartId);
-    if (!chart) {
+    if (!chart || !resolvedDatasets) {
         return;
     }
-    ChartJsInteropModule.addDatasets(chart, datasets);
+    ChartJsInteropModule.addDatasets(chart, resolvedDatasets);
 }
+
+export async function addChartDataset(chartId: string, setupOptionsOrDataset: any, datasetOrAfterDatasetId?: any, afterDatasetId?: string | null) {
+    const hasSetupOptions = datasetOrAfterDatasetId != undefined
+        && typeof datasetOrAfterDatasetId === "object"
+        && !Array.isArray(datasetOrAfterDatasetId);
+    const setupOptions = hasSetupOptions ? setupOptionsOrDataset : undefined;
+    const dataset = hasSetupOptions ? datasetOrAfterDatasetId : setupOptionsOrDataset;
+    const resolvedAfterDatasetId = hasSetupOptions ? afterDatasetId : datasetOrAfterDatasetId;
+
+    await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { data: { datasets: [dataset] } });
+
+    const chart = getLiveChart(chartId);
+    if (!chart || !dataset) {
+        return;
+    }
+    ChartJsInteropModule.addDataset(chart, dataset, resolvedAfterDatasetId);
+}
+
 
 export function removeDatasets(chartId: string, datasets: string[]) {
     const chart = getLiveChart(chartId);
@@ -599,28 +743,40 @@ export function removeDatasets(chartId: string, datasets: string[]) {
     ChartJsInteropModule.removeDatasets(chart, datasets);
 }
 
-export function updateDatasetsSmooth(chartId: string, datasets: any[]) {
+export async function updateDatasetsSmooth(chartId: string, setupOptionsOrDatasets: any, datasets?: any[]) {
+    const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
+    const resolvedDatasets = Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets;
+    await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } });
+
     const chart = getLiveChart(chartId);
-    if (!chart) {
+    if (!chart || !resolvedDatasets) {
         return;
     }
-    ChartJsInteropModule.updateDatasetsSmooth(chart, datasets);
+    ChartJsInteropModule.updateDatasetsSmooth(chart, resolvedDatasets);
 }
 
-export function updateDatasets(chartId: string, datasets: any[]) {
+export async function updateDatasets(chartId: string, setupOptionsOrDatasets: any, datasets?: any[]) {
+    const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
+    const resolvedDatasets = Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets;
+    await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } });
+
     const chart = getLiveChart(chartId);
-    if (!chart) {
+    if (!chart || !resolvedDatasets) {
         return;
     }
-    ChartJsInteropModule.updateDatasets(chart, datasets);
+    ChartJsInteropModule.updateDatasets(chart, resolvedDatasets);
 }
 
-export function setDatasets(chartId: string, datasets: any[]) {
+export async function setDatasets(chartId: string, setupOptionsOrDatasets: any, datasets?: any[]) {
+    const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
+    const resolvedDatasets = Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets;
+    await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } });
+
     const chart = getLiveChart(chartId);
-    if (!chart) {
+    if (!chart || !resolvedDatasets) {
         return;
     }
-    ChartJsInteropModule.setDatasets(chart, datasets);
+    ChartJsInteropModule.setDatasets(chart, resolvedDatasets);
 }
 
 // - ts

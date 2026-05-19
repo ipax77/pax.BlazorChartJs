@@ -79,7 +79,7 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         ArgumentNullException.ThrowIfNull(dotnetRef);
 
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("updateChartOptions", config.ChartJsConfigGuid, SerializeConfigOptions(config))
+        await module.InvokeVoidAsync("updateChartOptions", config.ChartJsConfigGuid, setupOptions, SerializeConfigOptions(config))
             .ConfigureAwait(false);
     }
 
@@ -124,7 +124,7 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     public async ValueTask AddDataset(Guid configGuid, object dataset, string? afterDatasetId)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("addChartDataset", configGuid, SerializeConfigDataset(dataset), afterDatasetId)
+        await module.InvokeVoidAsync("addChartDataset", configGuid, setupOptions, SerializeConfigDataset(dataset), afterDatasetId)
                 .ConfigureAwait(false);
     }
 
@@ -316,7 +316,7 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     internal async ValueTask AddDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("addDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+        await module.InvokeVoidAsync("addDatasets", configGuid, setupOptions, SerializeDatasets(datasets)).ConfigureAwait(false);
     }
 
     internal async ValueTask RemoveDatasets(Guid configGuid, IList<string> datasetIds)
@@ -330,12 +330,12 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         var module = await moduleTask.Value.ConfigureAwait(false);
         if (smooth)
         {
-            await module.InvokeVoidAsync("updateDatasetsSmooth", configGuid, SerializeDatasets(datasets))
+            await module.InvokeVoidAsync("updateDatasetsSmooth", configGuid, setupOptions, SerializeDatasets(datasets))
                 .ConfigureAwait(false);
         }
         else
         {
-            await module.InvokeVoidAsync("updateDatasets", configGuid, SerializeDatasets(datasets))
+            await module.InvokeVoidAsync("updateDatasets", configGuid, setupOptions, SerializeDatasets(datasets))
                 .ConfigureAwait(false);
 
         }
@@ -344,7 +344,7 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     internal async ValueTask SetDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("setDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+        await module.InvokeVoidAsync("setDatasets", configGuid, setupOptions, SerializeDatasets(datasets)).ConfigureAwait(false);
     }
 
     internal async ValueTask<List<ChartJsLegendItem>> GetLegendItems(Guid configGuid)
