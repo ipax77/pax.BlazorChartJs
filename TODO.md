@@ -22,21 +22,15 @@ Sources:
 
 ## Missing Properties Still Outstanding
 
+None currently listed from the v4.5.1 comparison pass.
+
+## Missing Properties Implemented In Global Options Pass
+
 ### Global Chart Options
 
-- `ChartJsOptions.BackgroundColor`
-- `ChartJsOptions.BorderColor`
-- `ChartJsOptions.Clip`
-- `ChartJsOptions.Color`
-- `ChartJsOptions.Datasets`
-- `ChartJsOptions.Font`
-- `ChartJsOptions.Hover`
-- `ChartJsOptions.HoverBackgroundColor`
-- `ChartJsOptions.HoverBorderColor`
-- `ChartJsOptions.Normalized`
-- `ChartJsOptions.OnClick`
-- `ChartJsOptions.OnHover`
-- `ChartJsOptions.OnResize`
+- Added to `ChartJsOptions`: `BackgroundColor`, `BorderColor`, `Clip`, `Color`, `Datasets`, `Font`, `Hover`, `HoverBackgroundColor`, `HoverBorderColor`, `Normalized`, `OnClick`, `OnHover`, `OnResize`.
+- Added app-wide `ChartJsSetupOptions.Defaults`, applied to `Chart.defaults` after Chart.js is loaded and before chart construction.
+- Added `ChartJsOptionsDatasets` for `options.datasets` / `Chart.defaults.datasets` with chart-type keys and flexible option-object values.
 
 ## Missing Properties Implemented In Non-Global Pass
 
@@ -64,13 +58,13 @@ Chart.js scriptable options accept a JavaScript function in addition to their no
 
 ### Global Chart Options
 
-- `ChartJsOptions.Layout`
+None currently listed from the v4.5.1 comparison pass.
 
 ## Scriptable Support Implemented In Non-Global Pass
 
 - Added scriptable support to the listed line, radar, bar, pie/doughnut, scale border, grid, tick, title, legend label, and tooltip properties.
 - Added `IndexableOption<Font>` serialization support for scriptable font options.
-- Intentionally left `ChartJsOptions.Layout` and missing Global Chart Options for a later global-options pass.
+- Completed the remaining global-options pass, including scriptable `ChartJsOptions.Layout` support through the existing `Padding` wrapper and `ChartJsFunction` callback resolution path.
 
 ## Performance Notes For Follow-Up
 

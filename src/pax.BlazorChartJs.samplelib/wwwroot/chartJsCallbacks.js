@@ -82,6 +82,32 @@ const callbacks = Object.assign(Object.create(null), {
     formatTooltipLabel(context) {
         return `tooltip:${context.raw}`;
     },
+    defaultChartClick(event, elements, chart) {
+        window.chartJsDefaultClickCount = (window.chartJsDefaultClickCount ?? 0) + 1;
+        window.chartJsDefaultClickArgs = {
+            eventType: event?.type ?? null,
+            elements: elements?.length ?? 0,
+            chartId: chart?.canvas?.id ?? null
+        };
+
+        return true;
+    },
+    chartEventBridgeClick(event, elements, chart) {
+        window.chartJsNativeClickCount = (window.chartJsNativeClickCount ?? 0) + 1;
+        window.chartJsNativeClickArgs = {
+            eventType: event?.type ?? null,
+            elements: elements?.length ?? 0,
+            chartId: chart?.canvas?.id ?? null
+        };
+    },
+    chartEventBridgeResize(chart, size) {
+        window.chartJsNativeResizeCount = (window.chartJsNativeResizeCount ?? 0) + 1;
+        window.chartJsNativeResizeArgs = {
+            chartId: chart?.canvas?.id ?? null,
+            width: size?.width ?? null,
+            height: size?.height ?? null
+        };
+    },
     showLegendItem() {
         return true;
     },

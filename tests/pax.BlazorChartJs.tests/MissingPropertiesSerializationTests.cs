@@ -399,6 +399,78 @@ public sealed class MissingPropertiesSerializationTests
         Assert.AreEqual("tooltipYAlign", GetMarkerName(root.GetProperty("yAlign")));
     }
 
+    [TestMethod]
+    public void GlobalChartOptionsSerializeWithChartJsPropertyNames()
+    {
+        ChartJsOptions options = new()
+        {
+            BackgroundColor = ChartJsFunction.FromName("globalBackground"),
+            BorderColor = "#112233",
+            Clip = false,
+            Color = "#445566",
+            Datasets = new ChartJsOptionsDatasets
+            {
+                Bar = new { barPercentage = 0.75 },
+                Line = new { tension = 0.4 }
+            },
+            Font = new Font { Family = "Inter", Size = 13 },
+            Hover = new Interactions { Mode = "nearest", Intersect = false },
+            HoverBackgroundColor = ["#778899", "#aabbcc"],
+            HoverBorderColor = ChartJsFunction.FromName("globalHoverBorder"),
+            Normalized = true,
+            OnClick = ChartJsFunction.FromName("chartClick"),
+            OnHover = ChartJsFunction.FromName("chartHover"),
+            OnResize = ChartJsFunction.FromName("chartResize")
+        };
+
+        using var document = SerializeToDocument(options);
+        var root = document.RootElement;
+
+        Assert.AreEqual("globalBackground", GetMarkerName(root.GetProperty("backgroundColor")));
+        Assert.AreEqual("#112233", root.GetProperty("borderColor").GetString());
+        Assert.IsFalse(root.GetProperty("clip").GetBoolean());
+        Assert.AreEqual("#445566", root.GetProperty("color").GetString());
+        Assert.AreEqual(0.75, root.GetProperty("datasets").GetProperty("bar").GetProperty("barPercentage").GetDouble());
+        Assert.AreEqual(0.4, root.GetProperty("datasets").GetProperty("line").GetProperty("tension").GetDouble());
+        Assert.AreEqual("Inter", root.GetProperty("font").GetProperty("family").GetString());
+        Assert.AreEqual(13, root.GetProperty("font").GetProperty("size").GetDouble());
+        Assert.AreEqual("nearest", root.GetProperty("hover").GetProperty("mode").GetString());
+        Assert.IsFalse(root.GetProperty("hover").GetProperty("intersect").GetBoolean());
+        Assert.AreEqual("#778899", root.GetProperty("hoverBackgroundColor")[0].GetString());
+        Assert.AreEqual("#aabbcc", root.GetProperty("hoverBackgroundColor")[1].GetString());
+        Assert.AreEqual("globalHoverBorder", GetMarkerName(root.GetProperty("hoverBorderColor")));
+        Assert.IsTrue(root.GetProperty("normalized").GetBoolean());
+        Assert.AreEqual("chartClick", GetMarkerName(root.GetProperty("onClick")));
+        Assert.AreEqual("chartHover", GetMarkerName(root.GetProperty("onHover")));
+        Assert.AreEqual("chartResize", GetMarkerName(root.GetProperty("onResize")));
+    }
+
+    [TestMethod]
+    public void ChartJsDefaultsOptionsExcludeLibraryEventFlags()
+    {
+        ChartJsDefaultsOptions defaults = new()
+        {
+            Color = "#202020",
+            OnClick = ChartJsFunction.FromName("defaultClick"),
+            Datasets = new ChartJsOptionsDatasets
+            {
+                Doughnut = new { borderWidth = 0 },
+                PolarArea = new { circular = true }
+            }
+        };
+
+        using var document = SerializeToDocument(defaults);
+        var root = document.RootElement;
+
+        Assert.AreEqual("#202020", root.GetProperty("color").GetString());
+        Assert.AreEqual("defaultClick", GetMarkerName(root.GetProperty("onClick")));
+        Assert.AreEqual(0, root.GetProperty("datasets").GetProperty("doughnut").GetProperty("borderWidth").GetDouble());
+        Assert.IsTrue(root.GetProperty("datasets").GetProperty("polarArea").GetProperty("circular").GetBoolean());
+        Assert.IsFalse(root.TryGetProperty("onClickEvent", out _));
+        Assert.IsFalse(root.TryGetProperty("onHoverEvent", out _));
+        Assert.IsFalse(root.TryGetProperty("onResizeEvent", out _));
+    }
+
     private static JsonDocument SerializeToDocument<T>(T value)
     {
         var json = JsonSerializer.Serialize(value, JsonSerializationTestOptions.Default);

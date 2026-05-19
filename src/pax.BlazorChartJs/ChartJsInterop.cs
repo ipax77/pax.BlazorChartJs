@@ -43,6 +43,8 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
                 new ChartJsAxisTickJsonConverter(),
             }
     };
+    private bool setupDefaultsSerialized;
+    private SerializedChartJsPayload<JsonObject?> serializedSetupDefaults;
 
     public IJSRuntime JsRuntime { get; } = jsRuntime;
 
@@ -60,7 +62,17 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         {
             var module = await moduleTask.Value.ConfigureAwait(false);
             var serializedConfig = SerializeConfig(config);
-            return await module.InvokeAsync<ChartJsInitResult>("initChart", setupOptions, config.ChartJsConfigGuid, serializedConfig.Json, serializedConfig.HasChartJsFunctions, dotnetRef)
+            var serializedDefaults = SerializeSetupDefaults();
+            return await module.InvokeAsync<ChartJsInitResult>(
+                "initChart",
+                setupOptions,
+                config.ChartJsConfigGuid,
+                serializedConfig.Json,
+                serializedConfig.HasChartJsFunctions,
+                dotnetRef,
+                serializedDefaults.Json,
+                serializedDefaults.HasChartJsFunctions,
+                serializedDefaults.Key)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException)
@@ -404,7 +416,7 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     private SerializedChartJsPayload<JsonObject?> SerializeConfig(ChartJsConfig config)
     {
         var json = JsonSerializer.Serialize<object>(config, jsonOptions) ?? throw new ArgumentNullException(nameof(config));
-        return new(JsonSerializer.Deserialize<JsonObject>(json), ContainsChartJsFunctionMarker(json));
+        return new(JsonSerializer.Deserialize<JsonObject>(json), ContainsChartJsFunctionMarker(json), json);
     }
 
     private SerializedChartJsPayload<JsonObject?> SerializeConfigOptions(ChartJsConfig config)
@@ -414,17 +426,17 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
 
         if (options == null)
         {
-            return new(null, false);
+            return new(null, false, String.Empty);
         }
 
         var json = JsonSerializer.Serialize<object>(options, jsonOptions) ?? throw new ArgumentNullException(nameof(config));
-        return new(JsonSerializer.Deserialize<JsonObject>(json), ContainsChartJsFunctionMarker(json));
+        return new(JsonSerializer.Deserialize<JsonObject>(json), ContainsChartJsFunctionMarker(json), json);
     }
 
     private SerializedChartJsPayload<JsonObject?> SerializeConfigDataset(object dataset)
     {
         var json = JsonSerializer.Serialize(dataset, jsonOptions);
-        return new(JsonSerializer.Deserialize<JsonObject>(json), ContainsChartJsFunctionMarker(json));
+        return new(JsonSerializer.Deserialize<JsonObject>(json), ContainsChartJsFunctionMarker(json), json);
     }
 
     private SerializedChartJsPayload<List<JsonObject?>> SerializeDatasets(IList<ChartJsDataset> datasets)
@@ -437,7 +449,32 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
             hasChartJsFunctions = hasChartJsFunctions || ContainsChartJsFunctionMarker(json);
             jsonObjects.Add(JsonSerializer.Deserialize<JsonObject>(json));
         }
-        return new(jsonObjects, hasChartJsFunctions);
+        return new(jsonObjects, hasChartJsFunctions, String.Empty);
+    }
+
+    private SerializedChartJsPayload<JsonObject?> SerializeSetupDefaults()
+    {
+        if (setupDefaultsSerialized)
+        {
+            return serializedSetupDefaults;
+        }
+
+        setupDefaultsSerialized = true;
+        if (setupOptions?.Defaults == null)
+        {
+            serializedSetupDefaults = new(null, false, String.Empty);
+            return serializedSetupDefaults;
+        }
+
+        var json = JsonSerializer.Serialize<object>(setupOptions.Defaults, jsonOptions)
+            ?? throw new ArgumentNullException(nameof(setupOptions));
+
+        serializedSetupDefaults = new(
+            JsonSerializer.Deserialize<JsonObject>(json),
+            ContainsChartJsFunctionMarker(json),
+            json);
+
+        return serializedSetupDefaults;
     }
 
     private static bool ContainsChartJsFunctionMarker(string json)
@@ -445,7 +482,7 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         return json.Contains(ChartJsFunctionMarkerProperty, StringComparison.Ordinal);
     }
 
-    private readonly record struct SerializedChartJsPayload<T>(T Json, bool HasChartJsFunctions);
+    private readonly record struct SerializedChartJsPayload<T>(T Json, bool HasChartJsFunctions, string Key);
 
     private static PropertyInfo? GetLowestProperty(Type type, string name)
     {
