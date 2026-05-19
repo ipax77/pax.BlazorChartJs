@@ -135,6 +135,42 @@ Several chart events are available, by default only the Init event is fired. The
 *  complete
 *  resize
 
+## ChartJsFunction Callbacks
+`ChartJsFunction.FromName(...)` can be used to reference JavaScript callbacks from C# chart configuration without serializing raw JavaScript into the config. Configure a callback module that exports a `chartJsCallbacks` object:
+
+```csharp
+builder.Services.AddChartJs(options =>
+{
+    options.ChartJsCallbacksModuleLocation = $"{builder.HostEnvironment.BaseAddress}_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js";
+});
+```
+
+Then reference registered callback names from chart options or datasets:
+
+```csharp
+new BarDataset()
+{
+    Label = "Dataset 1",
+    Data = new List<object>() { 1, 2, 3 },
+    BackgroundColor = ChartJsFunction.FromName("createRepeatFillPattern")
+}
+
+new Legend()
+{
+    Labels = new Labels()
+    {
+        Filter = ChartJsFunction.FromName("showLegendItem")
+    }
+}
+
+new LinearAxisTick()
+{
+    Callback = ChartJsFunction.FromName("formatCurrency")
+}
+```
+
+Callback names are validated and resolved from the configured module, which avoids raw JavaScript serialization in the chart config. See the full [ChartJsFunction callback sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventcallbackChartComp.razor).
+
 ## Supported Plugins
 * [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
 * [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
