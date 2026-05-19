@@ -17,6 +17,7 @@ namespace pax.BlazorChartJs;
         typeof(IndexableOptionIntConverter),
         typeof(IndexableOptionBoolConverter),
         typeof(IndexableOptionObjectConverter),
+        typeof(IndexableOptionFontConverter),
         typeof(PaddingJsonConverter),
         typeof(ChartJsDatasetJsonConverter),
         typeof(ChartJsAxisJsonConverter),
@@ -35,6 +36,7 @@ namespace pax.BlazorChartJs;
 [JsonSerializable(typeof(IndexableOption<int>))]
 [JsonSerializable(typeof(IndexableOption<bool>))]
 [JsonSerializable(typeof(IndexableOption<object>))]
+[JsonSerializable(typeof(IndexableOption<Font>))]
 [JsonSerializable(typeof(StringOrDoubleValue))]
 [JsonSerializable(typeof(ChartJsOptions))]
 [JsonSerializable(typeof(Plugins))]
@@ -121,6 +123,7 @@ internal sealed partial class ChartJsJsonContext : JsonSerializerContext
                         new IndexableOptionIntConverter(),
                         new IndexableOptionBoolConverter(),
                         new IndexableOptionObjectConverter(),
+                        new IndexableOptionFontConverter(),
                         new PaddingJsonConverter(),
                         new ChartJsDatasetJsonConverter(),
                         new ChartJsAxisJsonConverter(),

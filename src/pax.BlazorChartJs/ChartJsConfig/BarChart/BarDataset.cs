@@ -50,7 +50,7 @@ public record BarDataset : ChartJsDataset
     ///    true (skip all borders)
     /// <see href="https://www.chartjs.org/docs/latest/charts/bar.html#borderskipped">ChartJs docs</see>
     /// </summary>        
-    public object? BorderSkipped { get; set; }
+    public IndexableOption<object>? BorderSkipped { get; set; }
     // todo: can be object
     public IndexableOption<double>? BorderWidth { get; set; }
     // todo: can be object

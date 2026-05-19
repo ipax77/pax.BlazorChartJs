@@ -198,8 +198,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 >- Added a scriptable padding sample with a sample-only `Latest` label plugin.
 >- Hardened callback resolution with flat JavaScript identifier validation and reserved-name checks.
 >- Updated sample callback charts to use a shared `chartJsCallbacks.js` callback registry.
->- Added a fast MSTest project for JSON serialization coverage, including Chart.js docs parity tests for bubble, mixed, and radar chart samples.
->- Added a focused GitHub Actions workflow for the MSTest JSON serialization test project.
+>- Added missing properties
 
 </details>
 

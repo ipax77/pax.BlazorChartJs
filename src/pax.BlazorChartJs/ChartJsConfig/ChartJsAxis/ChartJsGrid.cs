@@ -19,10 +19,10 @@ public record ChartJsGrid
     public bool? DrawBorder { get; set; }
     public bool? DrawOnChartArea { get; set; }
     public bool? DrawTicks { get; set; }
-    public double? LineWidth { get; set; }
+    public IndexableOption<double>? LineWidth { get; set; }
     public bool? Offset { get; set; }
-    public ICollection<double>? TickBorderDash { get; set; }
-    public double? TickBorderDashOffset { get; set; }
+    public IndexableOption<object>? TickBorderDash { get; set; }
+    public IndexableOption<double>? TickBorderDashOffset { get; set; }
     public IndexableOption<string>? TickColor { get; set; }
     public double? TickLength { get; set; }
     public double? TickWidth { get; set; }

@@ -76,6 +76,24 @@ internal sealed class IndexableOptionBoolConverter : JsonConverter<IndexableOpti
     }
 }
 
+internal sealed class IndexableOptionFontConverter : JsonConverter<IndexableOption<Font>?>
+{
+    public override IndexableOption<Font>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void Write(Utf8JsonWriter writer, IndexableOption<Font>? value, JsonSerializerOptions options)
+    {
+        if (value == null)
+        {
+            return;
+        }
+
+        IndexableOptionJsonWriter.WriteFont(writer, value, options);
+    }
+}
+
 internal sealed class StringOrDoubleValueConverter : JsonConverter<StringOrDoubleValue>
 {
     public override StringOrDoubleValue? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -280,6 +298,27 @@ internal static class IndexableOptionJsonWriter
         }
     }
 
+    public static void WriteFont(Utf8JsonWriter writer, IndexableOption<Font> value, JsonSerializerOptions options)
+    {
+        switch (value.Kind)
+        {
+            case IndexableOptionKind.SingleValue:
+                JsonSerializer.Serialize(writer, value.SingleValue ?? throw new InvalidOperationException("Single value is null."), options);
+                break;
+
+            case IndexableOptionKind.Indexed:
+                JsonSerializer.Serialize(writer, value.IndexedValues ?? throw new InvalidOperationException("Indexed values are null."), options);
+                break;
+
+            case IndexableOptionKind.Function:
+                WriteFunction(writer, value.FunctionValue);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unsupported {nameof(IndexableOptionKind)}: {value.Kind}.");
+        }
+    }
+
     private static void WriteFunction(Utf8JsonWriter writer, ChartJsFunction? value)
     {
         var function = value ?? throw new InvalidOperationException("Function value is null.");
@@ -306,6 +345,7 @@ internal sealed class ChartJsDatasetJsonConverter : JsonConverter<ChartJsDataset
                     new IndexableOptionIntConverter(),
                     new IndexableOptionBoolConverter(),
                     new IndexableOptionObjectConverter(),
+                    new IndexableOptionFontConverter(),
                     new PaddingJsonConverter(),
                     new StringOrDoubleValueConverter()
                 }
@@ -342,6 +382,7 @@ internal sealed class ChartJsAxisJsonConverter : JsonConverter<ChartJsAxis?>
                     new IndexableOptionIntConverter(),
                     new IndexableOptionBoolConverter(),
                     new IndexableOptionObjectConverter(),
+                    new IndexableOptionFontConverter(),
                     new PaddingJsonConverter(),
                     new ChartJsAxisTickJsonConverter(),
                     new StringOrDoubleValueConverter()
@@ -378,6 +419,7 @@ internal sealed class ChartJsAxisTickJsonConverter : JsonConverter<ChartJsAxisTi
                     new IndexableOptionIntConverter(),
                     new IndexableOptionBoolConverter(),
                     new IndexableOptionObjectConverter(),
+                    new IndexableOptionFontConverter(),
                     new PaddingJsonConverter()
                 }
     };

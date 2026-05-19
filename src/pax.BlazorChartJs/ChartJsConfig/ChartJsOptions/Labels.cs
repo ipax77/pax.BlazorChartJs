@@ -9,7 +9,7 @@ public record Labels
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>         
     public IndexableOption<string>? Color { get; set; }
-    public Font? Font { get; set; }
+    public IndexableOption<Font>? Font { get; set; }
     public double? Padding { get; set; }
     public ChartJsFunction? GenerateLabels { get; set; }
     public ChartJsFunction? Filter { get; set; }

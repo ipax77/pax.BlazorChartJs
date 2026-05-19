@@ -67,6 +67,7 @@ public sealed class IndexableOptionSerializationTests
     [DataRow("int")]
     [DataRow("bool")]
     [DataRow("object")]
+    [DataRow("font")]
     public void FunctionOptionSerializesAsChartJsFunctionMarker(string valueType)
     {
         using var document = SerializeIndexableOption(CreateFunctionOption(valueType));
@@ -129,6 +130,21 @@ public sealed class IndexableOptionSerializationTests
         Assert.AreEqual("circle", indexed.RootElement[1].GetString());
     }
 
+    [TestMethod]
+    public void FontOptionSerializesSingleAndIndexedValues()
+    {
+        using var single = SerializeIndexableOption(new IndexableOption<Font>(new Font { Family = "Inter", Size = 13 }));
+        using var indexed = SerializeIndexableOption(new IndexableOption<Font>([
+            new Font { Family = "Inter", Size = 13 },
+            new Font { Family = "Arial", Size = 14 }
+        ]));
+
+        Assert.AreEqual("Inter", single.RootElement.GetProperty("family").GetString());
+        Assert.AreEqual(13, single.RootElement.GetProperty("size").GetDouble());
+        Assert.AreEqual("Inter", indexed.RootElement[0].GetProperty("family").GetString());
+        Assert.AreEqual("Arial", indexed.RootElement[1].GetProperty("family").GetString());
+    }
+
     private static object CreateFunctionOption(string valueType)
     {
         var function = ChartJsFunction.FromName("resolveOption");
@@ -140,6 +156,7 @@ public sealed class IndexableOptionSerializationTests
             "int" => new IndexableOption<int>(function),
             "bool" => new IndexableOption<bool>(function),
             "object" => new IndexableOption<object>(function),
+            "font" => new IndexableOption<Font>(function),
             _ => throw new ArgumentOutOfRangeException(nameof(valueType), valueType, null)
         };
     }

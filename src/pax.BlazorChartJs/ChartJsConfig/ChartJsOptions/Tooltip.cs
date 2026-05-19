@@ -2,7 +2,7 @@ namespace pax.BlazorChartJs;
 
 public record Tooltip
 {
-    public bool? Enabled { get; set; }
+    public IndexableOption<bool>? Enabled { get; set; }
     public ChartJsFunction? External { get; set; }
     /// <summary>
     /// false or new Animation()
@@ -23,39 +23,39 @@ public record Tooltip
     public bool? Intersect { get; set; }
     public string? Axis { get; set; }
     public bool? IncludeInvisible { get; set; }
-    public string? Position { get; set; }
+    public IndexableOption<string>? Position { get; set; }
     public TooltipCallbacks? Callbacks { get; set; }
     public ChartJsFunction? ItemSort { get; set; }
     public ChartJsFunction? Filter { get; set; }
     public IndexableOption<string>? BackgroundColor { get; set; }
     public IndexableOption<string>? TitleColor { get; set; }
-    public Font? TitleFont { get; set; }
-    public string? TitleAlign { get; set; }
-    public double? TitleSpacing { get; set; }
-    public double? TitleMarginBottom { get; set; }
+    public IndexableOption<Font>? TitleFont { get; set; }
+    public IndexableOption<string>? TitleAlign { get; set; }
+    public IndexableOption<double>? TitleSpacing { get; set; }
+    public IndexableOption<double>? TitleMarginBottom { get; set; }
     public IndexableOption<string>? BodyColor { get; set; }
-    public Font? BodyFont { get; set; }
-    public string? BodyAlign { get; set; }
-    public double? BodySpacing { get; set; }
+    public IndexableOption<Font>? BodyFont { get; set; }
+    public IndexableOption<string>? BodyAlign { get; set; }
+    public IndexableOption<double>? BodySpacing { get; set; }
     public IndexableOption<string>? FooterColor { get; set; }
-    public Font? FooterFont { get; set; }
-    public string? FooterAlign { get; set; }
-    public double? FooterSpacing { get; set; }
-    public double? FooterMarginTop { get; set; }
+    public IndexableOption<Font>? FooterFont { get; set; }
+    public IndexableOption<string>? FooterAlign { get; set; }
+    public IndexableOption<double>? FooterSpacing { get; set; }
+    public IndexableOption<double>? FooterMarginTop { get; set; }
     public Padding? Padding { get; set; }
-    public double? CaretPadding { get; set; }
-    public double? CaretSize { get; set; }
-    public double? CornerRadius { get; set; }
+    public IndexableOption<double>? CaretPadding { get; set; }
+    public IndexableOption<double>? CaretSize { get; set; }
+    public IndexableOption<double>? CornerRadius { get; set; }
     public IndexableOption<string>? MultiKeyBackground { get; set; }
-    public bool? DisplayColors { get; set; }
-    public double? BoxWidth { get; set; }
-    public double? BoxHeight { get; set; }
+    public IndexableOption<bool>? DisplayColors { get; set; }
+    public IndexableOption<double>? BoxWidth { get; set; }
+    public IndexableOption<double>? BoxHeight { get; set; }
     public double? BoxPadding { get; set; }
-    public bool? UsePointStyle { get; set; }
+    public IndexableOption<bool>? UsePointStyle { get; set; }
     public IndexableOption<string>? BorderColor { get; set; }
-    public double? BorderWidth { get; set; }
-    public bool? Rtl { get; set; }
-    public string? TextDirection { get; set; }
+    public IndexableOption<double>? BorderWidth { get; set; }
+    public IndexableOption<bool>? Rtl { get; set; }
+    public IndexableOption<string>? TextDirection { get; set; }
     /// <summary>
     /// Tooltip Alignment
     /// The xAlign and yAlign options define the position of the tooltip caret. If these parameters are unset, the optimal caret position is determined.
@@ -66,7 +66,7 @@ public record Tooltip
     /// 'center'
     /// 'right'
     /// </summary>   
-    public string? XAlign { get; set; }
+    public IndexableOption<string>? XAlign { get; set; }
     /// <summary>
     /// Tooltip Alignment
     /// The xAlign and yAlign options define the position of the tooltip caret. If these parameters are unset, the optimal caret position is determined.
@@ -77,7 +77,7 @@ public record Tooltip
     /// 'center'
     /// 'bottom' 
     /// </summary>     
-    public string? YAlign { get; set; }
+    public IndexableOption<string>? YAlign { get; set; }
     /// <summary>
     /// The events option defines the browser events that the chart should listen to for.
     /// Each of these events trigger hover and are passed to plugins. <see href="https://www.chartjs.org/docs/latest/configuration/interactions.html#event-option">more...</see>

@@ -23,6 +23,7 @@ internal static class JsonSerializationTestOptions
                 CreateConverter("IndexableOptionIntConverter"),
                 CreateConverter("IndexableOptionBoolConverter"),
                 CreateConverter("IndexableOptionObjectConverter"),
+                CreateConverter("IndexableOptionFontConverter"),
                 CreateConverter("PaddingJsonConverter"),
                 CreateConverter("ChartJsDatasetJsonConverter"),
                 CreateConverter("ChartJsAxisJsonConverter"),

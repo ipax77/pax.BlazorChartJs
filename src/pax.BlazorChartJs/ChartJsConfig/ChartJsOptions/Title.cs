@@ -24,7 +24,7 @@ public record Title
     /// 'right'
     /// </summary>    
     public string? Position { get; set; }
-    public Font? Font { get; set; }
+    public IndexableOption<Font>? Font { get; set; }
     public Padding? Padding { get; set; }
     public IndexableOption<string>? Text { get; set; }
 }

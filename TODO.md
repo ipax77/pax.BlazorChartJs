@@ -66,93 +66,11 @@ Chart.js scriptable options accept a JavaScript function in addition to their no
 
 - `ChartJsOptions.Layout`
 
-### Line Dataset
+## Scriptable Support Implemented In Non-Global Pass
 
-- `LineDataset.BorderCapStyle`
-- `LineDataset.BorderDash`
-- `LineDataset.BorderDashOffset`
-- `LineDataset.BorderJoinStyle`
-- `LineDataset.BorderWidth`
-- `LineDataset.CubicInterpolationMode`
-- `LineDataset.Fill`
-- `LineDataset.HoverBorderCapStyle`
-- `LineDataset.HoverBorderDash`
-- `LineDataset.HoverBorderDashOffset`
-- `LineDataset.HoverBorderJoinStyle`
-- `LineDataset.HoverBorderWidth`
-- `LineDataset.Segment`
-- `LineDataset.Stepped`
-- `LineDataset.Tension`
-
-### Radar Dataset
-
-- `RadarDataset.BorderCapStyle`
-- `RadarDataset.BorderDash`
-- `RadarDataset.BorderDashOffset`
-- `RadarDataset.BorderJoinStyle`
-- `RadarDataset.BorderWidth`
-- `RadarDataset.Fill`
-- `RadarDataset.HoverBorderCapStyle`
-- `RadarDataset.HoverBorderDash`
-- `RadarDataset.HoverBorderDashOffset`
-- `RadarDataset.HoverBorderJoinStyle`
-- `RadarDataset.HoverBorderWidth`
-- `RadarDataset.Tension`
-
-### Bar Dataset
-
-- `BarDataset.BorderSkipped`
-
-### Pie/Doughnut Dataset
-
-- `PieDataset.BorderRadius`
-
-### Scale Border and Grid
-
-- `ChartJsAxisBorder.Dash`
-- `ChartJsAxisBorder.DashOffset`
-- `ChartJsGrid.LineWidth`
-- `ChartJsGrid.TickBorderDash`
-- `ChartJsGrid.TickBorderDashOffset`
-
-### Tick Options
-
-- `ChartJsAxisTick.Font`
-- `ChartJsAxisTick.ShowLabelBackdrop`
-- `ChartJsAxisTick.TextStrokeWidth`
-
-### Title and Legend Label Fonts
-
-- `Title.Font`
-- `Labels.Font`
-
-### Tooltip Options
-
-- `Tooltip.BodyAlign`
-- `Tooltip.BodyFont`
-- `Tooltip.BodySpacing`
-- `Tooltip.BorderWidth`
-- `Tooltip.BoxHeight`
-- `Tooltip.BoxWidth`
-- `Tooltip.CaretPadding`
-- `Tooltip.CaretSize`
-- `Tooltip.CornerRadius`
-- `Tooltip.DisplayColors`
-- `Tooltip.Enabled`
-- `Tooltip.FooterAlign`
-- `Tooltip.FooterFont`
-- `Tooltip.FooterMarginTop`
-- `Tooltip.FooterSpacing`
-- `Tooltip.Position`
-- `Tooltip.Rtl`
-- `Tooltip.TextDirection`
-- `Tooltip.TitleAlign`
-- `Tooltip.TitleFont`
-- `Tooltip.TitleMarginBottom`
-- `Tooltip.TitleSpacing`
-- `Tooltip.UsePointStyle`
-- `Tooltip.XAlign`
-- `Tooltip.YAlign`
+- Added scriptable support to the listed line, radar, bar, pie/doughnut, scale border, grid, tick, title, legend label, and tooltip properties.
+- Added `IndexableOption<Font>` serialization support for scriptable font options.
+- Intentionally left `ChartJsOptions.Layout` and missing Global Chart Options for a later global-options pass.
 
 ## Performance Notes For Follow-Up
 
