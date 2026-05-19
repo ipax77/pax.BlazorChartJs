@@ -171,47 +171,6 @@ new LinearAxisTick()
 
 Callback names are validated and resolved from the configured module, which avoids raw JavaScript serialization in the chart config. See the full [ChartJsFunction callback sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventcallbackChartComp.razor).
 
-## Padding Options
-Chart.js padding values support several shapes: a single number, a directional object, an `{x, y}` shorthand object, or a scriptable callback. The existing `Padding?` properties keep their type, so this is not intended as a source-breaking change for existing configurations.
-
-```csharp
-// Chart.js numeric padding: { layout: { padding: 20 } }
-new ChartJsLayout()
-{
-    Padding = 20
-}
-
-// Existing directional object style remains supported.
-new ChartJsLayout()
-{
-    Padding = new Padding()
-    {
-        Top = 20,
-        Left = 8,
-        Bottom = 8,
-        Right = 30
-    }
-}
-
-// Chart.js {x, y} shorthand.
-new ChartJsLayout()
-{
-    Padding = new Padding()
-    {
-        X = 10,
-        Y = 4
-    }
-}
-
-// Scriptable padding resolved from ChartJsSetupOptions.ChartJsCallbacksModuleLocation.
-new ChartJsLayout()
-{
-    Padding = ChartJsFunction.FromName("responsiveLatestLabelPadding")
-}
-```
-
-`new Padding(20)` remains compatible with previous releases and still writes the directional object form. Use `Padding.FromNumber(20)` or `Padding = 20` when the JSON number form is desired. See the [Chart.js padding documentation](https://www.chartjs.org/docs/latest/general/padding.html).
-
 ## Supported Plugins
 * [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
 * [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)

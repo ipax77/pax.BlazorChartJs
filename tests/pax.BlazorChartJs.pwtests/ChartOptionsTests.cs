@@ -358,6 +358,11 @@ public class ChartOptionsTests : PageTest
 
         Assert.That(result, Is.EqualTo("function|70|30|true|true"));
 
+        await AssertPaddingMode(canvasId, "Number", "number|20");
+        await AssertPaddingMode(canvasId, "Directional", "object|20|8|8|30||");
+        await AssertPaddingMode(canvasId, "XY Shorthand", "object|||||10|4");
+        await AssertPaddingMode(canvasId, "Scriptable", "function|70|30|true|true");
+
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/barchart");
         await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
@@ -377,6 +382,62 @@ public class ChartOptionsTests : PageTest
             barCanvasId);
 
         Assert.That(latestValueLabelOptions, Is.True);
+    }
+
+    private async Task AssertPaddingMode(string canvasId, string buttonText, string expectedSnapshot)
+    {
+        var button = Page.GetByText(buttonText, new Microsoft.Playwright.PageGetByTextOptions { Exact = true });
+        await Expect(button).ToHaveAttributeAsync("type", "button");
+        await button.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"([chartId, expected]) => {
+                const chart = Chart.getChart(chartId);
+                return getPaddingSnapshot(chart) === expected;
+
+                function getPaddingSnapshot(chart) {
+                    const padding = chart?.config?.options?.layout?.padding;
+                    if (typeof padding === 'function') {
+                        const small = padding({ chart: { width: 400 } });
+                        const large = padding({ chart: { width: 640 } });
+                        const enabled = chart.config.options.plugins.latestValueLabel.display === true;
+                        const pluginRegistered = Boolean(Chart.registry?.plugins?.get?.('latestValueLabel'));
+
+                        return `${typeof padding}|${small.right}|${large.right}|${enabled}|${pluginRegistered}`;
+                    }
+
+                    if (typeof padding === 'number') {
+                        return `number|${padding}`;
+                    }
+
+                    return `object|${padding?.top ?? ''}|${padding?.left ?? ''}|${padding?.bottom ?? ''}|${padding?.right ?? ''}|${padding?.x ?? ''}|${padding?.y ?? ''}`;
+                }
+            }",
+            new[] { canvasId, expectedSnapshot },
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var snapshot = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                const padding = chart.config.options.layout.padding;
+                if (typeof padding === 'function') {
+                    const small = padding({ chart: { width: 400 } });
+                    const large = padding({ chart: { width: 640 } });
+                    const enabled = chart.config.options.plugins.latestValueLabel.display === true;
+                    const pluginRegistered = Boolean(Chart.registry?.plugins?.get?.('latestValueLabel'));
+
+                    return `${typeof padding}|${small.right}|${large.right}|${enabled}|${pluginRegistered}`;
+                }
+
+                if (typeof padding === 'number') {
+                    return `number|${padding}`;
+                }
+
+                return `object|${padding?.top ?? ''}|${padding?.left ?? ''}|${padding?.bottom ?? ''}|${padding?.right ?? ''}|${padding?.x ?? ''}|${padding?.y ?? ''}`;
+            }",
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo(expectedSnapshot));
     }
 
     private async Task<int> GetChartStepSize(string? canvasId)

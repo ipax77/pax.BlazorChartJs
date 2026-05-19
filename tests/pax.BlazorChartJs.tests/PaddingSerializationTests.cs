@@ -8,7 +8,9 @@ public sealed class PaddingSerializationTests
     [TestMethod]
     public void ConstructorPaddingSerializesAsDirectionalObjectForCompatibility()
     {
+#pragma warning disable CS0618
         using var document = SerializeToDocument(new Padding(20));
+#pragma warning restore CS0618
         var root = document.RootElement;
 
         Assert.AreEqual(JsonValueKind.Object, root.ValueKind);

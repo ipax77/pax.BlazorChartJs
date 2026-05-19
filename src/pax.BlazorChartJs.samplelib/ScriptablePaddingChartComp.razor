@@ -6,6 +6,13 @@
 
 <h3>Scriptable Padding</h3>
 
+<div class="btn-group">
+    <button type="button" class="btn btn-primary" @onclick="UseNumericPadding">Number</button>
+    <button type="button" class="btn btn-primary" @onclick="UseDirectionalPadding">Directional</button>
+    <button type="button" class="btn btn-primary" @onclick="UseShorthandPadding">XY Shorthand</button>
+    <button type="button" class="btn btn-primary" @onclick="UseScriptablePadding">Scriptable</button>
+</div>
+
 <div class="chart-container w-75" style="height: 320px;">
     <ChartComponent ChartJsConfig="chartJsConfig" OnEventTriggered="ChartEventTriggered"></ChartComponent>
 </div>
@@ -81,6 +88,47 @@
             reinitializedWithPlugin = true;
             chartJsConfig.ReinitializeChart();
         }
+    }
+
+    private void UseNumericPadding()
+    {
+        SetPadding(20);
+    }
+
+    private void UseDirectionalPadding()
+    {
+        SetPadding(new Padding()
+        {
+            Top = 20,
+            Left = 8,
+            Bottom = 8,
+            Right = 30
+        });
+    }
+
+    private void UseShorthandPadding()
+    {
+        SetPadding(new Padding()
+        {
+            X = 10,
+            Y = 4
+        });
+    }
+
+    private void UseScriptablePadding()
+    {
+        SetPadding(ChartJsFunction.FromName("responsiveLatestLabelPadding"));
+    }
+
+    private void SetPadding(Padding padding)
+    {
+        if (chartJsConfig.Options?.Layout == null)
+        {
+            return;
+        }
+
+        chartJsConfig.Options.Layout.Padding = padding;
+        chartJsConfig.UpdateChartOptions();
     }
 
     public async ValueTask DisposeAsync()
