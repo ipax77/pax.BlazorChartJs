@@ -62,6 +62,7 @@ public record PieDataset : ChartJsDataset
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
     public IndexableOption<string>? HoverBackgroundColor { get; set; }
+    public IndexableOption<string>? HoverBorderColor { get; set; }
     /// <summary>
     /// HoverBorderJoinStyle - 'round'|'bevel'|'miter'
     /// </summary>          

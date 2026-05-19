@@ -26,6 +26,12 @@ public record ChartJsDataset
     /// DataLabelsConfig per Dataset <see href="https://chartjs-plugin-datalabels.netlify.app/guide/">ChartJs datalabels plugin</see>
     /// </summary>
     public DataLabelsConfig? Datalabels { get; set; }
+    public ChartJsDatasetTooltip? Tooltip { get; set; }
 
+}
+
+public record ChartJsDatasetTooltip
+{
+    public TooltipCallbacks? Callbacks { get; set; }
 }
 #pragma warning restore CA2227

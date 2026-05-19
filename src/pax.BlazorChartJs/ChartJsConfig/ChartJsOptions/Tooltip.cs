@@ -3,7 +3,7 @@ namespace pax.BlazorChartJs;
 public record Tooltip
 {
     public bool? Enabled { get; set; }
-    // public object? External { get; set; }
+    public ChartJsFunction? External { get; set; }
     /// <summary>
     /// Modes
     /// When configuring the interaction with the graph via interaction, hover or tooltips, a number of different modes are available.
@@ -17,20 +17,20 @@ public record Tooltip
     public string? Mode { get; set; }
     public bool? Intersect { get; set; }
     public string? Position { get; set; }
-    // public object? Callbacks { get; set; }
-    // public object? ItemSort { get; set; }
-    // public object? Filter { get; set; }
-    public object? BackgroundColor { get; set; }
-    public object? TitleColor { get; set; }
+    public TooltipCallbacks? Callbacks { get; set; }
+    public ChartJsFunction? ItemSort { get; set; }
+    public ChartJsFunction? Filter { get; set; }
+    public IndexableOption<string>? BackgroundColor { get; set; }
+    public IndexableOption<string>? TitleColor { get; set; }
     public Font? TitleFont { get; set; }
     public string? TitleAlign { get; set; }
     public double? TitleSpacing { get; set; }
     public double? TitleMarginBottom { get; set; }
-    public object? BodyColor { get; set; }
+    public IndexableOption<string>? BodyColor { get; set; }
     public Font? BodyFont { get; set; }
     public string? BodyAlign { get; set; }
     public double? BodySpacing { get; set; }
-    public object? FooterColor { get; set; }
+    public IndexableOption<string>? FooterColor { get; set; }
     public Font? FooterFont { get; set; }
     public string? FooterAlign { get; set; }
     public double? FooterSpacing { get; set; }
@@ -39,13 +39,13 @@ public record Tooltip
     public double? CaretPadding { get; set; }
     public double? CaretSize { get; set; }
     public double? CornerRadius { get; set; }
-    public object? MultiKeyBackground { get; set; }
+    public IndexableOption<string>? MultiKeyBackground { get; set; }
     public bool? DisplayColors { get; set; }
     public double? BoxWidth { get; set; }
     public double? BoxHeight { get; set; }
     public double? BoxPadding { get; set; }
     public bool? UsePointStyle { get; set; }
-    public object? BorderColor { get; set; }
+    public IndexableOption<string>? BorderColor { get; set; }
     public double? BorderWidth { get; set; }
     public bool? Rtl { get; set; }
     public string? TextDirection { get; set; }
@@ -78,6 +78,24 @@ public record Tooltip
 #pragma warning disable CA2227
     public IList<string>? Events { get; set; }
 #pragma warning restore CA2227      
+}
+
+public record TooltipCallbacks
+{
+    public ChartJsFunction? BeforeTitle { get; set; }
+    public ChartJsFunction? Title { get; set; }
+    public ChartJsFunction? AfterTitle { get; set; }
+    public ChartJsFunction? BeforeBody { get; set; }
+    public ChartJsFunction? BeforeLabel { get; set; }
+    public ChartJsFunction? Label { get; set; }
+    public ChartJsFunction? LabelColor { get; set; }
+    public ChartJsFunction? LabelTextColor { get; set; }
+    public ChartJsFunction? LabelPointStyle { get; set; }
+    public ChartJsFunction? AfterLabel { get; set; }
+    public ChartJsFunction? AfterBody { get; set; }
+    public ChartJsFunction? BeforeFooter { get; set; }
+    public ChartJsFunction? Footer { get; set; }
+    public ChartJsFunction? AfterFooter { get; set; }
 }
 
 

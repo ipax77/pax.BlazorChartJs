@@ -6,11 +6,11 @@ namespace pax.BlazorChartJs;
 /// </summary>
 public record PointLabels
 {
-    public object? BackdropColor { get; set; }
+    public IndexableOption<string>? BackdropColor { get; set; }
     public Padding? BackdropPadding { get; set; }
     public object? BorderRadius { get; set; }
     public bool? Display { get; set; }
-    public string? Color { get; set; }
+    public IndexableOption<string>? Color { get; set; }
     public Font? Font { get; set; }
     public Padding? Padding { get; set; }
     public bool? CenterPointLabels { get; set; }

@@ -10,12 +10,12 @@ public record LineDataset : ChartJsDataset
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>           
-    public string? BackgroundColor { get; set; }
+    public IndexableOption<string>? BackgroundColor { get; set; }
     public string? BorderCapStyle { get; set; }
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
-    public string? BorderColor { get; set; }
+    public IndexableOption<string>? BorderColor { get; set; }
     public IList<double>? BorderDash { get; set; }
     public double? BorderDashOffset { get; set; }
     /// <summary>
@@ -51,7 +51,7 @@ public record LineDataset : ChartJsDataset
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
-    public object? HoverBackgroundColor { get; set; }
+    public IndexableOption<string>? HoverBackgroundColor { get; set; }
     /// <summary>
     ///  The CanvasRenderingContext2D.lineCap property of the Canvas 2D API determines the shape used to draw the end points of lines.
     /// 
@@ -74,7 +74,7 @@ public record LineDataset : ChartJsDataset
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
-    public object? HoverBorderColor { get; set; }
+    public IndexableOption<string>? HoverBorderColor { get; set; }
     public IList<double>? HoverBorderDash { get; set; }
     public double? HoverBorderDashOffset { get; set; }
     /// <summary>
