@@ -68,7 +68,7 @@ public partial class LineChartComp : ComponentBase
                             Display = true,
                             Text = "GameTime",
                             Color = "black",
-                            Font = new()
+                            Font = new Font
                             {
                                 Size = 16
                             },
@@ -116,7 +116,7 @@ public partial class LineChartComp : ComponentBase
                             Display = true,
                             Text = new IndexableOption<string>("%"),
                             Color = "red",
-                            Font = new()
+                            Font = new Font
                             {
                                 Size = 16
                             },
