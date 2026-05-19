@@ -87,7 +87,7 @@ public partial class LineChartComp : ComponentBase
                             Align = "center",
                             CrossAlign = "near",
                             ShowLabelBackdrop = false,
-                            BackdropPadding = new Padding(2)
+                            BackdropPadding = 2
                         },
                         Grid = new ChartJsGrid()
                         {
@@ -135,7 +135,7 @@ public partial class LineChartComp : ComponentBase
                             Align = "center",
                             CrossAlign = "near",
                             ShowLabelBackdrop = false,
-                            BackdropPadding = new Padding(2)
+                            BackdropPadding = 2
                         },
                         Grid = new ChartJsGrid()
                         {
