@@ -75,6 +75,39 @@ public class TooltipCallbackTests : PageTest
 
         Assert.That(pointResult, Is.EqualTo("rectRounded|45"));
 
+        var customDataButton = Page.GetByText("Custom Data", new PageGetByTextOptions() { Exact = true });
+        await Expect(customDataButton).ToHaveAttributeAsync("type", "button");
+        await customDataButton.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                const callbacks = chart?.options?.plugins?.tooltip?.callbacks;
+                const dataset = chart?.data?.datasets?.[0];
+
+                return chart?.options?.plugins?.tooltip?.usePointStyle !== true
+                    && typeof callbacks?.title === 'function'
+                    && typeof callbacks?.label === 'function'
+                    && callbacks.title([{ label: 'Apr', dataset }]) === 'Synergy Revenue Apr';
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var customDataResult = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                const callbacks = chart.options.plugins.tooltip.callbacks;
+                const dataset = chart.data.datasets[0];
+
+                return [
+                    callbacks.title([{ label: 'Apr', dataset }]),
+                    callbacks.label({ dataset, dataIndex: 3, formattedValue: '32', raw: 32 })
+                ].join('|');
+            }",
+            canvasId);
+
+        Assert.That(customDataResult, Is.EqualTo("Synergy Revenue Apr|Raynor + Zagara: AvgGain 3.2, Winrate 56.8%, Games 61, Normalized 0.64"));
+
         var externalButton = Page.GetByText("External", new PageGetByTextOptions() { Exact = true });
         await Expect(externalButton).ToHaveAttributeAsync("type", "button");
         await externalButton.ClickAsync();

@@ -32,6 +32,10 @@ function getTooltipTotal(items) {
     return items.reduce((total, item) => total + getTooltipRawValue(item), 0);
 }
 
+function getCustomTooltipPoint(context) {
+    return context?.dataset?.tooltipPoints?.[context.dataIndex];
+}
+
 function getOrCreateExternalTooltip(chart) {
     let tooltipElement = externalTooltipCache.get(chart);
     if (tooltipElement) {
@@ -79,6 +83,15 @@ const callbacks = Object.assign(Object.create(null), {
     showLegendItem() {
         return true;
     },
+    updateDatasetColor(context) {
+        return context.dataIndex === 0 ? '#dc2626' : '#fca5a5';
+    },
+    updateDatasetsColor(context) {
+        return context.dataIndex === 0 ? '#16a34a' : '#86efac';
+    },
+    updateDatasetSmoothColor(context) {
+        return context.dataIndex === 0 ? '#7c3aed' : '#c4b5fd';
+    },
     labelWithIndex(value, context) {
         return `${context.dataIndex}: ${value}`;
     },
@@ -98,8 +111,16 @@ const callbacks = Object.assign(Object.create(null), {
         const first = items?.[0];
         return `External ${first?.label ?? ''}`;
     },
+    formatTooltipCustomDataTitle(items) {
+        const first = items?.[0];
+        return `Synergy ${first?.dataset?.label ?? ''} ${first?.label ?? ''}`;
+    },
     formatTooltipContentLabel(context) {
         return `${context.dataset.label}: ${context.formattedValue ?? context.raw} units`;
+    },
+    formatTooltipCustomDataLabel(context) {
+        const point = getCustomTooltipPoint(context);
+        return point?.text ?? `${context.dataset.label}: ${context.formattedValue ?? context.raw}`;
     },
     formatTooltipContentFooter(items) {
         return `Total: ${getTooltipTotal(items)} units`;

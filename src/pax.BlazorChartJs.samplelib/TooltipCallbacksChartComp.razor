@@ -4,6 +4,7 @@
     <button type="button" class="btn btn-primary" @onclick="ShowContentTooltip">Content</button>
     <button type="button" class="btn btn-primary" @onclick="ShowColorTooltip">Color</button>
     <button type="button" class="btn btn-primary" @onclick="ShowPointTooltip">Point</button>
+    <button type="button" class="btn btn-primary" @onclick="ShowCustomDataTooltip">Custom Data</button>
     <button type="button" class="btn btn-primary" @onclick="ShowExternalTooltip">External</button>
 </div>
 
@@ -43,6 +44,12 @@
             Footer = ChartJsFunction.FromName("formatTooltipContentFooter")
         };
 
+    private static readonly TooltipCallbacks CustomDataCallbacks = new()
+        {
+            Title = ChartJsFunction.FromName("formatTooltipCustomDataTitle"),
+            Label = ChartJsFunction.FromName("formatTooltipCustomDataLabel")
+        };
+
     private static readonly ChartJsFunction ExternalTooltip = ChartJsFunction.FromName("renderExternalTooltip");
 
     private ChartJsConfig chartJsConfig = null!;
@@ -57,10 +64,19 @@
                     Labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
                     Datasets =
                     [
-                        new LineDataset()
+                        new CustomTooltipDataset()
                         {
                             Label = "Revenue",
                             Data = [18, 24, 20, 32, 28, 36],
+                            TooltipPoints =
+                            [
+                                CreateTooltipPoint("Raynor", "Kerrigan", 0.32, 1.8, 51.4, 42),
+                                CreateTooltipPoint("Raynor", "Artanis", 0.48, 2.4, 53.1, 55),
+                                CreateTooltipPoint("Raynor", "Nova", 0.40, 2.0, 52.0, 38),
+                                CreateTooltipPoint("Raynor", "Zagara", 0.64, 3.2, 56.8, 61),
+                                CreateTooltipPoint("Raynor", "Stukov", 0.56, 2.8, 54.9, 44),
+                                CreateTooltipPoint("Raynor", "Tychus", 0.72, 3.6, 58.2, 73)
+                            ],
                             BorderColor = "#2563eb",
                             BackgroundColor = "rgba(37, 99, 235, 0.18)",
                             BorderWidth = 3,
@@ -68,10 +84,19 @@
                             PointHoverRadius = 6,
                             Tension = 0.3
                         },
-                        new LineDataset()
+                        new CustomTooltipDataset()
                         {
                             Label = "Pipeline",
                             Data = [12, 16, 22, 24, 31, 34],
+                            TooltipPoints =
+                            [
+                                CreateTooltipPoint("Kerrigan", "Raynor", 0.24, 1.2, 49.6, 35),
+                                CreateTooltipPoint("Kerrigan", "Artanis", 0.32, 1.6, 50.8, 47),
+                                CreateTooltipPoint("Kerrigan", "Nova", 0.44, 2.2, 52.7, 58),
+                                CreateTooltipPoint("Kerrigan", "Zagara", 0.48, 2.4, 53.5, 50),
+                                CreateTooltipPoint("Kerrigan", "Stukov", 0.62, 3.1, 55.4, 69),
+                                CreateTooltipPoint("Kerrigan", "Tychus", 0.68, 3.4, 57.0, 71)
+                            ],
                             BorderColor = "#f97316",
                             BackgroundColor = "rgba(249, 115, 22, 0.16)",
                             BorderWidth = 3,
@@ -141,6 +166,11 @@
             usePointStyle: false);
     }
 
+    private void ShowCustomDataTooltip()
+    {
+        ApplyTooltipDesign(CustomDataCallbacks, enabled: true, external: null, usePointStyle: false);
+    }
+
     private void ApplyTooltipDesign(
         TooltipCallbacks callbacks,
         bool enabled,
@@ -158,5 +188,41 @@
         tooltip.Callbacks = callbacks;
         tooltip.UsePointStyle = usePointStyle;
         chartJsConfig.UpdateChartOptions();
+    }
+
+    private static CustomTooltipPoint CreateTooltipPoint(
+        string commander,
+        string teammate,
+        double normalized,
+        double avgGain,
+        double winrate,
+        int games)
+    {
+        return new()
+        {
+            Commander = commander,
+            Teammate = teammate,
+            Normalized = normalized,
+            AvgGain = avgGain,
+            Winrate = winrate,
+            Games = games,
+            Text = FormattableString.Invariant($"{commander} + {teammate}: AvgGain {avgGain:0.0}, Winrate {winrate:0.0}%, Games {games}, Normalized {normalized:0.00}")
+        };
+    }
+
+    private sealed record CustomTooltipDataset : LineDataset
+    {
+        public IReadOnlyList<CustomTooltipPoint> TooltipPoints { get; init; } = [];
+    }
+
+    private sealed class CustomTooltipPoint
+    {
+        public string Commander { get; init; } = string.Empty;
+        public string Teammate { get; init; } = string.Empty;
+        public double Normalized { get; init; }
+        public double AvgGain { get; init; }
+        public double Winrate { get; init; }
+        public int Games { get; init; }
+        public string Text { get; init; } = string.Empty;
     }
 }
