@@ -223,9 +223,10 @@ class ChartJsInterop {
             return;
         }
 
+        const datasetIdSet = new Set(datasetIds);
         for (const index of this.reverseKeys(chart.data.datasets)) {
             const dataset = chart.data.datasets[index];
-            if (datasetIds.includes(dataset['id'])) {
+            if (datasetIdSet.has(dataset['id'])) {
                 chart.data.datasets.splice(index, 1);
             }
         }
@@ -237,18 +238,11 @@ class ChartJsInterop {
             return;
         }
 
+        const existingDatasetsById = this.createDatasetMap(chart.data.datasets);
         datasets.forEach((newDataset: any) => {
-            const datasetIndex = chart.data.datasets.findIndex((dataset: any) => dataset['id'] === newDataset['id']);
-            if (datasetIndex >= 0) {
-                const existingDataset = chart.data.datasets[datasetIndex];
-
-                Object.assign(existingDataset, newDataset);
-
-                for (const prop in existingDataset) {
-                    if (Object.prototype.hasOwnProperty.call(existingDataset, prop) && !Object.prototype.hasOwnProperty.call(newDataset, prop)) {
-                        delete existingDataset[prop];
-                    }
-                }
+            const existingDataset = existingDatasetsById.get(newDataset['id']);
+            if (existingDataset != undefined) {
+                this.assignDatasetSmooth(existingDataset, newDataset);
             }
         });
         chart.update();
@@ -259,9 +253,14 @@ class ChartJsInterop {
             return;
         }
 
+        const datasetIndexesById = new Map<string, number>();
+        for (let i = 0; i < chart.data.datasets.length; i++) {
+            datasetIndexesById.set(chart.data.datasets[i]['id'], i);
+        }
+
         datasets.forEach((dataset: any) => {
-            const datasetIndex = chart.data.datasets.findIndex((existingDataset: any) => existingDataset['id'] === dataset['id']);
-            if (datasetIndex >= 0) {
+            const datasetIndex = datasetIndexesById.get(dataset['id']);
+            if (datasetIndex != undefined) {
                 chart.data.datasets[datasetIndex] = dataset;
             }
         });
@@ -275,6 +274,80 @@ class ChartJsInterop {
 
         chart.data.datasets = datasets;
         chart.update();
+    }
+
+    public applyDatasetChangesSmooth(
+        chart: any,
+        desiredDatasetIds: string[],
+        datasetsToAdd: any[],
+        datasetsToUpdateSmooth: any[],
+        datasetIdsToRemove: string[],
+        labels: string[] | null | undefined,
+        options: any,
+        beforeUpdate?: () => void) {
+        if (!chart || !chart.data) {
+            return;
+        }
+
+        if (labels != undefined) {
+            chart.data.labels = labels;
+        }
+
+        if (options != undefined) {
+            chart.options = options;
+        }
+
+        const removeDatasetIdSet = new Set(datasetIdsToRemove ?? []);
+        const candidateDatasetsById = this.createDatasetMap(chart.data.datasets);
+
+        for (let i = 0; i < datasetsToAdd.length; i++) {
+            const dataset = datasetsToAdd[i];
+            const datasetId = dataset['id'];
+            if (!removeDatasetIdSet.has(datasetId)) {
+                candidateDatasetsById.set(datasetId, dataset);
+            }
+        }
+
+        for (let i = 0; i < datasetsToUpdateSmooth.length; i++) {
+            const newDataset = datasetsToUpdateSmooth[i];
+            const datasetId = newDataset['id'];
+            const existingDataset = candidateDatasetsById.get(datasetId);
+            if (!removeDatasetIdSet.has(datasetId) && existingDataset != undefined) {
+                this.assignDatasetSmooth(existingDataset, newDataset);
+            }
+        }
+
+        const finalDatasets = [];
+        for (let i = 0; i < desiredDatasetIds.length; i++) {
+            const datasetId = desiredDatasetIds[i];
+            const dataset = candidateDatasetsById.get(datasetId);
+            if (!removeDatasetIdSet.has(datasetId) && dataset != undefined) {
+                finalDatasets.push(dataset);
+            }
+        }
+
+        chart.data.datasets = finalDatasets;
+        beforeUpdate?.();
+        chart.update();
+    }
+
+    private assignDatasetSmooth(existingDataset: any, newDataset: any) {
+        Object.assign(existingDataset, newDataset);
+
+        for (const prop in existingDataset) {
+            if (Object.prototype.hasOwnProperty.call(existingDataset, prop) && !Object.prototype.hasOwnProperty.call(newDataset, prop)) {
+                delete existingDataset[prop];
+            }
+        }
+    }
+
+    private createDatasetMap(datasets: any[]): Map<string, any> {
+        const datasetsById = new Map<string, any>();
+        for (let i = 0; i < datasets.length; i++) {
+            datasetsById.set(datasets[i]['id'], datasets[i]);
+        }
+
+        return datasetsById;
     }
 
     public async resolveChartJsFunctions(setupOptions: any, config: any, hasChartJsFunctions: boolean): Promise<void> {
@@ -920,6 +993,53 @@ export async function updateDatasets(chartId: string, setupOptionsOrDatasets: an
         return;
     }
     ChartJsInteropModule.updateDatasets(chart, resolvedDatasets);
+}
+
+export async function applyDatasetChangesSmooth(
+    chartId: string,
+    setupOptions: any,
+    desiredDatasetIds: string[],
+    datasetsToAdd: any[],
+    datasetsToUpdateSmooth: any[],
+    datasetIdsToRemove: string[],
+    labels?: string[] | null,
+    options?: any,
+    hasChartJsFunctions?: boolean) {
+    const resolvedDatasetsToAdd = datasetsToAdd ?? [];
+    const resolvedDatasetsToUpdateSmooth = datasetsToUpdateSmooth ?? [];
+    const resolvedDatasetIdsToRemove = datasetIdsToRemove ?? [];
+
+    if (hasChartJsFunctions === true) {
+        const config: any = {};
+        if (resolvedDatasetsToAdd.length > 0 || resolvedDatasetsToUpdateSmooth.length > 0) {
+            config.data = { datasets: resolvedDatasetsToAdd.concat(resolvedDatasetsToUpdateSmooth) };
+        }
+
+        if (options != undefined) {
+            config.options = options;
+        }
+
+        await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, config, true);
+    }
+
+    const chart = getLiveChart(chartId);
+    if (!chart || !desiredDatasetIds) {
+        return;
+    }
+
+    ChartJsInteropModule.applyDatasetChangesSmooth(
+        chart,
+        desiredDatasetIds,
+        resolvedDatasetsToAdd,
+        resolvedDatasetsToUpdateSmooth,
+        resolvedDatasetIdsToRemove,
+        labels,
+        options,
+        () => {
+            if (options != undefined) {
+                registerEvents(options, chartId, chart);
+            }
+        });
 }
 
 export async function setDatasets(chartId: string, setupOptionsOrDatasets: any, datasets?: any[], hasChartJsFunctions?: boolean) {

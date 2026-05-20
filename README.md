@@ -124,7 +124,32 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
     - ```ChartJsConfig.AddData(...)```
     - ```ChartJsConfig.AddDatasetSmooth(...)```
     - ```ChartJsConfig.SetData(...)```
+    - ```ChartJsConfig.SetDatasetsSmooth(...)```
 * use ```ChartJsConfig.UpdateChartOptions()``` to update the chart options, only (e.g. [StepSize](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/StackedChartComp.razor#L106))
+* use ```ChartJsConfig.SetDatasetsSmooth(...)``` to add, update, remove, and reorder datasets by id in one batched smooth update. Optional labels and current chart options can be applied in the same chart update:
+```csharp
+chartJsConfig.Options ??= new ChartJsOptions();
+chartJsConfig.Options.Responsive = false;
+
+chartJsConfig.SetDatasetsSmooth(
+    datasets:
+    [
+        new BarDataset
+        {
+            Id = "dataset-2",
+            Label = "Dataset 2",
+            Data = [ 4, 5, 6 ]
+        },
+        new BarDataset
+        {
+            Id = "dataset-1",
+            Label = "Dataset 1",
+            Data = [ 3, 2, 1 ]
+        }
+    ],
+    labels: ["Apr", "May", "Jun"],
+    updateOptions: true);
+```
 
 ## Chart Events
 Several chart events are available, by default only the Init event is fired. The others can be activated in the ChartJsConfig.Options [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventsComp.razor)
@@ -239,6 +264,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 >- Added `ChartJsSetupOptions.Defaults` / `ChartJsDefaultsOptions` to configure app-wide `Chart.defaults` values through `AddChartJs(...)`.
 >- Added `ChartJsOptionsDatasets` for `options.datasets` and `Chart.defaults.datasets` chart-type defaults.
 >- Chart.js native `OnClick`, `OnHover`, and `OnResize` callbacks are preserved when the Blazor/C# event bridge flags are enabled.
+>- Added `ChartJsConfig.SetDatasetsSmooth(...)` to add, update, remove, and reorder datasets by id in one smooth batched chart update, with optional labels and current options update.
 
 </details>
 
