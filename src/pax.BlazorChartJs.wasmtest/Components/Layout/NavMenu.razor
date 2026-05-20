@@ -14,111 +14,168 @@
                 <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="barchart">
-                <span class="oi oi-plus" aria-hidden="true"></span> BarChart
-            </NavLink>
+        <button type="button" class="nav-section-toggle px-3" @onclick="ToggleLibrarySamples" @onclick:stopPropagation="true" aria-expanded="@(!collapseLibrarySamples)">
+            <span aria-hidden="true">@LibrarySamplesCaret</span> Library samples
+        </button>
+        <div class="@LibrarySamplesCssClass">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="barchart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> BarChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="linechart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> LineChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="multiplecharts">
+                    <span class="oi oi-plus" aria-hidden="true"></span> MultipleCharts
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="eventschart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> EventsChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="scatterchart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> ScatterChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="stackedchart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> StackedChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="multiaxis">
+                    <span class="oi oi-plus" aria-hidden="true"></span> MultiAxisChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="timeschart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> TimesChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="minchart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> ReadmeChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="preloadpluginchart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> PreloadPluginChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="datalabelschart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> DataLabelsChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="callbackchart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> CallbackChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="scriptablepaddingchart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> ScriptablePaddingChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="tooltipcallbackchart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> TooltipCallbackChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="htmllegendchart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> HtmlLegendChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="htmllegendpiechart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> HtmlLegendPieChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="udpatechart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> UpdateDatasetChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="synergysmoothchart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> SynergySmoothChart
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="disposechart">
+                    <span class="oi oi-plus" aria-hidden="true"></span> DisposeChart
+                </NavLink>
+            </div>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="linechart">
-                <span class="oi oi-plus" aria-hidden="true"></span> LineChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="multiplecharts">
-                <span class="oi oi-plus" aria-hidden="true"></span> MultipleCharts
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="eventschart">
-                <span class="oi oi-plus" aria-hidden="true"></span> EventsChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="scatterchart">
-                <span class="oi oi-plus" aria-hidden="true"></span> ScatterChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="stackedchart">
-                <span class="oi oi-plus" aria-hidden="true"></span> StackedChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="multiaxis">
-                <span class="oi oi-plus" aria-hidden="true"></span> MultiAxisChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="timeschart">
-                <span class="oi oi-plus" aria-hidden="true"></span> TimesChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="minchart">
-                <span class="oi oi-plus" aria-hidden="true"></span> ReadmeChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="preloadpluginchart">
-                <span class="oi oi-plus" aria-hidden="true"></span> PreloadPluginChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="datalabelschart">
-                <span class="oi oi-plus" aria-hidden="true"></span> DataLabelsChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="callbackchart">
-                <span class="oi oi-plus" aria-hidden="true"></span> CallbackChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="scriptablepaddingchart">
-                <span class="oi oi-plus" aria-hidden="true"></span> ScriptablePaddingChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="tooltipcallbackchart">
-                <span class="oi oi-plus" aria-hidden="true"></span> TooltipCallbackChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="htmllegendchart">
-                <span class="oi oi-plus" aria-hidden="true"></span> HtmlLegendChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="htmllegendpiechart">
-                <span class="oi oi-plus" aria-hidden="true"></span> HtmlLegendPieChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="udpatechart">
-                <span class="oi oi-plus" aria-hidden="true"></span> UpdateDatasetChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="synergysmoothchart">
-                <span class="oi oi-plus" aria-hidden="true"></span> SynergySmoothChart
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="disposechart">
-                <span class="oi oi-plus" aria-hidden="true"></span> DisposeChart
-            </NavLink>
+        <button type="button" class="nav-section-toggle px-3" @onclick="ToggleChartJsSamples" @onclick:stopPropagation="true" aria-expanded="@(!collapseChartJsSamples)">
+            <span aria-hidden="true">@ChartJsSamplesCaret</span> Chart.js samples
+        </button>
+        <div class="nav-sample-group @ChartJsSamplesCssClass">
+            <div class="nav-subsection-heading px-3">Bar Charts</div>
+            <div class="nav-item nav-item-nested px-3">
+                <NavLink class="nav-link" href="chartjs-samples/bar/border-radius" title="Bar Chart Border Radius">
+                    Border Radius
+                </NavLink>
+            </div>
+            <div class="nav-item nav-item-nested px-3">
+                <NavLink class="nav-link" href="chartjs-samples/bar/floating" title="Floating Bars">
+                    Floating
+                </NavLink>
+            </div>
+            <div class="nav-item nav-item-nested px-3">
+                <NavLink class="nav-link" href="chartjs-samples/bar/horizontal" title="Horizontal Bar Chart">
+                    Horizontal
+                </NavLink>
+            </div>
+            <div class="nav-item nav-item-nested px-3">
+                <NavLink class="nav-link" href="chartjs-samples/bar/stacked" title="Stacked Bar Chart">
+                    Stacked
+                </NavLink>
+            </div>
+            <div class="nav-item nav-item-nested px-3">
+                <NavLink class="nav-link" href="chartjs-samples/bar/stacked-groups" title="Stacked Bar Chart with Groups">
+                    Stacked Groups
+                </NavLink>
+            </div>
+            <div class="nav-item nav-item-nested px-3">
+                <NavLink class="nav-link" href="chartjs-samples/bar/vertical" title="Vertical Bar Chart">
+                    Vertical
+                </NavLink>
+            </div>
         </div>
     </nav>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    private bool collapseLibrarySamples;
+    private bool collapseChartJsSamples;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string? LibrarySamplesCssClass => collapseLibrarySamples ? "nav-group-collapsed" : null;
+    private string? ChartJsSamplesCssClass => collapseChartJsSamples ? "nav-group-collapsed" : null;
+    private string LibrarySamplesCaret => collapseLibrarySamples ? "+" : "-";
+    private string ChartJsSamplesCaret => collapseChartJsSamples ? "+" : "-";
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void ToggleLibrarySamples()
+    {
+        collapseLibrarySamples = !collapseLibrarySamples;
+    }
+
+    private void ToggleChartJsSamples()
+    {
+        collapseChartJsSamples = !collapseChartJsSamples;
     }
 }
