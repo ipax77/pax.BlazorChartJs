@@ -360,7 +360,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     public async ValueTask ShowDataset(ChartJsDataset dataset, int? index)
     {
         ArgumentNullException.ThrowIfNull(dataset);
-        await ChartJsInterop.ShowDataset(ChartJsConfig.ChartJsConfigGuid, ChartJsConfig.Data.Datasets.IndexOf(dataset), index)
+        await ChartJsInterop.ShowDataset(ChartJsConfig.ChartJsConfigGuid, dataset, index)
             .ConfigureAwait(false);
     }
 
