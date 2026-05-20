@@ -48,6 +48,5 @@ For documentation-only changes, a manual review is usually enough. For code chan
 - Build core library: `dotnet build src\pax.BlazorChartJs\pax.BlazorChartJs.csproj`
 - Run serialization tests: `dotnet test tests\pax.BlazorChartJs.tests\pax.BlazorChartJs.tests.csproj`
 - Run browser behavior tests: `dotnet test tests\pax.BlazorChartJs.pwtests\pax.BlazorChartJs.pwtests.csproj`
-- Build the full solution when broad compatibility matters: `dotnet build pax.BlazorChartJs.sln`
 
 When changing TypeScript interop, ensure `TypeScript/chartJsInterop.ts` and `wwwroot/chartJsInterop.js` stay aligned. When changing runtime chart behavior, add or update Playwright coverage.
