@@ -932,11 +932,12 @@ export function hideDataset(chartId, datasetIdOrIndex, dataIndex) {
         chart.hide(datasetIndex, dataIndex);
     }
 }
-export function showDataset(chartId, datasetIndex, dataIndex) {
+export function showDataset(chartId, datasetIdOrIndex, dataIndex) {
     const chart = getLiveChart(chartId);
     if (!chart) {
         return;
     }
+    const datasetIndex = resolveDatasetIndex(chart, datasetIdOrIndex);
     if (!hasDatasetElement(chart, datasetIndex, dataIndex)) {
         return;
     }

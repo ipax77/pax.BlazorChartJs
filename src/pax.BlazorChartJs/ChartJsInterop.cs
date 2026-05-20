@@ -302,13 +302,15 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     /// If dataIndex is specified, sets the hidden flag of that element to false and updates the chart.
     /// </summary>
     /// <param name="configGuid"></param>
-    /// <param name="datasetIndex"></param>
+    /// <param name="dataset"></param>
     /// <param name="index"></param>
     /// <returns></returns>
-    public async ValueTask ShowDataset(Guid configGuid, int datasetIndex, int? index)
+    public async ValueTask ShowDataset(Guid configGuid, ChartJsDataset dataset, int? index)
     {
+        ArgumentNullException.ThrowIfNull(dataset);
+
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("showDataset", configGuid, datasetIndex, index)
+        await module.InvokeVoidAsync("showDataset", configGuid, dataset.Id, index)
             .ConfigureAwait(false);
     }
 

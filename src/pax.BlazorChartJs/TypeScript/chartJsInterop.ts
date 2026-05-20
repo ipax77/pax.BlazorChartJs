@@ -1209,11 +1209,12 @@ export function hideDataset(chartId: string, datasetIdOrIndex: string | number, 
     }
 }
 
-export function showDataset(chartId: string, datasetIndex: number, dataIndex?: number) {
+export function showDataset(chartId: string, datasetIdOrIndex: string | number, dataIndex?: number) {
     const chart = getLiveChart(chartId);
     if (!chart) {
         return;
     }
+    const datasetIndex = resolveDatasetIndex(chart, datasetIdOrIndex);
     if (!hasDatasetElement(chart, datasetIndex, dataIndex)) {
         return;
     }
