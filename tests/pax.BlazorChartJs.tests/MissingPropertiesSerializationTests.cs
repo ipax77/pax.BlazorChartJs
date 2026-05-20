@@ -174,9 +174,10 @@ public sealed class MissingPropertiesSerializationTests
     [TestMethod]
     public void AxisTooltipAndLegendLabelMissingPropertiesSerialize()
     {
-        LinearAxis axis = new()
+        CartesianAxis axis = new()
         {
-            Clip = true
+            Clip = true,
+            Position = "right"
         };
         Tooltip tooltip = new()
         {
@@ -196,6 +197,7 @@ public sealed class MissingPropertiesSerializationTests
         using var labelsDocument = SerializeToDocument(labels);
 
         Assert.IsTrue(axisDocument.RootElement.GetProperty("clip").GetBoolean());
+        Assert.AreEqual("right", axisDocument.RootElement.GetProperty("position").GetString());
         Assert.IsFalse(tooltipDocument.RootElement.GetProperty("animation").GetBoolean());
         Assert.IsFalse(tooltipDocument.RootElement.GetProperty("animations").GetBoolean());
         Assert.AreEqual("xy", tooltipDocument.RootElement.GetProperty("axis").GetString());
@@ -221,7 +223,12 @@ public sealed class MissingPropertiesSerializationTests
             HoverBorderDashOffset = ChartJsFunction.FromName("lineHoverDashOffset"),
             HoverBorderJoinStyle = ChartJsFunction.FromName("lineHoverJoin"),
             HoverBorderWidth = ChartJsFunction.FromName("lineHoverWidth"),
-            Segment = new { borderColor = "red" },
+            PointStyle = false,
+            Segment = new
+            {
+                BorderColor = ChartJsFunction.FromName("lineSegmentColor"),
+                BorderDash = ChartJsFunction.FromName("lineSegmentDash")
+            },
             Stepped = "middle",
             Tension = ChartJsFunction.FromName("lineTension")
         };
@@ -269,7 +276,9 @@ public sealed class MissingPropertiesSerializationTests
         Assert.AreEqual("lineHoverDashOffset", GetMarkerName(lineRoot.GetProperty("hoverBorderDashOffset")));
         Assert.AreEqual("lineHoverJoin", GetMarkerName(lineRoot.GetProperty("hoverBorderJoinStyle")));
         Assert.AreEqual("lineHoverWidth", GetMarkerName(lineRoot.GetProperty("hoverBorderWidth")));
-        Assert.AreEqual("red", lineRoot.GetProperty("segment").GetProperty("borderColor").GetString());
+        Assert.IsFalse(lineRoot.GetProperty("pointStyle").GetBoolean());
+        Assert.AreEqual("lineSegmentColor", GetMarkerName(lineRoot.GetProperty("segment").GetProperty("borderColor")));
+        Assert.AreEqual("lineSegmentDash", GetMarkerName(lineRoot.GetProperty("segment").GetProperty("borderDash")));
         Assert.AreEqual("middle", lineRoot.GetProperty("stepped").GetString());
         Assert.AreEqual("lineTension", GetMarkerName(lineRoot.GetProperty("tension")));
 

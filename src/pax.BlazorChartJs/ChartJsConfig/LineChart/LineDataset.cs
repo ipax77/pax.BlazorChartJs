@@ -120,7 +120,7 @@ public record LineDataset : ChartJsDataset
     ///    'triangle'
     ///    If the value is an image or a canvas element, that image or canvas element is drawn on the canvas usin
     /// </summary>    
-    public IndexableOption<string>? PointStyle { get; set; }
+    public IndexableOption<object>? PointStyle { get; set; }
     /// <summary>
     /// Segment
     /// Line segment styles can be overridden by scriptable options in the segment object. Currently all of the border* and backgroundColor options are supported. The segment styles are resolved for each section of the line between each point. undefined fallbacks to main line styles.
