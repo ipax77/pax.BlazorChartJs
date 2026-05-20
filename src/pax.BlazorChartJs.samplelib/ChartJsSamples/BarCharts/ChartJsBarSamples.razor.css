@@ -1,0 +1,62 @@
+.chartjs-samples {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.chartjs-samples__header {
+    max-width: 64rem;
+}
+
+.chartjs-samples__header p {
+    margin: 0;
+    color: #5d6470;
+}
+
+.chartjs-sample {
+    border-top: 1px solid #d8dee8;
+    padding-top: 1.25rem;
+}
+
+.chartjs-sample__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.chartjs-sample__chart {
+    max-width: 100%;
+    min-height: 12rem;
+    min-width: min(100%, 320px);
+    width: min(50vw, 800px);
+    margin-bottom: 1rem;
+}
+
+.chartjs-sample__code {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.chartjs-sample__code h3 {
+    font-size: 1rem;
+    margin: 0 0 0.5rem;
+}
+
+.chartjs-sample__code pre {
+    max-height: 24rem;
+    overflow: auto;
+    border: 1px solid #d8dee8;
+    border-radius: 6px;
+    padding: 1rem;
+    background: #f8fafc;
+}
+
+@media (max-width: 840px) {
+    .chartjs-sample__actions,
+    .chartjs-sample__code {
+        display: flex;
+        flex-direction: column;
+    }
+}

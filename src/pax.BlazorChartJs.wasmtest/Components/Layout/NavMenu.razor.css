@@ -38,6 +38,51 @@
     padding-bottom: 0.5rem;
 }
 
+.nav-section-toggle {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: rgba(255, 255, 255, 0.68);
+    display: flex;
+    font-size: 0.72rem;
+    font-weight: 700;
+    gap: 0.5rem;
+    letter-spacing: 0;
+    margin: 0.75rem 0 0.35rem;
+    text-align: left;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+.nav-section-toggle:hover {
+    color: white;
+}
+
+.nav-group-collapsed {
+    display: none;
+}
+
+.nav-sample-group {
+    margin-top: 0.15rem;
+}
+
+.nav-subsection-heading {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin: 0.25rem 0;
+}
+
+.nav-item-nested ::deep a {
+    height: 2.25rem;
+    line-height: 1.2;
+    overflow: hidden;
+    padding-left: 1.75rem;
+    padding-right: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
     .nav-item:first-of-type {
         padding-top: 1rem;
     }
