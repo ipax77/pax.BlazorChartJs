@@ -17,16 +17,9 @@ const reservedChartJsFunctionNames = new Set([
 type ChartJsCallback = (...args: any[]) => any;
 type ChartJsCallbackRegistry = Readonly<Record<string, ChartJsCallback>>;
 
-class LoadInfo {
-    public chartJsLoaded: boolean = false;
-    public chartJsDatalabels: boolean = false;
-    public chartJsLabels: boolean = false;
-}
-
 class ChartJsInterop {
     public dotnetRefs = new Map<string, any>();
     public charts = new Map<string, any>();
-    public loadInfo = new LoadInfo();
     public chartInitPromises = new Map<string, Promise<ChartInitResult>>();
     public chartJsCallbackRegistryPromises = new Map<string, Promise<ChartJsCallbackRegistry>>();
     public appliedDefaultsKey: string | null = null;
