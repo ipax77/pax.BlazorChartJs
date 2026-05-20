@@ -32,6 +32,11 @@ public abstract class ChartJsDocsBaseComponent : ComponentBase
         return new ChartJsDocsAction(id, name, EventCallback.Factory.Create(this, handler));
     }
 
+    protected ChartJsDocsAction CreateAction(string id, string name, Func<Task> handler)
+    {
+        return new ChartJsDocsAction(id, name, EventCallback.Factory.Create(this, handler));
+    }
+
     protected void QueueCodeHighlight()
     {
         highlightPending = true;

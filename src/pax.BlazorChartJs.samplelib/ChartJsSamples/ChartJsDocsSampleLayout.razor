@@ -23,7 +23,7 @@
     </div>
 
     <div class="chartjs-sample__chart">
-        <ChartComponent ChartJsConfig="ChartJsConfig" />
+        <ChartComponent @ref="chartComponent" ChartJsConfig="ChartJsConfig" />
     </div>
 
     <div class="chartjs-sample__code">
@@ -102,6 +102,11 @@
     [Parameter]
     public string? CallbacksCode { get; set; }
 
+    [Parameter]
+    public EventCallback<ChartComponent> OnChartComponentReady { get; set; }
+
+    private ChartComponent? chartComponent;
+
     private string CSharpCodeBlockKey => $"csharp:{ActiveCodeTab}";
 
     private string JavaScriptCodeBlockKey => $"javascript:{ActiveCodeTab}";
@@ -109,6 +114,14 @@
     private string ActiveCSharpCode => GetActiveCode(CSharpCode);
 
     private string ActiveJavaScriptCode => GetActiveCode(JavaScriptCode);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && chartComponent is not null && OnChartComponentReady.HasDelegate)
+        {
+            await OnChartComponentReady.InvokeAsync(chartComponent).ConfigureAwait(false);
+        }
+    }
 
     private string GetActiveCode(ChartJsDocsCodeSet codeSet)
     {

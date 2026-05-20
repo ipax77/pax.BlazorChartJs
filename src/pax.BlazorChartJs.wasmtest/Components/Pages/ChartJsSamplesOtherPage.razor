@@ -1,0 +1,14 @@
+@page "/chartjs-samples/other"
+@page "/chartjs-samples/other/{SampleId}"
+@using pax.BlazorChartJs.samplelib.ChartJsSamples.OtherCharts
+
+<PageTitle>Chart.js Other Charts</PageTitle>
+
+<ChartJsOtherCharts SampleId="@ResolvedSampleId" />
+
+@code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
+    private string ResolvedSampleId => string.IsNullOrWhiteSpace(SampleId) ? "bubble" : SampleId;
+}

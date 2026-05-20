@@ -1,0 +1,12 @@
+@namespace pax.BlazorChartJs.samplelib.ChartJsSamples.OtherCharts
+
+<ChartJsOtherChartSample @key="ResolvedSampleId" SampleId="@ResolvedSampleId" />
+
+@code {
+    [Parameter]
+    public string SampleId { get; set; } = "bubble";
+
+    private string ResolvedSampleId => ChartJsOtherChartSampleBase.IsKnownSample(SampleId)
+        ? SampleId
+        : "bubble";
+}

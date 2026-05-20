@@ -25,6 +25,7 @@ public partial class ChartJsConfig
         {
             return;
         }
+        EnsureMutableLabels();
         Data.Labels.RemoveAt(Data.Labels.Count - 1);
     }
 
@@ -34,6 +35,7 @@ public partial class ChartJsConfig
         {
             return;
         }
+        EnsureMutableDatasetData(dataset);
         dataset.Data.RemoveAt(dataset.Data.Count - 1);
     }
 
