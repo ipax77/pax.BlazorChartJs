@@ -223,6 +223,11 @@ const callbacks = Object.assign(Object.create(null), {
     areaStackedTitle(context) {
         return `Chart.js Line Chart - stacked=${context.chart.options.scales.y.stacked}`;
     },
+    timeMaxSpanMajorTickFont(context) {
+        return context.tick && context.tick.major
+            ? { weight: 'bold' }
+            : undefined;
+    },
     multiSeriesPieGenerateLabels(chart) {
         const original = Chart.overrides.pie.plugins.legend.labels.generateLabels;
         const labelsOriginal = original.call(this, chart);

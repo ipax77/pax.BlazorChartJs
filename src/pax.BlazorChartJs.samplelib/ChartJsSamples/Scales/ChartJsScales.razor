@@ -1,0 +1,12 @@
+@namespace pax.BlazorChartJs.samplelib.ChartJsSamples.Scales
+
+<ChartJsScalesSample @key="ResolvedSampleId" SampleId="@ResolvedSampleId" />
+
+@code {
+    [Parameter]
+    public string SampleId { get; set; } = "linear-min-max";
+
+    private string ResolvedSampleId => ChartJsScalesSampleBase.IsKnownSample(SampleId)
+        ? SampleId
+        : "linear-min-max";
+}

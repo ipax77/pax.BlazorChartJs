@@ -177,6 +177,7 @@ public sealed class MissingPropertiesSerializationTests
         CartesianAxis axis = new()
         {
             Clip = true,
+            Labels = ["ON", "OFF"],
             Position = "right"
         };
         Tooltip tooltip = new()
@@ -197,6 +198,8 @@ public sealed class MissingPropertiesSerializationTests
         using var labelsDocument = SerializeToDocument(labels);
 
         Assert.IsTrue(axisDocument.RootElement.GetProperty("clip").GetBoolean());
+        Assert.AreEqual("ON", axisDocument.RootElement.GetProperty("labels")[0].GetString());
+        Assert.AreEqual("OFF", axisDocument.RootElement.GetProperty("labels")[1].GetString());
         Assert.AreEqual("right", axisDocument.RootElement.GetProperty("position").GetString());
         Assert.IsFalse(tooltipDocument.RootElement.GetProperty("animation").GetBoolean());
         Assert.IsFalse(tooltipDocument.RootElement.GetProperty("animations").GetBoolean());
@@ -464,6 +467,7 @@ public sealed class MissingPropertiesSerializationTests
             HoverBackgroundColor = ["#778899", "#aabbcc"],
             HoverBorderColor = ChartJsFunction.FromName("globalHoverBorder"),
             Normalized = true,
+            SpanGaps = 172800000,
             OnClick = ChartJsFunction.FromName("chartClick"),
             OnHover = ChartJsFunction.FromName("chartHover"),
             OnResize = ChartJsFunction.FromName("chartResize")
@@ -486,6 +490,7 @@ public sealed class MissingPropertiesSerializationTests
         Assert.AreEqual("#aabbcc", root.GetProperty("hoverBackgroundColor")[1].GetString());
         Assert.AreEqual("globalHoverBorder", GetMarkerName(root.GetProperty("hoverBorderColor")));
         Assert.IsTrue(root.GetProperty("normalized").GetBoolean());
+        Assert.AreEqual(172800000, root.GetProperty("spanGaps").GetInt32());
         Assert.AreEqual("chartClick", GetMarkerName(root.GetProperty("onClick")));
         Assert.AreEqual("chartHover", GetMarkerName(root.GetProperty("onHover")));
         Assert.AreEqual("chartResize", GetMarkerName(root.GetProperty("onResize")));
