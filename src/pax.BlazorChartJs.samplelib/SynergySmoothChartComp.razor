@@ -1,0 +1,341 @@
+@using pax.BlazorChartJs
+
+<h3>Synergy Smooth Dataset Updates</h3>
+
+<div class="btn-group flex-wrap">
+    <button type="button" class="btn btn-primary" @onclick="SetDatasetsSmooth">SetDatasetsSmooth</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetsDataSmooth">UpdateDatasetsDataSmooth</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDatasetSmooth">Add Dataset Smooth</button>
+    <button type="button" class="btn btn-primary" @onclick="RemoveDatasetSmooth">Remove Dataset Smooth</button>
+</div>
+
+<div class="chart-container" style="position: relative; width: min(100%, 960px); height: clamp(420px, 62vh, 620px);">
+    <ChartComponent @ref="chartComponent"
+                    ChartJsConfig="chartJsConfig"
+                    OnEventTriggered="ChartEventTriggered">
+    </ChartComponent>
+</div>
+
+@code {
+    private const string NovaDatasetId = "synergy-nova";
+    private const string RaynorDatasetId = "synergy-raynor";
+    private const string StukovDatasetId = "synergy-stukov";
+    private const string TychusDatasetId = "synergy-tychus";
+    private const string ZagaraDatasetId = "synergy-zagara";
+
+    private static readonly string[] InitialLabels =
+    [
+        "Artanis",
+        "Kerrigan",
+        "Swann",
+        "Vorazun"
+    ];
+
+    private static readonly string[] ExpandedLabels =
+    [
+        "Artanis",
+        "Dehaka",
+        "Kerrigan",
+        "Stetmann",
+        "Vorazun"
+    ];
+
+    private static readonly SynergyDatasetDefinition[] InitialDatasets =
+    [
+        new(NovaDatasetId, "Nova", "#2563eb", [0.76, 0.62, 0.84, 0.69]),
+        new(RaynorDatasetId, "Raynor", "#16a34a", [0.58, 0.71, 0.66, 0.78]),
+        new(StukovDatasetId, "Stukov", "#9333ea", [0.68, 0.81, 0.57, 0.72])
+    ];
+
+    private static readonly SynergyDatasetDefinition[] ExpandedDatasets =
+    [
+        new(TychusDatasetId, "Tychus", "#dc2626", [0.82, 0.73, 0.65, 0.88, 0.70]),
+        new(NovaDatasetId, "Nova", "#2563eb", [0.69, 0.86, 0.74, 0.79, 0.91]),
+        new(RaynorDatasetId, "Raynor", "#16a34a", [0.63, 0.67, 0.83, 0.72, 0.76])
+    ];
+
+    private static readonly SynergyDataUpdate[] InitialDataOnlyUpdates =
+    [
+        new(NovaDatasetId, [0.91, 0.67, 0.79, 0.82]),
+        new(RaynorDatasetId, [0.73, 0.77, 0.71, 0.86]),
+        new(StukovDatasetId, [0.70, 0.86, 0.63, 0.75])
+    ];
+
+    private static readonly SynergyDataUpdate[] ExpandedDataOnlyUpdates =
+    [
+        new(TychusDatasetId, [0.78, 0.84, 0.70, 0.92, 0.75]),
+        new(NovaDatasetId, [0.88, 0.81, 0.77, 0.86, 0.94]),
+        new(RaynorDatasetId, [0.66, 0.74, 0.89, 0.80, 0.79])
+    ];
+
+    private static readonly SynergyDatasetDefinition InitialOptionalDataset =
+        new(ZagaraDatasetId, "Zagara", "#ea580c", [0.64, 0.88, 0.76, 0.83]);
+
+    private static readonly SynergyDatasetDefinition ExpandedOptionalDataset =
+        new(ZagaraDatasetId, "Zagara", "#ea580c", [0.71, 0.82, 0.69, 0.86, 0.88]);
+
+    private ChartComponent? chartComponent;
+    private ChartJsConfig chartJsConfig = null!;
+    private bool chartReady;
+    private SynergySampleState sampleState = SynergySampleState.Initial;
+    private bool optionalDatasetVisible;
+
+    protected override void OnInitialized()
+    {
+        chartJsConfig = CreateChartConfig();
+        base.OnInitialized();
+    }
+
+    private void ChartEventTriggered(ChartJsEvent chartJsEvent)
+    {
+        if (chartJsEvent is ChartJsInitEvent)
+        {
+            chartReady = true;
+        }
+    }
+
+    private void SetDatasetsSmooth()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        var nextState = sampleState == SynergySampleState.Initial
+            ? SynergySampleState.Expanded
+            : SynergySampleState.Initial;
+
+        if (chartJsConfig.Options?.Plugins?.Title != null)
+        {
+            chartJsConfig.Options.Plugins.Title.Text = nextState == SynergySampleState.Expanded
+                ? "Expanded synergy roster"
+                : "Commander synergy score";
+        }
+
+        chartJsConfig.SetDatasetsSmooth(
+            CreateCurrentDatasets(nextState, optionalDatasetVisible),
+            [.. GetLabels(nextState)],
+            updateOptions: true);
+
+        sampleState = nextState;
+    }
+
+    private void AddDatasetSmooth()
+    {
+        if (!chartReady || optionalDatasetVisible)
+        {
+            return;
+        }
+
+        optionalDatasetVisible = true;
+        chartJsConfig.SetDatasetsSmooth(
+            CreateCurrentDatasets(sampleState, includeOptionalDataset: true),
+            [.. GetLabels(sampleState)]);
+    }
+
+    private void RemoveDatasetSmooth()
+    {
+        if (!chartReady || !optionalDatasetVisible)
+        {
+            return;
+        }
+
+        optionalDatasetVisible = false;
+        chartJsConfig.SetDatasetsSmooth(
+            CreateCurrentDatasets(sampleState, includeOptionalDataset: false),
+            [.. GetLabels(sampleState)]);
+    }
+
+    private void UpdateDatasetsDataSmooth()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        var updates = GetDataOnlyUpdates(sampleState);
+        Dictionary<string, IList<object>> dataByDatasetId = new(updates.Length, StringComparer.Ordinal);
+        for (int i = 0; i < updates.Length; i++)
+        {
+            var update = updates[i];
+            dataByDatasetId[update.DatasetId] = CreateData(update.Values);
+        }
+
+        chartJsConfig.UpdateDatasetsDataSmooth(dataByDatasetId);
+    }
+
+    private static ChartJsConfig CreateChartConfig()
+    {
+        return new ChartJsConfig()
+        {
+            Type = ChartType.radar,
+            Data = new ChartJsData()
+            {
+                Labels = [.. InitialLabels],
+                Datasets = CreateDatasets(InitialDatasets)
+            },
+            Options = new ChartJsOptions()
+            {
+                Responsive = true,
+                MaintainAspectRatio = false,
+                Plugins = new Plugins()
+                {
+                    Title = new Title()
+                    {
+                        Display = true,
+                        Text = "Commander synergy score",
+                        Color = "#111827",
+                        Font = new Font()
+                        {
+                            Size = 18
+                        }
+                    },
+                    Legend = new Legend()
+                    {
+                        Display = true,
+                        Position = "right",
+                        Labels = new Labels()
+                        {
+                            Color = "#111827"
+                        }
+                    }
+                },
+                Scales = new ChartJsOptionsScales()
+                {
+                    R = new LinearRadialAxis()
+                    {
+                        AngleLines = new AngleLines()
+                        {
+                            Display = true,
+                            Color = "#64748b66"
+                        },
+                        Grid = new ChartJsGrid()
+                        {
+                            Display = true,
+                            Color = "#64748b33"
+                        },
+                        PointLabels = new PointLabels()
+                        {
+                            Display = true,
+                            Color = "#111827",
+                            Font = new Font()
+                            {
+                                Size = 12
+                            }
+                        },
+                        Ticks = new()
+                        {
+                            Display = true,
+                            Color = "#475569",
+                            BackdropColor = "transparent"
+                        },
+                        BeginAtZero = true,
+                        SuggestedMax = 1
+                    }
+                }
+            }
+        };
+    }
+
+    private static List<ChartJsDataset> CreateDatasets(IReadOnlyList<SynergyDatasetDefinition> definitions)
+    {
+        List<ChartJsDataset> datasets = new(definitions.Count);
+        for (int i = 0; i < definitions.Count; i++)
+        {
+            datasets.Add(CreateDataset(definitions[i]));
+        }
+
+        return datasets;
+    }
+
+    private static List<ChartJsDataset> CreateCurrentDatasets(
+        SynergySampleState state,
+        bool includeOptionalDataset)
+    {
+        var definitions = GetDatasetDefinitions(state);
+        List<ChartJsDataset> datasets = new(definitions.Length + (includeOptionalDataset ? 1 : 0));
+        for (int i = 0; i < definitions.Length; i++)
+        {
+            datasets.Add(CreateDataset(definitions[i]));
+
+            if (includeOptionalDataset && i == 0)
+            {
+                datasets.Add(CreateDataset(GetOptionalDatasetDefinition(state)));
+            }
+        }
+
+        return datasets;
+    }
+
+    private static RadarDataset CreateDataset(SynergyDatasetDefinition definition)
+    {
+        return new RadarDataset()
+        {
+            Id = definition.DatasetId,
+            Label = definition.Label,
+            Data = CreateData(definition.Values),
+            BorderColor = definition.Color,
+            BackgroundColor = $"{definition.Color}33",
+            BorderWidth = 2,
+            PointRadius = 3,
+            PointHoverRadius = 5,
+            Fill = true,
+            Tension = 0.15
+        };
+    }
+
+    private static List<object> CreateData(IReadOnlyList<double> values)
+    {
+        List<object> data = new(values.Count);
+        for (int i = 0; i < values.Count; i++)
+        {
+            data.Add(values[i]);
+        }
+
+        return data;
+    }
+
+    private static string[] GetLabels(SynergySampleState state)
+    {
+        return state == SynergySampleState.Expanded
+            ? ExpandedLabels
+            : InitialLabels;
+    }
+
+    private static SynergyDatasetDefinition[] GetDatasetDefinitions(SynergySampleState state)
+    {
+        return state == SynergySampleState.Expanded
+            ? ExpandedDatasets
+            : InitialDatasets;
+    }
+
+    private static SynergyDataUpdate[] GetDataOnlyUpdates(SynergySampleState state)
+    {
+        return state == SynergySampleState.Expanded
+            ? ExpandedDataOnlyUpdates
+            : InitialDataOnlyUpdates;
+    }
+
+    private static SynergyDatasetDefinition GetOptionalDatasetDefinition(SynergySampleState state)
+    {
+        return state == SynergySampleState.Expanded
+            ? ExpandedOptionalDataset
+            : InitialOptionalDataset;
+    }
+
+    private enum SynergySampleState
+    {
+        Initial,
+        Expanded
+    }
+
+    private sealed record SynergyDatasetDefinition(
+        string DatasetId,
+        string Label,
+        string Color,
+        IReadOnlyList<double> Values);
+
+    private sealed record SynergyDataUpdate(
+        string DatasetId,
+        IReadOnlyList<double> Values);
+}
