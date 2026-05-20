@@ -50,6 +50,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
         ChartJsConfig.DatasetsRemove += ChartJsConfig_DatasetsRemove;
         ChartJsConfig.DatasetsUpdate += ChartJsConfig_DatasetsUpdate;
         ChartJsConfig.DatasetsSet += ChartJsConfig_DatasetsSet;
+        ChartJsConfig.DatasetChangesSmooth += ChartJsConfig_DatasetChangesSmooth;
         ChartJsConfig.DataAdd += ChartJsConfig_DataAdd;
         ChartJsConfig.DataRemove += ChartJsConfig_DataRemove;
         ChartJsConfig.DataSet += ChartJsConfig_DataSet;
@@ -100,6 +101,12 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
     private async void ChartJsConfig_DatasetsSet(object? sender, DatasetsSetEventArgs e)
     {
         await InvokeChartInteropAsync(() => ChartJsInterop.SetDatasets(ChartJsConfig.ChartJsConfigGuid, e.Datasets))
+            .ConfigureAwait(false);
+    }
+
+    private async void ChartJsConfig_DatasetChangesSmooth(object? sender, DatasetsSmoothChangeSet e)
+    {
+        await InvokeChartInteropAsync(() => ChartJsInterop.ApplyDatasetChangesSmooth(ChartJsConfig, e))
             .ConfigureAwait(false);
     }
 
@@ -408,6 +415,7 @@ public partial class ChartComponent : ComponentBase, IAsyncDisposable
             ChartJsConfig.DatasetsRemove -= ChartJsConfig_DatasetsRemove;
             ChartJsConfig.DatasetsUpdate -= ChartJsConfig_DatasetsUpdate;
             ChartJsConfig.DatasetsSet -= ChartJsConfig_DatasetsSet;
+            ChartJsConfig.DatasetChangesSmooth -= ChartJsConfig_DatasetChangesSmooth;
             ChartJsConfig.DataAdd -= ChartJsConfig_DataAdd;
             ChartJsConfig.DataRemove -= ChartJsConfig_DataRemove;
             ChartJsConfig.DataSet -= ChartJsConfig_DataSet;

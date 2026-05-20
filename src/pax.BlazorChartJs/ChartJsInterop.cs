@@ -360,6 +360,35 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         }
     }
 
+    internal async ValueTask ApplyDatasetChangesSmooth(ChartJsConfig config, DatasetsSmoothChangeSet changeSet)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(changeSet);
+
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        var datasetsToAdd = changeSet.DatasetsToAdd ?? [];
+        var datasetsToUpdateSmooth = changeSet.DatasetsToUpdateSmooth ?? [];
+        var datasetIdsToRemove = changeSet.DatasetIdsToRemove ?? [];
+        var serializedDatasetsToAdd = SerializeDatasets(datasetsToAdd);
+        var serializedDatasetsToUpdateSmooth = SerializeDatasets(datasetsToUpdateSmooth);
+        var serializedOptions = changeSet.UpdateOptions
+            ? SerializeConfigOptions(config)
+            : new SerializedChartJsPayload<JsonObject?>(null, false, String.Empty);
+
+        await module.InvokeVoidAsync(
+            "applyDatasetChangesSmooth",
+            config.ChartJsConfigGuid,
+            setupOptions,
+            changeSet.DesiredDatasetIds,
+            serializedDatasetsToAdd.Json,
+            serializedDatasetsToUpdateSmooth.Json,
+            datasetIdsToRemove,
+            changeSet.Labels,
+            serializedOptions.Json,
+            serializedDatasetsToAdd.HasChartJsFunctions || serializedDatasetsToUpdateSmooth.HasChartJsFunctions || serializedOptions.HasChartJsFunctions)
+            .ConfigureAwait(false);
+    }
+
     internal async ValueTask SetDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
