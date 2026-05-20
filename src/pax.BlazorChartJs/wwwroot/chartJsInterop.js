@@ -900,13 +900,31 @@ export function getDataVisibility(chartId, index) {
     }
     return chart.getDataVisibility(index);
 }
-export function hideDataset(chartId, datasetId, dataIndex) {
+function resolveDatasetIndex(chart, datasetIdOrIndex) {
+    if (typeof datasetIdOrIndex === "number") {
+        return datasetIdOrIndex;
+    }
+    return chart.data.datasets.findIndex((dataset) => dataset.id === datasetIdOrIndex);
+}
+function hasDatasetElement(chart, datasetIndex, dataIndex) {
+    if (datasetIndex < 0 || datasetIndex >= chart.data.datasets.length) {
+        return false;
+    }
+    if (dataIndex == undefined) {
+        return true;
+    }
+    const dataset = chart.data.datasets[datasetIndex];
+    return dataIndex >= 0 && dataIndex < (dataset.data?.length ?? 0);
+}
+export function hideDataset(chartId, datasetIdOrIndex, dataIndex) {
     const chart = getLiveChart(chartId);
     if (!chart) {
         return;
     }
-    const datasetMetas = chart.getSortedVisibleDatasetMetas();
-    const datasetIndex = datasetMetas.findIndex((obj) => obj._dataset.id === datasetId);
+    const datasetIndex = resolveDatasetIndex(chart, datasetIdOrIndex);
+    if (!hasDatasetElement(chart, datasetIndex, dataIndex)) {
+        return;
+    }
     if (dataIndex == undefined) {
         chart.hide(datasetIndex);
     }
@@ -917,6 +935,9 @@ export function hideDataset(chartId, datasetId, dataIndex) {
 export function showDataset(chartId, datasetIndex, dataIndex) {
     const chart = getLiveChart(chartId);
     if (!chart) {
+        return;
+    }
+    if (!hasDatasetElement(chart, datasetIndex, dataIndex)) {
         return;
     }
     if (dataIndex == undefined) {

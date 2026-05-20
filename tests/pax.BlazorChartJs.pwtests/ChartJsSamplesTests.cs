@@ -43,6 +43,29 @@ public class ChartJsSamplesTests : PageTest
         await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas")).ToHaveCountAsync(1);
     }
 
+    [TestCase("bubble", "Bubble")]
+    [TestCase("combo-bar-line", "Combo bar/line")]
+    [TestCase("doughnut", "Doughnut")]
+    [TestCase("multi-series-pie", "Multi Series Pie")]
+    [TestCase("pie", "Pie")]
+    [TestCase("polar-area", "Polar area")]
+    [TestCase("polar-area-center-labels", "Polar area centered point labels")]
+    [TestCase("radar", "Radar")]
+    [TestCase("radar-skip-points", "Radar skip points")]
+    [TestCase("scatter", "Scatter")]
+    [TestCase("scatter-multi-axis", "Scatter - Multi axis")]
+    [TestCase("stacked-bar-line", "Stacked bar/line")]
+    public async Task OtherSamplePageRenders(string sampleId, string title)
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + $"/chartjs-samples/other/{sampleId}");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = title, Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}']")).ToHaveCountAsync(1);
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas")).ToHaveCountAsync(1);
+    }
+
     [Test]
     public async Task BarSamplesRenderAndRandomize()
     {
@@ -205,8 +228,12 @@ public class ChartJsSamplesTests : PageTest
             .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
         await Expect(Page.Locator("[data-code-tab='callbacks']")).ToHaveCountAsync(0);
-        await Expect(Page.Locator("code.language-javascript")).ToContainTextAsync("const config");
-        await Expect(Page.Locator("code.language-javascript")).ToContainTextAsync("const skipped");
+        var mainJavaScriptCode = Page.Locator("[aria-label='JavaScript code'] code.language-javascript");
+        await Expect(mainJavaScriptCode).ToContainTextAsync("const config");
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='setup']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(mainJavaScriptCode).ToContainTextAsync("const skipped");
         await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "chartJsCallbacks.js", Exact = true })).ToBeVisibleAsync();
         await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("ChartJsCallbacksModuleLocation");
         await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("Object.assign(Object.create(null)");
@@ -253,6 +280,206 @@ public class ChartJsSamplesTests : PageTest
         Assert.That(callbackTypes, Is.EqualTo("function:function"));
     }
 
+    [Test]
+    public async Task OtherBubbleSampleDatasetActionsMatchChartJsSample()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/other/bubble");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Bubble", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='bubble'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var initialDatasets = await GetDatasetCount(canvasId);
+        var initialDataCount = await GetFirstDatasetDataCount(canvasId);
+        var before = await GetFirstDatasetDataJson(canvasId);
+
+        await Page.Locator("[data-sample-action='bubble-randomize']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataJson(canvasId), Is.Not.EqualTo(before));
+
+        await Page.Locator("[data-sample-action='bubble-add-dataset']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetDatasetCount(canvasId), Is.EqualTo(initialDatasets + 1));
+
+        await Page.Locator("[data-sample-action='bubble-add-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount + 1));
+
+        await Page.Locator("[data-sample-action='bubble-remove-dataset']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetDatasetCount(canvasId), Is.EqualTo(initialDatasets));
+
+        await Page.Locator("[data-sample-action='bubble-remove-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount));
+    }
+
+    [Test]
+    public async Task OtherRadarSampleAddDataWorksWithInitialArrayLabels()
+    {
+        List<string> pageErrors = [];
+        Page.PageError += (_, error) => pageErrors.Add(error);
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/other/radar");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Radar", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='radar'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var initialDataCount = await GetFirstDatasetDataCount(canvasId);
+
+        await Page.Locator("[data-sample-action='radar-add-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount + 1));
+        Assert.That(pageErrors, Is.Empty);
+    }
+
+    [Test]
+    public async Task OtherScatterMultiAxisPlacesSecondYAxisOnRight()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/other/scatter-multi-axis");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Scatter - Multi axis", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='scatter-multi-axis'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var scalePositions = await Page.EvaluateAsync<string>(@"canvasId => {
+                const chart = Chart.getChart(canvasId);
+                return `${chart.options.scales.y.position}:${chart.options.scales.y2.position}`;
+            }", canvasId);
+
+        Assert.That(scalePositions, Is.EqualTo("left:right"));
+    }
+
+    [Test]
+    public async Task OtherSampleCodeTabsShowCSharpAndJavaScriptTogether()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/other/combo-bar-line");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Combo bar/line", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator("[data-code-tab='config']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("var config");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("Type = ChartType.bar");
+        await Expect(Page.Locator("code.language-javascript")).ToContainTextAsync("const config");
+        await Expect(Page.Locator("code.language-javascript")).ToContainTextAsync("type: 'bar'");
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='setup']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("new LineDataset");
+        await Expect(Page.Locator("code.language-javascript")).ToContainTextAsync("type: 'line'");
+
+        await Page.Locator("[data-code-tab='actions']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='actions']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("void Randomize");
+        await Expect(Page.Locator("code.language-javascript")).ToContainTextAsync("const actions");
+    }
+
+    [Test]
+    public async Task OtherDoughnutSampleIncludesHideAndShowActions()
+    {
+        List<string> pageErrors = [];
+        Page.PageError += (_, error) => pageErrors.Add(error);
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/other/doughnut");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Doughnut", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator("[data-chartjs-sample='doughnut'] [data-sample-action]")).ToHaveCountAsync(9);
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='doughnut'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await Page.Locator("[data-sample-action='doughnut-hide-dataset-0']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await IsDatasetVisible(canvasId, 0), Is.False);
+
+        await Page.Locator("[data-sample-action='doughnut-show-dataset-0']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await IsDatasetVisible(canvasId, 0), Is.True);
+
+        await Page.Locator("[data-sample-action='doughnut-add-dataset']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+
+        await Page.Locator("[data-sample-action='doughnut-hide-dataset-0']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+
+        await Page.Locator("[data-sample-action='doughnut-remove-dataset']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+
+        await Page.Locator("[data-sample-action='doughnut-hide-dataset-0']").ClickAsync();
+        await Page.Locator("[data-sample-action='doughnut-show-dataset-0']").ClickAsync();
+        await Page.Locator("[data-sample-action='doughnut-remove-data']").ClickAsync();
+        await Page.Locator("[data-sample-action='doughnut-remove-data']").ClickAsync();
+        await Page.Locator("[data-sample-action='doughnut-remove-data']").ClickAsync();
+        await Page.Locator("[data-sample-action='doughnut-remove-data']").ClickAsync();
+        await Page.Locator("[data-sample-action='doughnut-hide-data-0-1']").ClickAsync();
+        await Page.Locator("[data-sample-action='doughnut-show-data-0-1']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+
+        Assert.That(pageErrors, Is.Empty);
+    }
+
+    [Test]
+    public async Task OtherPolarCenteredLabelsSerializesPointLabelOptions()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/other/polar-area-center-labels");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Polar area centered point labels", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='polar-area-center-labels'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var pointLabels = await Page.EvaluateAsync<string>(@"canvasId => {
+                const chart = Chart.getChart(canvasId);
+                return JSON.stringify({
+                    display: chart.options.scales.r.pointLabels.display,
+                    centerPointLabels: chart.options.scales.r.pointLabels.centerPointLabels,
+                    fontSize: chart.options.scales.r.pointLabels.font.size
+                });
+            }", canvasId);
+
+        Assert.That(pointLabels, Is.EqualTo("{\"display\":true,\"centerPointLabels\":true,\"fontSize\":18}"));
+    }
+
+    [Test]
+    public async Task OtherMultiSeriesPieRevivesLegendAndTooltipCallbacks()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/other/multi-series-pie");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Multi Series Pie", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='multi-series-pie'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var callbackTypes = await Page.EvaluateAsync<string>(@"canvasId => {
+                const chart = Chart.getChart(canvasId);
+                return [
+                    typeof chart.options.plugins.legend.labels.generateLabels,
+                    typeof chart.options.plugins.legend.onClick,
+                    typeof chart.options.plugins.tooltip.callbacks.title
+                ].join(':');
+            }", canvasId);
+
+        Assert.That(callbackTypes, Is.EqualTo("function:function:function"));
+
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("multiSeriesPieGenerateLabels");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("multiSeriesPieLegendClick");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("multiSeriesPieTooltipTitle");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("export const chartJsCallbacks");
+    }
+
     private async Task<string> GetFirstDatasetDataJson(string? canvasId)
     {
         return await Page.EvaluateAsync<string>(@"canvasId => {
@@ -291,5 +518,13 @@ public class ChartJsSamplesTests : PageTest
                 const chart = Chart.getChart(args.canvasId);
                 return JSON.stringify(chart.data.datasets[0][args.propertyName]);
             }", new { canvasId, propertyName });
+    }
+
+    private async Task<bool> IsDatasetVisible(string? canvasId, int datasetIndex)
+    {
+        return await Page.EvaluateAsync<bool>(@"args => {
+                const chart = Chart.getChart(args.canvasId);
+                return chart.isDatasetVisible(args.datasetIndex);
+            }", new { canvasId, datasetIndex });
     }
 }

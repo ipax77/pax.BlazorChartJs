@@ -9,6 +9,7 @@ public record ChartJsOptionsScales
     public ChartJsAxis? X1 { get; set; }
     public ChartJsAxis? Y { get; set; }
     public ChartJsAxis? Y1 { get; set; }
+    public ChartJsAxis? Y2 { get; set; }
     public ChartJsAxis? R { get; set; }
 }
 

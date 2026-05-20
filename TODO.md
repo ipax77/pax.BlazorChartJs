@@ -72,3 +72,134 @@ None currently listed from the v4.5.1 comparison pass.
 - Prefer strongly typed reusable option wrappers that serialize through the existing source-generated JSON path.
 - Avoid reflection-heavy runtime shims for scriptable support.
 - Be careful with wrappers around hot dataset fields so scalar-only use remains allocation-light.
+
+## Official Chart.js Sample Porting Notes
+
+This section tracks the Blazor sample-library work for the official Chart.js docs samples.
+
+Sources:
+
+- https://www.chartjs.org/docs/latest/samples/
+- https://www.chartjs.org/docs/latest/samples/information.html
+- https://www.chartjs.org/docs/latest/samples/bar/border-radius.html
+- https://www.chartjs.org/docs/latest/samples/line/line.html
+- https://www.chartjs.org/docs/latest/samples/other-charts/bubble.html
+- https://www.chartjs.org/docs/latest/samples/area/line-boundaries.html
+- https://www.chartjs.org/docs/latest/samples/scales/time-combo.html
+- https://www.chartjs.org/docs/latest/samples/scale-options/center.html
+- https://www.chartjs.org/docs/latest/samples/legend/events.html
+- https://www.chartjs.org/docs/latest/samples/title/alignment.html
+- https://www.chartjs.org/docs/latest/samples/subtitle/basic.html
+- https://www.chartjs.org/docs/latest/samples/tooltip/position.html
+- https://www.chartjs.org/docs/latest/samples/scriptable/line.html
+- https://www.chartjs.org/docs/latest/samples/animations/drop.html
+- https://www.chartjs.org/docs/latest/samples/advanced/data-decimation.html
+- https://www.chartjs.org/docs/latest/samples/plugins/chart-area-border.html
+
+### Completed Sample Sections
+
+- [x] Bar Charts: border radius, floating bars, horizontal bar, stacked bar, stacked groups, vertical bar.
+- [x] Line Charts: interpolation modes, line chart, multi-axis line, point styling, line segments, stepped line, line styling.
+- [x] Other charts: bubble, combo bar/line, doughnut, multi-series pie, pie, polar area, polar area centered point labels, radar, radar skip points, scatter, scatter multi-axis, stacked bar/line.
+
+### What We Learned
+
+- Official docs samples are not copy/paste standalone examples. The docs hide utility/setup code, generate data through `Utils`, and turn the `actions` block into buttons at build time.
+- The Blazor samples should mirror the docs surface: title, docs link, runnable chart, every official button, and visible C#/JavaScript setup/action code.
+- Use `ChartJsDocsSampleLayout` and `ChartJsDocsBaseComponent` for code tabs, action buttons, and stable Playwright selectors (`data-chartjs-sample`, `data-sample-action`).
+- If a sample needs direct Chart.js instance behavior, such as doughnut hide/show, expose the internal `ChartComponent` through the layout instead of duplicating layout markup.
+- Prefer targeted updates: `SetData`, `AddData`, `RemoveData`, `AddDataset`, `RemoveDataset`, `UpdateDatasets`, and `UpdateChartOptions`. Reinitialize only when the Chart.js behavior truly requires a new chart.
+- Keep `TypeScript/chartJsInterop.ts` and `wwwroot/chartJsInterop.js` synchronized whenever an interop method, callback revival path, payload shape, or guard changes.
+- Use mutable label/data collections in samples. The core add/remove helpers now tolerate fixed-size/read-only collections, but sample setup should still avoid array-backed collections when the sample mutates data.
+- Multi-axis samples need the right typed axis model. For cartesian-only options such as `Position = "right"`, use `CartesianAxis`; otherwise options can serialize but Chart.js will not behave as intended.
+- Hide/show interop must handle invalid dataset/data indexes as a no-op and should not call Chart.js visibility APIs for deleted datasets.
+- For callback samples, add named callbacks to `chartJsCallbacks.js`, reference them with `ChartJsFunction.FromName`, and show the callback JavaScript in the sample.
+- Performance work is allocation/CPU/serialization/JS-interop focused. There is no database work in this library surface.
+
+### How To Add A Docs Sample
+
+1. Verify the current official docs page and record the exact title, URL, code tabs, setup block, action block, and callback/plugin behavior.
+2. Add the sample to the matching `ChartJsSamples` section folder. If the section has several similar samples, prefer a small shared base/definition model over copy/paste.
+3. Build the chart with typed C# configuration first. Add small library abstractions only when they make the sample fully functional and are generally useful.
+4. Implement every official action button. Match the docs behavior and use targeted chart updates where practical.
+5. Add visible C# and JavaScript code tabs for config/setup/actions. Add a callbacks/plugin tab when behavior depends on `chartJsCallbacks.js` or a custom plugin.
+6. Wire the sample into the wasm test app route and nav under the matching docs section.
+7. Add Playwright coverage for page render, canvas presence, code tabs, and representative button/callback behavior. Add regression tests for any issue found while porting.
+8. Run the smallest useful verification set. For sample-only docs/components, build the wasm test app and run the focused Playwright section. For core library or interop changes, also run the core build and serialization tests.
+9. Before finishing a section, take one extra performance pass: avoid avoidable list/dictionary allocations, avoid interop calls inside loops when a batched helper exists, and keep large-data samples such as decimation from doing unnecessary CPU work.
+
+### Remaining Official Samples Backlog
+
+Re-check the docs section sidebar before implementing each group because the `latest` docs can add or rename sample pages.
+
+- [ ] Area charts
+  - [ ] Line Chart Boundaries (`samples/area/line-boundaries.html`)
+  - [ ] Line Chart Datasets (`samples/area/line-datasets.html`)
+  - [ ] Line Chart drawTime (`samples/area/line-drawtime.html`)
+  - [ ] Line Chart Stacked (`samples/area/line-stacked.html`)
+  - [ ] Radar Chart Stacked (`samples/area/radar.html`)
+
+- [ ] Scales
+  - [ ] Linear Scale - Min-Max (`samples/scales/linear-min-max.html`)
+  - [ ] Linear Scale - Suggested Min-Max (`samples/scales/linear-min-max-suggested.html`)
+  - [ ] Linear Scale - Step Size (`samples/scales/linear-step-size.html`)
+  - [ ] Log Scale (`samples/scales/log.html`)
+  - [ ] Stacked Linear / Category (`samples/scales/stacked.html`)
+  - [ ] Time Scale (`samples/scales/time-line.html`)
+  - [ ] Time Scale - Max Span (`samples/scales/time-max-span.html`)
+  - [ ] Time Scale - Combo Chart (`samples/scales/time-combo.html`)
+
+- [ ] Scale Options
+  - [ ] Center Positioning (`samples/scale-options/center.html`)
+  - [ ] Grid Configuration (`samples/scale-options/grid.html`)
+  - [ ] Tick Configuration (`samples/scale-options/ticks.html`)
+  - [ ] Title Configuration (`samples/scale-options/titles.html`)
+
+- [ ] Legend
+  - [ ] Events (`samples/legend/events.html`)
+  - [ ] HTML Legend (`samples/legend/html.html`)
+  - [ ] Point Style (`samples/legend/point-style.html`)
+  - [ ] Position (`samples/legend/position.html`)
+  - [ ] Alignment and Title Position (`samples/legend/title.html`)
+
+- [ ] Title
+  - [ ] Alignment (`samples/title/alignment.html`)
+
+- [ ] Subtitle
+  - [ ] Basic (`samples/subtitle/basic.html`)
+
+- [ ] Tooltip
+  - [ ] Custom Tooltip Content (`samples/tooltip/content.html`)
+  - [ ] External HTML Tooltip (`samples/tooltip/html.html`)
+  - [ ] Interaction Modes (`samples/tooltip/interactions.html`)
+  - [ ] Point Style (`samples/tooltip/point-style.html`)
+  - [ ] Position (`samples/tooltip/position.html`)
+
+- [ ] Scriptable Options
+  - [ ] Bar Chart (`samples/scriptable/bar.html`)
+  - [ ] Bubble Chart (`samples/scriptable/bubble.html`)
+  - [ ] Line Chart (`samples/scriptable/line.html`)
+  - [ ] Pie Chart (`samples/scriptable/pie.html`)
+  - [ ] Polar Area Chart (`samples/scriptable/polar.html`)
+  - [ ] Radar Chart (`samples/scriptable/radar.html`)
+
+- [ ] Animations
+  - [ ] Delay (`samples/animations/delay.html`)
+  - [ ] Drop (`samples/animations/drop.html`)
+  - [ ] Loop (`samples/animations/loop.html`)
+  - [ ] Progressive Line (`samples/animations/progressive-line.html`)
+  - [ ] Progressive Line With Easing (`samples/animations/progressive-line-easing.html`)
+
+- [ ] Advanced
+  - [ ] Data Decimation (`samples/advanced/data-decimation.html`)
+  - [ ] Derived Axis Type (`samples/advanced/derived-axis-type.html`)
+  - [ ] Derived Chart Type (`samples/advanced/derived-chart-type.html`)
+  - [ ] Linear Gradient (`samples/advanced/linear-gradient.html`)
+  - [ ] Programmatic Event Triggers (`samples/advanced/programmatic-events.html`)
+  - [ ] Animation Progress Bar (`samples/advanced/progress-bar.html`)
+  - [ ] Radial Gradient (`samples/advanced/radial-gradient.html`)
+
+- [ ] Plugins
+  - [ ] Chart Area Border (`samples/plugins/chart-area-border.html`)
+  - [ ] Doughnut Empty State (`samples/plugins/doughnut-empty-state.html`)
+  - [ ] Quadrants (`samples/plugins/quadrants.html`)

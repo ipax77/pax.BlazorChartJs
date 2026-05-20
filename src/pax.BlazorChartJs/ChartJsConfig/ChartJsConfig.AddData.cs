@@ -51,6 +51,7 @@ public partial class ChartJsConfig
         {
             return;
         }
+        EnsureMutableLabels();
         if (atPosition == null)
         {
             Data.Labels.Add(label);
@@ -63,6 +64,7 @@ public partial class ChartJsConfig
 
     private static void AddDatasetData(ChartJsDataset dataset, object data, int? atPosition)
     {
+        EnsureMutableDatasetData(dataset);
         if (atPosition == null)
         {
             dataset.Data.Add(data);
@@ -70,6 +72,22 @@ public partial class ChartJsConfig
         else
         {
             dataset.Data.Insert(atPosition.Value, data);
+        }
+    }
+
+    private void EnsureMutableLabels()
+    {
+        if (Data.Labels.IsReadOnly)
+        {
+            Data.Labels = [.. Data.Labels];
+        }
+    }
+
+    private static void EnsureMutableDatasetData(ChartJsDataset dataset)
+    {
+        if (dataset.Data.IsReadOnly)
+        {
+            dataset.Data = [.. dataset.Data];
         }
     }
 

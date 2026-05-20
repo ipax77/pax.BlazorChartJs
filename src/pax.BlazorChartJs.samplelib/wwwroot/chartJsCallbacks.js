@@ -214,6 +214,33 @@ const callbacks = Object.assign(Object.create(null), {
             ? [6, 6]
             : undefined;
     },
+    multiSeriesPieGenerateLabels(chart) {
+        const original = Chart.overrides.pie.plugins.legend.labels.generateLabels;
+        const labelsOriginal = original.call(this, chart);
+        const datasetColors = chart.data.datasets.flatMap(dataset => dataset.backgroundColor);
+
+        labelsOriginal.forEach(label => {
+            label.datasetIndex = (label.index - label.index % 2) / 2;
+            label.hidden = !chart.isDatasetVisible(label.datasetIndex);
+            label.fillStyle = datasetColors[label.index];
+        });
+
+        return labelsOriginal;
+    },
+    multiSeriesPieLegendClick(mouseEvent, legendItem, legend) {
+        const meta = legend.chart.getDatasetMeta(legendItem.datasetIndex);
+        meta.hidden = legend.chart.isDatasetVisible(legendItem.datasetIndex);
+        legend.chart.update();
+    },
+    multiSeriesPieTooltipTitle(context) {
+        const first = context?.[0];
+        if (!first) {
+            return '';
+        }
+
+        const labelIndex = first.datasetIndex * 2 + first.dataIndex;
+        return `${first.chart.data.labels[labelIndex]}: ${first.formattedValue}`;
+    },
     responsiveLatestLabelPadding(context) {
         return context.chart.width < 480
             ? latestLabelPaddingSmall
