@@ -59,6 +59,44 @@ public class ChartJsSamplesTests : PageTest
         await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas")).ToHaveCountAsync(1);
     }
 
+    [TestCase("linear-min-max", "Linear Scale - Min-Max")]
+    [TestCase("linear-min-max-suggested", "Linear Scale - Suggested Min-Max")]
+    [TestCase("linear-step-size", "Linear Scale - Step Size")]
+    [TestCase("log", "Log Scale")]
+    [TestCase("stacked", "Stacked Linear / Category")]
+    [TestCase("time-line", "Time Scale")]
+    [TestCase("time-max-span", "Time Scale - Max Span")]
+    [TestCase("time-combo", "Time Scale - Combo Chart")]
+    public async Task ScalesSamplePageRenders(string sampleId, string title)
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + $"/chartjs-samples/scales/{sampleId}");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = title, Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}']")).ToHaveCountAsync(1);
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas")).ToHaveCountAsync(1);
+    }
+
+    [TestCase("linear-min-max")]
+    [TestCase("linear-min-max-suggested")]
+    [TestCase("linear-step-size")]
+    [TestCase("log")]
+    [TestCase("stacked")]
+    [TestCase("time-line")]
+    [TestCase("time-max-span")]
+    [TestCase("time-combo")]
+    public async Task ScalesSamplesShowScaleOptionsInConfigCode(string sampleId)
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + $"/chartjs-samples/scales/{sampleId}");
+
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas"))
+            .ToHaveCountAsync(1, new LocatorAssertionsToHaveCountOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("Scales = new ChartJsOptionsScales");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("scales:");
+    }
+
     [Test]
     public async Task AreaNavLinksSwitchSamplesAndFollowOtherCharts()
     {
@@ -82,6 +120,154 @@ public class ChartJsSamplesTests : PageTest
         await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Radar Chart Stacked", Exact = true }))
             .ToBeVisibleAsync();
         await Expect(Page.Locator("[data-chartjs-sample='radar-stacked'] canvas")).ToHaveCountAsync(1);
+    }
+
+    [Test]
+    public async Task ScalesLinearStepSizeDatasetActionsMatchChartJsSample()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scales/linear-step-size");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Linear Scale - Step Size", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='linear-step-size'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var initialDatasets = await GetDatasetCount(canvasId);
+        var initialDataCount = await GetFirstDatasetDataCount(canvasId);
+        var before = await GetFirstDatasetDataJson(canvasId);
+
+        await Page.Locator("[data-sample-action='linear-step-size-randomize']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataJson(canvasId), Is.Not.EqualTo(before));
+
+        await Page.Locator("[data-sample-action='linear-step-size-add-dataset']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetDatasetCount(canvasId), Is.EqualTo(initialDatasets + 1));
+
+        await Page.Locator("[data-sample-action='linear-step-size-add-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount + 1));
+        Assert.That(await GetLastLabel(canvasId), Is.EqualTo("August"));
+
+        await Page.Locator("[data-sample-action='linear-step-size-remove-dataset']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetDatasetCount(canvasId), Is.EqualTo(initialDatasets));
+
+        await Page.Locator("[data-sample-action='linear-step-size-remove-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount));
+    }
+
+    [Test]
+    public async Task ScalesLogSampleRandomizeChangesData()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scales/log");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Log Scale", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='log'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var before = await GetFirstDatasetDataJson(canvasId);
+
+        await Page.Locator("[data-sample-action='log-randomize']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+
+        Assert.That(await GetFirstDatasetDataJson(canvasId), Is.Not.EqualTo(before));
+    }
+
+    [Test]
+    public async Task ScalesSamplesSerializeExpectedScaleOptions()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scales/log");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Log Scale", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var logCanvasId = await Page.Locator("[data-chartjs-sample='log'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+        Assert.That(await GetScaleType(logCanvasId, "y"), Is.EqualTo("logarithmic"));
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scales/stacked");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Stacked Linear / Category", Exact = true }))
+            .ToBeVisibleAsync();
+
+        var stackedCanvasId = await Page.Locator("[data-chartjs-sample='stacked'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+        var stackedScale = await Page.EvaluateAsync<string>(@"canvasId => {
+                const chart = Chart.getChart(canvasId);
+                return JSON.stringify({
+                    type: chart.options.scales.y2.type,
+                    labels: chart.options.scales.y2.labels
+                });
+            }", stackedCanvasId);
+
+        Assert.That(stackedScale, Is.EqualTo("{\"type\":\"category\",\"labels\":[\"ON\",\"OFF\"]}"));
+    }
+
+    [TestCase("time-line")]
+    [TestCase("time-max-span")]
+    [TestCase("time-combo")]
+    public async Task ScalesTimeSamplesUseTimeScale(string sampleId)
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + $"/chartjs-samples/scales/{sampleId}");
+
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas"))
+            .ToHaveCountAsync(1, new LocatorAssertionsToHaveCountOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        Assert.That(await GetScaleType(canvasId, "x"), Is.EqualTo("time"));
+    }
+
+    [Test]
+    public async Task ScalesTimeComboUsesOfficialXScaleSettings()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scales/time-combo");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Time Scale - Combo Chart", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='time-combo'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var scaleInfo = await Page.EvaluateAsync<string>(@"canvasId => {
+                const chart = Chart.getChart(canvasId);
+                const x = chart.config.options.scales.x;
+                return JSON.stringify({
+                    type: x.type,
+                    display: x.display,
+                    offset: x.offset,
+                    tickSource: x.ticks.source,
+                    timeUnit: x.time.unit
+                });
+            }", canvasId);
+
+        Assert.That(scaleInfo, Is.EqualTo("{\"type\":\"time\",\"display\":true,\"offset\":true,\"tickSource\":\"data\",\"timeUnit\":\"day\"}"));
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("display: true");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("ticks: { source: 'data' }");
+    }
+
+    [Test]
+    public async Task ScalesTimeMaxSpanRevivesMajorTickFontCallback()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scales/time-max-span");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Time Scale - Max Span", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='time-max-span'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var callbackInfo = await Page.EvaluateAsync<string>(@"canvasId => {
+                const chart = Chart.getChart(canvasId);
+                return `${chart.config.options.spanGaps}:${typeof chart.config.options.scales.x.ticks.font}`;
+            }", canvasId);
+
+        Assert.That(callbackInfo, Is.EqualTo("172800000:function"));
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("timeMaxSpanMajorTickFont");
     }
 
     [TestCase("bubble", "Bubble")]
@@ -697,6 +883,15 @@ public class ChartJsSamplesTests : PageTest
                 const chart = Chart.getChart(canvasId);
                 return JSON.stringify(chart.options.scales.y.stacked);
             }", canvasId);
+    }
+
+    private async Task<string?> GetScaleType(string? canvasId, string scaleId)
+    {
+        await WaitForChart(canvasId);
+        return await Page.EvaluateAsync<string?>(@"args => {
+                const chart = Chart.getChart(args.canvasId);
+                return chart.options.scales[args.scaleId]?.type;
+            }", new { canvasId, scaleId });
     }
 
     private async Task<bool> IsDatasetVisible(string? canvasId, int datasetIndex)

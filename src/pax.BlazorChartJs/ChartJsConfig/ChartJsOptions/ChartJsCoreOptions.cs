@@ -66,6 +66,11 @@ public record ChartJsCoreOptions
     /// </summary>
     public Interactions? Interaction { get; set; }
     public bool? Normalized { get; set; }
+    /// <summary>
+    /// If true, lines will be drawn between points with no or null data. If false, points with null data will create a break in the line.
+    /// Can also be a number specifying the maximum gap length to span. The unit of the value depends on the scale used.
+    /// </summary>
+    public object? SpanGaps { get; set; }
     public bool? Stacked { get; set; }
     /// <summary>
     /// The events option defines the browser events that the chart should listen to for.

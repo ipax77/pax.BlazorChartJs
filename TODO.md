@@ -125,7 +125,7 @@ Sources:
 5. Add visible C# and JavaScript code tabs for config/setup/actions. Add a callbacks/plugin tab when behavior depends on `chartJsCallbacks.js` or a custom plugin.
 6. Wire the sample into the wasm test app route and nav under the matching docs section.
 7. Add Playwright coverage for page render, canvas presence, code tabs, and representative button/callback behavior. Add regression tests for any issue found while porting.
-8. Run the smallest useful verification set. For sample-only docs/components, build the wasm test app and run the focused Playwright section. For core library or interop changes, also run the core build and serialization tests.
+8. Run the smallest useful verification set. For sample-only docs/components, build the wasm test app and run the focused Playwright section. For local Playwright runs, use the Development environment as documented in `tests/README.md`: `($env:ASPNETCORE_ENVIRONMENT="Development") | dotnet test`. For core library or interop changes, also run the core build and serialization tests.
 9. Before finishing a section, take one extra performance pass: avoid avoidable list/dictionary allocations, avoid interop calls inside loops when a batched helper exists, and keep large-data samples such as decimation from doing unnecessary CPU work.
 
 ### Remaining Official Samples Backlog
@@ -139,15 +139,15 @@ Re-check the docs section sidebar before implementing each group because the `la
   - [x] Line Chart Stacked (`samples/area/line-stacked.html`)
   - [x] Radar Chart Stacked (`samples/area/radar.html`)
 
-- [ ] Scales
-  - [ ] Linear Scale - Min-Max (`samples/scales/linear-min-max.html`)
-  - [ ] Linear Scale - Suggested Min-Max (`samples/scales/linear-min-max-suggested.html`)
-  - [ ] Linear Scale - Step Size (`samples/scales/linear-step-size.html`)
-  - [ ] Log Scale (`samples/scales/log.html`)
-  - [ ] Stacked Linear / Category (`samples/scales/stacked.html`)
-  - [ ] Time Scale (`samples/scales/time-line.html`)
-  - [ ] Time Scale - Max Span (`samples/scales/time-max-span.html`)
-  - [ ] Time Scale - Combo Chart (`samples/scales/time-combo.html`)
+- [x] Scales
+  - [x] Linear Scale - Min-Max (`samples/scales/linear-min-max.html`)
+  - [x] Linear Scale - Suggested Min-Max (`samples/scales/linear-min-max-suggested.html`)
+  - [x] Linear Scale - Step Size (`samples/scales/linear-step-size.html`)
+  - [x] Log Scale (`samples/scales/log.html`)
+  - [x] Stacked Linear / Category (`samples/scales/stacked.html`)
+  - [x] Time Scale (`samples/scales/time-line.html`)
+  - [x] Time Scale - Max Span (`samples/scales/time-max-span.html`)
+  - [x] Time Scale - Combo Chart (`samples/scales/time-combo.html`)
 
 - [ ] Scale Options
   - [ ] Center Positioning (`samples/scale-options/center.html`)

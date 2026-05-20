@@ -23,7 +23,7 @@
     </div>
 
     <div class="chartjs-sample__chart">
-        <ChartComponent @ref="chartComponent" ChartJsConfig="ChartJsConfig" />
+        <ChartComponent @ref="chartComponent" ChartJsConfig="ChartJsConfig" OnEventTriggered="OnEventTriggered" />
     </div>
 
     <div class="chartjs-sample__code">
@@ -104,6 +104,9 @@
 
     [Parameter]
     public EventCallback<ChartComponent> OnChartComponentReady { get; set; }
+
+    [Parameter]
+    public EventCallback<ChartJsEvent> OnEventTriggered { get; set; }
 
     private ChartComponent? chartComponent;
 

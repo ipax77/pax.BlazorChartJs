@@ -1,0 +1,14 @@
+@page "/chartjs-samples/scales"
+@page "/chartjs-samples/scales/{SampleId}"
+@using pax.BlazorChartJs.samplelib.ChartJsSamples.Scales
+
+<PageTitle>Chart.js Scales</PageTitle>
+
+<ChartJsScales SampleId="@ResolvedSampleId" />
+
+@code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
+    private string ResolvedSampleId => string.IsNullOrWhiteSpace(SampleId) ? "linear-min-max" : SampleId;
+}
