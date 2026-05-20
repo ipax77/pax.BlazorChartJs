@@ -14,6 +14,7 @@ public record Plugins
     /// Subtitle is a second title placed under the main title, by default. It has exactly the same configuration options with the main title.
     /// </summary>
     public Title? Subtitle { get; set; }
+    public FillerOptions? Filler { get; set; }
     public Tooltip? Tooltip { get; set; }
 #pragma warning disable CA2227
     public ICollection<ArbitraryLineConfig>? ArbitraryLines { get; set; }
@@ -22,3 +23,8 @@ public record Plugins
     public DecimationConfig? Decimation { get; set; }
 }
 
+public record FillerOptions
+{
+    public bool? Propagate { get; set; }
+    public string? DrawTime { get; set; }
+}
