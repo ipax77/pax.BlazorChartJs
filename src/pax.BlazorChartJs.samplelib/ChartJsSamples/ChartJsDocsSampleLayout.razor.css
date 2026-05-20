@@ -1,0 +1,120 @@
+.chartjs-sample {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-top: 1px solid #d8dee8;
+    padding-top: 1.25rem;
+}
+
+.chartjs-sample__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 64rem;
+}
+
+.chartjs-sample__header h2 {
+    margin-bottom: 0.5rem;
+}
+
+.chartjs-sample__header p {
+    margin: 0;
+    color: #5d6470;
+}
+
+.chartjs-sample__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.chartjs-sample__chart {
+    width: 50vw;
+    max-width: min(100%, 800px);
+    min-height: 12rem;
+}
+
+.chartjs-sample__chart ::deep canvas {
+    width: 50vw !important;
+    max-width: min(100%, 800px);
+}
+
+.chartjs-sample__code {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.chartjs-sample__code-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.75rem;
+}
+
+.chartjs-sample__tabs {
+    display: inline-flex;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.chartjs-sample__tab {
+    border: 0;
+    border-right: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    min-height: 2.25rem;
+    padding: 0.375rem 0.875rem;
+}
+
+.chartjs-sample__tab:last-child {
+    border-right: 0;
+}
+
+.chartjs-sample__tab--active {
+    background: #0f172a;
+    color: #ffffff;
+}
+
+.chartjs-sample__code-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.chartjs-sample__code-panel {
+    min-width: 0;
+}
+
+.chartjs-sample__code-panel h3 {
+    font-size: 1rem;
+    margin: 0 0 0.5rem;
+}
+
+.chartjs-sample__code pre {
+    max-height: 32rem;
+    overflow: auto;
+    border: 1px solid #d8dee8;
+    border-radius: 6px;
+    padding: 1rem;
+    background: #f8fafc;
+}
+
+@media (max-width: 840px) {
+    .chartjs-sample__header,
+    .chartjs-sample__code-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .chartjs-sample__chart,
+    .chartjs-sample__chart ::deep canvas {
+        max-width: 100%;
+    }
+
+    .chartjs-sample__code-grid {
+        grid-template-columns: 1fr;
+    }
+}

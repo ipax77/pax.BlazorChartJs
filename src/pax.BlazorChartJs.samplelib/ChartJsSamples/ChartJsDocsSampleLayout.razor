@@ -1,0 +1,130 @@
+@namespace pax.BlazorChartJs.samplelib.ChartJsSamples
+@using pax.BlazorChartJs
+
+<section class="chartjs-sample" data-chartjs-sample="@SampleId">
+    <header class="chartjs-sample__header">
+        <div>
+            <h2>@Title</h2>
+            <p>C# version of the official Chart.js sample, using targeted chart updates for the sample actions.</p>
+        </div>
+        <a href="@DocsUrl" target="_blank" rel="noopener noreferrer">Chart.js docs</a>
+    </header>
+
+    <div class="chartjs-sample__actions" aria-label="@($"{Title} actions")">
+        @foreach (var action in Actions)
+        {
+            <button type="button"
+                    class="btn btn-primary"
+                    data-sample-action="@SampleId-@action.Id"
+                    @onclick="action.OnClick">
+                @action.Name
+            </button>
+        }
+    </div>
+
+    <div class="chartjs-sample__chart">
+        <ChartComponent ChartJsConfig="ChartJsConfig" />
+    </div>
+
+    <div class="chartjs-sample__code">
+        <div class="chartjs-sample__code-toolbar" aria-label="@($"{Title} code options")">
+            <div class="chartjs-sample__tabs" role="tablist" aria-label="Code section">
+                @foreach (var tab in CodeTabs)
+                {
+                    <button type="button"
+                            role="tab"
+                            class="@GetTabButtonClass(tab.Id)"
+                            data-code-tab="@tab.Id"
+                            aria-selected="@GetBooleanAttribute(IsCodeTabActive(tab.Id))"
+                            @onclick="() => OnCodeTabSelected.InvokeAsync(tab.Id)">
+                        @tab.Label
+                    </button>
+                }
+            </div>
+        </div>
+
+        <div class="chartjs-sample__code-grid">
+            <section class="chartjs-sample__code-panel" aria-label="C# code">
+                <h3>C#</h3>
+                <pre @key="CSharpCodeBlockKey"><code class="language-csharp">@ActiveCSharpCode</code></pre>
+            </section>
+            <section class="chartjs-sample__code-panel" aria-label="JavaScript code">
+                <h3>JavaScript</h3>
+                <pre @key="JavaScriptCodeBlockKey"><code class="language-javascript">@ActiveJavaScriptCode</code></pre>
+            </section>
+        </div>
+    </div>
+</section>
+
+@code {
+    private static readonly ChartJsDocsPickerItem[] CodeTabs =
+    [
+        new("config", "Config"),
+        new("setup", "Setup"),
+        new("actions", "Actions"),
+    ];
+
+    [Parameter, EditorRequired]
+    public string SampleId { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string DocsUrl { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public ChartJsConfig ChartJsConfig { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ChartJsDocsAction> Actions { get; set; } = [];
+
+    [Parameter, EditorRequired]
+    public ChartJsDocsCodeSet CSharpCode { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public ChartJsDocsCodeSet JavaScriptCode { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string ActiveCodeTab { get; set; } = "config";
+
+    [Parameter, EditorRequired]
+    public EventCallback<string> OnCodeTabSelected { get; set; }
+
+    private string CSharpCodeBlockKey => $"csharp:{ActiveCodeTab}";
+
+    private string JavaScriptCodeBlockKey => $"javascript:{ActiveCodeTab}";
+
+    private string ActiveCSharpCode => GetActiveCode(CSharpCode);
+
+    private string ActiveJavaScriptCode => GetActiveCode(JavaScriptCode);
+
+    private string GetActiveCode(ChartJsDocsCodeSet codeSet)
+    {
+        return ActiveCodeTab switch
+        {
+            "setup" => codeSet.Setup,
+            "actions" => codeSet.Actions,
+            _ => codeSet.Config,
+        };
+    }
+
+    private bool IsCodeTabActive(string codeTab)
+    {
+        return string.Equals(ActiveCodeTab, codeTab, StringComparison.Ordinal);
+    }
+
+    private string GetTabButtonClass(string codeTab)
+    {
+        return IsCodeTabActive(codeTab)
+            ? "chartjs-sample__tab chartjs-sample__tab--active"
+            : "chartjs-sample__tab";
+    }
+
+    private static string GetBooleanAttribute(bool value)
+    {
+        return value ? "true" : "false";
+    }
+
+    private sealed record ChartJsDocsPickerItem(string Id, string Label);
+}
