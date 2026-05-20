@@ -43,6 +43,47 @@ public class ChartJsSamplesTests : PageTest
         await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas")).ToHaveCountAsync(1);
     }
 
+    [TestCase("line-boundaries", "Line Chart Boundaries")]
+    [TestCase("line-datasets", "Line Chart Datasets")]
+    [TestCase("line-drawtime", "Line Chart drawTime")]
+    [TestCase("line-stacked", "Line Chart Stacked")]
+    [TestCase("radar-stacked", "Radar Chart Stacked")]
+    public async Task AreaSamplePageRenders(string sampleId, string title)
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + $"/chartjs-samples/area/{sampleId}");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = title, Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}']")).ToHaveCountAsync(1);
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas")).ToHaveCountAsync(1);
+    }
+
+    [Test]
+    public async Task AreaNavLinksSwitchSamplesAndFollowOtherCharts()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/area/line-boundaries");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart Boundaries", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var sampleSectionOrder = await Page.EvaluateAsync<string[]>(@"() =>
+            Array.from(document.querySelectorAll('.nav-subsection-heading'))
+                .map(element => element.textContent.trim())");
+
+        Assert.That(Array.IndexOf(sampleSectionOrder, "Area Charts"), Is.GreaterThan(Array.IndexOf(sampleSectionOrder, "Other Charts")));
+
+        await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Line Datasets", Exact = true }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart Datasets", Exact = true }))
+            .ToBeVisibleAsync();
+        await Expect(Page.Locator("[data-chartjs-sample='line-datasets'] canvas")).ToHaveCountAsync(1);
+
+        await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Radar Stacked", Exact = true }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Radar Chart Stacked", Exact = true }))
+            .ToBeVisibleAsync();
+        await Expect(Page.Locator("[data-chartjs-sample='radar-stacked'] canvas")).ToHaveCountAsync(1);
+    }
+
     [TestCase("bubble", "Bubble")]
     [TestCase("combo-bar-line", "Combo bar/line")]
     [TestCase("doughnut", "Doughnut")]
@@ -281,6 +322,121 @@ public class ChartJsSamplesTests : PageTest
     }
 
     [Test]
+    public async Task AreaBoundarySampleUpdatesFillAndData()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/area/line-boundaries");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart Boundaries", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='line-boundaries'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var before = await GetFirstDatasetDataJson(canvasId);
+
+        await Page.Locator("[data-sample-action='line-boundaries-fill-origin']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetPropertyJson(canvasId, "fill"), Is.EqualTo("\"origin\""));
+
+        await Page.Locator("[data-sample-action='line-boundaries-randomize']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataJson(canvasId), Is.Not.EqualTo(before));
+
+        await Page.Locator("[data-sample-action='line-boundaries-smooth']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetPropertyJson(canvasId, "tension"), Is.EqualTo("0.4"));
+    }
+
+    [Test]
+    public async Task AreaFillerOptionActionsUpdateChartOptions()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/area/line-datasets");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart Datasets", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var lineDatasetsCanvasId = await Page.Locator("[data-chartjs-sample='line-datasets'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await Page.Locator("[data-sample-action='line-datasets-propagate']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFillerPropertyJson(lineDatasetsCanvasId, "propagate"), Is.EqualTo("true"));
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/area/line-drawtime");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart drawTime", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var drawTimeCanvasId = await Page.Locator("[data-chartjs-sample='line-drawtime'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await Page.Locator("[data-sample-action='line-drawtime-drawtime-before-draw']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFillerPropertyJson(drawTimeCanvasId, "drawTime"), Is.EqualTo("\"beforeDraw\""));
+    }
+
+    [Test]
+    public async Task AreaStackedSampleDatasetActionsMatchChartJsSample()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/area/line-stacked");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart Stacked", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='line-stacked'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        var initialDatasets = await GetDatasetCount(canvasId);
+        var initialDataCount = await GetFirstDatasetDataCount(canvasId);
+
+        await Page.Locator("[data-sample-action='line-stacked-stacked-single']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetYAxisStackedJson(canvasId), Is.EqualTo("\"single\""));
+
+        await Page.Locator("[data-sample-action='line-stacked-add-dataset']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetDatasetCount(canvasId), Is.EqualTo(initialDatasets + 1));
+
+        await Page.Locator("[data-sample-action='line-stacked-add-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount + 1));
+        Assert.That(await GetLastLabel(canvasId), Is.EqualTo("August"));
+
+        await Page.Locator("[data-sample-action='line-stacked-remove-dataset']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetDatasetCount(canvasId), Is.EqualTo(initialDatasets));
+
+        await Page.Locator("[data-sample-action='line-stacked-remove-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount));
+    }
+
+    [Test]
+    public async Task AreaSampleCodeTabsShowCSharpAndJavaScriptTogether()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/area/line-drawtime");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart drawTime", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator("[data-code-tab='config']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("Filler = new FillerOptions");
+        var mainJavaScriptCode = Page.Locator("[aria-label='JavaScript code'] code.language-javascript");
+        await Expect(mainJavaScriptCode).ToContainTextAsync("filler: { propagate: false }");
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='setup']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("PointBackgroundColor");
+        await Expect(mainJavaScriptCode).ToContainTextAsync("Dataset 1");
+
+        await Page.Locator("[data-code-tab='actions']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='actions']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("void SetDrawTime");
+        await Expect(mainJavaScriptCode).ToContainTextAsync("drawTime: beforeDraw");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("areaDrawTimeTitle");
+    }
+
+    [Test]
     public async Task OtherBubbleSampleDatasetActionsMatchChartJsSample()
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/other/bubble");
@@ -482,6 +638,7 @@ public class ChartJsSamplesTests : PageTest
 
     private async Task<string> GetFirstDatasetDataJson(string? canvasId)
     {
+        await WaitForChart(canvasId);
         return await Page.EvaluateAsync<string>(@"canvasId => {
                 const chart = Chart.getChart(canvasId);
                 return JSON.stringify(chart.data.datasets[0].data);
@@ -490,6 +647,7 @@ public class ChartJsSamplesTests : PageTest
 
     private async Task<int> GetDatasetCount(string? canvasId)
     {
+        await WaitForChart(canvasId);
         return await Page.EvaluateAsync<int>(@"canvasId => {
                 const chart = Chart.getChart(canvasId);
                 return chart.data.datasets.length;
@@ -498,6 +656,7 @@ public class ChartJsSamplesTests : PageTest
 
     private async Task<int> GetFirstDatasetDataCount(string? canvasId)
     {
+        await WaitForChart(canvasId);
         return await Page.EvaluateAsync<int>(@"canvasId => {
                 const chart = Chart.getChart(canvasId);
                 return chart.data.datasets[0].data.length;
@@ -506,6 +665,7 @@ public class ChartJsSamplesTests : PageTest
 
     private async Task<string?> GetLastLabel(string? canvasId)
     {
+        await WaitForChart(canvasId);
         return await Page.EvaluateAsync<string?>(@"canvasId => {
                 const chart = Chart.getChart(canvasId);
                 return chart.data.labels.at(-1);
@@ -514,17 +674,44 @@ public class ChartJsSamplesTests : PageTest
 
     private async Task<string> GetFirstDatasetPropertyJson(string? canvasId, string propertyName)
     {
+        await WaitForChart(canvasId);
         return await Page.EvaluateAsync<string>(@"args => {
                 const chart = Chart.getChart(args.canvasId);
                 return JSON.stringify(chart.data.datasets[0][args.propertyName]);
             }", new { canvasId, propertyName });
     }
 
+    private async Task<string> GetFillerPropertyJson(string? canvasId, string propertyName)
+    {
+        await WaitForChart(canvasId);
+        return await Page.EvaluateAsync<string>(@"args => {
+                const chart = Chart.getChart(args.canvasId);
+                return JSON.stringify(chart.options.plugins.filler[args.propertyName]);
+            }", new { canvasId, propertyName });
+    }
+
+    private async Task<string> GetYAxisStackedJson(string? canvasId)
+    {
+        await WaitForChart(canvasId);
+        return await Page.EvaluateAsync<string>(@"canvasId => {
+                const chart = Chart.getChart(canvasId);
+                return JSON.stringify(chart.options.scales.y.stacked);
+            }", canvasId);
+    }
+
     private async Task<bool> IsDatasetVisible(string? canvasId, int datasetIndex)
     {
+        await WaitForChart(canvasId);
         return await Page.EvaluateAsync<bool>(@"args => {
                 const chart = Chart.getChart(args.canvasId);
                 return chart.isDatasetVisible(args.datasetIndex);
             }", new { canvasId, datasetIndex });
+    }
+
+    private async Task WaitForChart(string? canvasId)
+    {
+        await Page.WaitForFunctionAsync(
+            "canvasId => window.Chart !== undefined && Chart.getChart(canvasId) !== undefined",
+            canvasId);
     }
 }

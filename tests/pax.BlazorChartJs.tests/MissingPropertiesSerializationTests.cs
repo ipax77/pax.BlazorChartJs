@@ -299,6 +299,43 @@ public sealed class MissingPropertiesSerializationTests
     }
 
     [TestMethod]
+    public void FillerOptionsAndLineFillTargetSerialize()
+    {
+        ChartJsOptions options = new()
+        {
+            Plugins = new Plugins
+            {
+                Filler = new FillerOptions
+                {
+                    Propagate = false,
+                    DrawTime = "beforeDraw"
+                }
+            }
+        };
+        LineDataset dataset = new()
+        {
+            Fill = new ChartJsFillOptions
+            {
+                Above = "blue",
+                Below = "red",
+                Target = new ChartJsFillTarget { Value = 350 }
+            }
+        };
+
+        using var optionsDocument = SerializeToDocument(options);
+        using var datasetDocument = SerializeToDocument(dataset);
+
+        var filler = optionsDocument.RootElement.GetProperty("plugins").GetProperty("filler");
+        var fill = datasetDocument.RootElement.GetProperty("fill");
+
+        Assert.IsFalse(filler.GetProperty("propagate").GetBoolean());
+        Assert.AreEqual("beforeDraw", filler.GetProperty("drawTime").GetString());
+        Assert.AreEqual("blue", fill.GetProperty("above").GetString());
+        Assert.AreEqual("red", fill.GetProperty("below").GetString());
+        Assert.AreEqual(350, fill.GetProperty("target").GetProperty("value").GetDouble());
+    }
+
+    [TestMethod]
     public void ScaleTickTitleAndLegendScriptableOptionsSerializeMarkers()
     {
         ChartJsAxisBorder border = new()

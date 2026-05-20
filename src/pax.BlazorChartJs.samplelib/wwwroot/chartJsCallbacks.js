@@ -214,6 +214,15 @@ const callbacks = Object.assign(Object.create(null), {
             ? [6, 6]
             : undefined;
     },
+    areaFillTitle(context) {
+        return `Fill: ${context.chart.data.datasets[0].fill}`;
+    },
+    areaDrawTimeTitle(context) {
+        return `drawTime: ${context.chart.options.plugins.filler.drawTime}`;
+    },
+    areaStackedTitle(context) {
+        return `Chart.js Line Chart - stacked=${context.chart.options.scales.y.stacked}`;
+    },
     multiSeriesPieGenerateLabels(chart) {
         const original = Chart.overrides.pie.plugins.legend.labels.generateLabels;
         const labelsOriginal = original.call(this, chart);

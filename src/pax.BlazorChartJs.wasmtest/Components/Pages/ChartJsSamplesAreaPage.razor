@@ -1,0 +1,15 @@
+@page "/chartjs-samples/area"
+@page "/chartjs-samples/area/{SampleId}"
+@using pax.BlazorChartJs.samplelib.ChartJsSamples.AreaCharts
+
+<PageTitle>Chart.js Area Charts</PageTitle>
+
+<ChartJsAreaCharts SampleId="@ResolvedSampleId" />
+
+@code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
+    private string ResolvedSampleId => string.IsNullOrWhiteSpace(SampleId) ? "line-boundaries" : SampleId;
+}
+

@@ -119,7 +119,7 @@ Sources:
 ### How To Add A Docs Sample
 
 1. Verify the current official docs page and record the exact title, URL, code tabs, setup block, action block, and callback/plugin behavior.
-2. Add the sample to the matching `ChartJsSamples` section folder. If the section has several similar samples, prefer a small shared base/definition model over copy/paste.
+2. Add one concrete Razor component per official chart sample in the matching `ChartJsSamples` section folder. If the section has several similar samples, shared base classes or helper models are fine, but the router/section switch should still render a distinct component for each chart sample rather than one parameterized mega-sample.
 3. Build the chart with typed C# configuration first. Add small library abstractions only when they make the sample fully functional and are generally useful.
 4. Implement every official action button. Match the docs behavior and use targeted chart updates where practical.
 5. Add visible C# and JavaScript code tabs for config/setup/actions. Add a callbacks/plugin tab when behavior depends on `chartJsCallbacks.js` or a custom plugin.
@@ -132,12 +132,12 @@ Sources:
 
 Re-check the docs section sidebar before implementing each group because the `latest` docs can add or rename sample pages.
 
-- [ ] Area charts
-  - [ ] Line Chart Boundaries (`samples/area/line-boundaries.html`)
-  - [ ] Line Chart Datasets (`samples/area/line-datasets.html`)
-  - [ ] Line Chart drawTime (`samples/area/line-drawtime.html`)
-  - [ ] Line Chart Stacked (`samples/area/line-stacked.html`)
-  - [ ] Radar Chart Stacked (`samples/area/radar.html`)
+- [x] Area charts
+  - [x] Line Chart Boundaries (`samples/area/line-boundaries.html`)
+  - [x] Line Chart Datasets (`samples/area/line-datasets.html`)
+  - [x] Line Chart drawTime (`samples/area/line-drawtime.html`)
+  - [x] Line Chart Stacked (`samples/area/line-stacked.html`)
+  - [x] Radar Chart Stacked (`samples/area/radar.html`)
 
 - [ ] Scales
   - [ ] Linear Scale - Min-Max (`samples/scales/linear-min-max.html`)
