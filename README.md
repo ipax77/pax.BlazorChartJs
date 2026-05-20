@@ -97,7 +97,7 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
             return;
         }
 
-        List<ChartJsDataset> updateDatasets = [];
+        Dictionary<string, IList<object>> dataByDatasetId = [];
         
         foreach (var dataset in chartJsConfig.Data.Datasets)
         {
@@ -108,11 +108,10 @@ Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.Blazo
                 {
                     newData.Add(Random.Shared.Next(1, 10));
                 }
-                barDataset.Data = newData;
-                updateDatasets.Add(dataset);
+                dataByDatasetId[barDataset.Id] = newData;
             }
         }
-        chartJsConfig.UpdateDatasetsSmooth(updateDatasets);
+        chartJsConfig.UpdateDatasetsDataSmooth(dataByDatasetId);
     }
 }
 ```
