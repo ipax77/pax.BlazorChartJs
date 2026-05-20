@@ -1,0 +1,14 @@
+@page "/chartjs-samples/line"
+@page "/chartjs-samples/line/{SampleId}"
+@using pax.BlazorChartJs.samplelib.ChartJsSamples.LineCharts
+
+<PageTitle>Chart.js Line Charts</PageTitle>
+
+<ChartJsLineSamples SampleId="@ResolvedSampleId" />
+
+@code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
+    private string ResolvedSampleId => string.IsNullOrWhiteSpace(SampleId) ? "line" : SampleId;
+}

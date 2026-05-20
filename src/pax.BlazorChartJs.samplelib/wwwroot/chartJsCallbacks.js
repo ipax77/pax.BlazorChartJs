@@ -194,6 +194,26 @@ const callbacks = Object.assign(Object.create(null), {
     createRepeatFillPattern(context) {
         return createFillPattern(context.chart);
     },
+    linePointStyleTitle(context) {
+        return `Point Style: ${context.chart.data.datasets[0].pointStyle}`;
+    },
+    lineSteppedTitle(context) {
+        return `Step ${context.chart.data.datasets[0].stepped} Interpolation`;
+    },
+    lineSegmentBorderColor(context) {
+        if (context.p0.skip || context.p1.skip) {
+            return 'rgb(0,0,0,0.2)';
+        }
+
+        return context.p0.parsed.y > context.p1.parsed.y
+            ? 'rgb(192,75,75)'
+            : undefined;
+    },
+    lineSegmentBorderDash(context) {
+        return context.p0.skip || context.p1.skip
+            ? [6, 6]
+            : undefined;
+    },
     responsiveLatestLabelPadding(context) {
         return context.chart.width < 480
             ? latestLabelPaddingSmall

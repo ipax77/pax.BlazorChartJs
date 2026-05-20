@@ -88,6 +88,10 @@
     min-width: 0;
 }
 
+.chartjs-sample__code-panel--full {
+    margin-top: 1rem;
+}
+
 .chartjs-sample__code-panel h3 {
     font-size: 1rem;
     margin: 0 0 0.5rem;

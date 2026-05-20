@@ -53,6 +53,14 @@
                 <pre @key="JavaScriptCodeBlockKey"><code class="language-javascript">@ActiveJavaScriptCode</code></pre>
             </section>
         </div>
+
+        @if (!string.IsNullOrWhiteSpace(CallbacksCode))
+        {
+            <section class="chartjs-sample__code-panel chartjs-sample__code-panel--full" aria-label="Chart.js callback module code">
+                <h3>chartJsCallbacks.js</h3>
+                <pre><code class="language-javascript">@CallbacksCode</code></pre>
+            </section>
+        }
     </div>
 </section>
 
@@ -90,6 +98,9 @@
 
     [Parameter, EditorRequired]
     public EventCallback<string> OnCodeTabSelected { get; set; }
+
+    [Parameter]
+    public string? CallbacksCode { get; set; }
 
     private string CSharpCodeBlockKey => $"csharp:{ActiveCodeTab}";
 
