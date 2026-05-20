@@ -1,46 +1,34 @@
 @namespace pax.BlazorChartJs.samplelib.ChartJsSamples.BarCharts
-@using pax.BlazorChartJs
-@using Microsoft.JSInterop
-@inject IJSRuntime JSRuntime
 
-@if (SelectedSample is not null)
+@switch (ResolvedSampleId)
 {
-<div class="chartjs-samples">
-    <header class="chartjs-samples__header">
-        <h2>@SelectedSample.Title</h2>
-        <p>
-            C# version of the official Chart.js sample, using targeted chart updates for the sample actions.
-        </p>
-        <a href="@SelectedSample.DocsUrl" target="_blank" rel="noopener noreferrer">Chart.js docs</a>
-    </header>
+    case "border-radius":
+        <ChartJsBarBorderRadiusSample />
+        break;
+    case "floating":
+        <ChartJsBarFloatingSample />
+        break;
+    case "horizontal":
+        <ChartJsBarHorizontalSample />
+        break;
+    case "stacked":
+        <ChartJsBarStackedSample />
+        break;
+    case "stacked-groups":
+        <ChartJsBarStackedGroupsSample />
+        break;
+    default:
+        <ChartJsBarVerticalSample />
+        break;
+}
 
-    <section class="chartjs-sample" data-chartjs-sample="@SelectedSample.Id" @key="SelectedSample.Id">
-        <div class="chartjs-sample__actions">
-            @foreach (var action in SelectedSample.Actions)
-            {
-                <button type="button"
-                        class="btn btn-primary"
-                        data-sample-action="@SelectedSample.Id-@action.Id"
-                        @onclick="() => RunAction(SelectedSample, action)">
-                    @action.Name
-                </button>
-            }
-        </div>
+@code {
+    [Parameter]
+    public string SampleId { get; set; } = "vertical";
 
-        <div class="chartjs-sample__chart">
-            <ChartComponent ChartJsConfig="SelectedSample.Config" />
-        </div>
-
-        <div class="chartjs-sample__code">
-            <div>
-                <h3>config</h3>
-                <pre><code class="language-csharp">@SelectedSample.CSharpCode</code></pre>
-            </div>
-            <div>
-                <h3>resulting JavaScript</h3>
-                <pre><code class="language-javascript">@SelectedSample.JavaScriptCode</code></pre>
-            </div>
-        </div>
-    </section>
-</div>
+    private string ResolvedSampleId => SampleId switch
+    {
+        "border-radius" or "floating" or "horizontal" or "stacked" or "stacked-groups" or "vertical" => SampleId,
+        _ => "vertical",
+    };
 }

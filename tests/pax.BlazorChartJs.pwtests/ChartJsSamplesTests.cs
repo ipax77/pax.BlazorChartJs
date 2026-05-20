@@ -37,8 +37,9 @@ public class ChartJsSamplesTests : PageTest
             .ToBeVisibleAsync();
         await Expect(Page.Locator("[data-chartjs-sample]")).ToHaveCountAsync(1);
         await Expect(Page.Locator("[data-chartjs-sample] canvas")).ToHaveCountAsync(1);
-        await Expect(Page.Locator("code.language-csharp")).ToBeVisibleAsync();
-        await Expect(Page.Locator("code.language-javascript")).ToBeVisibleAsync();
+        await Expect(Page.Locator("[data-code-tab='config']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("var config");
+        await Expect(Page.Locator("code.language-javascript")).ToContainTextAsync("const config");
         await Expect(Page.Locator("code.language-csharp .token.keyword").Nth(0)).ToBeVisibleAsync();
         await Expect(Page.Locator("code.language-javascript .token.keyword").Nth(0)).ToBeVisibleAsync();
 
@@ -54,6 +55,32 @@ public class ChartJsSamplesTests : PageTest
         var after = await GetFirstDatasetDataJson(canvasId);
 
         Assert.That(after, Is.Not.EqualTo(before));
+    }
+
+    [Test]
+    public async Task BarSampleCodeTabsShowCSharpAndJavaScriptTogether()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/bar/vertical");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Vertical Bar Chart", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='setup']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("string[] labels");
+        await Expect(Page.Locator("code.language-javascript")).ToContainTextAsync("const labels");
+
+        await Page.Locator("[data-code-tab='actions']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='actions']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("void Randomize");
+        await Expect(Page.Locator("code.language-javascript")).ToContainTextAsync("const actions");
+        await Expect(Page.Locator("code.language-csharp .token.keyword").Nth(0)).ToBeVisibleAsync();
+        await Expect(Page.Locator("code.language-javascript .token.keyword").Nth(0)).ToBeVisibleAsync();
+
+        await Page.Locator("[data-code-tab='config']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='config']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("code.language-csharp")).ToContainTextAsync("var config");
+        await Expect(Page.Locator("code.language-javascript")).ToContainTextAsync("const config");
     }
 
     [Test]
