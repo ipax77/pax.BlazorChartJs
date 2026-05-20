@@ -34,6 +34,61 @@ public partial class ChartJsConfig
     }
 
     /// <summary>
+    /// Adds the dataset after the dataset with the given id and updates the Chart.
+    /// </summary>
+    public void AddDatasetAfter(string afterDatasetId, ChartJsDataset dataset)
+    {
+        ArgumentNullException.ThrowIfNull(dataset);
+
+        AddDatasetsAfter(afterDatasetId, [dataset]);
+    }
+
+    /// <summary>
+    /// Adds the datasets after the dataset with the given id and updates the Chart.
+    /// If the id is not found, the datasets are appended.
+    /// </summary>
+    public void AddDatasetsAfter(string afterDatasetId, IList<ChartJsDataset> datasets)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(afterDatasetId);
+        ArgumentNullException.ThrowIfNull(datasets);
+
+        if (datasets.Count == 0)
+        {
+            return;
+        }
+
+        AddDatasetsAtAnchor(afterDatasetId, datasets, insertBefore: false);
+    }
+
+    /// <summary>
+    /// Adds the dataset before the dataset with the given id and updates the Chart.
+    /// If the id is not found, the dataset is appended.
+    /// </summary>
+    public void AddDatasetBefore(string beforeDatasetId, ChartJsDataset dataset)
+    {
+        ArgumentNullException.ThrowIfNull(dataset);
+
+        AddDatasetsBefore(beforeDatasetId, [dataset]);
+    }
+
+    /// <summary>
+    /// Adds the datasets before the dataset with the given id and updates the Chart.
+    /// If the id is not found, the datasets are appended.
+    /// </summary>
+    public void AddDatasetsBefore(string beforeDatasetId, IList<ChartJsDataset> datasets)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(beforeDatasetId);
+        ArgumentNullException.ThrowIfNull(datasets);
+
+        if (datasets.Count == 0)
+        {
+            return;
+        }
+
+        AddDatasetsAtAnchor(beforeDatasetId, datasets, insertBefore: true);
+    }
+
+    /// <summary>
     /// Removes the dataset from the config and updates the Chart
     /// </summary>
     public void RemoveDataset(ChartJsDataset dataset)
@@ -123,6 +178,73 @@ public partial class ChartJsConfig
             }
         }
         OnDatasetsUpdate(new DatasetsUpdateEventArgs(updateDatasets, smooth: true));
+    }
+
+    /// <summary>
+    /// Updates a dataset's data smoothly by dataset id.
+    /// </summary>
+    public void UpdateDatasetDataSmooth(string datasetId, IList<object> data)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(datasetId);
+        ArgumentNullException.ThrowIfNull(data);
+
+        for (int i = 0; i < Data.Datasets.Count; i++)
+        {
+            var dataset = Data.Datasets[i];
+            if (dataset.Id == datasetId)
+            {
+                dataset.Data = data;
+                ApplyDatasetChangesSmooth(new DatasetsSmoothChangeSet(CreateCurrentDatasetIds())
+                {
+                    DatasetsToUpdateSmooth = [dataset]
+                });
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Updates multiple datasets' data smoothly by dataset id.
+    /// </summary>
+    public void UpdateDatasetsDataSmooth(IReadOnlyDictionary<string, IList<object>> dataByDatasetId)
+    {
+        ArgumentNullException.ThrowIfNull(dataByDatasetId);
+
+        if (dataByDatasetId.Count == 0)
+        {
+            return;
+        }
+
+        List<string> desiredDatasetIds = new(Data.Datasets.Count);
+        List<ChartJsDataset> datasetsToUpdateSmooth = new(Math.Min(Data.Datasets.Count, dataByDatasetId.Count));
+
+        for (int i = 0; i < Data.Datasets.Count; i++)
+        {
+            var dataset = Data.Datasets[i];
+            if (string.IsNullOrEmpty(dataset.Id))
+            {
+                throw new InvalidOperationException("Existing dataset contains a null or empty Id.");
+            }
+
+            desiredDatasetIds.Add(dataset.Id);
+
+            if (dataByDatasetId.TryGetValue(dataset.Id, out var data))
+            {
+                ArgumentNullException.ThrowIfNull(data);
+                dataset.Data = data;
+                datasetsToUpdateSmooth.Add(dataset);
+            }
+        }
+
+        if (datasetsToUpdateSmooth.Count == 0)
+        {
+            return;
+        }
+
+        ApplyDatasetChangesSmooth(new DatasetsSmoothChangeSet(desiredDatasetIds)
+        {
+            DatasetsToUpdateSmooth = datasetsToUpdateSmooth
+        });
     }
 
     /// <summary>
@@ -368,5 +490,84 @@ public partial class ChartJsConfig
         }
 
         return datasetsById;
+    }
+
+    private void AddDatasetsAtAnchor(string anchorDatasetId, IList<ChartJsDataset> datasets, bool insertBefore)
+    {
+        ValidateDatasets(datasets);
+
+        List<string> desiredDatasetIds = new(Data.Datasets.Count + datasets.Count);
+        bool inserted = false;
+
+        for (int i = 0; i < Data.Datasets.Count; i++)
+        {
+            var existingDatasetId = Data.Datasets[i].Id;
+            if (string.IsNullOrEmpty(existingDatasetId))
+            {
+                throw new InvalidOperationException("Existing dataset contains a null or empty Id.");
+            }
+
+            if (insertBefore && existingDatasetId == anchorDatasetId)
+            {
+                AddDatasetIds(desiredDatasetIds, datasets);
+                inserted = true;
+            }
+
+            desiredDatasetIds.Add(existingDatasetId);
+
+            if (!insertBefore && existingDatasetId == anchorDatasetId)
+            {
+                AddDatasetIds(desiredDatasetIds, datasets);
+                inserted = true;
+            }
+        }
+
+        if (!inserted)
+        {
+            AddDatasetIds(desiredDatasetIds, datasets);
+        }
+
+        ApplyDatasetChangesSmooth(new DatasetsSmoothChangeSet(desiredDatasetIds)
+        {
+            DatasetsToAdd = datasets
+        });
+    }
+
+    private static void ValidateDatasets(IList<ChartJsDataset> datasets)
+    {
+        for (int i = 0; i < datasets.Count; i++)
+        {
+            var dataset = datasets[i];
+            ArgumentNullException.ThrowIfNull(dataset);
+            if (string.IsNullOrEmpty(dataset.Id))
+            {
+                throw new ArgumentException("Dataset id cannot be null or empty.", nameof(datasets));
+            }
+        }
+    }
+
+    private static void AddDatasetIds(List<string> datasetIds, IList<ChartJsDataset> datasets)
+    {
+        for (int i = 0; i < datasets.Count; i++)
+        {
+            datasetIds.Add(datasets[i].Id);
+        }
+    }
+
+    private List<string> CreateCurrentDatasetIds()
+    {
+        List<string> datasetIds = new(Data.Datasets.Count);
+        for (int i = 0; i < Data.Datasets.Count; i++)
+        {
+            var datasetId = Data.Datasets[i].Id;
+            if (string.IsNullOrEmpty(datasetId))
+            {
+                throw new InvalidOperationException("Existing dataset contains a null or empty Id.");
+            }
+
+            datasetIds.Add(datasetId);
+        }
+
+        return datasetIds;
     }
 }

@@ -5,6 +5,8 @@
     <button type="button" class="btn btn-primary" @onclick="UpdateDataset">UpdateDataset</button>
     <button type="button" class="btn btn-primary" @onclick="ResetDataset">ResetDataset</button>
     <button type="button" class="btn btn-primary" @onclick="UpdateDataset2">UpdateDataset2</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetDataSmooth">UpdateDatasetDataSmooth</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetsDataSmooth">UpdateDatasetsDataSmooth</button>
     <button type="button" class="btn btn-primary" @onclick="ApplyDatasetChangesSmooth">ApplyDatasetChangesSmooth</button>
     <button type="button" class="btn btn-primary" @onclick="SetDatasetsSmooth">SetDatasetsSmooth</button>
 </div>
@@ -204,6 +206,30 @@
             DatasetIdsToRemove = [RemovedDatasetId],
             Labels = ["Apr", "May", "Jun", "Jul"],
             UpdateOptions = true
+        });
+    }
+
+    private void UpdateDatasetDataSmooth()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        chartJsConfig.UpdateDatasetDataSmooth(PrimaryDatasetId, [10, 11, 12]);
+    }
+
+    private void UpdateDatasetsDataSmooth()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        chartJsConfig.UpdateDatasetsDataSmooth(new Dictionary<string, IList<object>>
+        {
+            [PrimaryDatasetId] = [10, 11, 12],
+            [RemovedDatasetId] = [13, 14, 15]
         });
     }
 

@@ -242,6 +242,74 @@ public class UpdateDatasetTests : PageTest
         Assert.That(snapshot, Is.EqualTo("upsert-added,upsert-primary|Apr,May,Jun,Jul|Dataset 1 Set Smooth|6|19|False|False|1").IgnoreCase);
     }
 
+    [Test]
+    public async Task UpdateDatasetDataSmoothUpdatesOneDatasetDataById()
+    {
+        var canvasId = await OpenUpdateChartAndTrackUpdates("__singleDataUpdateCount");
+
+        var updateDatasetDataSmooth = Page.GetByText("UpdateDatasetDataSmooth", new PageGetByTextOptions() { Exact = true });
+        await Expect(updateDatasetDataSmooth).ToHaveAttributeAsync("type", "button");
+        await updateDatasetDataSmooth.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.join(',') === '10,11,12'
+                    && chart.data.datasets[1].data.join(',') === '3,2,1'
+                    && chart.__singleDataUpdateCount === 1;
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var snapshot = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return [
+                    chart.data.datasets.map(dataset => dataset.id).join(','),
+                    chart.data.datasets[0].data.join(','),
+                    chart.data.datasets[1].data.join(','),
+                    chart.__singleDataUpdateCount
+                ].join('|');
+            }",
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("upsert-primary,upsert-remove|10,11,12|3,2,1|1"));
+    }
+
+    [Test]
+    public async Task UpdateDatasetsDataSmoothUpdatesMultipleDatasetDataById()
+    {
+        var canvasId = await OpenUpdateChartAndTrackUpdates("__multiDataUpdateCount");
+
+        var updateDatasetsDataSmooth = Page.GetByText("UpdateDatasetsDataSmooth", new PageGetByTextOptions() { Exact = true });
+        await Expect(updateDatasetsDataSmooth).ToHaveAttributeAsync("type", "button");
+        await updateDatasetsDataSmooth.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.join(',') === '10,11,12'
+                    && chart.data.datasets[1].data.join(',') === '13,14,15'
+                    && chart.__multiDataUpdateCount === 1;
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var snapshot = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return [
+                    chart.data.datasets.map(dataset => dataset.id).join(','),
+                    chart.data.datasets[0].data.join(','),
+                    chart.data.datasets[1].data.join(','),
+                    chart.__multiDataUpdateCount
+                ].join('|');
+            }",
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("upsert-primary,upsert-remove|10,11,12|13,14,15|1"));
+    }
+
     private async Task<double?> GetBorderWidth(string? canvasId, int dataset = 0)
     {
         return await Page.EvaluateAsync<double?>(@"() => {
@@ -266,5 +334,37 @@ public class UpdateDatasetTests : PageTest
                     return dataset.barThickness;
                 }
             }");
+    }
+
+    private async Task<string> OpenUpdateChartAndTrackUpdates(string updateCountPropertyName)
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/udpatechart");
+
+        await Expect(Page).ToHaveTitleAsync(new Regex("UpdateDatset Chart"),
+            new PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("canvas").GetAttributeAsync("id");
+        Assert.That(Guid.TryParse(canvasId, out _), Is.True);
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => typeof Chart !== 'undefined' && Chart.getChart(chartId) != undefined",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await Page.EvaluateAsync(
+            @"([chartId, updateCountPropertyName]) => {
+                const chart = Chart.getChart(chartId);
+                chart[updateCountPropertyName] = 0;
+                const originalUpdate = chart.update.bind(chart);
+                chart.update = (...args) => {
+                    chart[updateCountPropertyName]++;
+                    return originalUpdate(...args);
+                };
+            }",
+            new[] { canvasId!, updateCountPropertyName });
+
+        return canvasId!;
     }
 }
