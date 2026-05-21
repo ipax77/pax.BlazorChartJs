@@ -13,7 +13,7 @@ namespace pax.BlazorChartJs;
 /// <remarks>
 /// ChartJsInterop
 /// </remarks>
-public class ChartJsInterop(IJSRuntime jsRuntime,
+public sealed partial class ChartJsInterop(IJSRuntime jsRuntime,
                       // ILogger<ChartJsInterop> logger,
                       IOptions<ChartJsSetupOptions>? options) : IAsyncDisposable
 {
@@ -482,22 +482,6 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     private static bool ContainsChartJsFunctionMarker(string json)
     {
         return json.Contains(ChartJsFunctionMarkerProperty, StringComparison.Ordinal);
-    }
-
-    internal static JsonSerializerOptions CreateBenchmarkJsonSerializerOptions()
-    {
-        return CreateJsonSerializerOptions();
-    }
-
-    internal static int SerializeConfigForBenchmark(ChartJsConfig config)
-    {
-        var serializedConfig = SerializeConfig(config, CreateJsonSerializerOptions());
-        return serializedConfig.Json?.Length + (serializedConfig.HasChartJsFunctions ? 1 : 0) ?? 0;
-    }
-
-    internal static bool ContainsChartJsFunctionMarkerForBenchmark(string json)
-    {
-        return ContainsChartJsFunctionMarker(json);
     }
 
     private static SerializedChartJsPayload SerializeConfig(ChartJsConfig config, JsonSerializerOptions options)
