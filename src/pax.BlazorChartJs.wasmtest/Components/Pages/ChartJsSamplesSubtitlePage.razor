@@ -1,0 +1,16 @@
+@page "/chartjs-samples/subtitle"
+@page "/chartjs-samples/subtitle/{SampleId}"
+@using pax.BlazorChartJs.samplelib.ChartJsSamples.Backlog
+
+<PageTitle>Chart.js Subtitle</PageTitle>
+
+<SubtitleBasicSample />
+
+@code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
+    private string ResolvedSampleId => string.IsNullOrWhiteSpace(SampleId)
+        ? ChartJsBacklogSamples.ResolveDefaultSample("subtitle")
+        : SampleId;
+}

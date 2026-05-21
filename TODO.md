@@ -165,8 +165,8 @@ Re-check the docs section sidebar before implementing each group because the `la
 - [x] Title
   - [x] Alignment (`samples/title/alignment.html`)
 
-- [ ] Subtitle
-  - [ ] Basic (`samples/subtitle/basic.html`)
+- [x] Subtitle
+  - [x] Basic (`samples/subtitle/basic.html`)
 
 - [x] Tooltip
   - [x] Custom Tooltip Content (`samples/tooltip/content.html`)

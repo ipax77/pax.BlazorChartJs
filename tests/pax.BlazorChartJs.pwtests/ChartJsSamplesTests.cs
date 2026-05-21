@@ -826,6 +826,7 @@ public class ChartJsSamplesTests : PageTest
     [TestCase("legend", "position", "Position")]
     [TestCase("legend", "title", "Alignment and Title Position")]
     [TestCase("title", "alignment", "Alignment")]
+    [TestCase("subtitle", "basic", "Basic")]
     [TestCase("tooltip", "content", "Custom Tooltip Content")]
     [TestCase("tooltip", "html", "External HTML Tooltip")]
     [TestCase("tooltip", "interactions", "Interaction Modes")]
@@ -951,6 +952,25 @@ public class ChartJsSamplesTests : PageTest
         await Page.Locator("[data-sample-action='alignment-title-alignment-end']").ClickAsync();
         await Task.Delay(Startup.ChartJsComputeDelay);
         Assert.That(await GetChartOptionJson(canvasId, "chart.options.plugins.title.align"), Is.EqualTo("\"end\""));
+    }
+
+    [Test]
+    public async Task BacklogSubtitleBasicMatchesOfficialOptions()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/subtitle/basic");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Basic", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator("[data-chartjs-sample='basic'] [data-sample-action]")).ToHaveCountAsync(0);
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='basic'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.plugins.subtitle.display"), Is.EqualTo("true"));
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.plugins.subtitle.text"), Is.EqualTo("\"Chart Subtitle\""));
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.plugins.subtitle.color"), Is.EqualTo("\"blue\""));
+        Assert.That(await GetChartOptionJson(canvasId, "`${chart.options.plugins.subtitle.font.family}:${chart.options.plugins.subtitle.font.size}:${chart.options.plugins.subtitle.font.weight}:${chart.options.plugins.subtitle.font.style}`"), Is.EqualTo("\"tahoma:12:normal:italic\""));
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.plugins.subtitle.padding.bottom"), Is.EqualTo("10"));
     }
 
     [Test]
