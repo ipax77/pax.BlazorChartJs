@@ -21,6 +21,12 @@ public class DatasetsSetEventArgs(IList<ChartJsDataset> datasets) : EventArgs
     public IList<ChartJsDataset> Datasets { get; init; } = datasets;
 }
 
+public class DatasetsBinaryDataSetEventArgs(IReadOnlyList<ChartJsBinaryDatasetPayload> payloads, string updateMode) : EventArgs
+{
+    public IReadOnlyList<ChartJsBinaryDatasetPayload> Payloads { get; init; } = payloads;
+    public string UpdateMode { get; init; } = updateMode;
+}
+
 /// <summary>
 /// Describes a batched smooth dataset update to apply to a chart.
 /// </summary>

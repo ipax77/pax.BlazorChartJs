@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using pax.BlazorChartJs.BlazorLegend;
@@ -15,7 +14,7 @@ namespace pax.BlazorChartJs;
 /// ChartJsInterop
 /// </remarks>
 public partial class ChartJsInterop(IJSRuntime jsRuntime,
-                      ILogger<ChartJsInterop> logger,
+                    //   ILogger<ChartJsInterop> logger,
                       IOptions<ChartJsSetupOptions>? options) : IAsyncDisposable
 {
     private const string ChartJsInteropVersion = "0.9.0-preview";
@@ -40,15 +39,12 @@ public partial class ChartJsInterop(IJSRuntime jsRuntime,
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(dotnetRef);
 
-        logger.LogWarning("{date} - init start", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
-
         try
         {
             var module = await moduleTask.Value.ConfigureAwait(false);
             var serializedConfig = SerializeConfig(config);
             var serializedDefaults = SerializeSetupDefaults();
-            logger.LogWarning("{date} - serialized", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
-            var result = await module.InvokeAsync<ChartJsInitResult>(
+            return await module.InvokeAsync<ChartJsInitResult>(
                 "initChart",
                 setupOptions,
                 config.ChartJsConfigGuid,
@@ -59,8 +55,6 @@ public partial class ChartJsInterop(IJSRuntime jsRuntime,
                 serializedDefaults.HasChartJsFunctions,
                 serializedDefaults.Key)
                 .ConfigureAwait(false);
-            logger.LogWarning("{date} - done", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
-            return result;
         }
         catch (OperationCanceledException)
         {
@@ -107,6 +101,50 @@ public partial class ChartJsInterop(IJSRuntime jsRuntime,
 
         await module.InvokeVoidAsync("setDatasetsData", configGuid, jsData)
             .ConfigureAwait(false);
+    }
+
+    public async ValueTask SetDatasetBinaryData(Guid configGuid, ChartJsBinaryDatasetPayload payload, string updateMode = "none")
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+
+        await SetDatasetsBinaryData(configGuid, [payload], updateMode).ConfigureAwait(false);
+    }
+
+    public async ValueTask SetDatasetsBinaryData(Guid configGuid, IReadOnlyList<ChartJsBinaryDatasetPayload> payloads, string updateMode = "none")
+    {
+        ArgumentNullException.ThrowIfNull(payloads);
+        ArgumentNullException.ThrowIfNull(updateMode);
+
+        if (payloads.Count == 0)
+        {
+            return;
+        }
+
+        ChartJsConfig.ValidateBinaryDatasetPayloads(payloads);
+
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        object[] metadata = new object[payloads.Count];
+        object?[] args = new object?[3 + payloads.Count];
+        args[0] = configGuid;
+        args[1] = metadata;
+        args[2] = updateMode;
+
+        for (int i = 0; i < payloads.Count; i++)
+        {
+            var payload = payloads[i];
+            metadata[i] = new
+            {
+                datasetId = payload.DatasetId,
+                count = payload.Count,
+                format = payload.Format.ToString(),
+                xOffset = payload.XOffset,
+                yOffset = ChartJsConfig.GetEffectiveYOffset(payload),
+                byteStride = payload.ByteStride
+            };
+            args[3 + i] = payload.Bytes;
+        }
+
+        await module.InvokeVoidAsync("setDatasetsBinaryData", args).ConfigureAwait(false);
     }
 
     /// <summary>
