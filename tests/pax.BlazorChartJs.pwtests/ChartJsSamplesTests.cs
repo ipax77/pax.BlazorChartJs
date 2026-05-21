@@ -911,6 +911,103 @@ public class ChartJsSamplesTests : PageTest
     }
 
     [Test]
+    public async Task BacklogScaleOptionsCodeTabsShowFullSampleCode()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scale-options/center");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Center Positioning", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("Type = ChartType.scatter");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("Scales = new ChartJsOptionsScales");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("type: 'scatter'");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code']")).ToHaveCountAsync(0);
+
+        await Page.Locator("[data-code-tab='actions']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("SetScalePositions");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("config.UpdateChartOptions()");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("chart.options.scales.x.position");
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scale-options/grid");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Grid Configuration", Exact = true }))
+            .ToBeVisibleAsync();
+
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("ChartJsGrid");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("scaleOptionsGridColor");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("const DISPLAY");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("scaleOptionsGridColor(context)");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("export const chartJsCallbacks");
+
+        await Page.Locator("[data-code-tab='actions']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("config.SetData(data)");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("name: 'Randomize'");
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scale-options/ticks");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Tick Configuration", Exact = true }))
+            .ToBeVisibleAsync();
+
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("ChartJsFunction.FromName(\"scaleOptionsTickLabel\")");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("scaleOptionsTickLabel(value, index)");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("this.getLabelForValue(value)");
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("June\\n2015");
+        await Page.Locator("[data-code-tab='actions']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("SetTickAlign");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("chart.options.scales.x.ticks.align");
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scale-options/titles");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Title Configuration", Exact = true }))
+            .ToBeVisibleAsync();
+
+        await Expect(Page.Locator("[data-code-tab='actions']")).ToHaveCountAsync(0);
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("Family = \"Comic Sans MS\"");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("Padding = new Padding");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("padding: {top: 20");
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("const int DataCount = 7");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("const NUMBER_CFG");
+    }
+
+    [Test]
+    public async Task BacklogRemainingSectionsShowGeneratedConfigAndCallbackCode()
+    {
+        await AssertBacklogGeneratedCode(
+            "/chartjs-samples/legend/events",
+            "Events",
+            "OnHover = ChartJsFunction.FromName(\"legendHandleHover\")",
+            "legendHandleHover(_event, item, legend)",
+            "scriptableBarBackgroundColor(context)");
+
+        await AssertBacklogGeneratedCode(
+            "/chartjs-samples/title/alignment",
+            "Alignment",
+            "Title = new Title",
+            null,
+            null);
+
+        await AssertBacklogGeneratedCode(
+            "/chartjs-samples/tooltip/content",
+            "Custom Tooltip Content",
+            "Footer = ChartJsFunction.FromName(\"tooltipContentFooter\")",
+            "tooltipContentFooter(items)",
+            "renderExternalTooltip(context)");
+
+        await AssertBacklogGeneratedCode(
+            "/chartjs-samples/scriptable/bar",
+            "Bar Chart",
+            "BackgroundColor = ChartJsFunction.FromName(\"scriptableBarBackgroundColor\")",
+            "scriptableBarBackgroundColor(context)",
+            "scriptableBubbleRadius(context)");
+
+        await AssertBacklogGeneratedCode(
+            "/chartjs-samples/animations/delay",
+            "Delay",
+            "Animation = new Animation",
+            "animationDelay(context)",
+            "animationProgressiveFromNaN()");
+    }
+
+    [Test]
     public async Task BacklogScriptableLineRevivesElementCallbacksAndPieCutoutToggles()
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scriptable/line");
@@ -1156,5 +1253,32 @@ public class ChartJsSamplesTests : PageTest
         await Page.WaitForFunctionAsync(
             "canvasId => window.Chart !== undefined && Chart.getChart(canvasId) !== undefined",
             canvasId);
+    }
+
+    private async Task AssertBacklogGeneratedCode(string path, string heading, string csharpNeedle, string? callbackNeedle, string? unexpectedCallbackNeedle)
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + path);
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = heading, Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var csharpCode = Page.Locator("[aria-label='C# code'] code.language-csharp");
+        await Expect(csharpCode).ToContainTextAsync("var config = new ChartJsConfig");
+        await Expect(csharpCode).ToContainTextAsync(csharpNeedle);
+        await Expect(csharpCode).Not.ToHaveTextAsync("var config = new ChartJsConfig { Data = data, Options = options };");
+
+        var javaScriptCode = Page.Locator("[aria-label='JavaScript code'] code.language-javascript");
+        await Expect(javaScriptCode).ToContainTextAsync("const config = {");
+        await Expect(javaScriptCode).Not.ToHaveTextAsync("const config = { type, data, options };");
+
+        if (callbackNeedle is not null)
+        {
+            var callbackCode = Page.Locator("[aria-label='Chart.js callback module code'] code");
+            await Expect(callbackCode).ToContainTextAsync(callbackNeedle);
+            await Expect(callbackCode).ToContainTextAsync("export const chartJsCallbacks");
+            if (unexpectedCallbackNeedle is not null)
+            {
+                await Expect(callbackCode).Not.ToContainTextAsync(unexpectedCallbackNeedle);
+            }
+        }
     }
 }
