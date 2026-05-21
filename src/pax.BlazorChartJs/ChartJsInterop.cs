@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using pax.BlazorChartJs.BlazorLegend;
@@ -15,7 +16,7 @@ namespace pax.BlazorChartJs;
 /// ChartJsInterop
 /// </remarks>
 public class ChartJsInterop(IJSRuntime jsRuntime,
-                      // ILogger<ChartJsInterop> logger,
+                      ILogger<ChartJsInterop> logger,
                       IOptions<ChartJsSetupOptions>? options) : IAsyncDisposable
 {
     private const string ChartJsInteropVersion = "0.9.0-preview";
@@ -59,12 +60,15 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(dotnetRef);
 
+        logger.LogWarning("{date} - init start", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+
         try
         {
             var module = await moduleTask.Value.ConfigureAwait(false);
             var serializedConfig = SerializeConfig(config);
             var serializedDefaults = SerializeSetupDefaults();
-            return await module.InvokeAsync<ChartJsInitResult>(
+            logger.LogWarning("{date} - serialized", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+            var result = await module.InvokeAsync<ChartJsInitResult>(
                 "initChart",
                 setupOptions,
                 config.ChartJsConfigGuid,
@@ -75,6 +79,8 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
                 serializedDefaults.HasChartJsFunctions,
                 serializedDefaults.Key)
                 .ConfigureAwait(false);
+            logger.LogWarning("{date} - done", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+            return result;
         }
         catch (OperationCanceledException)
         {

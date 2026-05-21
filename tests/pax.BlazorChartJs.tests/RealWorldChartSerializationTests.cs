@@ -125,6 +125,54 @@ public sealed class RealWorldChartSerializationTests
     }
 
     [TestMethod]
+    public void AdvDataDecimationChartDocsSampleMatchesChartJsDataShape()
+    {
+        var actual = NormalizeChartJsJson(SerializeToNode(CreateAdvDataDecimationConfig()));
+        var expected = ParseNode(
+            """
+            {
+                "type": "line",
+                "data": {
+                    "datasets": [{
+                        "label": "Large Dataset",
+                        "borderColor": "red",
+                        "borderWidth": 1,
+                        "pointRadius": 0,
+                        "data": []
+                    }]
+                },
+                "options": {
+                    "animation": false,
+                    "parsing": false,
+                    "interaction": {
+                        "mode": "nearest",
+                        "axis": "x",
+                        "intersect": false
+                    },
+                    "plugins": {
+                        "decimation": {
+                            "enabled": false,
+                            "algorithm": "min-max"
+                        }
+                    },
+                    "scales": {
+                        "x": {
+                            "type": "time",
+                            "ticks": {
+                                "source": "auto",
+                                "maxRotation": 0,
+                                "autoSkip": true
+                            }
+                        }
+                    }
+                }
+            }
+            """);
+
+        JsonAssert.AreEquivalent(expected, actual);
+    }
+
+    [TestMethod]
     public void BubbleDataPointSerializesUsingChartJsPointPropertyNames()
     {
         BubbleDataPoint point = new()
@@ -252,6 +300,60 @@ public sealed class RealWorldChartSerializationTests
                     }
                 ]
             }
+        };
+    }
+
+    private static ChartJsConfig CreateAdvDataDecimationConfig()
+    {
+        return new()
+        {
+            Type = ChartType.line,
+            Data = new ChartJsData
+            {
+                Datasets =
+                [
+                    new LineDataset
+                    {
+                        Label = "Large Dataset",
+                        BorderColor = "red",
+                        BorderWidth = 1,
+                        PointRadius = 0,
+                        Data = [],
+                    },
+                ],
+            },
+            Options = new ChartJsOptions
+            {
+                Animation = false,
+                Parsing = false,
+                Interaction = new Interactions
+                {
+                    Mode = "nearest",
+                    Axis = "x",
+                    Intersect = false,
+                },
+                Plugins = new Plugins
+                {
+                    Decimation = new DecimationConfig
+                    {
+                        Enabled = false,
+                        Algorithm = "min-max",
+                    },
+                },
+                Scales = new ChartJsOptionsScales
+                {
+                    X = new TimeCartesianAxis
+                    {
+                        Type = "time",
+                        Ticks = new TimeCartesianAxisTicks
+                        {
+                            Source = "auto",
+                            MaxRotation = 0,
+                            AutoSkip = true,
+                        },
+                    },
+                },
+            },
         };
     }
 

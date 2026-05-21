@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
-using pax.BlazorChartJs.samplelib.ChartJsSamples;
-using System.Diagnostics;
 
 namespace pax.BlazorChartJs.samplelib.ChartJsSamples.Advanced;
 
@@ -12,7 +10,7 @@ public sealed partial class ChartJsAdvancedDataDecimationSample : ChartJsAdvance
 
 public abstract class ChartJsAdvancedDataDecimationSampleBase : ChartJsDocsBaseComponent, IAsyncDisposable
 {
-    private const int PointCount = 100000;
+    private const int PointCount = 100_000;
     private const long PointIntervalMilliseconds = 30000;
     private const string TimeAdapterModule = "./_content/pax.BlazorChartJs.samplelib/timeChart.js";
     private const string Red = "rgb(255, 99, 132)";
@@ -349,9 +347,6 @@ public abstract class ChartJsAdvancedDataDecimationSampleBase : ChartJsDocsBaseC
 
     private static object[] CreatePointData()
     {
-#if DEBUG
-        var stopwatch = Stopwatch.StartNew();
-#endif
         var start = Start.ToUnixTimeMilliseconds();
         var seed = 10u;
         object[] pointData = new object[PointCount];
@@ -365,11 +360,6 @@ public abstract class ChartJsAdvancedDataDecimationSampleBase : ChartJsDocsBaseC
                 Y = NextUnit(ref seed) * max,
             };
         }
-
-#if DEBUG
-        stopwatch.Stop();
-        Console.WriteLine($"Data decimation CreatePointData generated {PointCount} points in {stopwatch.ElapsedMilliseconds} ms.");
-#endif
         return pointData;
     }
 
