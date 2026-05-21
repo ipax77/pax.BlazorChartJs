@@ -191,7 +191,7 @@ Re-check the docs section sidebar before implementing each group because the `la
   - [x] Progressive Line With Easing (`samples/animations/progressive-line-easing.html`)
 
 - [ ] Advanced
-  - [ ] Data Decimation (`samples/advanced/data-decimation.html`)
+  - [x] Data Decimation (`samples/advanced/data-decimation.html`)
   - [ ] Derived Axis Type (`samples/advanced/derived-axis-type.html`)
   - [ ] Derived Chart Type (`samples/advanced/derived-chart-type.html`)
   - [ ] Linear Gradient (`samples/advanced/linear-gradient.html`)

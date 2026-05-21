@@ -23,7 +23,18 @@
     </div>
 
     <div class="chartjs-sample__chart">
-        <ChartComponent @ref="chartComponent" ChartJsConfig="ChartJsConfig" OnEventTriggered="OnEventTriggered" />
+        @if (RenderChart)
+        {
+            <ChartComponent @ref="chartComponent" ChartJsConfig="ChartJsConfig" OnEventTriggered="OnEventTriggered" />
+        }
+        else if (ChartPlaceholder is not null)
+        {
+            @ChartPlaceholder
+        }
+        else if (!string.IsNullOrWhiteSpace(ChartPlaceholderText))
+        {
+            <p class="chartjs-sample__chart-placeholder">@ChartPlaceholderText</p>
+        }
     </div>
 
     <div class="chartjs-sample__code">
@@ -96,12 +107,22 @@
     public string? CallbacksCode { get; set; }
 
     [Parameter]
+    public bool RenderChart { get; set; } = true;
+
+    [Parameter]
+    public RenderFragment? ChartPlaceholder { get; set; }
+
+    [Parameter]
+    public string? ChartPlaceholderText { get; set; }
+
+    [Parameter]
     public EventCallback<ChartComponent> OnChartComponentReady { get; set; }
 
     [Parameter]
     public EventCallback<ChartJsEvent> OnEventTriggered { get; set; }
 
     private ChartComponent? chartComponent;
+    private bool chartComponentReadyNotified;
 
     private string CSharpCodeBlockKey => $"csharp:{ActiveCodeTab}";
 
@@ -117,8 +138,16 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && chartComponent is not null && OnChartComponentReady.HasDelegate)
+        if (!RenderChart)
         {
+            chartComponentReadyNotified = false;
+            chartComponent = null;
+            return;
+        }
+
+        if (!chartComponentReadyNotified && chartComponent is not null && OnChartComponentReady.HasDelegate)
+        {
+            chartComponentReadyNotified = true;
             await OnChartComponentReady.InvokeAsync(chartComponent).ConfigureAwait(false);
         }
     }
