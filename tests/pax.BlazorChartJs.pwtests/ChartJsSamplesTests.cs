@@ -873,6 +873,70 @@ public class ChartJsSamplesTests : PageTest
     }
 
     [Test]
+    public async Task AdvancedDataDecimationUsesLargeTimeDatasetAndOptionActions()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/advanced/data-decimation");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Data Decimation", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.GetByText("Loading time adapter")).ToHaveCountAsync(0);
+        await Expect(Page.Locator("[data-chartjs-sample='data-decimation'] [data-sample-action]")).ToHaveCountAsync(4);
+        await Expect(Page.Locator("[data-chartjs-sample='data-decimation'] canvas"))
+            .ToHaveCountAsync(1, new LocatorAssertionsToHaveCountOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='data-decimation'] canvas").GetAttributeAsync("id");
+        await Page.WaitForFunctionAsync(
+            "canvasId => Chart.getChart(canvasId)?.data?.datasets?.[0]?.data?.length === 100000",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        Assert.That(await GetScaleType(canvasId, "x"), Is.EqualTo("time"));
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.animation"), Is.EqualTo("false"));
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.parsing"), Is.EqualTo("false"));
+        Assert.That(await GetChartOptionJson(canvasId, "`${chart.options.interaction.mode}:${chart.options.interaction.axis}:${chart.options.interaction.intersect}`"), Is.EqualTo("\"nearest:x:false\""));
+        Assert.That(await GetChartOptionJson(canvasId, "`${chart.options.plugins.decimation.enabled}:${chart.options.plugins.decimation.algorithm}`"), Is.EqualTo("\"false:min-max\""));
+
+        await Page.Locator("[data-sample-action='data-decimation-min-max']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "`${chart.options.plugins.decimation.enabled}:${chart.options.plugins.decimation.algorithm}:${chart.options.plugins.decimation.samples}`"), Is.EqualTo("\"true:min-max:undefined\""));
+
+        await Page.Locator("[data-sample-action='data-decimation-lttb-50']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "`${chart.options.plugins.decimation.enabled}:${chart.options.plugins.decimation.algorithm}:${chart.options.plugins.decimation.samples}`"), Is.EqualTo("\"true:lttb:50\""));
+
+        await Page.Locator("[data-sample-action='data-decimation-lttb-500']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "`${chart.options.plugins.decimation.enabled}:${chart.options.plugins.decimation.algorithm}:${chart.options.plugins.decimation.samples}`"), Is.EqualTo("\"true:lttb:500\""));
+
+        await Page.Locator("[data-sample-action='data-decimation-no-decimation']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.plugins.decimation.enabled"), Is.EqualTo("false"));
+    }
+
+    [Test]
+    public async Task AdvancedDataDecimationCodeTabsShowGeneratorInsteadOfExpandedData()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/advanced/data-decimation");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Data Decimation", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.GetByText("Loading time adapter")).ToHaveCountAsync(0);
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("Animation = false");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("animation: false");
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("object[] pointData = new object[PointCount]");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("const NUM_POINTS = 100000");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).Not.ToContainTextAsync("generated values omitted");
+
+        await Page.Locator("[data-code-tab='actions']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("config.UpdateChartOptions()");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("LTTB decimation (500 samples)");
+    }
+
+    [Test]
     public async Task BacklogTitleAlignmentActionUpdatesOptions()
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/title/alignment");

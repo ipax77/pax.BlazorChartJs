@@ -40,6 +40,13 @@
     max-width: min(100%, 800px);
 }
 
+.chartjs-sample__chart-placeholder {
+    align-items: center;
+    color: #5d6470;
+    display: flex;
+    min-height: 12rem;
+}
+
 .chartjs-sample__code {
     display: flex;
     flex-direction: column;
