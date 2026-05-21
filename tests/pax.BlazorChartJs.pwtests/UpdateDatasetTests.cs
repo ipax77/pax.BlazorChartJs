@@ -310,6 +310,110 @@ public class UpdateDatasetTests : PageTest
         Assert.That(snapshot, Is.EqualTo("upsert-primary,upsert-remove|10,11,12|13,14,15|1"));
     }
 
+    [Test]
+    public async Task SetDatasetBinaryDataUpdatesFloat64XYByDatasetId()
+    {
+        var canvasId = await OpenUpdateChartAndTrackUpdates("__binaryXYUpdateCount");
+
+        var setBinaryFloat64XY = Page.GetByText("SetBinaryFloat64XY", new PageGetByTextOptions() { Exact = true });
+        await Expect(setBinaryFloat64XY).ToHaveAttributeAsync("type", "button");
+        await setBinaryFloat64XY.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                const data = chart?.data?.datasets?.[0]?.data;
+                return data?.length === 3
+                    && data[0].x === 1
+                    && data[0].y === 20
+                    && data[2].x === 3
+                    && data[2].y === 22
+                    && chart.__binaryXYUpdateCount === 1;
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var snapshot = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                const data = chart.data.datasets[0].data;
+                return [
+                    data.map(point => `${point.x}:${point.y}`).join(','),
+                    chart.data.datasets[1].data.join(','),
+                    chart.__binaryXYUpdateCount
+                ].join('|');
+            }",
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("1:20,2:21,3:22|3,2,1|1"));
+    }
+
+    [Test]
+    public async Task SetDatasetBinaryDataUpdatesFloat32YAsScalarData()
+    {
+        var canvasId = await OpenUpdateChartAndTrackUpdates("__binaryYUpdateCount");
+
+        var setBinaryFloat32Y = Page.GetByText("SetBinaryFloat32Y", new PageGetByTextOptions() { Exact = true });
+        await Expect(setBinaryFloat32Y).ToHaveAttributeAsync("type", "button");
+        await setBinaryFloat32Y.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.join(',') === '30,31,32'
+                    && chart.data.datasets[1].data.join(',') === '3,2,1'
+                    && chart.__binaryYUpdateCount === 1;
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var snapshot = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return [
+                    chart.data.datasets[0].data.join(','),
+                    chart.data.datasets[1].data.join(','),
+                    chart.__binaryYUpdateCount
+                ].join('|');
+            }",
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("30,31,32|3,2,1|1"));
+    }
+
+    [Test]
+    public async Task SetDatasetsBinaryDataBatchesMultipleDatasetsWithOneChartUpdate()
+    {
+        var canvasId = await OpenUpdateChartAndTrackUpdates("__binaryBatchUpdateCount");
+
+        var setBinaryBatch = Page.GetByText("SetBinaryBatch", new PageGetByTextOptions() { Exact = true });
+        await Expect(setBinaryBatch).ToHaveAttributeAsync("type", "button");
+        await setBinaryBatch.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.join(',') === '40,41,42'
+                    && chart.data.datasets[1].data.join(',') === '50,51,52'
+                    && chart.__binaryBatchUpdateCount === 1;
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var snapshot = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return [
+                    chart.data.datasets[0].data.join(','),
+                    chart.data.datasets[1].data.join(','),
+                    chart.__binaryBatchUpdateCount
+                ].join('|');
+            }",
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("40,41,42|50,51,52|1"));
+    }
+
     private async Task<double?> GetBorderWidth(string? canvasId, int dataset = 0)
     {
         return await Page.EvaluateAsync<double?>(@"() => {
