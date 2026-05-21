@@ -58,6 +58,7 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
             "scale-options" => "center",
             "legend" => "events",
             "title" => "alignment",
+            "subtitle" => "basic",
             "tooltip" => "content",
             "scriptable" => "bar",
             "animations" => "delay",
@@ -262,6 +263,7 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
         AddScaleOptions(definitions);
         AddLegend(definitions);
         AddTitle(definitions);
+        AddSubtitle(definitions);
         AddTooltip(definitions);
         AddScriptable(definitions);
         AddAnimations(definitions);
@@ -326,6 +328,11 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
             c.CreateAction("title-alignment-center", "Title Alignment: center (default)", () => c.SetTitleAlign("center")),
             c.CreateAction("title-alignment-end", "Title Alignment: end", () => c.SetTitleAlign("end")),
         ]);
+    }
+
+    private static void AddSubtitle(Dictionary<string, OfficialSampleDefinition> definitions)
+    {
+        definitions[GetKey("subtitle", "basic")] = Definition("subtitle", "basic", "Basic", "https://www.chartjs.org/docs/latest/samples/subtitle/basic.html", CreateSubtitleBasicConfig, _ => []);
     }
 
     private static void AddTooltip(Dictionary<string, OfficialSampleDefinition> definitions)
@@ -1530,6 +1537,22 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
     private static ChartJsConfig CreateLegendTitleConfig() => CreateLineConfig("Legend Alignment and Title", [Line("Dataset 1", Red, RandomNumbers(7, -100, 100)), Line("Dataset 2", Blue, RandomNumbers(7, -100, 100))], null, null, new Plugins { Legend = new Legend { Align = "center", Title = new Title { Display = true, Text = "Legend Title", Position = "center" } }, Title = new Title { Display = true, Text = "Legend Title Position" } });
 
     private static ChartJsConfig CreateTitleAlignmentConfig() => CreateLineConfig("Chart Title", [Line("Dataset 1", Red, RandomNumbers(7, -100, 100))]);
+
+    private static ChartJsConfig CreateSubtitleBasicConfig() => CreateLineConfig(
+        "Chart Title",
+        [Line("Dataset 1", Red, RandomNumbers(7, -100, 100))],
+        plugins: new Plugins
+        {
+            Title = new Title { Display = true, Text = "Chart Title" },
+            Subtitle = new Title
+            {
+                Display = true,
+                Text = "Chart Subtitle",
+                Color = "blue",
+                Font = new Font { Size = 12, Family = "tahoma", Weight = "normal", Style = "italic" },
+                Padding = new Padding { Bottom = 10 },
+            },
+        });
 
     private static ChartJsConfig CreateTooltipContentConfig() => CreateLineConfig("Tooltip Content", [Line("Dataset 1", Red, RandomNumbers(7, 0, 100)), Line("Dataset 2", Blue, RandomNumbers(7, 0, 100))], null, null, new Plugins { Tooltip = new Tooltip { Mode = "index", Callbacks = new TooltipCallbacks { Footer = ChartJsFunction.FromName("tooltipContentFooter") } }, Title = new Title { Display = true, Text = "Tooltip Content" } });
 
