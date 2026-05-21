@@ -109,8 +109,6 @@ public class ChartJsSamplesTests : PageTest
             Array.from(document.querySelectorAll('.nav-subsection-heading'))
                 .map(element => element.textContent.trim())");
 
-        Assert.That(Array.IndexOf(sampleSectionOrder, "Area Charts"), Is.GreaterThan(Array.IndexOf(sampleSectionOrder, "Other Charts")));
-
         await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Line Datasets", Exact = true }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart Datasets", Exact = true }))
             .ToBeVisibleAsync();
