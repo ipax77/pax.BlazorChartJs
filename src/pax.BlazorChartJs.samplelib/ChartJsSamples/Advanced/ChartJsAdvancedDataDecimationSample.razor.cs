@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
-using System.Buffers.Binary;
 
 namespace pax.BlazorChartJs.samplelib.ChartJsSamples.Advanced;
 
@@ -76,18 +75,15 @@ public abstract class ChartJsAdvancedDataDecimationSampleBase : ChartJsDocsBaseC
         const long PointIntervalMilliseconds = 30000;
         var start = new DateTimeOffset(2021, 4, 1, 0, 0, 0, TimeSpan.Zero).ToUnixTimeMilliseconds();
         var seed = 10u;
-        var pointData = GC.AllocateUninitializedArray<byte>(PointCount * 2 * sizeof(double));
-        var bytes = pointData.AsSpan();
+        var points = GC.AllocateUninitializedArray<ChartJsPoint>(PointCount);
 
         for (var i = 0; i < PointCount; i++)
         {
             var max = NextUnit(ref seed) < 0.001 ? 100 : 20;
             var x = start + (i * PointIntervalMilliseconds);
             var y = NextUnit(ref seed) * max;
-            var offset = i * 2 * sizeof(double);
 
-            BinaryPrimitives.WriteDoubleLittleEndian(bytes.Slice(offset, sizeof(double)), x);
-            BinaryPrimitives.WriteDoubleLittleEndian(bytes.Slice(offset + sizeof(double), sizeof(double)), y);
+            points[i] = new ChartJsPoint(x, y);
         }
 
         static double NextUnit(ref uint seed)
@@ -112,13 +108,7 @@ public abstract class ChartJsAdvancedDataDecimationSampleBase : ChartJsDocsBaseC
             ],
         };
 
-        config.SetDatasetBinaryData(new ChartJsBinaryDatasetPayload
-        {
-            DatasetId = "large-dataset",
-            Bytes = pointData,
-            Count = PointCount,
-            Format = ChartJsBinaryDataFormat.Float64XY,
-        });
+        config.SetDatasetBinaryData(ChartJsBinaryPayload.FromXY("large-dataset", points));
         """,
         """
         void DisableDecimation()
@@ -286,14 +276,7 @@ public abstract class ChartJsAdvancedDataDecimationSampleBase : ChartJsDocsBaseC
             return;
         }
 
-        var pointData = CreatePointDataBytes();
-        Config.SetDatasetBinaryData(new ChartJsBinaryDatasetPayload
-        {
-            DatasetId = LargeDatasetId,
-            Bytes = pointData,
-            Count = PointCount,
-            Format = ChartJsBinaryDataFormat.Float64XY
-        });
+        Config.SetDatasetBinaryData(ChartJsBinaryPayload.FromXY(LargeDatasetId, CreatePointData()));
 
         await Task.CompletedTask.ConfigureAwait(false);
     }
@@ -386,25 +369,22 @@ public abstract class ChartJsAdvancedDataDecimationSampleBase : ChartJsDocsBaseC
         };
     }
 
-    private static byte[] CreatePointDataBytes()
+    private static ChartJsPoint[] CreatePointData()
     {
         var start = Start.ToUnixTimeMilliseconds();
         var seed = 10u;
-        var pointData = GC.AllocateUninitializedArray<byte>(PointCount * 2 * sizeof(double));
-        var bytes = pointData.AsSpan();
+        var points = GC.AllocateUninitializedArray<ChartJsPoint>(PointCount);
 
         for (var i = 0; i < PointCount; i++)
         {
             var max = NextUnit(ref seed) < 0.001 ? 100 : 20;
             var x = start + (i * PointIntervalMilliseconds);
             var y = NextUnit(ref seed) * max;
-            var offset = i * 2 * sizeof(double);
 
-            BinaryPrimitives.WriteDoubleLittleEndian(bytes.Slice(offset, sizeof(double)), x);
-            BinaryPrimitives.WriteDoubleLittleEndian(bytes.Slice(offset + sizeof(double), sizeof(double)), y);
+            points[i] = new ChartJsPoint(x, y);
         }
 
-        return pointData;
+        return points;
     }
 
     private static double NextUnit(ref uint seed)

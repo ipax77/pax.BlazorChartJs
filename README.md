@@ -150,6 +150,26 @@ chartJsConfig.SetDatasetsSmooth(
     updateOptions: true);
 ```
 
+## Binary dataset updates
+Use `ChartJsConfig.SetDatasetBinaryData(...)` to update a dataset by id from a packed binary payload without serializing large data arrays as JSON. `ChartJsBinaryPayload` creates compact payloads for common Y and XY layouts:
+
+```csharp
+chartJsConfig.SetDatasetBinaryData(
+    ChartJsBinaryPayload.FromY("dataset-1", new float[] { 10, 12, 14 }));
+
+var points = new ChartJsPoint[]
+{
+    new(1, 20),
+    new(2, 21),
+    new(3, 22)
+};
+
+chartJsConfig.SetDatasetBinaryData(
+    ChartJsBinaryPayload.FromXY("dataset-2", points));
+```
+
+`FromY(...)` accepts `int`, `float`, or `double` spans. `FromXY(...)` accepts `ChartJsPoint` spans or interleaved `double` values. Custom strided binary layouts can still be passed with `ChartJsBinaryDatasetPayload` directly.
+
 ## Chart Events
 Several chart events are available, by default only the Init event is fired. The others can be activated in the ChartJsConfig.Options [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventsComp.razor)
 *  click
@@ -264,6 +284,7 @@ We really like people helping us with the project. Nevertheless, take your time 
 >- Added `ChartJsOptionsDatasets` for `options.datasets` and `Chart.defaults.datasets` chart-type defaults.
 >- Chart.js native `OnClick`, `OnHover`, and `OnResize` callbacks are preserved when the Blazor/C# event bridge flags are enabled.
 >- Added `ChartJsConfig.SetDatasetsSmooth(...)` to add, update, remove, and reorder datasets by id in one smooth batched chart update, with optional labels and current options update.
+>- Added binary dataset updates through `ChartJsConfig.SetDatasetBinaryData(...)` and compact `ChartJsBinaryPayload` helper factories for large Y and XY data updates.
 
 </details>
 
