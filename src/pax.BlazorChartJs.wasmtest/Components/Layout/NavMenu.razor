@@ -1,3 +1,6 @@
+@implements IDisposable
+@inject NavigationManager NavigationManager
+
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">pax.BlazorChartJs</a>
@@ -281,6 +284,12 @@
         return isExpanded ? "-" : "+";
     }
 
+    protected override void OnInitialized()
+    {
+        UpdateActiveNavigationSections(NavigationManager.Uri);
+        NavigationManager.LocationChanged += LocationChanged;
+    }
+
     private bool IsChartJsSampleSectionExpanded(string sectionKey)
     {
         return string.Equals(activeChartJsSampleSectionKey, sectionKey, StringComparison.Ordinal);
@@ -309,6 +318,102 @@
     private void ToggleChartJsSampleSection(string sectionKey)
     {
         activeChartJsSampleSectionKey = sectionKey;
+    }
+
+    private void LocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        if (UpdateActiveNavigationSections(args.Location))
+        {
+            StateHasChanged();
+        }
+    }
+
+    private bool UpdateActiveNavigationSections(string uri)
+    {
+        return UpdateActiveChartJsSampleSection(uri) | UpdateActiveLibrarySampleSection(uri);
+    }
+
+    private bool UpdateActiveChartJsSampleSection(string uri)
+    {
+        var path = GetRoutePath(uri);
+        const string chartJsSamplesPrefix = "chartjs-samples/";
+
+        if (!path.StartsWith(chartJsSamplesPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var sectionKey = path[chartJsSamplesPrefix.Length..].Split('/')[0];
+        if (string.IsNullOrWhiteSpace(sectionKey) || !IsKnownChartJsSampleSection(sectionKey))
+        {
+            return false;
+        }
+
+        var changed = collapseChartJsSamples
+            || !string.Equals(activeChartJsSampleSectionKey, sectionKey, StringComparison.Ordinal);
+
+        collapseChartJsSamples = false;
+        activeChartJsSampleSectionKey = sectionKey;
+        return changed;
+    }
+
+    private static bool IsKnownChartJsSampleSection(string sectionKey)
+    {
+        foreach (var section in ChartJsSampleSections)
+        {
+            if (string.Equals(section.Key, sectionKey, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool UpdateActiveLibrarySampleSection(string uri)
+    {
+        var path = GetRoutePath(uri);
+        if (!IsKnownLibrarySampleRoute(path))
+        {
+            return false;
+        }
+
+        var changed = collapseLibrarySamples;
+        collapseLibrarySamples = false;
+        return changed;
+    }
+
+    private string GetRoutePath(string uri)
+    {
+        return NavigationManager.ToBaseRelativePath(uri).Split('?', '#')[0].TrimEnd('/');
+    }
+
+    private static bool IsKnownLibrarySampleRoute(string path)
+    {
+        return path is "barchart"
+            or "linechart"
+            or "multiplecharts"
+            or "eventschart"
+            or "scatterchart"
+            or "stackedchart"
+            or "multiaxis"
+            or "timeschart"
+            or "minchart"
+            or "preloadpluginchart"
+            or "datalabelschart"
+            or "callbackchart"
+            or "scriptablepaddingchart"
+            or "tooltipcallbackchart"
+            or "htmllegendchart"
+            or "htmllegendpiechart"
+            or "udpatechart"
+            or "synergysmoothchart"
+            or "disposechart";
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= LocationChanged;
     }
 
     private sealed record ChartJsSampleSection(string Key, string Title, ChartJsSampleLink[] Links);
