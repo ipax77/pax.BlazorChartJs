@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../src/pax.BlazorChartJs/pax.BlazorChartJs.csproj" />
+  <Project Path="pax.BlazorChartJs.benchmarks/pax.BlazorChartJs.benchmarks.csproj" />
+</Solution>

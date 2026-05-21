@@ -360,6 +360,7 @@ public abstract class ChartJsAdvancedDataDecimationSampleBase : ChartJsDocsBaseC
                 Y = NextUnit(ref seed) * max,
             };
         }
+
         return pointData;
     }
 

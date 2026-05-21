@@ -475,6 +475,25 @@ async function ensureChartJsLoaded(setupOptions) {
     }
     await chartJsLoadPromise;
 }
+function parsePayload(value) {
+    if (value == undefined || typeof value !== "string") {
+        return value;
+    }
+    return JSON.parse(value);
+}
+function parseArrayPayload(value) {
+    return parsePayload(value);
+}
+function isSetupOptions(value) {
+    return value != undefined
+        && typeof value === "object"
+        && !Array.isArray(value)
+        && ("chartJsLocation" in value
+            || "chartJsPluginLabelsLocation" in value
+            || "chartJsPluginDatalabelsLocation" in value
+            || "chartJsCallbacksModuleLocation" in value
+            || "defaults" in value);
+}
 export async function initChart(setupOptions, chartId, dotnetConfig, hasChartJsFunctions, dotnetRef, defaults, hasDefaultChartJsFunctions, defaultsKey) {
     const runningInit = ChartJsInteropModule.chartInitPromises.get(chartId) ?? Promise.resolve({ success: true });
     const initPromise = runningInit
@@ -492,16 +511,18 @@ export async function initChart(setupOptions, chartId, dotnetConfig, hasChartJsF
 }
 async function initChartCore(setupOptions, chartId, dotnetConfig, hasChartJsFunctions, dotnetRef, defaults, hasDefaultChartJsFunctions, defaultsKey) {
     try {
+        const resolvedDotnetConfig = parsePayload(dotnetConfig);
+        const resolvedDefaults = parsePayload(defaults);
         await ensureChartJsLoaded(setupOptions);
-        await ChartJsInteropModule.applyDefaults(setupOptions, defaults, hasDefaultChartJsFunctions === true, defaultsKey);
+        await ChartJsInteropModule.applyDefaults(setupOptions, resolvedDefaults, hasDefaultChartJsFunctions === true, defaultsKey);
         const element = document.getElementById(chartId);
         if (!element) {
             return { success: false };
         }
         destroyExistingChart(chartId, element);
-        const config = ChartJsInteropModule.buildChartConfig(dotnetConfig);
+        const config = ChartJsInteropModule.buildChartConfig(resolvedDotnetConfig);
         await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, config, hasChartJsFunctions);
-        config.plugins = await loadPlugins(setupOptions, dotnetConfig);
+        config.plugins = await loadPlugins(setupOptions, resolvedDotnetConfig);
         const ctx = element.getContext('2d');
         if (!ctx) {
             return { success: false };
@@ -509,16 +530,17 @@ async function initChartCore(setupOptions, chartId, dotnetConfig, hasChartJsFunc
         const chart = new Chart(ctx, config);
         ChartJsInteropModule.charts.set(chartId, chart);
         ChartJsInteropModule.dotnetRefs.set(chartId, dotnetRef);
-        if (dotnetConfig['options'] != undefined) {
-            registerEvents(dotnetConfig.options, chartId, chart);
+        if (resolvedDotnetConfig['options'] != undefined) {
+            registerEvents(resolvedDotnetConfig.options, chartId, chart);
         }
-        return {
+        const result = {
             success: true,
             height: chart.height,
             width: chart.width,
             windowHeight: window.innerHeight,
             windowWidth: window.innerWidth
         };
+        return result;
     }
     finally {
     }
@@ -682,7 +704,7 @@ function getLiveChart(chartId) {
 export async function updateChartOptions(chartId, setupOptionsOrOptions, options, hasChartJsFunctions) {
     const hasSetupOptions = arguments.length >= 3 && (arguments.length >= 4 || typeof options !== "boolean");
     const setupOptions = hasSetupOptions ? setupOptionsOrOptions : undefined;
-    const resolvedOptions = hasSetupOptions ? options : setupOptionsOrOptions;
+    const resolvedOptions = parsePayload(hasSetupOptions ? options : setupOptionsOrOptions);
     const resolvedHasChartJsFunctions = hasSetupOptions ? hasChartJsFunctions : options;
     await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { options: resolvedOptions }, resolvedHasChartJsFunctions === true);
     const chart = getLiveChart(chartId);
@@ -712,7 +734,7 @@ export function setData(chartId, labels, datas) {
 }
 export async function addDatasets(chartId, setupOptionsOrDatasets, datasets, hasChartJsFunctions) {
     const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
-    const resolvedDatasets = Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets;
+    const resolvedDatasets = parseArrayPayload(Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets);
     const resolvedHasChartJsFunctions = Array.isArray(setupOptionsOrDatasets) ? datasets : hasChartJsFunctions;
     await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } }, resolvedHasChartJsFunctions === true);
     const chart = getLiveChart(chartId);
@@ -722,11 +744,9 @@ export async function addDatasets(chartId, setupOptionsOrDatasets, datasets, has
     ChartJsInteropModule.addDatasets(chart, resolvedDatasets);
 }
 export async function addChartDataset(chartId, setupOptionsOrDataset, datasetOrHasChartJsFunctions, hasChartJsFunctionsOrAfterDatasetId, afterDatasetId) {
-    const hasSetupOptions = datasetOrHasChartJsFunctions != undefined
-        && typeof datasetOrHasChartJsFunctions === "object"
-        && !Array.isArray(datasetOrHasChartJsFunctions);
+    const hasSetupOptions = arguments.length >= 5 || isSetupOptions(setupOptionsOrDataset);
     const setupOptions = hasSetupOptions ? setupOptionsOrDataset : undefined;
-    const dataset = hasSetupOptions ? datasetOrHasChartJsFunctions : setupOptionsOrDataset;
+    const dataset = parsePayload(hasSetupOptions ? datasetOrHasChartJsFunctions : setupOptionsOrDataset);
     const resolvedHasChartJsFunctions = hasSetupOptions ? hasChartJsFunctionsOrAfterDatasetId : datasetOrHasChartJsFunctions;
     const resolvedAfterDatasetId = hasSetupOptions
         ? afterDatasetId
@@ -749,7 +769,7 @@ export function removeDatasets(chartId, datasets) {
 }
 export async function updateDatasetsSmooth(chartId, setupOptionsOrDatasets, datasets, hasChartJsFunctions) {
     const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
-    const resolvedDatasets = Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets;
+    const resolvedDatasets = parseArrayPayload(Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets);
     const resolvedHasChartJsFunctions = Array.isArray(setupOptionsOrDatasets) ? datasets : hasChartJsFunctions;
     await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } }, resolvedHasChartJsFunctions === true);
     const chart = getLiveChart(chartId);
@@ -760,7 +780,7 @@ export async function updateDatasetsSmooth(chartId, setupOptionsOrDatasets, data
 }
 export async function updateDatasets(chartId, setupOptionsOrDatasets, datasets, hasChartJsFunctions) {
     const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
-    const resolvedDatasets = Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets;
+    const resolvedDatasets = parseArrayPayload(Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets);
     const resolvedHasChartJsFunctions = Array.isArray(setupOptionsOrDatasets) ? datasets : hasChartJsFunctions;
     await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } }, resolvedHasChartJsFunctions === true);
     const chart = getLiveChart(chartId);
@@ -770,16 +790,17 @@ export async function updateDatasets(chartId, setupOptionsOrDatasets, datasets, 
     ChartJsInteropModule.updateDatasets(chart, resolvedDatasets);
 }
 export async function applyDatasetChangesSmooth(chartId, setupOptions, desiredDatasetIds, datasetsToAdd, datasetsToUpdateSmooth, datasetIdsToRemove, labels, options, hasChartJsFunctions) {
-    const resolvedDatasetsToAdd = datasetsToAdd ?? [];
-    const resolvedDatasetsToUpdateSmooth = datasetsToUpdateSmooth ?? [];
+    const resolvedDatasetsToAdd = parseArrayPayload(datasetsToAdd) ?? [];
+    const resolvedDatasetsToUpdateSmooth = parseArrayPayload(datasetsToUpdateSmooth) ?? [];
     const resolvedDatasetIdsToRemove = datasetIdsToRemove ?? [];
+    const resolvedOptions = parsePayload(options);
     if (hasChartJsFunctions === true) {
         const config = {};
         if (resolvedDatasetsToAdd.length > 0 || resolvedDatasetsToUpdateSmooth.length > 0) {
             config.data = { datasets: resolvedDatasetsToAdd.concat(resolvedDatasetsToUpdateSmooth) };
         }
-        if (options != undefined) {
-            config.options = options;
+        if (resolvedOptions != undefined) {
+            config.options = resolvedOptions;
         }
         await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, config, true);
     }
@@ -787,15 +808,15 @@ export async function applyDatasetChangesSmooth(chartId, setupOptions, desiredDa
     if (!chart || !desiredDatasetIds) {
         return;
     }
-    ChartJsInteropModule.applyDatasetChangesSmooth(chart, desiredDatasetIds, resolvedDatasetsToAdd, resolvedDatasetsToUpdateSmooth, resolvedDatasetIdsToRemove, labels, options, () => {
-        if (options != undefined) {
-            registerEvents(options, chartId, chart);
+    ChartJsInteropModule.applyDatasetChangesSmooth(chart, desiredDatasetIds, resolvedDatasetsToAdd, resolvedDatasetsToUpdateSmooth, resolvedDatasetIdsToRemove, labels, resolvedOptions, () => {
+        if (resolvedOptions != undefined) {
+            registerEvents(resolvedOptions, chartId, chart);
         }
     });
 }
 export async function setDatasets(chartId, setupOptionsOrDatasets, datasets, hasChartJsFunctions) {
     const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
-    const resolvedDatasets = Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets;
+    const resolvedDatasets = parseArrayPayload(Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets);
     const resolvedHasChartJsFunctions = Array.isArray(setupOptionsOrDatasets) ? datasets : hasChartJsFunctions;
     await ChartJsInteropModule.resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } }, resolvedHasChartJsFunctions === true);
     const chart = getLiveChart(chartId);
