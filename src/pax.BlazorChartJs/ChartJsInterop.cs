@@ -492,7 +492,10 @@ public partial class ChartJsInterop(IJSRuntime jsRuntime,
     private static SerializedChartJsPayload SerializeConfig(ChartJsConfig config, JsonSerializerOptions options)
     {
         var json = JsonSerializer.Serialize<object>(config, options) ?? throw new ArgumentNullException(nameof(config));
-        return new(json, ContainsChartJsFunctionMarker(json), json);
+        // logger.LogWarning("{date} - serialized json", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+        var contains = ContainsChartJsFunctionMarker(json);
+        // logger.LogWarning("{date} - serialized contains", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+        return new(json, contains, json);
     }
 
     private static JsonSerializerOptions CreateJsonSerializerOptions()
