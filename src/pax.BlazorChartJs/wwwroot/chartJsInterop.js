@@ -733,6 +733,8 @@ function decodeBinaryDatasetData(bytes, payload) {
             return decodeBinaryY(bytes, payload, Float64Array.BYTES_PER_ELEMENT, "float64");
         case "Float32Y":
             return decodeBinaryY(bytes, payload, Float32Array.BYTES_PER_ELEMENT, "float32");
+        case "Int32Y":
+            return decodeBinaryInt32Y(bytes, payload);
         default:
             throw new Error(`Unsupported binary dataset format '${payload.format}'.`);
     }
@@ -780,6 +782,25 @@ function decodeBinaryY(bytes, payload, compactStride, valueKind) {
     }
     return data;
 }
+function decodeBinaryInt32Y(bytes, payload) {
+    const compactStride = Int32Array.BYTES_PER_ELEMENT;
+    const layout = validateBinaryLayout(bytes, payload, compactStride, compactStride, false);
+    const data = new Array(payload.count);
+    const typedValues = tryGetBinaryInt32Array(bytes, layout.byteStride, layout.yOffset);
+    if (typedValues) {
+        const valueStride = layout.byteStride / compactStride;
+        const yOffset = layout.yOffset / compactStride;
+        for (let i = 0, valueIndex = 0; i < payload.count; i++, valueIndex += valueStride) {
+            data[i] = typedValues[valueIndex + yOffset];
+        }
+        return data;
+    }
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    for (let i = 0, recordOffset = 0; i < payload.count; i++, recordOffset += layout.byteStride) {
+        data[i] = view.getInt32(recordOffset + layout.yOffset, true);
+    }
+    return data;
+}
 function validateBinaryLayout(bytes, payload, compactStride, valueSize, usesX) {
     if (!Number.isInteger(payload.count) || payload.count < 0) {
         throw new Error("Binary dataset payload count must be a non-negative integer.");
@@ -822,6 +843,17 @@ function tryGetBinaryFloatArray(bytes, valueSize, valueKind, byteStride, ...offs
     return valueKind === "float64"
         ? new Float64Array(bytes.buffer, bytes.byteOffset, valueCount)
         : new Float32Array(bytes.buffer, bytes.byteOffset, valueCount);
+}
+function tryGetBinaryInt32Array(bytes, byteStride, yOffset) {
+    const valueSize = Int32Array.BYTES_PER_ELEMENT;
+    if (!binaryTypedArraysReadLittleEndian
+        || bytes.byteOffset % valueSize !== 0
+        || byteStride % valueSize !== 0
+        || yOffset % valueSize !== 0) {
+        return undefined;
+    }
+    const valueCount = Math.floor(bytes.byteLength / valueSize);
+    return new Int32Array(bytes.buffer, bytes.byteOffset, valueCount);
 }
 function readBinaryFloat(view, byteOffset, valueKind) {
     return valueKind === "float64"

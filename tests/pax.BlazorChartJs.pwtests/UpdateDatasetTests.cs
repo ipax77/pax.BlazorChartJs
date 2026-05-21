@@ -382,6 +382,39 @@ public class UpdateDatasetTests : PageTest
     }
 
     [Test]
+    public async Task SetDatasetBinaryDataUpdatesInt32YAsSignedScalarData()
+    {
+        var canvasId = await OpenUpdateChartAndTrackUpdates("__binaryIntYUpdateCount");
+
+        var setBinaryInt32Y = Page.GetByText("SetBinaryInt32Y", new PageGetByTextOptions() { Exact = true });
+        await Expect(setBinaryInt32Y).ToHaveAttributeAsync("type", "button");
+        await setBinaryInt32Y.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.join(',') === '-30,31,-32'
+                    && chart.data.datasets[1].data.join(',') === '3,2,1'
+                    && chart.__binaryIntYUpdateCount === 1;
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var snapshot = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return [
+                    chart.data.datasets[0].data.join(','),
+                    chart.data.datasets[1].data.join(','),
+                    chart.__binaryIntYUpdateCount
+                ].join('|');
+            }",
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("-30,31,-32|3,2,1|1"));
+    }
+
+    [Test]
     public async Task SetDatasetsBinaryDataBatchesMultipleDatasetsWithOneChartUpdate()
     {
         var canvasId = await OpenUpdateChartAndTrackUpdates("__binaryBatchUpdateCount");

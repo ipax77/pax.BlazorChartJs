@@ -941,7 +941,7 @@ function getLiveChart(chartId: string): any | undefined {
     return chart && chart.data ? chart : undefined;
 }
 
-type BinaryDataFormat = "Float64XY" | "Float32XY" | "Float64Y" | "Float32Y";
+type BinaryDataFormat = "Float64XY" | "Float32XY" | "Float64Y" | "Float32Y" | "Int32Y";
 
 type BinaryDatasetPayloadMetadata = {
     datasetId: string;
@@ -973,6 +973,9 @@ function decodeBinaryDatasetData(bytes: Uint8Array, payload: BinaryDatasetPayloa
 
         case "Float32Y":
             return decodeBinaryY(bytes, payload, Float32Array.BYTES_PER_ELEMENT, "float32");
+
+        case "Int32Y":
+            return decodeBinaryInt32Y(bytes, payload);
 
         default:
             throw new Error(`Unsupported binary dataset format '${payload.format}'.`);
@@ -1044,6 +1047,32 @@ function decodeBinaryY(
     return data;
 }
 
+function decodeBinaryInt32Y(bytes: Uint8Array, payload: BinaryDatasetPayloadMetadata): number[] {
+    const compactStride = Int32Array.BYTES_PER_ELEMENT;
+    const layout = validateBinaryLayout(bytes, payload, compactStride, compactStride, false);
+    const data = new Array(payload.count);
+    const typedValues = tryGetBinaryInt32Array(bytes, layout.byteStride, layout.yOffset);
+
+    if (typedValues) {
+        const valueStride = layout.byteStride / compactStride;
+        const yOffset = layout.yOffset / compactStride;
+
+        for (let i = 0, valueIndex = 0; i < payload.count; i++, valueIndex += valueStride) {
+            data[i] = typedValues[valueIndex + yOffset];
+        }
+
+        return data;
+    }
+
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+
+    for (let i = 0, recordOffset = 0; i < payload.count; i++, recordOffset += layout.byteStride) {
+        data[i] = view.getInt32(recordOffset + layout.yOffset, true);
+    }
+
+    return data;
+}
+
 function validateBinaryLayout(
     bytes: Uint8Array,
     payload: BinaryDatasetPayloadMetadata,
@@ -1102,6 +1131,19 @@ function tryGetBinaryFloatArray(
     return valueKind === "float64"
         ? new Float64Array(bytes.buffer, bytes.byteOffset, valueCount)
         : new Float32Array(bytes.buffer, bytes.byteOffset, valueCount);
+}
+
+function tryGetBinaryInt32Array(bytes: Uint8Array, byteStride: number, yOffset: number): Int32Array | undefined {
+    const valueSize = Int32Array.BYTES_PER_ELEMENT;
+    if (!binaryTypedArraysReadLittleEndian
+        || bytes.byteOffset % valueSize !== 0
+        || byteStride % valueSize !== 0
+        || yOffset % valueSize !== 0) {
+        return undefined;
+    }
+
+    const valueCount = Math.floor(bytes.byteLength / valueSize);
+    return new Int32Array(bytes.buffer, bytes.byteOffset, valueCount);
 }
 
 function readBinaryFloat(view: DataView, byteOffset: number, valueKind: "float64" | "float32"): number {
