@@ -1,4 +1,4 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">pax.BlazorChartJs</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -13,6 +13,28 @@
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
             </NavLink>
+        </div>
+        <button type="button" class="nav-section-toggle px-3" @onclick="ToggleChartJsSamples" @onclick:stopPropagation="true" aria-expanded="@(!collapseChartJsSamples)">
+            <span aria-hidden="true">@ChartJsSamplesCaret</span> Chart.js samples
+        </button>
+        <div class="nav-sample-group @ChartJsSamplesCssClass">
+            @foreach (var section in ChartJsSampleSections)
+            {
+                var isExpanded = IsChartJsSampleSectionExpanded(section.Key);
+                <button type="button" class="nav-subsection-toggle px-3" @onclick="@(() => ToggleChartJsSampleSection(section.Key))" @onclick:stopPropagation="true" aria-expanded="@isExpanded">
+                    <span aria-hidden="true">@GetCaret(isExpanded)</span> @section.Title
+                </button>
+                <div class="@GetChartJsSampleSectionCssClass(section.Key)">
+                    @foreach (var link in section.Links)
+                    {
+                        <div class="nav-item nav-item-nested px-3">
+                            <NavLink class="nav-link" href="@link.Href" title="@link.Title">
+                                @link.Text
+                            </NavLink>
+                        </div>
+                    }
+                </div>
+            }
         </div>
         <button type="button" class="nav-section-toggle px-3" @onclick="ToggleLibrarySamples" @onclick:stopPropagation="true" aria-expanded="@(!collapseLibrarySamples)">
             <span aria-hidden="true">@LibrarySamplesCaret</span> Library samples
@@ -114,303 +136,160 @@
                 </NavLink>
             </div>
         </div>
-        <button type="button" class="nav-section-toggle px-3" @onclick="ToggleChartJsSamples" @onclick:stopPropagation="true" aria-expanded="@(!collapseChartJsSamples)">
-            <span aria-hidden="true">@ChartJsSamplesCaret</span> Chart.js samples
-        </button>
-        <div class="nav-sample-group @ChartJsSamplesCssClass">
-            <div class="nav-subsection-heading px-3">Bar Charts</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/bar/border-radius" title="Bar Chart Border Radius">
-                    Border Radius
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/bar/floating" title="Floating Bars">
-                    Floating
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/bar/horizontal" title="Horizontal Bar Chart">
-                    Horizontal
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/bar/stacked" title="Stacked Bar Chart">
-                    Stacked
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/bar/stacked-groups" title="Stacked Bar Chart with Groups">
-                    Stacked Groups
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/bar/vertical" title="Vertical Bar Chart">
-                    Vertical
-                </NavLink>
-            </div>
-            <div class="nav-subsection-heading px-3">Line Charts</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/line/interpolation" title="Interpolation Modes">
-                    Interpolation
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/line/line" title="Line Chart">
-                    Line
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/line/multi-axis" title="Multi Axis Line Chart">
-                    Multi Axis
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/line/point-styling" title="Point Styling">
-                    Point Styling
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/line/segments" title="Line Segment Styling">
-                    Segments
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/line/stepped" title="Stepped Line Charts">
-                    Stepped
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/line/styling" title="Line Styling">
-                    Styling
-                </NavLink>
-            </div>
-            <div class="nav-subsection-heading px-3">Other Charts</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/bubble" title="Bubble">
-                    Bubble
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/combo-bar-line" title="Combo bar/line">
-                    Combo bar/line
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/doughnut" title="Doughnut">
-                    Doughnut
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/multi-series-pie" title="Multi Series Pie">
-                    Multi Series Pie
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/pie" title="Pie">
-                    Pie
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/polar-area" title="Polar area">
-                    Polar area
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/polar-area-center-labels" title="Polar area centered point labels">
-                    Polar centered labels
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/radar" title="Radar">
-                    Radar
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/radar-skip-points" title="Radar skip points">
-                    Radar skip points
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/scatter" title="Scatter">
-                    Scatter
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/scatter-multi-axis" title="Scatter - Multi axis">
-                    Scatter multi-axis
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/other/stacked-bar-line" title="Stacked bar/line">
-                    Stacked bar/line
-                </NavLink>
-            </div>
-            <div class="nav-subsection-heading px-3">Area Charts</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/area/line-boundaries" title="Line Chart Boundaries">
-                    Line Boundaries
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/area/line-datasets" title="Line Chart Datasets">
-                    Line Datasets
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/area/line-drawtime" title="Line Chart drawTime">
-                    Line drawTime
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/area/line-stacked" title="Line Chart Stacked">
-                    Line Stacked
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/area/radar-stacked" title="Radar Chart Stacked">
-                    Radar Stacked
-                </NavLink>
-            </div>
-            <div class="nav-subsection-heading px-3">Scales</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scales/linear-min-max" title="Linear Scale - Min-Max">
-                    Linear Min-Max
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scales/linear-min-max-suggested" title="Linear Scale - Suggested Min-Max">
-                    Linear Suggested
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scales/linear-step-size" title="Linear Scale - Step Size">
-                    Linear Step Size
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scales/log" title="Log Scale">
-                    Log
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scales/stacked" title="Stacked Linear / Category">
-                    Stacked Linear / Category
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scales/time-line" title="Time Scale">
-                    Time
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scales/time-max-span" title="Time Scale - Max Span">
-                    Time Max Span
-                </NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scales/time-combo" title="Time Scale - Combo Chart">
-                    Time Combo
-                </NavLink>
-            </div>
-            <div class="nav-subsection-heading px-3">Scale Options</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scale-options/center" title="Center Positioning">Center Positioning</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scale-options/grid" title="Grid Configuration">Grid Configuration</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scale-options/ticks" title="Tick Configuration">Tick Configuration</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scale-options/titles" title="Title Configuration">Title Configuration</NavLink>
-            </div>
-            <div class="nav-subsection-heading px-3">Legend</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/legend/events" title="Events">Events</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/legend/html" title="HTML Legend">HTML Legend</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/legend/point-style" title="Point Style">Point Style</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/legend/position" title="Position">Position</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/legend/title" title="Alignment and Title Position">Alignment and Title</NavLink>
-            </div>
-            <div class="nav-subsection-heading px-3">Title</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/title/alignment" title="Alignment">Alignment</NavLink>
-            </div>
-            <div class="nav-subsection-heading px-3">Tooltip</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/tooltip/content" title="Custom Tooltip Content">Custom Content</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/tooltip/html" title="External HTML Tooltip">External HTML</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/tooltip/interactions" title="Interaction Modes">Interactions</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/tooltip/point-style" title="Point Style">Point Style</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/tooltip/position" title="Position">Position</NavLink>
-            </div>
-            <div class="nav-subsection-heading px-3">Scriptable Options</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scriptable/bar" title="Bar Chart">Bar Chart</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scriptable/bubble" title="Bubble Chart">Bubble Chart</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scriptable/line" title="Line Chart">Line Chart</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scriptable/pie" title="Pie Chart">Pie Chart</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scriptable/polar" title="Polar Area Chart">Polar Area Chart</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/scriptable/radar" title="Radar Chart">Radar Chart</NavLink>
-            </div>
-            <div class="nav-subsection-heading px-3">Animations</div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/animations/delay" title="Delay">Delay</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/animations/drop" title="Drop">Drop</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/animations/loop" title="Loop">Loop</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/animations/progressive-line" title="Progressive Line">Progressive Line</NavLink>
-            </div>
-            <div class="nav-item nav-item-nested px-3">
-                <NavLink class="nav-link" href="chartjs-samples/animations/progressive-line-easing" title="Progressive Line With Easing">Progressive Easing</NavLink>
-            </div>
-        </div>
     </nav>
 </div>
 
 @code {
+    private const string DefaultChartJsSampleSectionKey = "bar";
+
     private bool collapseNavMenu = true;
-    private bool collapseLibrarySamples;
+    private bool collapseLibrarySamples = true;
     private bool collapseChartJsSamples;
+    private string activeChartJsSampleSectionKey = DefaultChartJsSampleSectionKey;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
     private string? LibrarySamplesCssClass => collapseLibrarySamples ? "nav-group-collapsed" : null;
     private string? ChartJsSamplesCssClass => collapseChartJsSamples ? "nav-group-collapsed" : null;
-    private string LibrarySamplesCaret => collapseLibrarySamples ? "+" : "-";
-    private string ChartJsSamplesCaret => collapseChartJsSamples ? "+" : "-";
+    private string LibrarySamplesCaret => GetCaret(!collapseLibrarySamples);
+    private string ChartJsSamplesCaret => GetCaret(!collapseChartJsSamples);
+
+    private static readonly ChartJsSampleSection[] ChartJsSampleSections =
+    [
+        new(
+            DefaultChartJsSampleSectionKey,
+            "Bar Charts",
+            [
+                new("chartjs-samples/bar/border-radius", "Bar Chart Border Radius", "Border Radius"),
+                new("chartjs-samples/bar/floating", "Floating Bars", "Floating"),
+                new("chartjs-samples/bar/horizontal", "Horizontal Bar Chart", "Horizontal"),
+                new("chartjs-samples/bar/stacked", "Stacked Bar Chart", "Stacked"),
+                new("chartjs-samples/bar/stacked-groups", "Stacked Bar Chart with Groups", "Stacked Groups"),
+                new("chartjs-samples/bar/vertical", "Vertical Bar Chart", "Vertical"),
+            ]),
+        new(
+            "line",
+            "Line Charts",
+            [
+                new("chartjs-samples/line/interpolation", "Interpolation Modes", "Interpolation"),
+                new("chartjs-samples/line/line", "Line Chart", "Line"),
+                new("chartjs-samples/line/multi-axis", "Multi Axis Line Chart", "Multi Axis"),
+                new("chartjs-samples/line/point-styling", "Point Styling", "Point Styling"),
+                new("chartjs-samples/line/segments", "Line Segment Styling", "Segments"),
+                new("chartjs-samples/line/stepped", "Stepped Line Charts", "Stepped"),
+                new("chartjs-samples/line/styling", "Line Styling", "Styling"),
+            ]),
+        new(
+            "other",
+            "Other Charts",
+            [
+                new("chartjs-samples/other/bubble", "Bubble", "Bubble"),
+                new("chartjs-samples/other/combo-bar-line", "Combo bar/line", "Combo bar/line"),
+                new("chartjs-samples/other/doughnut", "Doughnut", "Doughnut"),
+                new("chartjs-samples/other/multi-series-pie", "Multi Series Pie", "Multi Series Pie"),
+                new("chartjs-samples/other/pie", "Pie", "Pie"),
+                new("chartjs-samples/other/polar-area", "Polar area", "Polar area"),
+                new("chartjs-samples/other/polar-area-center-labels", "Polar area centered point labels", "Polar centered labels"),
+                new("chartjs-samples/other/radar", "Radar", "Radar"),
+                new("chartjs-samples/other/radar-skip-points", "Radar skip points", "Radar skip points"),
+                new("chartjs-samples/other/scatter", "Scatter", "Scatter"),
+                new("chartjs-samples/other/scatter-multi-axis", "Scatter - Multi axis", "Scatter multi-axis"),
+                new("chartjs-samples/other/stacked-bar-line", "Stacked bar/line", "Stacked bar/line"),
+            ]),
+        new(
+            "area",
+            "Area Charts",
+            [
+                new("chartjs-samples/area/line-boundaries", "Line Chart Boundaries", "Line Boundaries"),
+                new("chartjs-samples/area/line-datasets", "Line Chart Datasets", "Line Datasets"),
+                new("chartjs-samples/area/line-drawtime", "Line Chart drawTime", "Line drawTime"),
+                new("chartjs-samples/area/line-stacked", "Line Chart Stacked", "Line Stacked"),
+                new("chartjs-samples/area/radar-stacked", "Radar Chart Stacked", "Radar Stacked"),
+            ]),
+        new(
+            "scales",
+            "Scales",
+            [
+                new("chartjs-samples/scales/linear-min-max", "Linear Scale - Min-Max", "Linear Min-Max"),
+                new("chartjs-samples/scales/linear-min-max-suggested", "Linear Scale - Suggested Min-Max", "Linear Suggested"),
+                new("chartjs-samples/scales/linear-step-size", "Linear Scale - Step Size", "Linear Step Size"),
+                new("chartjs-samples/scales/log", "Log Scale", "Log"),
+                new("chartjs-samples/scales/stacked", "Stacked Linear / Category", "Stacked Linear / Category"),
+                new("chartjs-samples/scales/time-line", "Time Scale", "Time"),
+                new("chartjs-samples/scales/time-max-span", "Time Scale - Max Span", "Time Max Span"),
+                new("chartjs-samples/scales/time-combo", "Time Scale - Combo Chart", "Time Combo"),
+            ]),
+        new(
+            "scale-options",
+            "Scale Options",
+            [
+                new("chartjs-samples/scale-options/center", "Center Positioning", "Center Positioning"),
+                new("chartjs-samples/scale-options/grid", "Grid Configuration", "Grid Configuration"),
+                new("chartjs-samples/scale-options/ticks", "Tick Configuration", "Tick Configuration"),
+                new("chartjs-samples/scale-options/titles", "Title Configuration", "Title Configuration"),
+            ]),
+        new(
+            "legend",
+            "Legend",
+            [
+                new("chartjs-samples/legend/events", "Events", "Events"),
+                new("chartjs-samples/legend/html", "HTML Legend", "HTML Legend"),
+                new("chartjs-samples/legend/point-style", "Point Style", "Point Style"),
+                new("chartjs-samples/legend/position", "Position", "Position"),
+                new("chartjs-samples/legend/title", "Alignment and Title Position", "Alignment and Title"),
+            ]),
+        new(
+            "title",
+            "Title",
+            [
+                new("chartjs-samples/title/alignment", "Alignment", "Alignment"),
+            ]),
+        new(
+            "tooltip",
+            "Tooltip",
+            [
+                new("chartjs-samples/tooltip/content", "Custom Tooltip Content", "Custom Content"),
+                new("chartjs-samples/tooltip/html", "External HTML Tooltip", "External HTML"),
+                new("chartjs-samples/tooltip/interactions", "Interaction Modes", "Interactions"),
+                new("chartjs-samples/tooltip/point-style", "Point Style", "Point Style"),
+                new("chartjs-samples/tooltip/position", "Position", "Position"),
+            ]),
+        new(
+            "scriptable",
+            "Scriptable Options",
+            [
+                new("chartjs-samples/scriptable/bar", "Bar Chart", "Bar Chart"),
+                new("chartjs-samples/scriptable/bubble", "Bubble Chart", "Bubble Chart"),
+                new("chartjs-samples/scriptable/line", "Line Chart", "Line Chart"),
+                new("chartjs-samples/scriptable/pie", "Pie Chart", "Pie Chart"),
+                new("chartjs-samples/scriptable/polar", "Polar Area Chart", "Polar Area Chart"),
+                new("chartjs-samples/scriptable/radar", "Radar Chart", "Radar Chart"),
+            ]),
+        new(
+            "animations",
+            "Animations",
+            [
+                new("chartjs-samples/animations/delay", "Delay", "Delay"),
+                new("chartjs-samples/animations/drop", "Drop", "Drop"),
+                new("chartjs-samples/animations/loop", "Loop", "Loop"),
+                new("chartjs-samples/animations/progressive-line", "Progressive Line", "Progressive Line"),
+                new("chartjs-samples/animations/progressive-line-easing", "Progressive Line With Easing", "Progressive Easing"),
+            ]),
+    ];
+
+    private static string GetCaret(bool isExpanded)
+    {
+        return isExpanded ? "-" : "+";
+    }
+
+    private bool IsChartJsSampleSectionExpanded(string sectionKey)
+    {
+        return string.Equals(activeChartJsSampleSectionKey, sectionKey, StringComparison.Ordinal);
+    }
+
+    private string? GetChartJsSampleSectionCssClass(string sectionKey)
+    {
+        return IsChartJsSampleSectionExpanded(sectionKey) ? null : "nav-group-collapsed";
+    }
 
     private void ToggleNavMenu()
     {
@@ -426,4 +305,13 @@
     {
         collapseChartJsSamples = !collapseChartJsSamples;
     }
+
+    private void ToggleChartJsSampleSection(string sectionKey)
+    {
+        activeChartJsSampleSectionKey = sectionKey;
+    }
+
+    private sealed record ChartJsSampleSection(string Key, string Title, ChartJsSampleLink[] Links);
+
+    private sealed record ChartJsSampleLink(string Href, string Title, string Text);
 }

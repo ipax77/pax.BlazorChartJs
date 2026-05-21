@@ -66,11 +66,23 @@
     margin-top: 0.15rem;
 }
 
-.nav-subsection-heading {
+.nav-subsection-toggle {
+    align-items: center;
+    background: transparent;
+    border: 0;
     color: rgba(255, 255, 255, 0.82);
+    display: flex;
     font-size: 0.82rem;
     font-weight: 700;
+    gap: 0.5rem;
+    letter-spacing: 0;
     margin: 0.25rem 0;
+    text-align: left;
+    width: 100%;
+}
+
+.nav-subsection-toggle:hover {
+    color: white;
 }
 
 .nav-item-nested ::deep a {

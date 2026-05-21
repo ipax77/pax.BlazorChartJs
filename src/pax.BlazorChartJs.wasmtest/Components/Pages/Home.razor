@@ -1,14 +1,255 @@
 ﻿@page "/"
 
-<PageTitle>pax.BlazorChartJs</PageTitle>
+<PageTitle>pax.BlazorChartJs - Blazor Chart.js Demo & Test Suite</PageTitle>
 
-<h3>Test Project used for <a href="https://playwright.dev/dotnet/">Playwright</a> testing <a href="https://github.com/ipax77/pax.BlazorChartJs">pax.BlazorChartJs</a></h3>
+<section class="container py-4 py-lg-5">
+    <div class="p-4 p-lg-5 mb-4 rounded-3 bg-body-tertiary border">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <p class="text-uppercase text-primary fw-semibold mb-2">
+                    Blazor wrapper for Chart.js
+                </p>
 
-<div>
-    <p>
-        <a href="https://github.com/ipax77/pax.BlazorChartJs/blob/master/.github/workflows/ghpages.yml">GitHub Action</a> to create this <a href="https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.wasmtest">website</a>
-    </p>
-    <p>
-        <a href="https://github.com/ipax77/pax.BlazorChartJs/blob/master/.github/workflows/pwtests.yml">GitHub Action</a> to run the <a href="https://github.com/ipax77/pax.BlazorChartJs/tree/master/tests/pax.BlatzorChartJs.pwtests">tests</a>
-    </p>
-</div>
+                <h1 class="display-5 fw-bold mb-3">
+                    pax.BlazorChartJs demo and regression test site
+                </h1>
+
+                <p class="lead mb-4">
+                    Explore live Blazor implementations of Chart.js charts, events, updates,
+                    plugins, legends, and the official Chart.js sample set.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-primary btn-lg" href="https://github.com/ipax77/pax.BlazorChartJs">
+                        View on GitHub
+                    </a>
+                    <a class="btn btn-outline-secondary btn-lg" href="https://www.nuget.org/packages/pax.BlazorChartJs">
+                        NuGet package
+                    </a>
+                    <a class="btn btn-outline-secondary btn-lg" href="https://www.chartjs.org/docs/latest/samples/information.html">
+                        Chart.js samples
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h2 class="h5 card-title">What this site covers</h2>
+                        <ul class="mb-0">
+                            <li>Chart.js 4.x integration</li>
+                            <li>Blazor WebAssembly rendering</li>
+                            <li>Chart events and callbacks</li>
+                            <li>Smooth data and option updates</li>
+                            <li>Plugin and legend scenarios</li>
+                            <li>Playwright regression coverage</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Samples</h2>
+                    <p class="card-text">
+                        Browse official Chart.js sample sections implemented with Blazor components.
+                    </p>
+                    <a class="stretched-link" href="#samples">Explore samples</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Updates</h2>
+                    <p class="card-text">
+                        Test data updates, animated dataset changes, and option-only chart updates.
+                    </p>
+                    <a class="stretched-link" href="udpatechart">Open update demo</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Events</h2>
+                    <p class="card-text">
+                        Verify click, hover, resize, init, progress, and completion events.
+                    </p>
+                    <a class="stretched-link" href="eventschart">Open events demo</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Plugins</h2>
+                    <p class="card-text">
+                        Try datalabels, custom plugins, preload behavior, and HTML legends.
+                    </p>
+                    <a class="stretched-link" href="htmllegendchart">Open plugin demo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section id="samples" class="mb-5">
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-2 mb-3">
+            <div>
+                <h2 class="h3 mb-1">Chart samples</h2>
+                <p class="text-body-secondary mb-0">
+                    One quick entry point for each official Chart.js sample section.
+                </p>
+            </div>
+            <a href="https://www.chartjs.org/docs/latest/samples/information.html">
+                Compare with Chart.js docs
+            </a>
+        </div>
+
+        <div class="row g-3">
+            @foreach (var sample in ChartJsSamples)
+            {
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <a class="card h-100 text-decoration-none sample-card" href="@sample.Href">
+                        <div class="card-body">
+                            <div class="small text-uppercase text-body-secondary fw-semibold mb-2">
+                                @sample.Group
+                            </div>
+                            <h3 class="h6 card-title text-body">@sample.Title</h3>
+                            <p class="card-text text-body-secondary mb-0">@sample.Description</p>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <div class="mb-3">
+            <h2 class="h3 mb-1">Library demos</h2>
+            <p class="text-body-secondary mb-0">
+                Focused demos for wrapper features, lifecycle behavior, plugins, and updates.
+            </p>
+        </div>
+
+        <div class="row g-3">
+            @foreach (var sample in LibrarySamples)
+            {
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <a class="card h-100 text-decoration-none sample-card" href="@sample.Href">
+                        <div class="card-body">
+                            <div class="small text-uppercase text-body-secondary fw-semibold mb-2">
+                                @sample.Group
+                            </div>
+                            <h3 class="h6 card-title text-body">@sample.Title</h3>
+                            <p class="card-text text-body-secondary mb-0">@sample.Description</p>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="row g-4 mb-5">
+        <div class="col-lg-6">
+            <div class="card h-100 border-primary-subtle">
+                <div class="card-body">
+                    <h2 class="h4">For users</h2>
+                    <p>
+                        Install the package, register Chart.js, and render charts directly from
+                        strongly typed .NET configuration objects.
+                    </p>
+                    <pre class="bg-body-tertiary border rounded p-3 mb-3"><code>dotnet add package pax.BlazorChartJs</code></pre>
+                    <a href="https://github.com/ipax77/pax.BlazorChartJs#installation">
+                        Read installation instructions
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100 border-success-subtle">
+                <div class="card-body">
+                    <h2 class="h4">For contributors</h2>
+                    <p>
+                        This WebAssembly app is also the gh-pages target and a Playwright regression
+                        surface for validating chart behavior in the browser.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-outline-secondary"
+                           href="https://github.com/ipax77/pax.BlazorChartJs/blob/master/.github/workflows/ghpages.yml">
+                            gh-pages workflow
+                        </a>
+                        <a class="btn btn-outline-secondary"
+                           href="https://github.com/ipax77/pax.BlazorChartJs/blob/master/.github/workflows/pwtests.yml">
+                            Playwright workflow
+                        </a>
+                        <a class="btn btn-outline-secondary"
+                           href="https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.wasmtest">
+                            Test app source
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="text-center text-body-secondary border-top pt-4">
+        <p class="mb-1">
+            Built with Blazor WebAssembly, Chart.js, and Playwright.
+        </p>
+        <p class="small mb-0">
+            This page is intended both as a public demo and as browser-based regression documentation.
+        </p>
+    </section>
+</section>
+
+@code {
+    private sealed record SampleLink(
+        string Title,
+        string Href,
+        string Group,
+        string Description);
+
+    private static readonly SampleLink[] ChartJsSamples =
+    [
+        new("Bar charts", "chartjs-samples/bar/border-radius", "Chart.js samples", "Bar chart styling, stacking, and orientation samples."),
+        new("Line charts", "chartjs-samples/line/interpolation", "Chart.js samples", "Line interpolation, segments, styling, and axes."),
+        new("Other charts", "chartjs-samples/other/bubble", "Chart.js samples", "Bubble, pie, radar, scatter, and combo charts."),
+        new("Area charts", "chartjs-samples/area/line-boundaries", "Chart.js samples", "Filled line and radar area chart samples."),
+        new("Scales", "chartjs-samples/scales/linear-min-max", "Chart.js samples", "Linear, log, stacked, and time scale samples."),
+        new("Scale options", "chartjs-samples/scale-options/center", "Chart.js samples", "Scale positioning, grid, tick, and title options."),
+        new("Legend", "chartjs-samples/legend/events", "Chart.js samples", "Legend events, HTML legends, point styles, and positioning."),
+        new("Title", "chartjs-samples/title/alignment", "Chart.js samples", "Title alignment and display behavior."),
+        new("Tooltip", "chartjs-samples/tooltip/content", "Chart.js samples", "Tooltip content, interaction, position, and HTML samples."),
+        new("Scriptable options", "chartjs-samples/scriptable/bar", "Chart.js samples", "Scriptable styling across chart types."),
+        new("Animations", "chartjs-samples/animations/delay", "Chart.js samples", "Animation delay, drop, loop, and progressive line samples.")
+    ];
+
+    private static readonly SampleLink[] LibrarySamples =
+    [
+        new("Bar chart", "barchart", "Chart types", "Basic bar chart rendering."),
+        new("Line chart", "linechart", "Chart types", "Line chart rendering and updates."),
+        new("Scatter chart", "scatterchart", "Chart types", "Scatter data visualization."),
+        new("Stacked chart", "stackedchart", "Chart types", "Stacked datasets and axes."),
+        new("Multi-axis chart", "multiaxis", "Scales", "Multiple axes in one chart."),
+        new("Multiple charts", "multiplecharts", "Layout", "Several chart instances on one page."),
+        new("Init chart", "timeschart", "Lifecycle", "Initialization and ready-state behavior."),
+        new("Dispose chart", "disposechart", "Lifecycle", "Chart disposal and cleanup behavior."),
+        new("Events chart", "eventschart", "Events", "Browser and Chart.js event callbacks."),
+        new("Callback chart", "callbackchart", "Callbacks", "Chart.js callback integration."),
+        new("Update dataset", "udpatechart", "Updates", "Smooth dataset updates."),
+        new("Data labels", "datalabelschart", "Plugins", "Per-dataset datalabel configuration."),
+        new("HTML legend", "htmllegendchart", "Plugins", "Custom HTML legend integration."),
+        new("HTML legend pie", "htmllegendpiechart", "Plugins", "HTML legend for pie and doughnut scenarios."),
+        new("Preload plugin", "preloadpluginchart", "Plugins", "Plugin preload behavior."),
+        new("README sample", "minchart", "Getting started", "The sample shown in the project README.")
+    ];
+}
