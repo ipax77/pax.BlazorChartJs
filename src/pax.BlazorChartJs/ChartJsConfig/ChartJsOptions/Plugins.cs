@@ -16,6 +16,9 @@ public record Plugins
     public Title? Subtitle { get; set; }
     public FillerOptions? Filler { get; set; }
     public Tooltip? Tooltip { get; set; }
+    /// <summary>
+    /// Options for an externally registered Chart.js plugin with the id <c>htmlLegend</c>.
+    /// </summary>
     public HtmlLegendOptions? HtmlLegend { get; set; }
 #pragma warning disable CA2227
     public ICollection<ArbitraryLineConfig>? ArbitraryLines { get; set; }
@@ -32,5 +35,8 @@ public record FillerOptions
 
 public record HtmlLegendOptions
 {
+    /// <summary>
+    /// ID of the DOM element that the external HTML legend plugin uses as its container.
+    /// </summary>
     public string? ContainerID { get; set; }
 }

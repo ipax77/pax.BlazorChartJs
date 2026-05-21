@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using pax.BlazorChartJs.samplelib.ChartJsSamples;
 
 namespace pax.BlazorChartJs.samplelib.ChartJsSamples.Backlog;
@@ -7,8 +8,10 @@ public sealed partial class ChartJsBacklogSamples : ChartJsBacklogSamplesBase
 {
 }
 
-public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent
+public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsyncDisposable
 {
+    private const string HtmlLegendPluginModuleLocation = "/_content/pax.BlazorChartJs.samplelib/htmlLegendPlugin.js";
+    private const string HtmlLegendPluginRegisterFunction = "registerHtmlLegendPlugin";
     private const string Red = "rgb(255, 99, 132)";
     private const string RedTransparent = "rgba(255, 99, 132, 0.5)";
     private const string Blue = "rgb(54, 162, 235)";
@@ -21,8 +24,13 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent
     private static readonly string[] Palette = [Red, Blue, Yellow, Green, Purple, Orange];
     private static readonly Lazy<Dictionary<string, OfficialSampleDefinition>> Definitions = new(CreateDefinitions);
 
+    private IJSObjectReference? externalPluginModule;
+    private string? registeredExternalPluginModuleLocation;
     private ChartJsConfig? config;
     private IReadOnlyList<ChartJsDocsAction> actions = [];
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
 
     [Parameter, EditorRequired]
     public string Category { get; set; } = string.Empty;
@@ -64,6 +72,30 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent
 
         config = ResolvedSample.CreateConfig();
         actions = ResolvedSample.CreateActions(this);
+    }
+
+    protected async Task ChartEventTriggered(ChartJsEvent chartJsEvent)
+    {
+        if (chartJsEvent is not ChartJsInitEvent
+            || ResolvedSample.ExternalPluginModuleLocation is not { Length: > 0 } moduleLocation
+            || ResolvedSample.ExternalPluginRegisterFunction is not { Length: > 0 } registerFunction
+            || string.Equals(registeredExternalPluginModuleLocation, moduleLocation, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (externalPluginModule is not null
+            && !string.Equals(registeredExternalPluginModuleLocation, moduleLocation, StringComparison.Ordinal))
+        {
+            await externalPluginModule.DisposeAsync().ConfigureAwait(false);
+            externalPluginModule = null;
+            registeredExternalPluginModuleLocation = null;
+        }
+
+        externalPluginModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", moduleLocation).ConfigureAwait(false);
+        await externalPluginModule.InvokeVoidAsync(registerFunction).ConfigureAwait(false);
+        registeredExternalPluginModuleLocation = moduleLocation;
+        Config.ReinitializeChart();
     }
 
     private void Randomize()
@@ -242,7 +274,17 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent
     private static void AddLegend(Dictionary<string, OfficialSampleDefinition> definitions)
     {
         definitions[GetKey("legend", "events")] = Definition("legend", "events", "Events", "https://www.chartjs.org/docs/latest/samples/legend/events.html", CreateLegendEventsConfig, _ => [], callbacks: CallbackCode);
-        definitions[GetKey("legend", "html")] = Definition("legend", "html", "HTML Legend", "https://www.chartjs.org/docs/latest/samples/legend/html.html", CreateHtmlLegendConfig, _ => [], callbacks: CallbackCode);
+        definitions[GetKey("legend", "html")] = Definition(
+            "legend",
+            "html",
+            "HTML Legend",
+            "https://www.chartjs.org/docs/latest/samples/legend/html.html",
+            CreateHtmlLegendConfig,
+            _ => [],
+            javascriptCode: HtmlLegendJavaScriptCode(),
+            callbacks: HtmlLegendPluginCode,
+            externalPluginModuleLocation: HtmlLegendPluginModuleLocation,
+            externalPluginRegisterFunction: HtmlLegendPluginRegisterFunction);
         definitions[GetKey("legend", "point-style")] = Definition("legend", "point-style", "Point Style", "https://www.chartjs.org/docs/latest/samples/legend/point-style.html", CreateLegendPointStyleConfig, c => [c.CreateAction("toggle-point-style", "Toggle Point Style", () => { var labels = c.Config.Options!.Plugins!.Legend!.Labels!; labels.UsePointStyle = !(labels.UsePointStyle ?? false); c.Config.UpdateChartOptions(); })]);
         definitions[GetKey("legend", "position")] = Definition("legend", "position", "Position", "https://www.chartjs.org/docs/latest/samples/legend/position.html", CreateLegendPositionConfig, c =>
         [
@@ -329,11 +371,23 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent
         ];
     }
 
-    private static OfficialSampleDefinition Definition(string category, string id, string title, string docsUrl, Func<ChartJsConfig> createConfig, Func<ChartJsBacklogSamplesBase, IReadOnlyList<ChartJsDocsAction>> createActions, bool animationTabs = false, string? callbacks = null)
+    private static OfficialSampleDefinition Definition(
+        string category,
+        string id,
+        string title,
+        string docsUrl,
+        Func<ChartJsConfig> createConfig,
+        Func<ChartJsBacklogSamplesBase, IReadOnlyList<ChartJsDocsAction>> createActions,
+        bool animationTabs = false,
+        string? callbacks = null,
+        ChartJsDocsCodeSet? csharpCode = null,
+        ChartJsDocsCodeSet? javascriptCode = null,
+        string? externalPluginModuleLocation = null,
+        string? externalPluginRegisterFunction = null)
     {
-        var csharp = animationTabs ? AnimationCSharpCode(title) : DefaultCSharpCode(title);
-        var js = animationTabs ? AnimationJavaScriptCode(title) : DefaultJavaScriptCode(title);
-        return new(category, id, title, docsUrl, createConfig, createActions, csharp, js, callbacks);
+        var csharp = csharpCode ?? (animationTabs ? AnimationCSharpCode(title) : DefaultCSharpCode(title));
+        var js = javascriptCode ?? (animationTabs ? AnimationJavaScriptCode(title) : DefaultJavaScriptCode(title));
+        return new(category, id, title, docsUrl, createConfig, createActions, csharp, js, callbacks, externalPluginModuleLocation, externalPluginRegisterFunction);
     }
 
     private static string GetKey(string category, string sampleId) => $"{category}:{sampleId}";
@@ -355,6 +409,32 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent
         """,
         $"""
         // {title}: official setup is mirrored with typed C# and named callbacks.
+        """,
+        """
+        const actions = [];
+        """);
+
+    private static ChartJsDocsCodeSet HtmlLegendJavaScriptCode() => new(
+        """
+        const config = {
+          type: 'line',
+          data,
+          options: {
+            plugins: {
+              htmlLegend: {
+                containerID: 'legend-container'
+              },
+              legend: {
+                display: false
+              }
+            }
+          }
+        };
+        """,
+        $$"""
+        // The sample registers this after the first chart init loads Chart.js, then reinitializes the chart.
+        const module = await import('{{HtmlLegendPluginModuleLocation}}');
+        await module.{{HtmlLegendPluginRegisterFunction}}();
         """,
         """
         const actions = [];
@@ -567,6 +647,31 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent
 
         // The callback module contains the named Chart.js callbacks used by these official samples.
         """;
+
+    private const string HtmlLegendPluginCode =
+        """
+        // htmlLegendPlugin.js is sample-owned. Register it after Chart.js is loaded, before reinitializing the chart.
+        export function registerHtmlLegendPlugin() {
+            Chart.register(htmlLegendPlugin);
+        }
+
+        const htmlLegendPlugin = {
+            id: 'htmlLegend',
+            afterUpdate(chart, _args, options) {
+                // The sample plugin reuses existing legend DOM nodes across chart updates.
+            }
+        };
+        """;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (externalPluginModule is not null)
+        {
+            await externalPluginModule.DisposeAsync().ConfigureAwait(false);
+        }
+
+        GC.SuppressFinalize(this);
+    }
 }
 
 #pragma warning disable CA1054, CA1056
@@ -579,7 +684,9 @@ public sealed record OfficialSampleDefinition(
     Func<ChartJsBacklogSamplesBase, IReadOnlyList<ChartJsDocsAction>> CreateActions,
     ChartJsDocsCodeSet CSharpCode,
     ChartJsDocsCodeSet JavaScriptCode,
-    string? CallbacksCode);
+    string? CallbacksCode,
+    string? ExternalPluginModuleLocation,
+    string? ExternalPluginRegisterFunction);
 #pragma warning restore CA1054, CA1056
 
 public sealed record BubbleScriptablePoint
