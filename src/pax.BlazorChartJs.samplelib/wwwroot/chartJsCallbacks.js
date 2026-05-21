@@ -97,12 +97,61 @@ function colorByDataset(datasetIndex) {
     return colors[datasetIndex % colors.length];
 }
 
+function namedChartColor(datasetIndex) {
+    const colors = ['#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0', '#9966ff', '#ff9f40'];
+    return colors[datasetIndex % colors.length];
+}
+
 function transparentizeHex(hex, alpha = 0.5) {
     const value = hex.replace('#', '');
     const r = parseInt(value.substring(0, 2), 16);
     const g = parseInt(value.substring(2, 4), 16);
     const b = parseInt(value.substring(4, 6), 16);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function scriptableBarColor(context) {
+    const value = Number(context.parsed?.y ?? context.raw ?? 0);
+    return value < -50
+        ? '#D60000'
+        : value < 0
+            ? '#F46300'
+            : value < 50
+                ? '#0358B6'
+                : '#44DE28';
+}
+
+function scriptableBubbleChannelValue(x, y, values) {
+    return x < 0 && y < 0
+        ? values[0]
+        : x < 0
+            ? values[1]
+            : y < 0
+                ? values[2]
+                : values[3];
+}
+
+function scriptableBubbleColor(opaque, context) {
+    const value = context.raw ?? {};
+    const x = Number(value.x ?? 0) / 100;
+    const y = Number(value.y ?? 0) / 100;
+    const r = scriptableBubbleChannelValue(x, y, [250, 150, 50, 0]);
+    const g = scriptableBubbleChannelValue(x, y, [0, 50, 150, 250]);
+    const b = scriptableBubbleChannelValue(x, y, [0, 150, 150, 250]);
+    const alpha = opaque ? 1 : 0.5 * Number(value.v ?? 0) / 1000;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function getProgressiveEasing(context) {
+    const easingName = context.chart.options.animation?.easing ?? 'linear';
+    const easingEffects = Chart.helpers?.easingEffects ?? {};
+    return easingEffects[easingName] ?? easingEffects.linear ?? (value => value);
+}
+
+function progressiveDelay(context) {
+    const dataLength = context.chart.data.datasets[0]?.data?.length || 1;
+    const totalDuration = context.chart.options.animation?.duration ?? 10000;
+    return getProgressiveEasing(context)(context.index / dataLength) * totalDuration;
 }
 
 const callbacks = Object.assign(Object.create(null), {
@@ -293,6 +342,10 @@ const callbacks = Object.assign(Object.create(null), {
     tooltipContentFooter(items) {
         return `Sum: ${getTooltipTotal(items)}`;
     },
+    tooltipInteractionTitle(context) {
+        const { axis = 'xy', intersect, mode } = context.chart.options.interaction;
+        return `Mode: ${mode}, axis: ${axis}, intersect: ${intersect}`;
+    },
     tooltipPositionTitle(context) {
         ensureBottomTooltipPositioner();
         return `Tooltip position mode: ${context.chart.options.plugins.tooltip.position}`;
@@ -307,6 +360,13 @@ const callbacks = Object.assign(Object.create(null), {
         const value = Number(context.parsed?.y ?? context.raw?.v ?? context.raw ?? 0);
         return value < 0 ? '#ff6384' : '#36a2eb';
     },
+    scriptableBarBackgroundColor(context) {
+        const value = Number(context.parsed?.y ?? context.raw ?? 0);
+        return transparentizeHex(scriptableBarColor(context), Math.min(Math.abs(value / 150), 1));
+    },
+    scriptableBarBorderColor(context) {
+        return scriptableBarColor(context);
+    },
     scriptablePointStyle(context) {
         return context.dataIndex % 2 === 0 ? 'circle' : 'rect';
     },
@@ -315,7 +375,24 @@ const callbacks = Object.assign(Object.create(null), {
         return value < 10 ? 5 : value < 25 ? 7 : value < 50 ? 9 : value < 75 ? 11 : 15;
     },
     scriptableBubbleRadius(context) {
-        return Math.abs(Number(context.raw?.v ?? context.raw?.r ?? 5));
+        const size = context.chart.width;
+        const base = Math.abs(Number(context.raw?.v ?? context.raw?.r ?? 5)) / 1000;
+        return (size / 24) * base;
+    },
+    scriptableBubbleBackgroundColor(context) {
+        return scriptableBubbleColor(false, context);
+    },
+    scriptableBubbleBorderColor(context) {
+        return scriptableBubbleColor(true, context);
+    },
+    scriptableBubbleBorderWidth(context) {
+        return Math.min(Math.max(1, (context.datasetIndex ?? 0) + 1), 8);
+    },
+    scriptableBubbleHoverBorderColor(context) {
+        return namedChartColor(context.datasetIndex ?? 0);
+    },
+    scriptableBubbleHoverBorderWidth(context) {
+        return Math.round(8 * Number(context.raw?.v ?? 0) / 1000);
     },
     scriptableArcColor(context) {
         return colorByDataset(context.dataIndex ?? 0);
@@ -340,7 +417,7 @@ const callbacks = Object.assign(Object.create(null), {
         return undefined;
     },
     animationLoopRadius(context) {
-        return context.active ? 12 : 6;
+        return context.active;
     },
     animationProgressiveFromNaN() {
         return NaN;
@@ -367,6 +444,25 @@ const callbacks = Object.assign(Object.create(null), {
 
         context.yStarted = true;
         return context.index * (10000 / context.chart.data.datasets[0].data.length);
+    },
+    animationProgressiveEasingTitle(context) {
+        return context.chart.options.animation?.easing ?? 'easeOutQuad';
+    },
+    animationProgressiveEasingDelay(context) {
+        if (context.type !== 'data' || context.xStarted) {
+            return 0;
+        }
+
+        context.xStarted = true;
+        return progressiveDelay(context);
+    },
+    animationProgressiveEasingYDelay(context) {
+        if (context.type !== 'data' || context.yStarted) {
+            return 0;
+        }
+
+        context.yStarted = true;
+        return progressiveDelay(context);
     },
     multiSeriesPieGenerateLabels(chart) {
         const original = Chart.overrides.pie.plugins.legend.labels.generateLabels;
@@ -401,5 +497,37 @@ const callbacks = Object.assign(Object.create(null), {
             : latestLabelPaddingLarge;
     }
 });
+
+export function restartProgressiveLineEasing(chartId, easingName) {
+    const chart = Chart.getChart(chartId);
+    if (!chart) {
+        return;
+    }
+
+    chart.stop();
+    chart.options.animation ??= {};
+    chart.options.animation.easing = easingName;
+    chart.options.animations ??= {};
+
+    if (chart.options.animations.x) {
+        chart.options.animations.x.easing = 'linear';
+    }
+
+    if (chart.options.animations.y) {
+        chart.options.animations.y.easing = 'linear';
+    }
+
+    const length = chart.data.datasets[0]?.data?.length ?? 0;
+    for (let datasetIndex = 0; datasetIndex < chart.data.datasets.length; datasetIndex++) {
+        const meta = chart.getDatasetMeta(datasetIndex);
+        for (let dataIndex = 0; dataIndex < length; dataIndex++) {
+            const context = meta.controller.getContext(dataIndex);
+            context.xStarted = false;
+            context.yStarted = false;
+        }
+    }
+
+    chart.update();
+}
 
 export const chartJsCallbacks = Object.freeze(callbacks);

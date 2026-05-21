@@ -10,11 +10,13 @@ public sealed partial class ChartJsBacklogSamples : ChartJsBacklogSamplesBase
 
 public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsyncDisposable
 {
+    private const string CallbackModuleLocation = "/_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js";
     private const string HtmlLegendPluginModuleLocation = "/_content/pax.BlazorChartJs.samplelib/htmlLegendPlugin.js";
     private const string HtmlLegendPluginRegisterFunction = "registerHtmlLegendPlugin";
     private const string Red = "rgb(255, 99, 132)";
     private const string RedTransparent = "rgba(255, 99, 132, 0.5)";
     private const string Blue = "rgb(54, 162, 235)";
+    private const string BlueTransparent = "rgba(54, 162, 235, 0.5)";
     private const string Yellow = "rgb(255, 205, 86)";
     private const string Green = "rgb(75, 192, 192)";
     private const string Purple = "rgb(153, 102, 255)";
@@ -25,6 +27,7 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
     private static readonly Lazy<Dictionary<string, OfficialSampleDefinition>> Definitions = new(CreateDefinitions);
 
     private IJSObjectReference? externalPluginModule;
+    private IJSObjectReference? callbacksModule;
     private string? registeredExternalPluginModuleLocation;
     private ChartJsConfig? config;
     private IReadOnlyList<ChartJsDocsAction> actions = [];
@@ -184,9 +187,18 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
         Config.UpdateChartOptions();
     }
 
-    private void SetTooltipMode(string mode, bool intersect, string? axis = null)
+    private void SetTooltipMode(string mode, string? axis = null)
     {
-        Config.Options!.Interaction = new Interactions { Mode = mode, Intersect = intersect, Axis = axis };
+        Config.Options!.Interaction ??= new Interactions { Intersect = false };
+        Config.Options.Interaction.Mode = mode;
+        Config.Options.Interaction.Axis = axis;
+        Config.UpdateChartOptions();
+    }
+
+    private void ToggleTooltipIntersect()
+    {
+        Config.Options!.Interaction ??= new Interactions { Mode = "index", Intersect = false };
+        Config.Options.Interaction.Intersect = !(Config.Options.Interaction.Intersect ?? false);
         Config.UpdateChartOptions();
     }
 
@@ -318,12 +330,15 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
         definitions[GetKey("tooltip", "html")] = Definition("tooltip", "html", "External HTML Tooltip", "https://www.chartjs.org/docs/latest/samples/tooltip/html.html", CreateTooltipHtmlConfig, _ => [], callbacks: CallbackCode);
         definitions[GetKey("tooltip", "interactions")] = Definition("tooltip", "interactions", "Interaction Modes", "https://www.chartjs.org/docs/latest/samples/tooltip/interactions.html", CreateTooltipInteractionsConfig, c =>
         [
-            c.CreateAction("mode-index", "Mode: index", () => c.SetTooltipMode("index", false)),
-            c.CreateAction("mode-dataset", "Mode: dataset", () => c.SetTooltipMode("dataset", false)),
-            c.CreateAction("mode-point", "Mode: point", () => c.SetTooltipMode("point", true)),
-            c.CreateAction("mode-nearest-x", "Mode: nearest, axis x", () => c.SetTooltipMode("nearest", false, "x")),
-            c.CreateAction("mode-x", "Mode: x", () => c.SetTooltipMode("x", false)),
-            c.CreateAction("mode-y", "Mode: y", () => c.SetTooltipMode("y", false)),
+            c.CreateAction("mode-index", "Mode: index", () => c.SetTooltipMode("index", "xy")),
+            c.CreateAction("mode-dataset", "Mode: dataset", () => c.SetTooltipMode("dataset", "xy")),
+            c.CreateAction("mode-point", "Mode: point", () => c.SetTooltipMode("point", "xy")),
+            c.CreateAction("mode-nearest-xy", "Mode: nearest, axis: xy", () => c.SetTooltipMode("nearest", "xy")),
+            c.CreateAction("mode-nearest-x", "Mode: nearest, axis: x", () => c.SetTooltipMode("nearest", "x")),
+            c.CreateAction("mode-nearest-y", "Mode: nearest, axis: y", () => c.SetTooltipMode("nearest", "y")),
+            c.CreateAction("mode-x", "Mode: x", () => c.SetTooltipMode("x")),
+            c.CreateAction("mode-y", "Mode: y", () => c.SetTooltipMode("y")),
+            c.CreateAction("toggle-intersect", "Toggle Intersect", c.ToggleTooltipIntersect),
         ]);
         definitions[GetKey("tooltip", "point-style")] = Definition("tooltip", "point-style", "Point Style", "https://www.chartjs.org/docs/latest/samples/tooltip/point-style.html", CreateTooltipPointStyleConfig, c => [c.CreateAction("toggle-use-point-style", "Toggle Use Point Style", c.ToggleTooltipPointStyle)]);
         definitions[GetKey("tooltip", "position")] = Definition("tooltip", "position", "Position", "https://www.chartjs.org/docs/latest/samples/tooltip/position.html", CreateTooltipPositionConfig, c =>
@@ -348,14 +363,18 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
     {
         definitions[GetKey("animations", "delay")] = Definition("animations", "delay", "Delay", "https://www.chartjs.org/docs/latest/samples/animations/delay.html", CreateAnimationDelayConfig, c => [c.CreateAction("randomize", "Randomize", c.Randomize)], animationTabs: true, callbacks: CallbackCode);
         definitions[GetKey("animations", "drop")] = Definition("animations", "drop", "Drop", "https://www.chartjs.org/docs/latest/samples/animations/drop.html", CreateAnimationDropConfig, c => FullDatasetActions(c), animationTabs: true, callbacks: CallbackCode);
-        definitions[GetKey("animations", "loop")] = Definition("animations", "loop", "Loop", "https://www.chartjs.org/docs/latest/samples/animations/loop.html", CreateAnimationLoopConfig, _ => [], animationTabs: true, callbacks: CallbackCode);
+        definitions[GetKey("animations", "loop")] = Definition("animations", "loop", "Loop", "https://www.chartjs.org/docs/latest/samples/animations/loop.html", CreateAnimationLoopConfig, c => FullDatasetActions(c), animationTabs: true, callbacks: CallbackCode);
         definitions[GetKey("animations", "progressive-line")] = Definition("animations", "progressive-line", "Progressive Line", "https://www.chartjs.org/docs/latest/samples/animations/progressive-line.html", CreateProgressiveLineConfig, _ => [], animationTabs: true, callbacks: CallbackCode);
         definitions[GetKey("animations", "progressive-line-easing")] = Definition("animations", "progressive-line-easing", "Progressive Line With Easing", "https://www.chartjs.org/docs/latest/samples/animations/progressive-line-easing.html", CreateProgressiveLineEasingConfig, c =>
         [
-            c.CreateAction("easing-linear", "linear", () => SetProgressiveEasing(c, "linear")),
-            c.CreateAction("easing-ease-in-quad", "easeInQuad", () => SetProgressiveEasing(c, "easeInQuad")),
             c.CreateAction("easing-ease-out-quad", "easeOutQuad", () => SetProgressiveEasing(c, "easeOutQuad")),
-            c.CreateAction("easing-ease-in-out-quad", "easeInOutQuad", () => SetProgressiveEasing(c, "easeInOutQuad")),
+            c.CreateAction("easing-ease-out-cubic", "easeOutCubic", () => SetProgressiveEasing(c, "easeOutCubic")),
+            c.CreateAction("easing-ease-out-quart", "easeOutQuart", () => SetProgressiveEasing(c, "easeOutQuart")),
+            c.CreateAction("easing-ease-out-quint", "easeOutQuint", () => SetProgressiveEasing(c, "easeOutQuint")),
+            c.CreateAction("easing-ease-in-quad", "easeInQuad", () => SetProgressiveEasing(c, "easeInQuad")),
+            c.CreateAction("easing-ease-in-cubic", "easeInCubic", () => SetProgressiveEasing(c, "easeInCubic")),
+            c.CreateAction("easing-ease-in-quart", "easeInQuart", () => SetProgressiveEasing(c, "easeInQuart")),
+            c.CreateAction("easing-ease-in-quint", "easeInQuint", () => SetProgressiveEasing(c, "easeInQuint")),
         ], animationTabs: true, callbacks: CallbackCode);
     }
 
@@ -470,8 +489,8 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
 
     private static ChartJsConfig CreateTicksConfig()
     {
-        var labels = new List<string> { "January\n2015", "February", "March", "April", "May", "June\n2015", "July", "August", "September", "October", "November", "December", "January\n2016", "February", "March", "April" };
-        return CreateLineConfig("Tick Configuration", [Line("Dataset 1", Red, RandomNumbers(labels.Count, -100, 100)), Line("Dataset 2", Blue, RandomNumbers(labels.Count, -100, 100))], new ChartJsOptionsScales { X = new CartesianAxis { Ticks = new CartesianAxisTick { Callback = ChartJsFunction.FromName("scaleOptionsTickLabel"), Align = "center" } }, Y = new CartesianAxis { Title = new Title { Display = true, Text = "Value" } } }, labels);
+        var labels = new List<string> { "June\n2015", "July", "August", "September", "October", "November", "December", "January\n2016", "February", "March", "April", "May" };
+        return CreateLineConfig("Chart with Tick Configuration", [Line("Dataset 1", Red, RandomNumbers(labels.Count, 0, 100)), Line("Dataset 2", Blue, RandomNumbers(labels.Count, 0, 100))], new ChartJsOptionsScales { X = new CartesianAxis { Ticks = new CartesianAxisTick { Callback = ChartJsFunction.FromName("scaleOptionsTickLabel"), Color = "red", Align = "center" } } }, labels);
     }
 
     private static ChartJsConfig CreateScaleTitlesConfig() => CreateLineConfig("Scale Title Configuration", [Line("Dataset 1", Red, RandomNumbers(7, -100, 100))], new ChartJsOptionsScales { X = new CartesianAxis { Title = new Title { Display = true, Text = "Month", Color = Blue, Font = new Font { Size = 18, Weight = "bold" }, Padding = new Padding { Top = 20 } } }, Y = new CartesianAxis { Title = new Title { Display = true, Text = "Value", Color = Red, Font = new Font { Size = 18, Style = "italic" }, Padding = new Padding { Bottom = 10 } } } });
@@ -492,15 +511,15 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
 
     private static ChartJsConfig CreateTooltipHtmlConfig() => CreateLineConfig("External HTML Tooltip", [Line("Dataset 1", Red, RandomNumbers(7, 0, 100)), Line("Dataset 2", Blue, RandomNumbers(7, 0, 100))], null, null, new Plugins { Tooltip = new Tooltip { Enabled = false, Position = "nearest", External = ChartJsFunction.FromName("renderExternalTooltip") }, Title = new Title { Display = true, Text = "External Tooltip" } });
 
-    private static ChartJsConfig CreateTooltipInteractionsConfig() => CreateLineConfig("Tooltip Interaction Modes", [Line("Dataset 1", Red, RandomNumbers(7, -100, 100)), Line("Dataset 2", Blue, RandomNumbers(7, -100, 100))], null, null, new Plugins { Title = new Title { Display = true, Text = "Tooltip Interactions" } });
+    private static ChartJsConfig CreateTooltipInteractionsConfig() => CreateLineConfig("Tooltip Interaction Modes", [Line("Dataset 1", Red, RandomNumbers(7, -100, 100)), Line("Dataset 2", Blue, RandomNumbers(7, -100, 100))], null, null, new Plugins { Title = new Title { Display = true, Text = ChartJsFunction.FromName("tooltipInteractionTitle") } });
 
     private static ChartJsConfig CreateTooltipPointStyleConfig() => CreateLineConfig("Tooltip Point Style", [Line("Dataset 1", Red, RandomNumbers(7, -100, 100), pointStyle: "circle"), Line("Dataset 2", Blue, RandomNumbers(7, -100, 100), pointStyle: "rectRot")], null, null, new Plugins { Tooltip = new Tooltip { UsePointStyle = true }, Title = new Title { Display = true, Text = "Tooltip Point Style" } });
 
     private static ChartJsConfig CreateTooltipPositionConfig() => CreateLineConfig("Tooltip Position", [Line("Dataset 1", Red, RandomNumbers(7, -100, 100)), Line("Dataset 2", Blue, RandomNumbers(7, -100, 100))], null, null, new Plugins { Tooltip = new Tooltip { Position = "average" }, Title = new Title { Display = true, Text = ChartJsFunction.FromName("tooltipPositionTitle") } });
 
-    private static ChartJsConfig CreateScriptableBarConfig() => new() { Type = ChartType.bar, Data = new ChartJsData { Labels = MonthLabels(16), Datasets = [new BarDataset { Data = RandomNumbers(16, -100, 100), BorderWidth = 2 }] }, Options = new ChartJsOptions { Plugins = new Plugins { Legend = new Legend { Display = false }, Tooltip = new Tooltip { Enabled = true } }, Elements = new ChartJsElementsOptions { Bar = new ChartJsBarElementOptions { BackgroundColor = ChartJsFunction.FromName("scriptableTransparentColor"), BorderColor = ChartJsFunction.FromName("scriptableBorderColor"), BorderWidth = 2 } } } };
+    private static ChartJsConfig CreateScriptableBarConfig() => new() { Type = ChartType.bar, Data = new ChartJsData { Labels = MonthLabels(16), Datasets = [new BarDataset { Data = RandomNumbers(16, -100, 100) }] }, Options = new ChartJsOptions { Plugins = new Plugins { Legend = new Legend { Display = false }, Tooltip = new Tooltip { Enabled = true } }, Elements = new ChartJsElementsOptions { Bar = new ChartJsBarElementOptions { BackgroundColor = ChartJsFunction.FromName("scriptableBarBackgroundColor"), BorderColor = ChartJsFunction.FromName("scriptableBarBorderColor"), BorderWidth = 2 } } } };
 
-    private static ChartJsConfig CreateScriptableBubbleConfig() => new() { Type = ChartType.bubble, Data = new ChartJsData { Datasets = [new BubbleDataset { Data = BubbleScriptableData(16) }] }, Options = new ChartJsOptions { Plugins = new Plugins { Legend = new Legend { Display = false }, Tooltip = new Tooltip { Enabled = true } }, Elements = new ChartJsElementsOptions { Point = new ChartJsPointElementOptions { BackgroundColor = ChartJsFunction.FromName("scriptableTransparentColor"), BorderColor = ChartJsFunction.FromName("scriptableBorderColor"), BorderWidth = ChartJsFunction.FromName("scriptableRadius"), Radius = ChartJsFunction.FromName("scriptableBubbleRadius"), HoverBackgroundColor = ChartJsFunction.FromName("scriptableColor") } } } };
+    private static ChartJsConfig CreateScriptableBubbleConfig() => new() { Type = ChartType.bubble, Data = new ChartJsData { Datasets = [new BubbleDataset { Data = BubbleScriptableData(16) }, new BubbleDataset { Data = BubbleScriptableData(16) }] }, Options = new ChartJsOptions { AspectRatio = 1, Plugins = new Plugins { Legend = new Legend { Display = false }, Tooltip = new Tooltip { Enabled = false } }, Elements = new ChartJsElementsOptions { Point = new ChartJsPointElementOptions { BackgroundColor = ChartJsFunction.FromName("scriptableBubbleBackgroundColor"), BorderColor = ChartJsFunction.FromName("scriptableBubbleBorderColor"), BorderWidth = ChartJsFunction.FromName("scriptableBubbleBorderWidth"), HoverBackgroundColor = "transparent", HoverBorderColor = ChartJsFunction.FromName("scriptableBubbleHoverBorderColor"), HoverBorderWidth = ChartJsFunction.FromName("scriptableBubbleHoverBorderWidth"), Radius = ChartJsFunction.FromName("scriptableBubbleRadius") } } } };
 
     private static ChartJsConfig CreateScriptableLineConfig() => CreateLineConfig("Scriptable Line", [new LineDataset { Data = RandomNumbers(12, 0, 100) }], null, MonthLabels(12), new Plugins { Legend = new Legend { Display = false }, Tooltip = new Tooltip { Enabled = true } }, new ChartJsElementsOptions { Line = new ChartJsLineElementOptions { BackgroundColor = ChartJsFunction.FromName("scriptableColor"), BorderColor = ChartJsFunction.FromName("scriptableColor"), Fill = false }, Point = new ChartJsPointElementOptions { BackgroundColor = ChartJsFunction.FromName("scriptableColor"), HoverBackgroundColor = ChartJsFunction.FromName("scriptableTransparentColor"), Radius = ChartJsFunction.FromName("scriptableRadius"), PointStyle = ChartJsFunction.FromName("scriptablePointStyle"), HoverRadius = 15 } });
 
@@ -510,24 +529,24 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
 
     private static ChartJsConfig CreateScriptableRadarConfig() => new() { Type = ChartType.radar, Data = new ChartJsData { Labels = MonthLabels(12), Datasets = [new RadarDataset { Data = RandomNumbers(12, 0, 100) }] }, Options = new ChartJsOptions { Elements = new ChartJsElementsOptions { Line = new ChartJsLineElementOptions { BackgroundColor = ChartJsFunction.FromName("scriptableTransparentColor"), BorderColor = ChartJsFunction.FromName("scriptableColor") }, Point = new ChartJsPointElementOptions { BackgroundColor = ChartJsFunction.FromName("scriptableColor"), Radius = ChartJsFunction.FromName("scriptableRadius"), PointStyle = ChartJsFunction.FromName("scriptablePointStyle") } } } };
 
-    private static ChartJsConfig CreateAnimationDelayConfig() => CreateLineConfig("Animation Delay", [Line("Dataset 1", Red, RandomNumbers(7, -100, 100)), Line("Dataset 2", Blue, RandomNumbers(7, -100, 100))], null, null, new Plugins { Title = new Title { Display = true, Text = "Delay Animation" } }, animation: new Animation { Delay = ChartJsFunction.FromName("animationDelay"), OnComplete = ChartJsFunction.FromName("animationComplete") });
+    private static ChartJsConfig CreateAnimationDelayConfig() => new() { Type = ChartType.bar, Data = new ChartJsData { Labels = MonthLabels(7), Datasets = [new BarDataset { Label = "Dataset 1", Data = RandomNumbers(7, -100, 100), BackgroundColor = Red }, new BarDataset { Label = "Dataset 2", Data = RandomNumbers(7, -100, 100), BackgroundColor = Blue }, new BarDataset { Label = "Dataset 3", Data = RandomNumbers(7, -100, 100), BackgroundColor = Green }] }, Options = new ChartJsOptions { Animation = new Animation { Delay = ChartJsFunction.FromName("animationDelay"), OnComplete = ChartJsFunction.FromName("animationComplete") }, Scales = new ChartJsOptionsScales { X = new CartesianAxis { Stacked = true }, Y = new CartesianAxis { Stacked = true } } } };
 
     private static ChartJsConfig CreateAnimationDropConfig() => CreateLineConfig("Drop Animation", [new LineDataset { Label = "Dataset 1", Animations = new Animations { Y = new Animations { Duration = 2000, Delay = 500 } }, Data = RandomNumbers(7, -100, 100), BorderColor = Red, BackgroundColor = RedTransparent, Fill = 1, Tension = 0.5 }, Line("Dataset 2", Blue, RandomNumbers(7, -100, 100))], null, null, null, animation: null, animations: new Animations { Y = new Animations { Easing = "easeInOutElastic", From = ChartJsFunction.FromName("animationDropFrom") } });
 
-    private static ChartJsConfig CreateAnimationLoopConfig() => new() { Type = ChartType.scatter, Data = new ChartJsData { Datasets = [new BubbleDataset { Data = BubbleData(8), BackgroundColor = RedTransparent, BorderColor = Red }] }, Options = new ChartJsOptions { Plugins = new Plugins { Tooltip = new Tooltip { Enabled = false } }, Animations = new Animations { Radius = new Animations { Duration = 400, Easing = "linear", Loop = ChartJsFunction.FromName("animationLoopRadius") } }, Hover = new Interactions { Mode = "nearest", Intersect = true } } };
+    private static ChartJsConfig CreateAnimationLoopConfig() => new() { Type = ChartType.line, Data = new ChartJsData { Labels = MonthLabels(7), Datasets = [new LineDataset { Label = "Dataset 1", Data = RandomNumbers(7, -100, 100), BorderColor = Red, BackgroundColor = RedTransparent, Tension = 0.4 }, new LineDataset { Label = "Dataset 2", Data = RandomNumbers(7, -100, 100), BorderColor = Blue, BackgroundColor = BlueTransparent, Tension = 0.2 }] }, Options = new ChartJsOptions { Animations = new Animations { Radius = new Animations { Duration = 400, Easing = "linear", Loop = ChartJsFunction.FromName("animationLoopRadius") } }, Elements = new ChartJsElementsOptions { Point = new ChartJsPointElementOptions { HoverRadius = 12, HoverBackgroundColor = "yellow" } }, Interaction = new Interactions { Mode = "nearest", Intersect = false, Axis = "x" }, Plugins = new Plugins { Tooltip = new Tooltip { Enabled = false } } } };
 
     private static ChartJsConfig CreateProgressiveLineConfig() => ProgressiveLineConfig("linear");
 
-    private static ChartJsConfig CreateProgressiveLineEasingConfig() => ProgressiveLineConfig("easeInOutQuad");
+    private static ChartJsConfig CreateProgressiveLineEasingConfig() => ProgressiveLineConfig("easeOutQuad", includeTitle: true);
 
-    private static ChartJsConfig ProgressiveLineConfig(string easing)
+    private static ChartJsConfig ProgressiveLineConfig(string easing, bool includeTitle = false)
     {
         var data = ProgressiveData(1000, 100);
         var data2 = ProgressiveData(1000, 80);
-        return new ChartJsConfig { Type = ChartType.line, Data = new ChartJsData { Datasets = [new LineDataset { BorderColor = Red, BorderWidth = 1, PointRadius = 0, Data = data, Parsing = false, Normalized = true }, new LineDataset { BorderColor = Blue, BorderWidth = 1, PointRadius = 0, Data = data2, Parsing = false, Normalized = true }] }, Options = new ChartJsOptions { Animation = new Animation { Duration = 10000, Easing = easing }, Animations = new Animations { X = new Animations { Type = "number", Easing = easing, Duration = 10, From = ChartJsFunction.FromName("animationProgressiveFromNaN"), Delay = ChartJsFunction.FromName("animationProgressiveDelay") }, Y = new Animations { Type = "number", Easing = easing, Duration = 10, From = ChartJsFunction.FromName("animationProgressivePreviousY"), Delay = ChartJsFunction.FromName("animationProgressiveYDelay") } }, Interaction = new Interactions { Intersect = false }, Plugins = new Plugins { Legend = new Legend { Display = false } }, Scales = new ChartJsOptionsScales { X = new CartesianAxis { Type = "linear" } } } };
+        return new ChartJsConfig { Type = ChartType.line, Data = new ChartJsData { Datasets = [new LineDataset { BorderColor = Red, BorderWidth = 1, PointRadius = 0, Data = data, Parsing = false, Normalized = true }, new LineDataset { BorderColor = Blue, BorderWidth = 1, PointRadius = 0, Data = data2, Parsing = false, Normalized = true }] }, Options = new ChartJsOptions { Animation = new Animation { Duration = 5000, Easing = easing }, Animations = new Animations { X = new Animations { Type = "number", Easing = "linear", Duration = 10, From = ChartJsFunction.FromName("animationProgressiveFromNaN"), Delay = ChartJsFunction.FromName(includeTitle ? "animationProgressiveEasingDelay" : "animationProgressiveDelay") }, Y = new Animations { Type = "number", Easing = "linear", Duration = 10, From = ChartJsFunction.FromName("animationProgressivePreviousY"), Delay = ChartJsFunction.FromName(includeTitle ? "animationProgressiveEasingYDelay" : "animationProgressiveYDelay") } }, Interaction = new Interactions { Intersect = false }, Plugins = new Plugins { Legend = new Legend { Display = false }, Title = includeTitle ? new Title { Display = true, Text = ChartJsFunction.FromName("animationProgressiveEasingTitle") } : null }, Scales = new ChartJsOptionsScales { X = new CartesianAxis { Type = "linear" } } } };
     }
 
-    private static void SetProgressiveEasing(ChartJsBacklogSamplesBase c, string easing)
+    private static async Task SetProgressiveEasing(ChartJsBacklogSamplesBase c, string easing)
     {
         if (c.Config.Options?.Animation is Animation animation)
         {
@@ -544,7 +563,8 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
             y.Easing = easing;
         }
 
-        c.Config.UpdateChartOptions();
+        c.callbacksModule ??= await c.JSRuntime.InvokeAsync<IJSObjectReference>("import", CallbackModuleLocation).ConfigureAwait(false);
+        await c.callbacksModule.InvokeVoidAsync("restartProgressiveLineEasing", c.Config.ChartJsConfigGuid.ToString(), easing).ConfigureAwait(false);
     }
 
     private static ChartJsConfig CreateLineConfig(string title, IList<ChartJsDataset> datasets, ChartJsOptionsScales? scales = null, IList<string>? labels = null, Plugins? plugins = null, ChartJsElementsOptions? elements = null, Animation? animation = null, Animations? animations = null)
@@ -605,7 +625,7 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
         List<object> data = new(count);
         for (var i = 0; i < count; i++)
         {
-            data.Add(new BubbleScriptablePoint { X = Random.Shared.Next(-100, 101), Y = Random.Shared.Next(-100, 101), V = Random.Shared.Next(5, 25) });
+            data.Add(new BubbleScriptablePoint { X = Random.Shared.Next(-150, 101), Y = Random.Shared.Next(-150, 101), V = Random.Shared.Next(0, 1001) });
         }
 
         return data;
@@ -641,9 +661,9 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
     }
 
     private const string CallbackCode =
-        """
+        $$"""
         // Register this once with AddChartJs in the host app.
-        options.ChartJsCallbacksModuleLocation = "/_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js";
+        options.ChartJsCallbacksModuleLocation = "{{CallbackModuleLocation}}";
 
         // The callback module contains the named Chart.js callbacks used by these official samples.
         """;
@@ -668,6 +688,11 @@ public abstract class ChartJsBacklogSamplesBase : ChartJsDocsBaseComponent, IAsy
         if (externalPluginModule is not null)
         {
             await externalPluginModule.DisposeAsync().ConfigureAwait(false);
+        }
+
+        if (callbacksModule is not null)
+        {
+            await callbacksModule.DisposeAsync().ConfigureAwait(false);
         }
 
         GC.SuppressFinalize(this);
