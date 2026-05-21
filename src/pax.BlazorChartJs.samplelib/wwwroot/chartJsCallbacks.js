@@ -72,6 +72,39 @@ function getOrCreateExternalTooltip(chart) {
     return tooltipElement;
 }
 
+function ensureBottomTooltipPositioner() {
+    if (!globalThis.Chart?.Tooltip?.positioners || globalThis.Chart.Tooltip.positioners.bottom) {
+        return;
+    }
+
+    globalThis.Chart.Tooltip.positioners.bottom = function (items) {
+        const pos = globalThis.Chart.Tooltip.positioners.average(items);
+        if (pos === false) {
+            return false;
+        }
+
+        return {
+            x: pos.x,
+            y: this.chart.chartArea.bottom,
+            xAlign: 'center',
+            yAlign: 'bottom'
+        };
+    };
+}
+
+function colorByDataset(datasetIndex) {
+    const colors = ['#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0', '#9966ff', '#ff9f40'];
+    return colors[datasetIndex % colors.length];
+}
+
+function transparentizeHex(hex, alpha = 0.5) {
+    const value = hex.replace('#', '');
+    const r = parseInt(value.substring(0, 2), 16);
+    const g = parseInt(value.substring(2, 4), 16);
+    const b = parseInt(value.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 const callbacks = Object.assign(Object.create(null), {
     formatPercent(value, context) {
         return `${Math.round(value * 100)}%`;
@@ -227,6 +260,113 @@ const callbacks = Object.assign(Object.create(null), {
         return context.tick && context.tick.major
             ? { weight: 'bold' }
             : undefined;
+    },
+    scaleOptionsGridColor(context) {
+        if (context.tick.value > 0) {
+            return '#4bc0c0';
+        }
+
+        if (context.tick.value < 0) {
+            return '#ff6384';
+        }
+
+        return '#000000';
+    },
+    scaleOptionsTickLabel(value, index) {
+        const label = this.getLabelForValue(value);
+        return index % 2 === 0
+            ? (Array.isArray(label) ? label : `${label}`.split('\n'))
+            : '';
+    },
+    legendHandleHover(_event, item, legend) {
+        legend.chart.data.datasets[0].backgroundColor.forEach((color, index, colors) => {
+            colors[index] = index === item.index || color.length === 9 ? color : `${color}4D`;
+        });
+        legend.chart.update();
+    },
+    legendHandleLeave(_event, _item, legend) {
+        legend.chart.data.datasets[0].backgroundColor.forEach((color, index, colors) => {
+            colors[index] = color.length === 9 ? color.slice(0, -2) : color;
+        });
+        legend.chart.update();
+    },
+    tooltipContentFooter(items) {
+        return `Sum: ${getTooltipTotal(items)}`;
+    },
+    tooltipPositionTitle(context) {
+        ensureBottomTooltipPositioner();
+        return `Tooltip position mode: ${context.chart.options.plugins.tooltip.position}`;
+    },
+    scriptableColor(context) {
+        return colorByDataset(context.datasetIndex ?? 0);
+    },
+    scriptableTransparentColor(context) {
+        return transparentizeHex(colorByDataset(context.datasetIndex ?? 0), 0.5);
+    },
+    scriptableBorderColor(context) {
+        const value = Number(context.parsed?.y ?? context.raw?.v ?? context.raw ?? 0);
+        return value < 0 ? '#ff6384' : '#36a2eb';
+    },
+    scriptablePointStyle(context) {
+        return context.dataIndex % 2 === 0 ? 'circle' : 'rect';
+    },
+    scriptableRadius(context) {
+        const value = Number(context.parsed?.y ?? context.raw?.v ?? context.raw ?? 0);
+        return value < 10 ? 5 : value < 25 ? 7 : value < 50 ? 9 : value < 75 ? 11 : 15;
+    },
+    scriptableBubbleRadius(context) {
+        return Math.abs(Number(context.raw?.v ?? context.raw?.r ?? 5));
+    },
+    scriptableArcColor(context) {
+        return colorByDataset(context.dataIndex ?? 0);
+    },
+    animationDelay(context) {
+        let delay = 0;
+        if (context.type === 'data' && context.mode === 'default' && !context.chart.$delayStarted) {
+            delay = context.dataIndex * 300 + context.datasetIndex * 100;
+        }
+
+        return delay;
+    },
+    animationComplete(context) {
+        context.chart.$delayStarted = true;
+    },
+    animationDropFrom(context) {
+        if (context.type === 'data' && context.mode === 'default' && !context.dropped) {
+            context.dropped = true;
+            return 0;
+        }
+
+        return undefined;
+    },
+    animationLoopRadius(context) {
+        return context.active ? 12 : 6;
+    },
+    animationProgressiveFromNaN() {
+        return NaN;
+    },
+    animationProgressivePreviousY(context) {
+        if (context.index === 0) {
+            return context.chart.scales.y.getPixelForValue(100);
+        }
+
+        return context.chart.getDatasetMeta(context.datasetIndex).data[context.index - 1].getProps(['y'], true).y;
+    },
+    animationProgressiveDelay(context) {
+        if (context.type !== 'data' || context.xStarted) {
+            return 0;
+        }
+
+        context.xStarted = true;
+        return context.index * (10000 / context.chart.data.datasets[0].data.length);
+    },
+    animationProgressiveYDelay(context) {
+        if (context.type !== 'data' || context.yStarted) {
+            return 0;
+        }
+
+        context.yStarted = true;
+        return context.index * (10000 / context.chart.data.datasets[0].data.length);
     },
     multiSeriesPieGenerateLabels(chart) {
         const original = Chart.overrides.pie.plugins.legend.labels.generateLabels;

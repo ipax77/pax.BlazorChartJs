@@ -566,8 +566,81 @@ async function loadPlugins(setupOptions, dotnetConfig) {
             }
             plugins.push(ChartDataLabels);
         }
+        if (dotnetConfig['options'].plugins.htmlLegend != undefined) {
+            plugins.push(createHtmlLegendPlugin());
+        }
     }
     return plugins;
+}
+function createHtmlLegendPlugin() {
+    return {
+        id: 'htmlLegend',
+        afterUpdate(chart, _args, options) {
+            const containerId = options?.containerID;
+            if (!containerId) {
+                return;
+            }
+            const listContainer = getOrCreateHtmlLegendList(chart, containerId);
+            while (listContainer.firstChild) {
+                listContainer.firstChild.remove();
+            }
+            const items = chart.options.plugins.legend.labels.generateLabels(chart);
+            items.forEach((item) => {
+                const li = document.createElement('li');
+                li.style.alignItems = 'center';
+                li.style.cursor = 'pointer';
+                li.style.display = 'flex';
+                li.style.flexDirection = 'row';
+                li.style.marginLeft = '10px';
+                li.onclick = () => {
+                    const { type } = chart.config;
+                    if (type === 'pie' || type === 'doughnut') {
+                        chart.toggleDataVisibility(item.index);
+                    }
+                    else {
+                        chart.setDatasetVisibility(item.datasetIndex, !chart.isDatasetVisible(item.datasetIndex));
+                    }
+                    chart.update();
+                };
+                const boxSpan = document.createElement('span');
+                boxSpan.style.background = item.fillStyle;
+                boxSpan.style.borderColor = item.strokeStyle;
+                boxSpan.style.borderWidth = `${item.lineWidth}px`;
+                boxSpan.style.display = 'inline-block';
+                boxSpan.style.flexShrink = '0';
+                boxSpan.style.height = '20px';
+                boxSpan.style.marginRight = '10px';
+                boxSpan.style.width = '20px';
+                const textContainer = document.createElement('p');
+                textContainer.style.color = item.fontColor;
+                textContainer.style.margin = '0';
+                textContainer.style.padding = '0';
+                textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
+                textContainer.appendChild(document.createTextNode(item.text));
+                li.appendChild(boxSpan);
+                li.appendChild(textContainer);
+                listContainer.appendChild(li);
+            });
+        }
+    };
+}
+function getOrCreateHtmlLegendList(chart, id) {
+    let legendContainer = document.getElementById(id);
+    if (!legendContainer) {
+        legendContainer = document.createElement('div');
+        legendContainer.id = id;
+        chart.canvas.parentNode?.appendChild(legendContainer);
+    }
+    let listContainer = legendContainer.querySelector('ul');
+    if (!listContainer) {
+        listContainer = document.createElement('ul');
+        listContainer.style.display = 'flex';
+        listContainer.style.flexDirection = 'row';
+        listContainer.style.margin = '0';
+        listContainer.style.padding = '0';
+        legendContainer.appendChild(listContainer);
+    }
+    return listContainer;
 }
 function registerChartPointEvent(chart, chartId, eventName, optionName) {
     const nativeCallback = typeof chart.options[optionName] === "function"

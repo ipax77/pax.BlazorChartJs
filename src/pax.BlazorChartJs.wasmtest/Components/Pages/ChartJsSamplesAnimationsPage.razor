@@ -1,0 +1,33 @@
+@page "/chartjs-samples/animations"
+@page "/chartjs-samples/animations/{SampleId}"
+@using pax.BlazorChartJs.samplelib.ChartJsSamples.Backlog
+
+<PageTitle>Chart.js Animations</PageTitle>
+
+@switch (ResolvedSampleId)
+{
+    case "drop":
+        <AnimationsDropSample />
+        break;
+    case "loop":
+        <AnimationsLoopSample />
+        break;
+    case "progressive-line":
+        <AnimationsProgressiveLineSample />
+        break;
+    case "progressive-line-easing":
+        <AnimationsProgressiveLineEasingSample />
+        break;
+    default:
+        <AnimationsDelaySample />
+        break;
+}
+
+@code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
+    private string ResolvedSampleId => string.IsNullOrWhiteSpace(SampleId)
+        ? ChartJsBacklogSamples.ResolveDefaultSample("animations")
+        : SampleId;
+}

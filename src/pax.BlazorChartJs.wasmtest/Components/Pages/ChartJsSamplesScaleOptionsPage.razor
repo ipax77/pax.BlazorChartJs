@@ -1,0 +1,30 @@
+@page "/chartjs-samples/scale-options"
+@page "/chartjs-samples/scale-options/{SampleId}"
+@using pax.BlazorChartJs.samplelib.ChartJsSamples.Backlog
+
+<PageTitle>Chart.js Scale Options</PageTitle>
+
+@switch (ResolvedSampleId)
+{
+    case "grid":
+        <ScaleOptionsGridSample />
+        break;
+    case "ticks":
+        <ScaleOptionsTicksSample />
+        break;
+    case "titles":
+        <ScaleOptionsTitlesSample />
+        break;
+    default:
+        <ScaleOptionsCenterSample />
+        break;
+}
+
+@code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
+    private string ResolvedSampleId => string.IsNullOrWhiteSpace(SampleId)
+        ? ChartJsBacklogSamples.ResolveDefaultSample("scale-options")
+        : SampleId;
+}

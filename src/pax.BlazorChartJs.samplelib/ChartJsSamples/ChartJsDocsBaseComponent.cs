@@ -18,7 +18,7 @@ public abstract class ChartJsDocsBaseComponent : ComponentBase
 
     protected Task SelectCodeTab(string codeTab)
     {
-        if (codeTab is ConfigTab or SetupTab or ActionsTab && !string.Equals(ActiveCodeTab, codeTab, StringComparison.Ordinal))
+        if (!string.IsNullOrWhiteSpace(codeTab) && !string.Equals(ActiveCodeTab, codeTab, StringComparison.Ordinal))
         {
             ActiveCodeTab = codeTab;
             QueueCodeHighlight();

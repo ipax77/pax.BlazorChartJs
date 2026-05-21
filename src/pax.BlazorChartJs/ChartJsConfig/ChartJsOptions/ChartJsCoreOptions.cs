@@ -36,6 +36,7 @@ public record ChartJsCoreOptions
     /// </summary>        
     public string? Locale { get; set; }
     public Font? Font { get; set; }
+    public ChartJsElementsOptions? Elements { get; set; }
     public ChartJsLayout? Layout { get; set; }
     /// <summary>
     /// Plugins must define a unique id in order to be configurable. <see href="https://www.chartjs.org/docs/latest/developers/plugins.html#plugin-options">INTL NumberFormat</see>
@@ -48,6 +49,10 @@ public record ChartJsCoreOptions
     /// </summary>
     public object? Animation { get; set; }
     public Animations? Animations { get; set; }
+    /// <summary>
+    /// Doughnut/pie cutout. If string and ending with '%', percentage of the chart radius. Numbers are pixels.
+    /// </summary>
+    public StringOrDoubleValue? Cutout { get; set; }
     /// <summary>
     /// The core transitions are 'active', 'hide', 'reset', 'resize', 'show'.
     /// A custom transition can be used by passing a custom mode to <see href="https://www.chartjs.org/docs/latest/developers/api.html#updatemode">update</see>.

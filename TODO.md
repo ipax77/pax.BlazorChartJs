@@ -149,46 +149,46 @@ Re-check the docs section sidebar before implementing each group because the `la
   - [x] Time Scale - Max Span (`samples/scales/time-max-span.html`)
   - [x] Time Scale - Combo Chart (`samples/scales/time-combo.html`)
 
-- [ ] Scale Options
-  - [ ] Center Positioning (`samples/scale-options/center.html`)
-  - [ ] Grid Configuration (`samples/scale-options/grid.html`)
-  - [ ] Tick Configuration (`samples/scale-options/ticks.html`)
-  - [ ] Title Configuration (`samples/scale-options/titles.html`)
+- [x] Scale Options
+  - [x] Center Positioning (`samples/scale-options/center.html`)
+  - [x] Grid Configuration (`samples/scale-options/grid.html`)
+  - [x] Tick Configuration (`samples/scale-options/ticks.html`)
+  - [x] Title Configuration (`samples/scale-options/titles.html`)
 
-- [ ] Legend
-  - [ ] Events (`samples/legend/events.html`)
-  - [ ] HTML Legend (`samples/legend/html.html`)
-  - [ ] Point Style (`samples/legend/point-style.html`)
-  - [ ] Position (`samples/legend/position.html`)
-  - [ ] Alignment and Title Position (`samples/legend/title.html`)
+- [x] Legend
+  - [x] Events (`samples/legend/events.html`)
+  - [x] HTML Legend (`samples/legend/html.html`)
+  - [x] Point Style (`samples/legend/point-style.html`)
+  - [x] Position (`samples/legend/position.html`)
+  - [x] Alignment and Title Position (`samples/legend/title.html`)
 
-- [ ] Title
-  - [ ] Alignment (`samples/title/alignment.html`)
+- [x] Title
+  - [x] Alignment (`samples/title/alignment.html`)
 
 - [ ] Subtitle
   - [ ] Basic (`samples/subtitle/basic.html`)
 
-- [ ] Tooltip
-  - [ ] Custom Tooltip Content (`samples/tooltip/content.html`)
-  - [ ] External HTML Tooltip (`samples/tooltip/html.html`)
-  - [ ] Interaction Modes (`samples/tooltip/interactions.html`)
-  - [ ] Point Style (`samples/tooltip/point-style.html`)
-  - [ ] Position (`samples/tooltip/position.html`)
+- [x] Tooltip
+  - [x] Custom Tooltip Content (`samples/tooltip/content.html`)
+  - [x] External HTML Tooltip (`samples/tooltip/html.html`)
+  - [x] Interaction Modes (`samples/tooltip/interactions.html`)
+  - [x] Point Style (`samples/tooltip/point-style.html`)
+  - [x] Position (`samples/tooltip/position.html`)
 
-- [ ] Scriptable Options
-  - [ ] Bar Chart (`samples/scriptable/bar.html`)
-  - [ ] Bubble Chart (`samples/scriptable/bubble.html`)
-  - [ ] Line Chart (`samples/scriptable/line.html`)
-  - [ ] Pie Chart (`samples/scriptable/pie.html`)
-  - [ ] Polar Area Chart (`samples/scriptable/polar.html`)
-  - [ ] Radar Chart (`samples/scriptable/radar.html`)
+- [x] Scriptable Options
+  - [x] Bar Chart (`samples/scriptable/bar.html`)
+  - [x] Bubble Chart (`samples/scriptable/bubble.html`)
+  - [x] Line Chart (`samples/scriptable/line.html`)
+  - [x] Pie Chart (`samples/scriptable/pie.html`)
+  - [x] Polar Area Chart (`samples/scriptable/polar.html`)
+  - [x] Radar Chart (`samples/scriptable/radar.html`)
 
-- [ ] Animations
-  - [ ] Delay (`samples/animations/delay.html`)
-  - [ ] Drop (`samples/animations/drop.html`)
-  - [ ] Loop (`samples/animations/loop.html`)
-  - [ ] Progressive Line (`samples/animations/progressive-line.html`)
-  - [ ] Progressive Line With Easing (`samples/animations/progressive-line-easing.html`)
+- [x] Animations
+  - [x] Delay (`samples/animations/delay.html`)
+  - [x] Drop (`samples/animations/drop.html`)
+  - [x] Loop (`samples/animations/loop.html`)
+  - [x] Progressive Line (`samples/animations/progressive-line.html`)
+  - [x] Progressive Line With Easing (`samples/animations/progressive-line-easing.html`)
 
 - [ ] Advanced
   - [ ] Data Decimation (`samples/advanced/data-decimation.html`)

@@ -16,6 +16,7 @@ public record Plugins
     public Title? Subtitle { get; set; }
     public FillerOptions? Filler { get; set; }
     public Tooltip? Tooltip { get; set; }
+    public HtmlLegendOptions? HtmlLegend { get; set; }
 #pragma warning disable CA2227
     public ICollection<ArbitraryLineConfig>? ArbitraryLines { get; set; }
 #pragma warning restore CA2227
@@ -27,4 +28,9 @@ public record FillerOptions
 {
     public bool? Propagate { get; set; }
     public string? DrawTime { get; set; }
+}
+
+public record HtmlLegendOptions
+{
+    public string? ContainerID { get; set; }
 }

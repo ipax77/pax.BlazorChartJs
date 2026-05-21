@@ -522,6 +522,72 @@ public sealed class MissingPropertiesSerializationTests
         Assert.IsFalse(root.TryGetProperty("onResizeEvent", out _));
     }
 
+    [TestMethod]
+    public void ElementOptionsCutoutAndKeyedAnimationsSerializeMarkers()
+    {
+        ChartJsOptions options = new()
+        {
+            Cutout = "50%",
+            Elements = new ChartJsElementsOptions
+            {
+                Bar = new ChartJsBarElementOptions
+                {
+                    BackgroundColor = ChartJsFunction.FromName("barBackground"),
+                    BorderColor = ChartJsFunction.FromName("barBorder"),
+                    BorderWidth = 2
+                },
+                Point = new ChartJsPointElementOptions
+                {
+                    Radius = ChartJsFunction.FromName("pointRadius"),
+                    PointStyle = ChartJsFunction.FromName("pointStyle")
+                },
+                Arc = new ChartJsArcElementOptions
+                {
+                    BackgroundColor = ChartJsFunction.FromName("arcBackground")
+                }
+            },
+            Animation = new Animation
+            {
+                Delay = ChartJsFunction.FromName("animationDelay"),
+                Loop = ChartJsFunction.FromName("animationLoop"),
+                OnComplete = ChartJsFunction.FromName("animationComplete")
+            },
+            Animations = new Animations
+            {
+                X = new Animations
+                {
+                    Type = "number",
+                    From = ChartJsFunction.FromName("fromNaN"),
+                    Delay = ChartJsFunction.FromName("xDelay")
+                },
+                Y = new Animations
+                {
+                    Easing = "linear",
+                    From = ChartJsFunction.FromName("previousY")
+                }
+            }
+        };
+
+        using var document = SerializeToDocument(options);
+        var root = document.RootElement;
+
+        Assert.AreEqual("50%", root.GetProperty("cutout").GetString());
+        Assert.AreEqual("barBackground", GetMarkerName(root.GetProperty("elements").GetProperty("bar").GetProperty("backgroundColor")));
+        Assert.AreEqual("barBorder", GetMarkerName(root.GetProperty("elements").GetProperty("bar").GetProperty("borderColor")));
+        Assert.AreEqual(2, root.GetProperty("elements").GetProperty("bar").GetProperty("borderWidth").GetDouble());
+        Assert.AreEqual("pointRadius", GetMarkerName(root.GetProperty("elements").GetProperty("point").GetProperty("radius")));
+        Assert.AreEqual("pointStyle", GetMarkerName(root.GetProperty("elements").GetProperty("point").GetProperty("pointStyle")));
+        Assert.AreEqual("arcBackground", GetMarkerName(root.GetProperty("elements").GetProperty("arc").GetProperty("backgroundColor")));
+        Assert.AreEqual("animationDelay", GetMarkerName(root.GetProperty("animation").GetProperty("delay")));
+        Assert.AreEqual("animationLoop", GetMarkerName(root.GetProperty("animation").GetProperty("loop")));
+        Assert.AreEqual("animationComplete", GetMarkerName(root.GetProperty("animation").GetProperty("onComplete")));
+        Assert.AreEqual("number", root.GetProperty("animations").GetProperty("x").GetProperty("type").GetString());
+        Assert.AreEqual("fromNaN", GetMarkerName(root.GetProperty("animations").GetProperty("x").GetProperty("from")));
+        Assert.AreEqual("xDelay", GetMarkerName(root.GetProperty("animations").GetProperty("x").GetProperty("delay")));
+        Assert.AreEqual("linear", root.GetProperty("animations").GetProperty("y").GetProperty("easing").GetString());
+        Assert.AreEqual("previousY", GetMarkerName(root.GetProperty("animations").GetProperty("y").GetProperty("from")));
+    }
+
     private static JsonDocument SerializeToDocument<T>(T value)
     {
         var json = JsonSerializer.Serialize(value, JsonSerializationTestOptions.Default);
