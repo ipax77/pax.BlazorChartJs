@@ -99,6 +99,7 @@ public partial class ChartJsConfig
         {
             ChartJsBinaryDataFormat.Float64XY or ChartJsBinaryDataFormat.Float64Y => sizeof(double),
             ChartJsBinaryDataFormat.Float32XY or ChartJsBinaryDataFormat.Float32Y => sizeof(float),
+            ChartJsBinaryDataFormat.Int32Y => sizeof(int),
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, "Unsupported binary dataset format.")
         };
     }
@@ -121,6 +122,7 @@ public partial class ChartJsConfig
             ChartJsBinaryDataFormat.Float32XY => 2 * sizeof(float),
             ChartJsBinaryDataFormat.Float64Y => sizeof(double),
             ChartJsBinaryDataFormat.Float32Y => sizeof(float),
+            ChartJsBinaryDataFormat.Int32Y => sizeof(int),
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, "Unsupported binary dataset format.")
         };
     }

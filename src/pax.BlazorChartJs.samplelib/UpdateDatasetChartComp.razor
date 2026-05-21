@@ -1,5 +1,4 @@
 @using pax.BlazorChartJs
-@using System.Buffers.Binary
 
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
@@ -10,6 +9,7 @@
     <button type="button" class="btn btn-primary" @onclick="UpdateDatasetsDataSmooth">UpdateDatasetsDataSmooth</button>
     <button type="button" class="btn btn-primary" @onclick="SetBinaryFloat64XY">SetBinaryFloat64XY</button>
     <button type="button" class="btn btn-primary" @onclick="SetBinaryFloat32Y">SetBinaryFloat32Y</button>
+    <button type="button" class="btn btn-primary" @onclick="SetBinaryInt32Y">SetBinaryInt32Y</button>
     <button type="button" class="btn btn-primary" @onclick="SetBinaryBatch">SetBinaryBatch</button>
     <button type="button" class="btn btn-primary" @onclick="ApplyDatasetChangesSmooth">ApplyDatasetChangesSmooth</button>
     <button type="button" class="btn btn-primary" @onclick="SetDatasetsSmooth">SetDatasetsSmooth</button>
@@ -244,13 +244,13 @@
             return;
         }
 
-        chartJsConfig.SetDatasetBinaryData(new ChartJsBinaryDatasetPayload
-        {
-            DatasetId = PrimaryDatasetId,
-            Bytes = CreateFloat64XY((1, 20), (2, 21), (3, 22)),
-            Count = 3,
-            Format = ChartJsBinaryDataFormat.Float64XY
-        });
+        chartJsConfig.SetDatasetBinaryData(ChartJsBinaryPayload.FromXY(
+            PrimaryDatasetId,
+            [
+                new ChartJsPoint(1, 20),
+                new ChartJsPoint(2, 21),
+                new ChartJsPoint(3, 22)
+            ]));
     }
 
     private void SetBinaryFloat32Y()
@@ -260,13 +260,21 @@
             return;
         }
 
-        chartJsConfig.SetDatasetBinaryData(new ChartJsBinaryDatasetPayload
+        chartJsConfig.SetDatasetBinaryData(ChartJsBinaryPayload.FromY(
+            PrimaryDatasetId,
+            new float[] { 30, 31, 32 }));
+    }
+
+    private void SetBinaryInt32Y()
+    {
+        if (!chartReady)
         {
-            DatasetId = PrimaryDatasetId,
-            Bytes = CreateFloat32Y(30, 31, 32),
-            Count = 3,
-            Format = ChartJsBinaryDataFormat.Float32Y
-        });
+            return;
+        }
+
+        chartJsConfig.SetDatasetBinaryData(ChartJsBinaryPayload.FromY(
+            PrimaryDatasetId,
+            new int[] { -30, 31, -32 }));
     }
 
     private void SetBinaryBatch()
@@ -278,20 +286,8 @@
 
         chartJsConfig.SetDatasetsBinaryData(
         [
-            new ChartJsBinaryDatasetPayload
-            {
-                DatasetId = PrimaryDatasetId,
-                Bytes = CreateFloat32Y(40, 41, 42),
-                Count = 3,
-                Format = ChartJsBinaryDataFormat.Float32Y
-            },
-            new ChartJsBinaryDatasetPayload
-            {
-                DatasetId = RemovedDatasetId,
-                Bytes = CreateFloat32Y(50, 51, 52),
-                Count = 3,
-                Format = ChartJsBinaryDataFormat.Float32Y
-            }
+            ChartJsBinaryPayload.FromY(PrimaryDatasetId, new float[] { 40, 41, 42 }),
+            ChartJsBinaryPayload.FromY(RemovedDatasetId, new float[] { 50, 51, 52 })
         ]);
     }
 
@@ -335,27 +331,4 @@
             updateOptions: true);
     }
 
-    private static byte[] CreateFloat64XY(params (double X, double Y)[] points)
-    {
-        var bytes = new byte[points.Length * 2 * sizeof(double)];
-        for (int i = 0; i < points.Length; i++)
-        {
-            var offset = i * 2 * sizeof(double);
-            BinaryPrimitives.WriteDoubleLittleEndian(bytes.AsSpan(offset, sizeof(double)), points[i].X);
-            BinaryPrimitives.WriteDoubleLittleEndian(bytes.AsSpan(offset + sizeof(double), sizeof(double)), points[i].Y);
-        }
-
-        return bytes;
-    }
-
-    private static byte[] CreateFloat32Y(params float[] values)
-    {
-        var bytes = new byte[values.Length * sizeof(float)];
-        for (int i = 0; i < values.Length; i++)
-        {
-            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(i * sizeof(float), sizeof(float)), values[i]);
-        }
-
-        return bytes;
-    }
 }
