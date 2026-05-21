@@ -4,7 +4,6 @@ using Microsoft.JSInterop;
 using pax.BlazorChartJs.BlazorLegend;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace pax.BlazorChartJs;
@@ -15,7 +14,7 @@ namespace pax.BlazorChartJs;
 /// <remarks>
 /// ChartJsInterop
 /// </remarks>
-public class ChartJsInterop(IJSRuntime jsRuntime,
+public partial class ChartJsInterop(IJSRuntime jsRuntime,
                       ILogger<ChartJsInterop> logger,
                       IOptions<ChartJsSetupOptions>? options) : IAsyncDisposable
 {
@@ -25,28 +24,9 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     private readonly Lazy<Task<IJSObjectReference>> moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
             "import", $"./_content/pax.BlazorChartJs/chartJsInterop.js?v={ChartJsInteropVersion}").AsTask());
     // private readonly ILogger<ChartJsInterop> logger;
-    private readonly JsonSerializerOptions jsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Converters =
-            {
-                new JsonStringEnumConverter(),
-                new IndexableOptionStringConverter(),
-                new IndexableOptionDoubleConverter(),
-                new IndexableOptionIntConverter(),
-                new IndexableOptionBoolConverter(),
-                new IndexableOptionObjectConverter(),
-                new IndexableOptionFontConverter(),
-                new PaddingJsonConverter(),
-                new StringOrDoubleValueConverter(),
-                new ChartJsDatasetJsonConverter(),
-                new ChartJsAxisJsonConverter(),
-                new ChartJsAxisTickJsonConverter(),
-            }
-    };
+    private readonly JsonSerializerOptions jsonOptions = CreateJsonSerializerOptions();
     private bool setupDefaultsSerialized;
-    private SerializedChartJsPayload<JsonObject?> serializedSetupDefaults;
+    private SerializedChartJsPayload serializedSetupDefaults;
 
     public IJSRuntime JsRuntime { get; } = jsRuntime;
 
@@ -382,7 +362,7 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         var serializedDatasetsToUpdateSmooth = SerializeDatasets(datasetsToUpdateSmooth);
         var serializedOptions = changeSet.UpdateOptions
             ? SerializeConfigOptions(config)
-            : new SerializedChartJsPayload<JsonObject?>(null, false, String.Empty);
+            : new SerializedChartJsPayload(null, false, String.Empty);
 
         await module.InvokeVoidAsync(
             "applyDatasetChangesSmooth",
@@ -451,13 +431,12 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         }
     }
 
-    private SerializedChartJsPayload<JsonObject?> SerializeConfig(ChartJsConfig config)
+    private SerializedChartJsPayload SerializeConfig(ChartJsConfig config)
     {
-        var json = JsonSerializer.Serialize<object>(config, jsonOptions) ?? throw new ArgumentNullException(nameof(config));
-        return new(JsonSerializer.Deserialize<JsonObject>(json), ContainsChartJsFunctionMarker(json), json);
+        return SerializeConfig(config, jsonOptions);
     }
 
-    private SerializedChartJsPayload<JsonObject?> SerializeConfigOptions(ChartJsConfig config)
+    private SerializedChartJsPayload SerializeConfigOptions(ChartJsConfig config)
     {
         Type configType = config.GetType();
         var options = GetLowestProperty(configType, "Options")?.GetValue(config);
@@ -468,29 +447,22 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         }
 
         var json = JsonSerializer.Serialize<object>(options, jsonOptions) ?? throw new ArgumentNullException(nameof(config));
-        return new(JsonSerializer.Deserialize<JsonObject>(json), ContainsChartJsFunctionMarker(json), json);
+        return new(json, ContainsChartJsFunctionMarker(json), json);
     }
 
-    private SerializedChartJsPayload<JsonObject?> SerializeConfigDataset(object dataset)
+    private SerializedChartJsPayload SerializeConfigDataset(object dataset)
     {
-        var json = JsonSerializer.Serialize(dataset, jsonOptions);
-        return new(JsonSerializer.Deserialize<JsonObject>(json), ContainsChartJsFunctionMarker(json), json);
+        var json = JsonSerializer.Serialize(dataset, jsonOptions) ?? throw new ArgumentNullException(nameof(dataset));
+        return new(json, ContainsChartJsFunctionMarker(json), json);
     }
 
-    private SerializedChartJsPayload<List<JsonObject?>> SerializeDatasets(IList<ChartJsDataset> datasets)
+    private SerializedChartJsPayload SerializeDatasets(IList<ChartJsDataset> datasets)
     {
-        List<JsonObject?> jsonObjects = [];
-        bool hasChartJsFunctions = false;
-        for (int i = 0; i < datasets.Count; i++)
-        {
-            var json = JsonSerializer.Serialize(datasets[i], jsonOptions);
-            hasChartJsFunctions = hasChartJsFunctions || ContainsChartJsFunctionMarker(json);
-            jsonObjects.Add(JsonSerializer.Deserialize<JsonObject>(json));
-        }
-        return new(jsonObjects, hasChartJsFunctions, String.Empty);
+        var json = JsonSerializer.Serialize(datasets, jsonOptions) ?? throw new ArgumentNullException(nameof(datasets));
+        return new(json, ContainsChartJsFunctionMarker(json), String.Empty);
     }
 
-    private SerializedChartJsPayload<JsonObject?> SerializeSetupDefaults()
+    private SerializedChartJsPayload SerializeSetupDefaults()
     {
         if (setupDefaultsSerialized)
         {
@@ -507,10 +479,7 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         var json = JsonSerializer.Serialize<object>(setupOptions.Defaults, jsonOptions)
             ?? throw new ArgumentNullException(nameof(setupOptions));
 
-        serializedSetupDefaults = new(
-            JsonSerializer.Deserialize<JsonObject>(json),
-            ContainsChartJsFunctionMarker(json),
-            json);
+        serializedSetupDefaults = new(json, ContainsChartJsFunctionMarker(json), json);
 
         return serializedSetupDefaults;
     }
@@ -520,7 +489,37 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         return json.Contains(ChartJsFunctionMarkerProperty, StringComparison.Ordinal);
     }
 
-    private readonly record struct SerializedChartJsPayload<T>(T Json, bool HasChartJsFunctions, string Key);
+    private static SerializedChartJsPayload SerializeConfig(ChartJsConfig config, JsonSerializerOptions options)
+    {
+        var json = JsonSerializer.Serialize<object>(config, options) ?? throw new ArgumentNullException(nameof(config));
+        return new(json, ContainsChartJsFunctionMarker(json), json);
+    }
+
+    private static JsonSerializerOptions CreateJsonSerializerOptions()
+    {
+        return new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters =
+                {
+                    new JsonStringEnumConverter(),
+                    new IndexableOptionStringConverter(),
+                    new IndexableOptionDoubleConverter(),
+                    new IndexableOptionIntConverter(),
+                    new IndexableOptionBoolConverter(),
+                    new IndexableOptionObjectConverter(),
+                    new IndexableOptionFontConverter(),
+                    new PaddingJsonConverter(),
+                    new StringOrDoubleValueConverter(),
+                    new ChartJsDatasetJsonConverter(),
+                    new ChartJsAxisJsonConverter(),
+                    new ChartJsAxisTickJsonConverter(),
+                }
+        };
+    }
+
+    private readonly record struct SerializedChartJsPayload(string? Json, bool HasChartJsFunctions, string Key);
 
     private static PropertyInfo? GetLowestProperty(Type type, string name)
     {
