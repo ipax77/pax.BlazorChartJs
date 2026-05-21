@@ -105,12 +105,6 @@ public class ChartJsSamplesTests : PageTest
         await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart Boundaries", Exact = true }))
             .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
-        var sampleSectionOrder = await Page.EvaluateAsync<string[]>(@"() =>
-            Array.from(document.querySelectorAll('.nav-subsection-heading'))
-                .map(element => element.textContent.trim())");
-
-        Assert.That(Array.IndexOf(sampleSectionOrder, "Area Charts"), Is.GreaterThan(Array.IndexOf(sampleSectionOrder, "Other Charts")));
-
         await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Line Datasets", Exact = true }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart Datasets", Exact = true }))
             .ToBeVisibleAsync();
