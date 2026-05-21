@@ -5,7 +5,7 @@ namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class ChartOptionsTests : PageTest
+public class ChartOptionsTests : ChartPageTest
 {
     [Test]
     public async Task StepSizeTest()
@@ -15,19 +15,12 @@ public class ChartOptionsTests : PageTest
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("StackedChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
-        // GetCanvasId
-        var canvas = Page.Locator("canvas");
-
-        var canvasId = await canvas.GetAttributeAsync("id");
-        Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
-
-        await Task.Delay(Startup.ChartJsLoadDelay);
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
 
         await Page.Locator("input").FillAsync("20");
         await Page.Keyboard.PressAsync("Enter");
 
-        await Task.Delay(Startup.ChartJsComputeDelay);
-
+        await WaitForChartStepSizeAsync(canvasId, 20);
         var stepSize = await GetChartStepSize(canvasId);
 
         Assert.That(stepSize, Is.EqualTo(20));
@@ -487,6 +480,14 @@ public class ChartOptionsTests : PageTest
                 const chart = Chart.getChart(""" + canvasId + @""");
                 return chart.options.scales.x.ticks.stepSize;
             }");
+    }
+
+    private Task WaitForChartStepSizeAsync(string canvasId, int expected)
+    {
+        return Page.WaitForFunctionAsync(
+            "args => Chart.getChart(args.canvasId)?.options?.scales?.x?.ticks?.stepSize === args.expected",
+            new { canvasId, expected },
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
     }
 
     private async Task WaitForBackgroundColorCallback(string canvasId)

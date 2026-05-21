@@ -5,7 +5,7 @@ namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class TimeSeriesTests : PageTest
+public class TimeSeriesTests : ChartPageTest
 {
     [Test]
     public async Task TimeSeriesStartDateTest()
@@ -25,16 +25,10 @@ public class TimeSeriesTests : PageTest
         // Click the button.
         await showChart.ClickAsync();
 
-        // wait for Chartjs
-        await Task.Delay(Startup.ChartJsLoadDelay);
-
         string startdateString = "2022-09-10";
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
         await Page.GetByLabel("StartDate").FillAsync(startdateString);
-
-        await Task.Delay(Startup.ChartJsComputeDelay);
-
-        var canvas = Page.Locator("canvas");
-        var canvasId = await canvas.GetAttributeAsync("id");
+        await WaitForChartXAxisMinAsync(canvasId, startdateString);
         var minValue = await GetChartXAxisMin(canvasId);
 
         Assert.That(minValue, Is.EqualTo(startdateString));
@@ -49,5 +43,13 @@ public class TimeSeriesTests : PageTest
                 const chart = Chart.getChart(""" + canvasId + @""");
                 return chart.options.scales.x.min;
             }");
+    }
+
+    private Task WaitForChartXAxisMinAsync(string canvasId, string expected)
+    {
+        return Page.WaitForFunctionAsync(
+            "args => Chart.getChart(args.canvasId)?.options?.scales?.x?.min === args.expected",
+            new { canvasId, expected },
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
     }
 }

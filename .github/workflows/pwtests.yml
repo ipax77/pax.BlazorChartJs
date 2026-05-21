@@ -1,21 +1,25 @@
 name: Playwright Tests
 on:
-  workflow_run:
-    workflows: ["Deploy Blazor WASM to GitHub Pages"]
-    types:
-      - completed
+  pull_request:
+  push:
+    branches: [master]
+
 jobs:
-    test:
-      timeout-minutes: 60
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - name: Setup dotnet
-          uses: actions/setup-dotnet@v4
-          with:
-            dotnet-version: '10.0.x'
-        - run: dotnet build ./tests/pax.BlazorChartJs.pwtests/pax.BlazorChartJs.pwtests.csproj
-        - name: Ensure browsers are installed
-          run: pwsh ./tests/pax.BlazorChartJs.pwtests/bin/Debug/net10.0/playwright.ps1 install --with-deps
-        - name: Run your tests
-          run: dotnet test ./tests/pax.BlazorChartJs.pwtests
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build Playwright tests
+        run: dotnet build ./tests/pax.BlazorChartJs.pwtests/pax.BlazorChartJs.pwtests.csproj
+      - name: Ensure browsers are installed
+        run: pwsh ./tests/pax.BlazorChartJs.pwtests/bin/Debug/net10.0/playwright.ps1 install --with-deps
+      - name: Run fast Playwright tests
+        run: dotnet test ./tests/pax.BlazorChartJs.pwtests --no-build
+      - name: Run full Chart.js sample Playwright tests
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: dotnet test ./tests/pax.BlazorChartJs.pwtests --no-build -- NUnit.Where="cat == FullSamples"

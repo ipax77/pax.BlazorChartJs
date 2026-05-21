@@ -6,6 +6,7 @@ namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
+[Category("FullSamples")]
 public class ChartJsSamplesTests : PageTest
 {
     [TestCase("border-radius", "Bar Chart Border Radius")]
@@ -921,8 +922,8 @@ public class ChartJsSamplesTests : PageTest
         await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("animation: false");
 
         await Page.Locator("[data-code-tab='setup']").ClickAsync();
-        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("GC.AllocateUninitializedArray<byte>");
-        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("BinaryPrimitives.WriteDoubleLittleEndian");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("GC.AllocateUninitializedArray<ChartJsPoint>");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("ChartJsBinaryPayload.FromXY");
         await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("config.SetDatasetBinaryData");
         await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("const NUM_POINTS = 100000");
         await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("setDatasetBinaryData");

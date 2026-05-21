@@ -1,34 +1,41 @@
-# Playwright Tests (pwtests)
+# Playwright Tests
 
-## Prerequisites
+The Playwright test project starts the local `pax.BlazorChartJs.wasmtest` app for the test run and stops it after the run.
 
-Install [Playwright](https://playwright.dev/dotnet/docs/intro) chromium assets (powershell):
-```sh
-dotnet build
-pwsh pax.BlatzorChartJs.pwtests/bin/Debug/net8.0/playwright.ps1 install
+## One-time setup
+
+Build the Playwright project and install its Chromium browser assets:
+
+```powershell
+dotnet build .\tests\pax.BlazorChartJs.pwtests\pax.BlazorChartJs.pwtests.csproj
+pwsh .\tests\pax.BlazorChartJs.pwtests\bin\Debug\net10.0\playwright.ps1 install
 ```
 
-To run the pwtests locally you have to start the sample project first - and restart it after changes.
+## Fast local run
 
-To start it from this directory:
-```sh
-dotnet run --project ../src/pax.BlazorChartJs.wasmtest
+Run the default regression suite from the repository root:
+
+```powershell
+dotnet test .\tests\pax.BlazorChartJs.pwtests\pax.BlazorChartJs.pwtests.csproj
 ```
 
-## Configuration
-Depending on your hardware you might have to adjust the WaitTimes in milliseconds
+The project run settings exclude the large `FullSamples` Chart.js sample gallery category so the default run stays focused on day-to-day regression coverage.
 
-In ./pax.BlazorChartJs.pwtests/appsettings.Development.json
-```json
-{
-  "SampleBaseUrl": "https://localhost:7082",
-  "WasmLoadDelay": 10000,
-  "ChartJsLoadDelay": 1500,
-  "ChartJsComputeDelay": 10
-}
+## Full sample gallery run
+
+Run the full sample coverage with a positive NUnit category selection:
+
+```powershell
+dotnet test .\tests\pax.BlazorChartJs.pwtests\pax.BlazorChartJs.pwtests.csproj -- NUnit.Where="cat == FullSamples"
 ```
 
-## Run local tests (powershell)
-```sh
-($env:ASPNETCORE_ENVIRONMENT="Development") | dotnet test
+## External target override
+
+By default the test harness self-hosts the local WASM test app on a loopback HTTP port. To debug against an already running or deployed target, set `PWTESTS_SampleBaseUrl` before the run:
+
+```powershell
+$env:PWTESTS_SampleBaseUrl = "https://localhost:7082"
+dotnet test .\tests\pax.BlazorChartJs.pwtests\pax.BlazorChartJs.pwtests.csproj
 ```
+
+Clear that environment variable to return to the self-hosted path.

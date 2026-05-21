@@ -125,7 +125,7 @@ Sources:
 5. Add visible C# and JavaScript code tabs for config/setup/actions. Add a callbacks/plugin tab when behavior depends on `chartJsCallbacks.js` or a custom plugin.
 6. Wire the sample into the wasm test app route and nav under the matching docs section.
 7. Add Playwright coverage for page render, canvas presence, code tabs, and representative button/callback behavior. Add regression tests for any issue found while porting.
-8. Run the smallest useful verification set. For sample-only docs/components, build the wasm test app and run the focused Playwright section. For local Playwright runs, use the Development environment as documented in `tests/README.md`: `($env:ASPNETCORE_ENVIRONMENT="Development") | dotnet test`. For core library or interop changes, also run the core build and serialization tests.
+8. Run the smallest useful verification set. For sample-only docs/components, build the wasm test app and run the focused Playwright section. 
 9. Before finishing a section, take one extra performance pass: avoid avoidable list/dictionary allocations, avoid interop calls inside loops when a batched helper exists, and keep large-data samples such as decimation from doing unnecessary CPU work.
 
 ### Remaining Official Samples Backlog
