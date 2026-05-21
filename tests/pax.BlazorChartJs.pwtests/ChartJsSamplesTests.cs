@@ -822,6 +822,130 @@ public class ChartJsSamplesTests : PageTest
         await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("export const chartJsCallbacks");
     }
 
+    [TestCase("scale-options", "center", "Center Positioning")]
+    [TestCase("scale-options", "grid", "Grid Configuration")]
+    [TestCase("scale-options", "ticks", "Tick Configuration")]
+    [TestCase("scale-options", "titles", "Title Configuration")]
+    [TestCase("legend", "events", "Events")]
+    [TestCase("legend", "html", "HTML Legend")]
+    [TestCase("legend", "point-style", "Point Style")]
+    [TestCase("legend", "position", "Position")]
+    [TestCase("legend", "title", "Alignment and Title Position")]
+    [TestCase("title", "alignment", "Alignment")]
+    [TestCase("tooltip", "content", "Custom Tooltip Content")]
+    [TestCase("tooltip", "html", "External HTML Tooltip")]
+    [TestCase("tooltip", "interactions", "Interaction Modes")]
+    [TestCase("tooltip", "point-style", "Point Style")]
+    [TestCase("tooltip", "position", "Position")]
+    [TestCase("scriptable", "bar", "Bar Chart")]
+    [TestCase("scriptable", "bubble", "Bubble Chart")]
+    [TestCase("scriptable", "line", "Line Chart")]
+    [TestCase("scriptable", "pie", "Pie Chart")]
+    [TestCase("scriptable", "polar", "Polar Area Chart")]
+    [TestCase("scriptable", "radar", "Radar Chart")]
+    [TestCase("animations", "delay", "Delay")]
+    [TestCase("animations", "drop", "Drop")]
+    [TestCase("animations", "loop", "Loop")]
+    [TestCase("animations", "progressive-line", "Progressive Line")]
+    [TestCase("animations", "progressive-line-easing", "Progressive Line With Easing")]
+    public async Task BacklogSamplePageRenders(string category, string sampleId, string title)
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + $"/chartjs-samples/{category}/{sampleId}");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = title, Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}']")).ToHaveCountAsync(1);
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas")).ToHaveCountAsync(1);
+    }
+
+    [Test]
+    public async Task BacklogSamplesExposeOfficialExtraCodeTabs()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/animations/progressive-line");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Progressive Line", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Page.Locator("[data-code-tab='animation']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='animation']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Page.Locator("[data-code-tab='data']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='data']")).ToHaveAttributeAsync("aria-selected", "true");
+    }
+
+    [Test]
+    public async Task BacklogTitleAlignmentActionUpdatesOptions()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/title/alignment");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Alignment", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='alignment'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await Page.Locator("[data-sample-action='alignment-title-alignment-start']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.plugins.title.align"), Is.EqualTo("\"start\""));
+
+        await Page.Locator("[data-sample-action='alignment-title-alignment-end']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.plugins.title.align"), Is.EqualTo("\"end\""));
+    }
+
+    [Test]
+    public async Task BacklogScaleOptionsCenterActionUpdatesScalePositions()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scale-options/center");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Center Positioning", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='center'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await Page.Locator("[data-sample-action='center-position-center']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.scales.x.position"), Is.EqualTo("\"center\""));
+
+        await Page.Locator("[data-sample-action='center-position-values']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "chart.options.scales.x.position"), Is.EqualTo("{\"y\":30}"));
+    }
+
+    [Test]
+    public async Task BacklogScriptableLineRevivesElementCallbacksAndPieCutoutToggles()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scriptable/line");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Line Chart", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var lineCanvasId = await Page.Locator("[data-chartjs-sample='line'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+        Assert.That(await GetChartOptionJson(lineCanvasId, "typeof chart.config.options.elements.point.radius"), Is.EqualTo("\"function\""));
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/scriptable/pie");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Pie Chart", Exact = true })).ToBeVisibleAsync();
+        var pieCanvasId = await Page.Locator("[data-chartjs-sample='pie'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await Page.Locator("[data-sample-action='pie-toggle-doughnut']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(pieCanvasId, "chart.options.cutout"), Is.EqualTo("\"50%\""));
+    }
+
+    [Test]
+    public async Task BacklogAnimationProgressiveUsesLargeDatasetsAndCallbacks()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/animations/progressive-line");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Progressive Line", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("[data-chartjs-sample='progressive-line'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(1000));
+        Assert.That(await GetChartOptionJson(canvasId, "typeof chart.config.options.animations.x.delay"), Is.EqualTo("\"function\""));
+    }
+
     private async Task<string> GetFirstDatasetDataJson(string? canvasId)
     {
         await WaitForChart(canvasId);
@@ -892,6 +1016,15 @@ public class ChartJsSamplesTests : PageTest
                 const chart = Chart.getChart(args.canvasId);
                 return chart.options.scales[args.scaleId]?.type;
             }", new { canvasId, scaleId });
+    }
+
+    private async Task<string> GetChartOptionJson(string? canvasId, string expression)
+    {
+        await WaitForChart(canvasId);
+        return await Page.EvaluateAsync<string>(@"args => {
+                const chart = Chart.getChart(args.canvasId);
+                return JSON.stringify(Function('chart', `return ${args.expression}`)(chart));
+            }", new { canvasId, expression });
     }
 
     private async Task<bool> IsDatasetVisible(string? canvasId, int datasetIndex)

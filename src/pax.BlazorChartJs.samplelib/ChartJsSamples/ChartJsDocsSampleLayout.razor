@@ -65,13 +65,6 @@
 </section>
 
 @code {
-    private static readonly ChartJsDocsPickerItem[] CodeTabs =
-    [
-        new("config", "Config"),
-        new("setup", "Setup"),
-        new("actions", "Actions"),
-    ];
-
     [Parameter, EditorRequired]
     public string SampleId { get; set; } = string.Empty;
 
@@ -114,9 +107,13 @@
 
     private string JavaScriptCodeBlockKey => $"javascript:{ActiveCodeTab}";
 
-    private string ActiveCSharpCode => GetActiveCode(CSharpCode);
+    private IReadOnlyList<ChartJsDocsCodeTab> CodeTabs => CSharpCode.Tabs.Count > 0
+        ? CSharpCode.Tabs
+        : JavaScriptCode.Tabs;
 
-    private string ActiveJavaScriptCode => GetActiveCode(JavaScriptCode);
+    private string ActiveCSharpCode => CSharpCode.GetCode(ActiveCodeTab);
+
+    private string ActiveJavaScriptCode => JavaScriptCode.GetCode(ActiveCodeTab);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -124,16 +121,6 @@
         {
             await OnChartComponentReady.InvokeAsync(chartComponent).ConfigureAwait(false);
         }
-    }
-
-    private string GetActiveCode(ChartJsDocsCodeSet codeSet)
-    {
-        return ActiveCodeTab switch
-        {
-            "setup" => codeSet.Setup,
-            "actions" => codeSet.Actions,
-            _ => codeSet.Config,
-        };
     }
 
     private bool IsCodeTabActive(string codeTab)
@@ -152,6 +139,4 @@
     {
         return value ? "true" : "false";
     }
-
-    private sealed record ChartJsDocsPickerItem(string Id, string Label);
 }

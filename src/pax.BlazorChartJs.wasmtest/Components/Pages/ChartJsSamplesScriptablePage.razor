@@ -1,0 +1,36 @@
+@page "/chartjs-samples/scriptable"
+@page "/chartjs-samples/scriptable/{SampleId}"
+@using pax.BlazorChartJs.samplelib.ChartJsSamples.Backlog
+
+<PageTitle>Chart.js Scriptable Options</PageTitle>
+
+@switch (ResolvedSampleId)
+{
+    case "bubble":
+        <ScriptableBubbleSample />
+        break;
+    case "line":
+        <ScriptableLineSample />
+        break;
+    case "pie":
+        <ScriptablePieSample />
+        break;
+    case "polar":
+        <ScriptablePolarSample />
+        break;
+    case "radar":
+        <ScriptableRadarSample />
+        break;
+    default:
+        <ScriptableBarSample />
+        break;
+}
+
+@code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
+    private string ResolvedSampleId => string.IsNullOrWhiteSpace(SampleId)
+        ? ChartJsBacklogSamples.ResolveDefaultSample("scriptable")
+        : SampleId;
+}

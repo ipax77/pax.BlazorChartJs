@@ -19,6 +19,7 @@ namespace pax.BlazorChartJs;
         typeof(IndexableOptionObjectConverter),
         typeof(IndexableOptionFontConverter),
         typeof(PaddingJsonConverter),
+        typeof(StringOrDoubleValueConverter),
         typeof(ChartJsDatasetJsonConverter),
         typeof(ChartJsAxisJsonConverter),
         typeof(ChartJsAxisTickJsonConverter)
@@ -31,6 +32,7 @@ namespace pax.BlazorChartJs;
 [JsonSerializable(typeof(ChartJsDatasetTooltip))]
 [JsonSerializable(typeof(ChartJsAxis))]
 [JsonSerializable(typeof(ChartJsAxisTick))]
+[JsonSerializable(typeof(ChartJsScalePosition))]
 [JsonSerializable(typeof(IndexableOption<string>))]
 [JsonSerializable(typeof(IndexableOption<double>))]
 [JsonSerializable(typeof(IndexableOption<int>))]
@@ -42,9 +44,15 @@ namespace pax.BlazorChartJs;
 [JsonSerializable(typeof(ChartJsCoreOptions))]
 [JsonSerializable(typeof(ChartJsDefaultsOptions))]
 [JsonSerializable(typeof(ChartJsOptionsDatasets))]
+[JsonSerializable(typeof(ChartJsElementsOptions))]
+[JsonSerializable(typeof(ChartJsBarElementOptions))]
+[JsonSerializable(typeof(ChartJsLineElementOptions))]
+[JsonSerializable(typeof(ChartJsPointElementOptions))]
+[JsonSerializable(typeof(ChartJsArcElementOptions))]
 [JsonSerializable(typeof(ChartJsSetupOptions))]
 [JsonSerializable(typeof(Plugins))]
 [JsonSerializable(typeof(FillerOptions))]
+[JsonSerializable(typeof(HtmlLegendOptions))]
 [JsonSerializable(typeof(ChartJsData))]
 [JsonSerializable(typeof(AddDataObject))]
 [JsonSerializable(typeof(SetDataObject))]

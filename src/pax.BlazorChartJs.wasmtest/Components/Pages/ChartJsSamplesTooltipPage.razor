@@ -1,0 +1,33 @@
+@page "/chartjs-samples/tooltip"
+@page "/chartjs-samples/tooltip/{SampleId}"
+@using pax.BlazorChartJs.samplelib.ChartJsSamples.Backlog
+
+<PageTitle>Chart.js Tooltip</PageTitle>
+
+@switch (ResolvedSampleId)
+{
+    case "html":
+        <TooltipHtmlSample />
+        break;
+    case "interactions":
+        <TooltipInteractionsSample />
+        break;
+    case "point-style":
+        <TooltipPointStyleSample />
+        break;
+    case "position":
+        <TooltipPositionSample />
+        break;
+    default:
+        <TooltipContentSample />
+        break;
+}
+
+@code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
+    private string ResolvedSampleId => string.IsNullOrWhiteSpace(SampleId)
+        ? ChartJsBacklogSamples.ResolveDefaultSample("tooltip")
+        : SampleId;
+}
