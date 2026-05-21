@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using pax.BlazorChartJs.samplelib.ChartJsSamples;
-using System.Diagnostics;
 
 namespace pax.BlazorChartJs.samplelib.ChartJsSamples.Advanced;
 
@@ -349,9 +348,6 @@ public abstract class ChartJsAdvancedDataDecimationSampleBase : ChartJsDocsBaseC
 
     private static object[] CreatePointData()
     {
-#if DEBUG
-        var stopwatch = Stopwatch.StartNew();
-#endif
         var start = Start.ToUnixTimeMilliseconds();
         var seed = 10u;
         object[] pointData = new object[PointCount];
@@ -366,10 +362,6 @@ public abstract class ChartJsAdvancedDataDecimationSampleBase : ChartJsDocsBaseC
             };
         }
 
-#if DEBUG
-        stopwatch.Stop();
-        Console.WriteLine($"Data decimation CreatePointData generated {PointCount} points in {stopwatch.ElapsedMilliseconds} ms.");
-#endif
         return pointData;
     }
 
