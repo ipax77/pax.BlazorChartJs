@@ -5,7 +5,7 @@ namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class MultipleChartsTests : PageTest
+public class MultipleChartsTests : ChartPageTest
 {
     [Test]
     public async Task AddDataTest()
@@ -18,19 +18,13 @@ public class MultipleChartsTests : PageTest
         // GetCanvasId
         var canvas = Page.Locator("canvas").First;
 
-        var canvasId = await canvas.GetAttributeAsync("id");
-        Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
-
-        // wait for ChartJs to load
-        await Task.Delay(Startup.ChartJsLoadDelay);
+        await WaitForChartAsync(canvas);
 
         await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
         {
             Position = new Microsoft.Playwright.Position() { X = 10, Y = 10 }
         }
         );
-
-        await Task.Delay(Startup.ChartJsComputeDelay);
 
         var clickResult = Page.Locator("p");
         await Expect(clickResult).ToHaveTextAsync(new Regex(@"chart1$"));

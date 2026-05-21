@@ -5,7 +5,7 @@ namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class RemoveDatasetsTests : PageTest
+public class RemoveDatasetsTests : ChartPageTest
 {
     [Test]
     public async Task RemoveDatasetsTest()
@@ -15,17 +15,10 @@ public class RemoveDatasetsTests : PageTest
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
-        // GetCanvasId
-        var canvas = Page.Locator("canvas");
-
-        var canvasId = await canvas.GetAttributeAsync("id");
-        Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
-
-        // wait for ChartJs to load
-        await Task.Delay(Startup.ChartJsLoadDelay);
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
 
         // Current data count
-        int countPrev = await GetDatasetCount(canvasId);
+        int countPrev = await GetDatasetCountAsync(canvasId);
 
         Assert.That(countPrev, Is.Not.Zero);
 
@@ -35,19 +28,9 @@ public class RemoveDatasetsTests : PageTest
         // Click the button.
         await removeAllDatasets.ClickAsync();
 
-        // wait for Chartjs
-        await Task.Delay(Startup.ChartJsComputeDelay);
-
-        int countAfter = await GetDatasetCount(canvasId);
+        await WaitForDatasetCountAsync(canvasId, 0);
+        int countAfter = await GetDatasetCountAsync(canvasId);
 
         Assert.That(countAfter, Is.EqualTo(0));
-    }
-
-    private async Task<int> GetDatasetCount(string? canvasId)
-    {
-        return await Page.EvaluateAsync<int>(@"() => {
-                const chart = Chart.getChart(""" + canvasId + @""");
-                return chart.data.datasets.length;
-            }");
     }
 }

@@ -6,7 +6,7 @@ namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class HtmlLegendTests : PageTest
+public class HtmlLegendTests : ChartPageTest
 {
     [Test]
     public async Task HiddenDatasetCanBeUpdatedFromHtmlLegendTest()
@@ -16,26 +16,21 @@ public class HtmlLegendTests : PageTest
         await Expect(Page).ToHaveTitleAsync(new Regex("Html Legend Chart"),
             new PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
-        var canvas = Page.Locator("canvas");
-
-        var canvasId = await canvas.GetAttributeAsync("id");
-        Assert.That(Guid.TryParse(canvasId, out _), Is.True);
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
 
         var firstLegendItem = Page.GetByText("Team 1", new PageGetByTextOptions() { Exact = true });
         await Expect(firstLegendItem).ToBeVisibleAsync();
-
-        await Task.Delay(Startup.ChartJsLoadDelay);
 
         Assert.That(await IsDatasetVisible(canvasId), Is.True);
         Assert.That(await GetDatasetBorderWidth(canvasId), Is.EqualTo(5));
 
         await firstLegendItem.ClickAsync();
-        await Task.Delay(Startup.ChartJsComputeDelay);
+        await WaitForDatasetVisibilityAsync(canvasId, false);
 
         Assert.That(await IsDatasetVisible(canvasId), Is.False);
 
         await Page.Mouse.MoveAsync(0, 0);
-        await Task.Delay(Startup.ChartJsComputeDelay);
+        await WaitForDatasetBorderWidthAsync(canvasId, 6);
 
         Assert.That(await GetDatasetBorderWidth(canvasId), Is.EqualTo(6));
     }
@@ -59,5 +54,21 @@ public class HtmlLegendTests : PageTest
                 const chart = Chart.getChart(""" + canvasId + @""");
                 return chart.isDatasetVisible(" + dataset + @");
             }");
+    }
+
+    private Task WaitForDatasetVisibilityAsync(string canvasId, bool expected)
+    {
+        return Page.WaitForFunctionAsync(
+            "args => Chart.getChart(args.canvasId)?.isDatasetVisible(0) === args.expected",
+            new { canvasId, expected },
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+    }
+
+    private Task WaitForDatasetBorderWidthAsync(string canvasId, double expected)
+    {
+        return Page.WaitForFunctionAsync(
+            "args => Chart.getChart(args.canvasId)?.data?.datasets?.[0]?.borderWidth === args.expected",
+            new { canvasId, expected },
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
     }
 }
