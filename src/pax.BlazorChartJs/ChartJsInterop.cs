@@ -14,7 +14,7 @@ namespace pax.BlazorChartJs;
 /// ChartJsInterop
 /// </remarks>
 public partial class ChartJsInterop(IJSRuntime jsRuntime,
-                    //   ILogger<ChartJsInterop> logger,
+                      //   ILogger<ChartJsInterop> logger,
                       IOptions<ChartJsSetupOptions>? options) : IAsyncDisposable
 {
     private const string ChartJsInteropVersion = "0.9.0-preview2";
