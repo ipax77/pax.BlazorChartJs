@@ -1,9 +1,9 @@
-import { reviveChartJsFunctions, validateChartJsFunctionName } from "./chartCallbacks";
+import { resolveChartJsFunctions } from "./chartCallbacks";
 import { registerEvents } from "./chartEvents";
 import { chartJsInterop } from "./chartInteropState";
 import { loadPlugins } from "./chartPlugins";
 import { parsePayload } from "./payload";
-import { ChartInitResult, ChartJsCallback, ChartJsCallbackRegistry } from "./types";
+import { ChartInitResult } from "./types";
 
 declare const Chart: any;
 
@@ -77,67 +77,6 @@ function buildChartConfig(dotnetConfig: any): any {
         options: dotnetConfig.options ?? {},
         plugins: []
     };
-}
-
-
-
-function createChartJsCallbackRegistry(moduleLocation: string, callbacks: any): ChartJsCallbackRegistry {
-    if (callbacks == undefined || typeof callbacks !== "object") {
-        throw new Error(`Chart.js callback module '${moduleLocation}' must export a chartJsCallbacks object.`);
-    }
-
-    const registry = Object.create(null) as Record<string, ChartJsCallback>;
-    const callbackNames = Object.keys(callbacks);
-    for (let i = 0; i < callbackNames.length; i++) {
-        const callbackName = callbackNames[i];
-        validateChartJsFunctionName(callbackName);
-
-        const callback = callbacks[callbackName];
-        if (typeof callback !== "function") {
-            throw new Error(`Chart.js callback '${callbackName}' is not a function.`);
-        }
-
-        registry[callbackName] = callback;
-    }
-
-    return Object.freeze(registry);
-}
-
-async function getChartJsCallbackRegistry(moduleLocation: string): Promise<ChartJsCallbackRegistry> {
-    let registryPromise = chartJsInterop.chartJsCallbackRegistryPromises.get(moduleLocation);
-    if (!registryPromise) {
-        registryPromise = import(moduleLocation)
-            .then((module) => {
-                const callbacks = module?.chartJsCallbacks;
-                return createChartJsCallbackRegistry(moduleLocation, callbacks);
-            })
-            .catch((error) => {
-                chartJsInterop.chartJsCallbackRegistryPromises.delete(moduleLocation);
-                throw error;
-            });
-
-        chartJsInterop.chartJsCallbackRegistryPromises.set(moduleLocation, registryPromise);
-    }
-
-    return await registryPromise;
-}
-
-async function getChartJsCallbackRegistryIfConfigured(setupOptions: any): Promise<ChartJsCallbackRegistry | undefined> {
-    const moduleLocation = setupOptions?.chartJsCallbacksModuleLocation;
-    if (typeof moduleLocation !== "string" || moduleLocation.length === 0) {
-        return undefined;
-    }
-
-    return await getChartJsCallbackRegistry(moduleLocation);
-}
-
-async function resolveChartJsFunctions(setupOptions: any, config: any, hasChartJsFunctions: boolean): Promise<void> {
-    if (hasChartJsFunctions !== true) {
-        return;
-    }
-
-    const callbacks = await getChartJsCallbackRegistryIfConfigured(setupOptions);
-    reviveChartJsFunctions(config, callbacks, "$", null, null, null);
 }
 
 async function applyDefaults(
@@ -247,5 +186,5 @@ async function initChartCore(
 }
 
 export function disposeChart(chartId: string) {
-    chartJsInterop.dotnetRefs.delete(chartId);
+    destroyExistingChart(chartId);
 }

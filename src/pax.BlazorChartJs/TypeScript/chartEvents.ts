@@ -3,8 +3,9 @@ import { chartJsInterop } from "./chartInteropState";
 declare const Chart: any;
 
 async function triggerEvent(chartId: string, event: string, source: string, data: any) {
-    if (chartJsInterop.dotnetRefs.has(chartId)) {
-        await chartJsInterop.dotnetRefs.get(chartId).invokeMethodAsync("EventTriggered", event, source, data);
+    const dotnetRef = chartJsInterop.dotnetRefs.get(chartId);
+    if (dotnetRef) {
+        await dotnetRef.invokeMethodAsync("EventTriggered", event, source, data);
     }
 }
 

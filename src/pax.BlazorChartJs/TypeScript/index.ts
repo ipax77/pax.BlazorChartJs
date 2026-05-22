@@ -1,3 +1,7 @@
+import { resolveChartJsFunctions } from "./chartCallbacks";
+import { chartJsInterop } from "./chartInteropState";
+import { chartJsInteropVersion } from "./version";
+
 export { chartJsInteropVersion } from "./version";
 
 export {
@@ -37,3 +41,7 @@ export {
     applyDatasetChangesSmooth,
     setDatasets
 } from "./chartDatasets";
+
+(chartJsInterop as any).resolveChartJsFunctions = resolveChartJsFunctions;
+(window as any).ChartJsInterop = chartJsInterop;
+(window as any).chartJsInteropVersion = chartJsInteropVersion;
