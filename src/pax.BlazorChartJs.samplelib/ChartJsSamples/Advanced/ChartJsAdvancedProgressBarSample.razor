@@ -1,0 +1,26 @@
+@namespace pax.BlazorChartJs.samplelib.ChartJsSamples.Advanced
+@inherits ChartJsAdvancedProgressBarSampleBase
+
+<ChartJsDocsSampleLayout SampleId="progress-bar"
+                         Title="Animation Progress Bar"
+                         DocsUrl="https://www.chartjs.org/docs/latest/samples/advanced/progress-bar.html"
+                         ChartJsConfig="@Config"
+                         Actions="@Actions"
+                         CSharpCode="@CSharpCode"
+                         JavaScriptCode="@JavaScriptCode"
+                         ActiveCodeTab="@ActiveCodeTab"
+                         OnCodeTabSelected="SelectCodeTab"
+                         CallbacksCode="@CallbacksCode">
+    <ChartContent>
+        <div class="chartjs-progress-bars">
+            <label class="chartjs-progress-bars__item" for="initialProgress">
+                <span>Initial animation</span>
+                <progress id="initialProgress" data-animation-progress="initial" max="1" value="0"></progress>
+            </label>
+            <label class="chartjs-progress-bars__item" for="animationProgress">
+                <span>Other animations</span>
+                <progress id="animationProgress" data-animation-progress="update" max="1" value="0"></progress>
+            </label>
+        </div>
+    </ChartContent>
+</ChartJsDocsSampleLayout>

@@ -1087,6 +1087,71 @@ public class ChartJsSamplesTests : PageTest
     }
 
     [Test]
+    public async Task AdvancedAnimationProgressBarUsesAnimationCallbacksAndOfficialActions()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/advanced/progress-bar");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Animation Progress Bar", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var sample = Page.Locator("[data-chartjs-sample='progress-bar']");
+        await Expect(sample).ToHaveCountAsync(1);
+        await Expect(sample.Locator("[data-sample-action]")).ToHaveCountAsync(5);
+        await Expect(sample.Locator("canvas"))
+            .ToHaveCountAsync(1, new LocatorAssertionsToHaveCountOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+        await Expect(sample.Locator("[data-animation-progress]")).ToHaveCountAsync(2);
+        await Expect(sample.Locator("#initialProgress")).ToHaveAttributeAsync("max", "1");
+        await Expect(sample.Locator("#animationProgress")).ToHaveAttributeAsync("max", "1");
+
+        var canvasId = await sample.Locator("canvas").GetAttributeAsync("id");
+        var initialDatasetCount = await GetDatasetCount(canvasId);
+        var initialDataCount = await GetFirstDatasetDataCount(canvasId);
+        var beforeRandomize = await GetFirstDatasetDataJson(canvasId);
+
+        Assert.That(await GetChartOptionJson(canvasId, "chart.config.type"), Is.EqualTo("\"line\""));
+        Assert.That(await GetChartOptionJson(canvasId, "typeof chart.config.options.animation.onProgress"), Is.EqualTo("\"function\""));
+        Assert.That(await GetChartOptionJson(canvasId, "typeof chart.config.options.animation.onComplete"), Is.EqualTo("\"function\""));
+        Assert.That(await GetChartOptionJson(canvasId, "`${chart.options.interaction.mode}:${chart.options.interaction.axis}:${chart.options.interaction.intersect}`"), Is.EqualTo("\"nearest:x:false\""));
+        Assert.That(await GetChartOptionJson(canvasId, "(() => { chart.options.animation.onProgress({ chart, initial: false, currentStep: 1, numSteps: 2 }); return document.getElementById('animationProgress').value; })()"), Is.EqualTo("0.5"));
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("getAnimationProgressBars");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("animationProgressBarProgress");
+        await Expect(Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Chart.js docs", Exact = true })).ToBeVisibleAsync();
+
+        await Page.Locator("[data-sample-action='progress-bar-randomize']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataJson(canvasId), Is.Not.EqualTo(beforeRandomize));
+
+        await Page.Locator("[data-sample-action='progress-bar-add-dataset']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetDatasetCount(canvasId), Is.EqualTo(initialDatasetCount + 1));
+
+        await Page.Locator("[data-sample-action='progress-bar-add-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount + 1));
+        Assert.That(await GetLastLabel(canvasId), Is.EqualTo("August"));
+
+        await Page.Locator("[data-sample-action='progress-bar-remove-dataset']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetDatasetCount(canvasId), Is.EqualTo(initialDatasetCount));
+
+        await Page.Locator("[data-sample-action='progress-bar-remove-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount));
+
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("OnProgress = ChartJsFunction.FromName");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("onProgress(context)");
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("<progress id=\"initialProgress\"");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("document.getElementById('animationProgress')");
+
+        await Page.Locator("[data-code-tab='actions']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("config.AddDataset");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("config.RemoveData");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("Remove Dataset");
+    }
+
+    [Test]
     public async Task BacklogTitleAlignmentActionUpdatesOptions()
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/title/alignment");

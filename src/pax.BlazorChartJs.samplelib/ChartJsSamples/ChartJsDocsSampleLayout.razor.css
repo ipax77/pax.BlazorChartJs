@@ -40,6 +40,10 @@
     max-width: min(100%, 800px);
 }
 
+.chartjs-sample__chart-content {
+    margin-bottom: 1rem;
+}
+
 .chartjs-sample__chart-placeholder {
     align-items: center;
     color: #5d6470;

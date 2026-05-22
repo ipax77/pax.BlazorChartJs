@@ -1,0 +1,17 @@
+.chartjs-progress-bars {
+    display: grid;
+    gap: 0.75rem;
+    max-width: min(100%, 800px);
+}
+
+.chartjs-progress-bars__item {
+    color: #334155;
+    display: grid;
+    gap: 0.375rem;
+    font-weight: 600;
+}
+
+.chartjs-progress-bars__item progress {
+    height: 1rem;
+    width: 100%;
+}
