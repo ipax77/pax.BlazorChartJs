@@ -1152,6 +1152,56 @@ public class ChartJsSamplesTests : PageTest
     }
 
     [Test]
+    public async Task AdvancedRadialGradientUsesScriptableArcCallbackAndRandomizeAction()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/advanced/radial-gradient");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Radial Gradient", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var sample = Page.Locator("[data-chartjs-sample='radial-gradient']");
+        await Expect(sample).ToHaveCountAsync(1);
+        await Expect(sample.Locator("[data-sample-action]")).ToHaveCountAsync(1);
+        await Expect(sample.Locator("canvas"))
+            .ToHaveCountAsync(1, new LocatorAssertionsToHaveCountOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await sample.Locator("canvas").GetAttributeAsync("id");
+        var beforeRandomize = await GetFirstDatasetDataJson(canvasId);
+
+        Assert.That(await GetChartOptionJson(canvasId, "chart.config.type"), Is.EqualTo("\"polarArea\""));
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(5));
+        Assert.That(await GetChartOptionJson(canvasId, "typeof chart.config.options.elements.arc.backgroundColor"), Is.EqualTo("\"function\""));
+        Assert.That(await GetChartOptionJson(canvasId, "`${chart.options.plugins.legend.display}:${chart.options.plugins.tooltip.enabled}`"), Is.EqualTo("\"false:false\""));
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("createRadialGradient3");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("radialGradientArcBackgroundColor");
+        await Expect(Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Chart.js docs", Exact = true })).ToBeVisibleAsync();
+
+        await Page.Locator("[data-sample-action='radial-gradient-randomize']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataJson(canvasId), Is.Not.EqualTo(beforeRandomize));
+
+        await Page.Locator("[data-code-tab='create-radial-gradient-3']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("radialGradientArcBackgroundColor");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("createRadialGradient3");
+
+        await Page.Locator("[data-code-tab='config']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("Type = ChartType.polarArea");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("type: 'polarArea'");
+
+        await Page.Locator("[data-code-tab='data']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("new PolarAreaDataset");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("generateData()");
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("DataCount = 5");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("const cache = new Map()");
+
+        await Page.Locator("[data-code-tab='actions']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("config.SetData");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("Randomize");
+    }
+
+    [Test]
     public async Task BacklogTitleAlignmentActionUpdatesOptions()
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/title/alignment");

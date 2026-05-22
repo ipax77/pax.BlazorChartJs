@@ -190,14 +190,14 @@ Re-check the docs section sidebar before implementing each group because the `la
   - [x] Progressive Line (`samples/animations/progressive-line.html`)
   - [x] Progressive Line With Easing (`samples/animations/progressive-line-easing.html`)
 
-- [ ] Advanced
+- [x] Advanced
   - [x] Data Decimation (`samples/advanced/data-decimation.html`)
   - [x] Derived Axis Type (`samples/advanced/derived-axis-type.html`)
   - [x] Derived Chart Type (`samples/advanced/derived-chart-type.html`)
   - [x] Linear Gradient (`samples/advanced/linear-gradient.html`)
   - [x] Programmatic Event Triggers (`samples/advanced/programmatic-events.html`)
   - [x] Animation Progress Bar (`samples/advanced/progress-bar.html`)
-  - [ ] Radial Gradient (`samples/advanced/radial-gradient.html`)
+  - [x] Radial Gradient (`samples/advanced/radial-gradient.html`)
 
 - [ ] Plugins
   - [ ] Chart Area Border (`samples/plugins/chart-area-border.html`)
