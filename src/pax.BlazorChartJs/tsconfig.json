@@ -5,8 +5,8 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "rootDir": "./TypeScript",
-    "outDir": "./wwwroot",
-    "sourceMap": false
+    "sourceMap": false,
+    "noEmit": true
   },
   "include": ["./TypeScript/*.ts"]
 }
