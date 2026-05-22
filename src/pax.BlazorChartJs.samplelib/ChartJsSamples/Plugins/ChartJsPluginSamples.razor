@@ -1,0 +1,25 @@
+@namespace pax.BlazorChartJs.samplelib.ChartJsSamples.PluginSamples
+
+@switch (ResolvedSampleId)
+{
+    case "doughnut-empty-state":
+        <ChartJsPluginDoughnutEmptyStateSample @key="@ResolvedSampleId" />
+        break;
+    case "quadrants":
+        <ChartJsPluginQuadrantsSample @key="@ResolvedSampleId" />
+        break;
+    default:
+        <ChartJsPluginChartAreaBorderSample @key="@ResolvedSampleId" />
+        break;
+}
+
+@code {
+    [Parameter]
+    public string SampleId { get; set; } = "chart-area-border";
+
+    private string ResolvedSampleId => SampleId switch
+    {
+        "chart-area-border" or "doughnut-empty-state" or "quadrants" => SampleId,
+        _ => "chart-area-border",
+    };
+}
