@@ -143,8 +143,9 @@ public class ChartEventsTests : PageTest
     public async Task NativeResizeCallbackIsPreservedWhenResizeEventBridgeIsEnabled()
     {
         var canvasId = await OpenEventsChartAsync();
-        await ConfigureNativeCallbackOptionAsync(canvasId, "onResize", "chartEventBridgeResize", "onResizeEvent");
+        await ConfigureNativeCallbackOptionAsync(canvasId, "onResize", "chartEventBridgeResize", "onResizeEvent", responsive: false);
 
+        var resizeCountBefore = int.Parse(await Page.GetByTestId("resize-event-count").InnerTextAsync());
         await Page.EvaluateAsync("() => { window.chartJsNativeResizeCount = 0; window.chartJsNativeResizeArgs = null; }");
         await Page.GetByText("ResizeChart", new Microsoft.Playwright.PageGetByTextOptions() { Exact = true }).ClickAsync();
 
@@ -152,16 +153,80 @@ public class ChartEventsTests : PageTest
         var snapshot = await Page.EvaluateAsync<string>(
             """
             (chartId) => [
-                (window.chartJsNativeResizeCount ?? 0) > 0,
+                window.chartJsNativeResizeCount ?? 0,
                 window.chartJsNativeResizeArgs?.chartId ?? '',
                 window.chartJsNativeResizeArgs?.width > 0,
                 window.chartJsNativeResizeArgs?.height > 0
             ].join('|')
             """,
             canvasId);
+        var resizeCountAfter = int.Parse(await Page.GetByTestId("resize-event-count").InnerTextAsync());
 
         Assert.That(resizeText, Does.Contain("ChartJsResizeEvent"));
-        Assert.That(snapshot, Is.EqualTo($"true|{canvasId}|true|true"));
+        Assert.That(snapshot, Is.EqualTo($"1|{canvasId}|true|true"));
+        Assert.That(resizeCountAfter - resizeCountBefore, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task NativeLegendCallbacksArePreservedWhenLegendEventBridgeIsEnabled()
+    {
+        var canvasId = await OpenEventsChartAsync();
+
+        await Page.EvaluateAsync(
+            """
+            async (chartId) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
+                const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
+                await chartInterop.updateChartOptions(
+                    chartId,
+                    { chartJsCallbacksModuleLocation: callbacksUrl },
+                    {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                onClick: { __chartJsFunction: 'chartEventBridgeLegendClick' },
+                                onHover: { __chartJsFunction: 'chartEventBridgeLegendHover' },
+                                onLeave: { __chartJsFunction: 'chartEventBridgeLegendLeave' },
+                                onClickEvent: true,
+                                onHoverEvent: true,
+                                onLeaveEvent: true
+                            }
+                        }
+                    },
+                    true);
+
+                window.chartJsNativeLegendClickCount = 0;
+                window.chartJsNativeLegendHoverCount = 0;
+                window.chartJsNativeLegendLeaveCount = 0;
+
+                const chart = Chart.getChart(chartId);
+                const legend = chart.legend;
+                const item = legend.legendItems[0];
+                const legendOptions = chart.options.plugins.legend;
+                legendOptions.onClick.call(legend, { type: 'click' }, item, legend);
+                legendOptions.onHover.call(legend, { type: 'mousemove' }, item, legend);
+                legendOptions.onLeave.call(legend, { type: 'mouseout' }, item, legend);
+            }
+            """,
+            canvasId);
+
+        var legendText = await WaitForLatestEventTextAsync(new Regex(@"ChartJsLegendLeaveEvent"));
+        var snapshot = await Page.EvaluateAsync<string>(
+            """
+            (chartId) => [
+                window.chartJsNativeLegendClickCount ?? 0,
+                window.chartJsNativeLegendHoverCount ?? 0,
+                window.chartJsNativeLegendLeaveCount ?? 0,
+                window.chartJsNativeLegendClickArgs?.chartId ?? '',
+                window.chartJsNativeLegendHoverArgs?.chartId ?? '',
+                window.chartJsNativeLegendLeaveArgs?.chartId ?? ''
+            ].join('|')
+            """,
+            canvasId);
+
+        Assert.That(legendText, Does.Contain("ChartJsLegendLeaveEvent"));
+        Assert.That(snapshot, Is.EqualTo($"1|1|1|{canvasId}|{canvasId}|{canvasId}"));
     }
 
     [Test]
@@ -394,15 +459,16 @@ public class ChartEventsTests : PageTest
         string canvasId,
         string optionName,
         string callbackName,
-        string eventFlagName)
+        string eventFlagName,
+        bool responsive = true)
     {
         await Page.EvaluateAsync(
             """
-            async ([chartId, optionName, callbackName, eventFlagName]) => {
+            async ([chartId, optionName, callbackName, eventFlagName, responsive]) => {
                 const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
                 const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
                 const options = {
-                    responsive: true,
+                    responsive,
                     maintainAspectRatio: true,
                     [optionName]: { __chartJsFunction: callbackName },
                     [eventFlagName]: true
@@ -415,7 +481,7 @@ public class ChartEventsTests : PageTest
                     true);
             }
             """,
-            new[] { canvasId, optionName, callbackName, eventFlagName });
+            new object[] { canvasId, optionName, callbackName, eventFlagName, responsive });
     }
 
     private async Task<string> WaitForLatestEventTextAsync(Regex expected)

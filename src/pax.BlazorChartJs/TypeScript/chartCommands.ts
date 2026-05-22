@@ -2,6 +2,7 @@ import { resolveChartJsFunctions } from "./chartCallbacks";
 import { registerEvents } from "./chartEvents";
 import { getLiveChart } from "./chartLifecycle";
 import { parsePayload } from "./payload";
+import type { ChartInstance } from "./types";
 
 export async function updateChartOptions(chartId: string, setupOptionsOrOptions: any, options?: any, hasChartJsFunctions?: boolean) {
     const hasSetupOptions = arguments.length >= 3 && (arguments.length >= 4 || typeof options !== "boolean");
@@ -37,41 +38,37 @@ export function resizeChart(chartId: string, width?: number, height?: number) {
     } else {
         chart.resize(width, height);
     }
-    (chart.options.onResize as any)?.(chart, { height: chart.height, width: chart.width });
 }
 
 export function getChartImage(chartId: string, type?: string, quality?: number, width?: number, height?: number) {
-
     const chart = getLiveChart(chartId);
     if (!chart) {
         return "";
     }
-    let currentWidth = 0;
-    let currentHeight = 0;
-    if (!(width == undefined || height == undefined)) {
-        const ctx = document.getElementById(chartId) as HTMLCanvasElement;
-        if (ctx.parentNode) {
-            currentHeight = ctx.width;
-            currentHeight = ctx.height;
-            ctx.width = width;
-            ctx.height = height;
+
+    const canvas = chart.canvas;
+    const shouldResize = width != undefined && height != undefined && canvas.parentNode != undefined;
+    const currentWidth = canvas.width;
+    const currentHeight = canvas.height;
+    const currentAnimation = chart.options.animation;
+
+    try {
+        if (shouldResize) {
             chart.options.animation = false;
             chart.resize(width, height);
         }
-    }
 
-    let chartImg;
-    if (!(type == undefined || quality == undefined)) {
-        chartImg = chart.toBase64Image(type, quality);
-    } else {
-        chartImg = chart.toBase64Image();
+        return type != undefined && quality != undefined
+            ? chart.toBase64Image(type, quality)
+            : chart.toBase64Image();
+    } finally {
+        if (shouldResize) {
+            canvas.width = currentWidth;
+            canvas.height = currentHeight;
+            chart.options.animation = currentAnimation;
+            chart.resize();
+        }
     }
-
-    if (currentWidth > 0 && currentHeight > 0) {
-        chart.resize();
-    }
-    chart.options.animation = true as any;
-    return chartImg;
 }
 
 export function resetChart(chartId: string) {
@@ -141,15 +138,21 @@ export function hideDataset(chartId: string, datasetIdOrIndex: string | number, 
     }
 }
 
-function resolveDatasetIndex(chart: any, datasetIdOrIndex: string | number): number {
+function resolveDatasetIndex(chart: ChartInstance, datasetIdOrIndex: string | number): number {
     if (typeof datasetIdOrIndex === "number") {
         return datasetIdOrIndex;
     }
 
-    return chart.data.datasets.findIndex((dataset: any) => dataset.id === datasetIdOrIndex);
+    for (let i = 0; i < chart.data.datasets.length; i++) {
+        if (chart.data.datasets[i].id === datasetIdOrIndex) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
-function hasDatasetElement(chart: any, datasetIndex: number, dataIndex?: number): boolean {
+function hasDatasetElement(chart: ChartInstance, datasetIndex: number, dataIndex?: number): boolean {
     if (datasetIndex < 0 || datasetIndex >= chart.data.datasets.length) {
         return false;
     }
@@ -159,7 +162,8 @@ function hasDatasetElement(chart: any, datasetIndex: number, dataIndex?: number)
     }
 
     const dataset = chart.data.datasets[datasetIndex];
-    return dataIndex >= 0 && dataIndex < (dataset.data?.length ?? 0);
+    const datasetData = dataset.data as ArrayLike<unknown> | undefined;
+    return dataIndex >= 0 && dataIndex < (datasetData?.length ?? 0);
 }
 
 export function showDataset(chartId: string, datasetIdOrIndex: string | number, dataIndex?: number) {

@@ -1,8 +1,5 @@
 import type {
     Chart as ChartJsChart,
-    ChartConfiguration,
-    ChartDataset,
-    ChartOptions,
     Plugin
 } from "chart.js";
 

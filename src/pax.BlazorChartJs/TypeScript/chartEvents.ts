@@ -1,34 +1,73 @@
 import { chartJsInterop } from "./chartInteropState";
+import type {
+    ActiveElement,
+    AnimationEvent,
+    Chart as ChartJsChart,
+    ChartEvent,
+    ChartType,
+    LegendElement,
+    LegendItem
+} from "chart.js";
+import type { ChartInstance, ChartJsOptionsPayload } from "./types";
 
-declare const Chart: any;
+declare const Chart: {
+    helpers: {
+        getRelativePosition(event: Event, chart: ChartInstance): { x: number; y: number };
+    };
+};
 
-async function triggerEvent(chartId: string, event: string, source: string, data: any) {
+type ChartEventBridgeOptions = ChartJsOptionsPayload & {
+    animation?: {
+        onCompleteEvent?: boolean;
+        onProgressEvent?: boolean;
+    };
+    plugins?: {
+        legend?: {
+            onClickEvent?: boolean;
+            onHoverEvent?: boolean;
+            onLeaveEvent?: boolean;
+        };
+    };
+};
+
+type ChartPointOptionName = "onClick" | "onHover";
+type LegendEventName = "click" | "hover" | "leave";
+type LegendOptionName = "onClick" | "onHover" | "onLeave";
+type Size = { height: number; width: number };
+type ChartLegend = LegendElement<ChartType>;
+
+async function triggerEvent(chartId: string, event: string, source: string, data: unknown) {
     const dotnetRef = chartJsInterop.dotnetRefs.get(chartId);
     if (dotnetRef) {
         await dotnetRef.invokeMethodAsync("EventTriggered", event, source, data);
     }
 }
 
-function getChartPointEventArgs(e: any, chart: any) {
-    const points = chart.getElementsAtEventForMode(e, "nearest", { intersect: true }, true);
+function getChartPointEventArgs(e: ChartEvent, chart: ChartInstance) {
+    const nativeEvent = e.native;
+    const points = nativeEvent == undefined
+        ? []
+        : chart.getElementsAtEventForMode(nativeEvent, "nearest", { intersect: true }, true);
 
-    let label = "";
-    let value = 0;
+    let label: unknown = "";
+    let value: unknown = 0;
     let dataX = 0;
     let dataY = 0;
     let datasetLabel: string | null = null;
     let datasetIndex: number | null = null;
 
-    const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+    const canvasPosition = nativeEvent == undefined
+        ? { x: e.x ?? 0, y: e.y ?? 0 }
+        : Chart.helpers.getRelativePosition(nativeEvent, chart);
 
     // Substitute the appropriate scale IDs.
     // Not all chart types have x/y scales, e.g. pie/doughnut charts.
     try {
-        dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+        dataX = chart.scales.x.getValueForPixel(canvasPosition.x) ?? 0;
     } catch { }
 
     try {
-        dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
+        dataY = chart.scales.y.getValueForPixel(canvasPosition.y) ?? 0;
     } catch { }
 
     if (points.length) {
@@ -38,7 +77,7 @@ function getChartPointEventArgs(e: any, chart: any) {
 
         label = chart.data.labels?.[firstPoint.index] ?? "";
         datasetIndex = currentDatasetIndex;
-        value = currentDataset.data[firstPoint.index];
+        value = (currentDataset.data as ArrayLike<unknown> | undefined)?.[firstPoint.index] ?? 0;
         datasetLabel = currentDataset.label ?? null;
     }
 
@@ -53,22 +92,42 @@ function getChartPointEventArgs(e: any, chart: any) {
 }
 
 function registerChartPointEvent(
-    chart: any,
+    chart: ChartInstance,
     chartId: string,
     eventName: "click" | "hover",
-    optionName: "onClick" | "onHover"
+    optionName: ChartPointOptionName
 ) {
     const nativeCallback = typeof chart.options[optionName] === "function"
         ? chart.options[optionName]
         : undefined;
 
-    chart.options[optionName] = (e: any, elements: any[], chartInstance: any) => {
+    chart.options[optionName] = (e: ChartEvent, elements: ActiveElement[], chartInstance: ChartJsChart) => {
         nativeCallback?.call(chart, e, elements, chartInstance ?? chart);
         triggerEvent(chartId, eventName, "label", getChartPointEventArgs(e, chart));
     };
 }
 
-export function registerEvents(dotnetConfigOptions: any, chartId: string, chart: any) {
+function registerLegendEvent(
+    chart: ChartInstance,
+    chartId: string,
+    eventName: LegendEventName,
+    optionName: LegendOptionName
+) {
+    const legendOptions = chart.options.plugins?.legend;
+    if (legendOptions == undefined) {
+        return;
+    }
+    const nativeCallback = typeof legendOptions[optionName] === "function"
+        ? legendOptions[optionName]
+        : undefined;
+
+    legendOptions[optionName] = function (event: ChartEvent, legendItem: LegendItem, legend: ChartLegend) {
+        nativeCallback?.call(this, event, legendItem, legend);
+        triggerEvent(chartId, eventName, "legend", { Label: legendItem.text });
+    };
+}
+
+export function registerEvents(dotnetConfigOptions: ChartEventBridgeOptions, chartId: string, chart: ChartInstance) {
     // chart events
     if (dotnetConfigOptions.onClickEvent == true) {
         registerChartPointEvent(chart, chartId, "click", "onClick");
@@ -83,7 +142,7 @@ export function registerEvents(dotnetConfigOptions: any, chartId: string, chart:
             ? chart.options.onResize
             : undefined;
 
-        chart.options.onResize = (_chart: any, size: any) => {
+        chart.options.onResize = (_chart: ChartJsChart, size: Size) => {
             nativeOnResize?.call(chart, _chart, size);
             triggerEvent(chartId, "resize", "chart", {
                 Height: size.height,
@@ -96,38 +155,38 @@ export function registerEvents(dotnetConfigOptions: any, chartId: string, chart:
 
     // legend events
     if (dotnetConfigOptions.plugins?.legend?.onClickEvent == true) {
-        chart.options.plugins.legend.onClick = (_event: any, legendItem: any, _legend: any) => {
-            triggerEvent(chartId, "click", "legend", { Label: legendItem.text });
-        };
+        registerLegendEvent(chart, chartId, "click", "onClick");
     }
 
     if (dotnetConfigOptions.plugins?.legend?.onHoverEvent == true) {
-        chart.options.plugins.legend.onHover = (_event: any, legendItem: any, _legend: any) => {
-            triggerEvent(chartId, "hover", "legend", { Label: legendItem.text });
-        };
+        registerLegendEvent(chart, chartId, "hover", "onHover");
     }
 
     if (dotnetConfigOptions.plugins?.legend?.onLeaveEvent == true) {
-        chart.options.plugins.legend.onLeave = (_event: any, legendItem: any, _legend: any) => {
-            triggerEvent(chartId, "leave", "legend", { Label: legendItem.text });
-        };
+        registerLegendEvent(chart, chartId, "leave", "onLeave");
     }
 
     // animation events
     if (dotnetConfigOptions.animation?.onProgressEvent == true) {
-        chart.options.animation.onProgress = (context: any) => {
-            triggerEvent(chartId, "progress", "animation", {
-                CurrentStep: context.currentStep,
-                NumSteps: context.numSteps
-            });
-        };
+        const animation = chart.options.animation;
+        if (animation && typeof animation === "object") {
+            animation.onProgress = (context: AnimationEvent) => {
+                triggerEvent(chartId, "progress", "animation", {
+                    CurrentStep: context.currentStep,
+                    NumSteps: context.numSteps
+                });
+            };
+        }
     }
 
     if (dotnetConfigOptions.animation?.onCompleteEvent == true) {
-        chart.options.animation.onComplete = (context: any) => {
-            triggerEvent(chartId, "complete", "animation", {
-                Initial: context.initial
-            });
-        };
+        const animation = chart.options.animation;
+        if (animation && typeof animation === "object") {
+            animation.onComplete = (context: AnimationEvent) => {
+                triggerEvent(chartId, "complete", "animation", {
+                    Initial: context.initial
+                });
+            };
+        }
     }
 }
