@@ -3,15 +3,30 @@ import { resolveChartJsFunctions } from "./chartCallbacks";
 import { registerEvents } from "./chartEvents";
 import { getLiveChart } from "./chartLifecycle";
 import { isSetupOptions, parseArrayPayload, parsePayload } from "./payload";
+import type { UpdateMode } from "chart.js";
 import type {
     AddDataPayloadMap,
     BinaryDataFormat,
     BinaryDatasetPayloadMetadata,
     ChartInstance,
     ChartJsDatasetPayload,
+    ChartJsOptionsPayload,
+    ChartSetupOptionsPayload,
+    DatasetDataPayload,
     InteropChartDataset,
     SetDataPayloadMap
 } from "./types";
+
+type DatasetListPayload = ChartJsDatasetPayload[] | string | null | undefined;
+type DatasetPayload = ChartJsDatasetPayload | string | null | undefined;
+type DatasetListOrCallbackFlag = DatasetListPayload | boolean;
+type DatasetOrCallbackFlag = DatasetPayload | boolean;
+
+type ResolvedDatasetListArguments = {
+    setupOptions: ChartSetupOptionsPayload | null | undefined;
+    datasets: ChartJsDatasetPayload[] | null | undefined;
+    hasChartJsFunctions: boolean;
+};
 
 type MutableInteropDatasetData = {
     length: number;
@@ -20,14 +35,46 @@ type MutableInteropDatasetData = {
     splice(start: number, deleteCount: number, value: unknown): unknown[];
 };
 
-export function addLabel(chart: ChartInstance, label: string, pos: number) {
+function resolveDatasetListArguments(
+    setupOptionsOrDatasets: ChartSetupOptionsPayload | DatasetListPayload,
+    datasetsOrHasChartJsFunctions?: DatasetListOrCallbackFlag,
+    hasChartJsFunctions?: boolean
+): ResolvedDatasetListArguments {
+    if (Array.isArray(setupOptionsOrDatasets) || typeof setupOptionsOrDatasets === "string") {
+        return {
+            setupOptions: undefined,
+            datasets: parseArrayPayload<ChartJsDatasetPayload>(setupOptionsOrDatasets),
+            hasChartJsFunctions: datasetsOrHasChartJsFunctions === true
+        };
+    }
+
+    const datasetPayload = typeof datasetsOrHasChartJsFunctions === "boolean"
+        ? undefined
+        : datasetsOrHasChartJsFunctions;
+
+    return {
+        setupOptions: setupOptionsOrDatasets,
+        datasets: parseArrayPayload<ChartJsDatasetPayload>(datasetPayload),
+        hasChartJsFunctions: hasChartJsFunctions === true
+    };
+}
+
+function insertLabel(chart: ChartInstance, label: unknown, pos?: number | null) {
+    const labels = chart.data.labels;
+    if (labels == undefined) {
+        return;
+    }
+
+    if (pos == undefined) {
+        labels.push(label);
+    } else {
+        labels.splice(pos, 0, label);
+    }
+}
+
+export function addLabel(chart: ChartInstance, label: string | null | undefined, pos?: number | null) {
     if (label != undefined) {
-        const labels = chart.data.labels as string[];
-        if (pos == undefined) {
-            labels.push(label);
-        } else {
-            labels.splice(pos, 0, label);
-        }
+        insertLabel(chart, label, pos);
     }
 }
 
@@ -60,7 +107,7 @@ export function addBorderColor(dataset: InteropChartDataset, borderColor: string
     }
 }
 
-export function addData(chartId: string, label: string, pos: number, datas: AddDataPayloadMap) {
+export function addData(chartId: string, label: string | null | undefined, pos: number | null | undefined, datas: AddDataPayloadMap) {
     const chart = getLiveChart(chartId);
     if (chart == undefined) {
         return;
@@ -68,10 +115,11 @@ export function addData(chartId: string, label: string, pos: number, datas: AddD
 
     addLabel(chart, label, pos);
 
-    chart.data.datasets.forEach((dataset) => {
+    for (let i = 0; i < chart.data.datasets.length; i++) {
+        const dataset = chart.data.datasets[i];
         const datasetId = dataset.id;
         if (datasetId == undefined) {
-            return;
+            continue;
         }
 
         const addData = datas[datasetId];
@@ -86,7 +134,41 @@ export function addData(chartId: string, label: string, pos: number, datas: AddD
                 addBorderColor(dataset, addData.borderColor, addData.atPosition);
             }
         }
-    });
+    }
+    chart.update();
+}
+
+export function addChartDataToDatasets(
+    chartId: string,
+    label: string | null | undefined,
+    data: unknown[],
+    backgroundColors?: string[] | null,
+    borderColors?: string[] | null,
+    pos?: number | null
+) {
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
+
+    insertLabel(chart, label, pos);
+
+    const datasetCount = Math.min(data.length, chart.data.datasets.length);
+    for (let i = 0; i < datasetCount; i++) {
+        const dataset = chart.data.datasets[i];
+        addDatasetData(dataset, data[i], pos);
+
+        const backgroundColor = backgroundColors?.[i];
+        if (backgroundColor != undefined) {
+            addBackgroundColor(dataset, backgroundColor, pos);
+        }
+
+        const borderColor = borderColors?.[i];
+        if (borderColor != undefined) {
+            addBorderColor(dataset, borderColor, pos);
+        }
+    }
+
     chart.update();
 }
 
@@ -95,12 +177,13 @@ function removeDataCore(chart: ChartInstance) {
         return;
     }
 
-    const labels = chart.data.labels as unknown[];
-    if (!(labels.length == 0)) {
+    const labels = chart.data.labels;
+    if (labels != undefined && !(labels.length == 0)) {
         labels.pop();
     }
 
-    chart.data.datasets.forEach((dataset) => {
+    for (let i = 0; i < chart.data.datasets.length; i++) {
+        const dataset = chart.data.datasets[i];
         const datasetData = dataset.data as MutableInteropDatasetData;
         if (!(datasetData.length == 0)) {
             datasetData.pop();
@@ -115,7 +198,7 @@ function removeDataCore(chart: ChartInstance) {
             && !(dataset.borderColor.length == 0)) {
             dataset.borderColor.pop();
         }
-    });
+    }
     chart.update();
 }
 
@@ -128,7 +211,7 @@ export function removeData(chartId: string) {
     removeDataCore(chart);
 }
 
-function setDataCore(chart: ChartInstance, labels: string[], datas: SetDataPayloadMap) {
+function setDataCore(chart: ChartInstance, labels: string[] | null | undefined, datas: SetDataPayloadMap) {
     if (!chart || !chart.data) {
         return;
     }
@@ -137,10 +220,11 @@ function setDataCore(chart: ChartInstance, labels: string[], datas: SetDataPaylo
         chart.data.labels = labels;
     }
 
-    chart.data.datasets.forEach((dataset) => {
+    for (let i = 0; i < chart.data.datasets.length; i++) {
+        const dataset = chart.data.datasets[i];
         const datasetId = dataset.id;
         if (datasetId == undefined) {
-            return;
+            continue;
         }
 
         const addData = datas[datasetId];
@@ -156,17 +240,35 @@ function setDataCore(chart: ChartInstance, labels: string[], datas: SetDataPaylo
                 dataset.borderColor = addData.borderColor;
             }
         }
-    });
+    }
     chart.update();
 }
 
-export function setData(chartId: string, labels: string[], datas: SetDataPayloadMap) {
+export function setData(chartId: string, labels: string[] | null | undefined, datas: SetDataPayloadMap) {
     const chart = getLiveChart(chartId);
     if (!chart) {
         return;
     }
 
     setDataCore(chart, labels, datas);
+}
+
+export function setDatasetsData(chartId: string, data: DatasetDataPayload[]) {
+    const chart = getLiveChart(chartId);
+    if (!chart) {
+        return;
+    }
+
+    const datasetsById = createDatasetMap(chart.data.datasets);
+    for (let i = 0; i < data.length; i++) {
+        const payload = data[i];
+        const dataset = datasetsById.get(payload.datasetId);
+        if (dataset != undefined) {
+            dataset.data = payload.data;
+        }
+    }
+
+    chart.update();
 }
 
 function createDatasetMap(datasets: InteropChartDataset[]): Map<string, InteropChartDataset> {
@@ -190,7 +292,7 @@ export function setDatasetBinaryData(
     xOffset = 0,
     yOffset = 0,
     byteStride?: number | null,
-    updateMode = "none") {
+    updateMode: UpdateMode = "none") {
     setDatasetsBinaryData(
         chartId,
         [{
@@ -208,7 +310,7 @@ export function setDatasetBinaryData(
 export function setDatasetsBinaryData(
     chartId: string,
     payloads: BinaryDatasetPayloadMetadata[],
-    updateMode: string,
+    updateMode: UpdateMode,
     ...binaryPayloads: Uint8Array[]) {
     const chart = getLiveChart(chartId);
     if (!chart) {
@@ -218,7 +320,7 @@ export function setDatasetsBinaryData(
     setDatasetsBinaryDataCore(chart, payloads, updateMode, binaryPayloads);
 }
 
-function setDatasetsBinaryDataCore(chart: ChartInstance, payloads: BinaryDatasetPayloadMetadata[], updateMode: string, binaryPayloads: Uint8Array[]) {
+function setDatasetsBinaryDataCore(chart: ChartInstance, payloads: BinaryDatasetPayloadMetadata[], updateMode: UpdateMode, binaryPayloads: Uint8Array[]) {
     if (!chart || !chart.data) {
         return;
     }
@@ -238,7 +340,7 @@ function setDatasetsBinaryDataCore(chart: ChartInstance, payloads: BinaryDataset
         dataset.data = decodeBinaryDatasetData(binaryPayloads[i], payload);
     }
 
-    chart.update((updateMode ?? "none") as any);
+    chart.update(updateMode ?? "none");
 }
 
 function addDatasetsCore(chart: ChartInstance, datasets: ChartJsDatasetPayload[]) {
@@ -252,18 +354,24 @@ function addDatasetsCore(chart: ChartInstance, datasets: ChartJsDatasetPayload[]
     chart.update();
 }
 
-export async function addDatasets(chartId: string, setupOptionsOrDatasets: any, datasets?: ChartJsDatasetPayload[], hasChartJsFunctions?: boolean) {
-    const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
-    const resolvedDatasets = parseArrayPayload<ChartJsDatasetPayload>(Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets);
-    const resolvedHasChartJsFunctions = Array.isArray(setupOptionsOrDatasets) ? datasets : hasChartJsFunctions;
-    await resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } }, resolvedHasChartJsFunctions === true);
+export async function addDatasets(
+    chartId: string,
+    setupOptionsOrDatasets: ChartSetupOptionsPayload | DatasetListPayload,
+    datasetsOrHasChartJsFunctions?: DatasetListOrCallbackFlag,
+    hasChartJsFunctions?: boolean
+) {
+    const resolvedArguments = resolveDatasetListArguments(setupOptionsOrDatasets, datasetsOrHasChartJsFunctions, hasChartJsFunctions);
+    await resolveChartJsFunctions(
+        resolvedArguments.setupOptions,
+        { data: { datasets: resolvedArguments.datasets } },
+        resolvedArguments.hasChartJsFunctions);
 
     const chart = getLiveChart(chartId);
-    if (!chart || !resolvedDatasets) {
+    if (!chart || !resolvedArguments.datasets) {
         return;
     }
 
-    addDatasetsCore(chart, resolvedDatasets);
+    addDatasetsCore(chart, resolvedArguments.datasets);
 }
 
 function addDatasetCore(chart: ChartInstance, dataset: ChartJsDatasetPayload, afterDatasetId: string | null | undefined) {
@@ -285,23 +393,13 @@ function addDatasetCore(chart: ChartInstance, dataset: ChartJsDatasetPayload, af
     chart.update();
 }
 
-function* reverseKeys(arr: any[]) {
-    let key = arr.length - 1;
-
-    while (key >= 0) {
-        yield key;
-        key -= 1;
-    }
-}
-
-
 function removeDatasetsCore(chart: ChartInstance, datasetIds: string[]) {
     if (!chart || !chart.data) {
         return;
     }
 
     const datasetIdSet = new Set(datasetIds);
-    for (const index of reverseKeys(chart.data.datasets)) {
+    for (let index = chart.data.datasets.length - 1; index >= 0; index--) {
         const dataset = chart.data.datasets[index];
         if (dataset.id != undefined && datasetIdSet.has(dataset.id)) {
             chart.data.datasets.splice(index, 1);
@@ -319,33 +417,44 @@ export function removeDatasets(chartId: string, datasetIds: string[]) {
     removeDatasetsCore(chart, datasetIds);
 }
 
+export function removeDataset(chartId: string, datasetId: string) {
+    removeDatasets(chartId, [datasetId]);
+}
+
 function updateDatasetsSmoothCore(chart: ChartInstance, datasets: ChartJsDatasetPayload[]) {
     if (!chart || !chart.data) {
         return;
     }
 
     const existingDatasetsById = createDatasetMap(chart.data.datasets);
-    datasets.forEach((newDataset) => {
+    for (let i = 0; i < datasets.length; i++) {
+        const newDataset = datasets[i];
         const existingDataset = existingDatasetsById.get(newDataset.id);
         if (existingDataset != undefined) {
             assignDatasetSmooth(existingDataset, newDataset);
         }
-    });
+    }
     chart.update();
 }
 
-export async function updateDatasetsSmooth(chartId: string, setupOptionsOrDatasets: any, datasets?: ChartJsDatasetPayload[], hasChartJsFunctions?: boolean) {
-    const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
-    const resolvedDatasets = parseArrayPayload<ChartJsDatasetPayload>(Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets);
-    const resolvedHasChartJsFunctions = Array.isArray(setupOptionsOrDatasets) ? datasets : hasChartJsFunctions;
-    await resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } }, resolvedHasChartJsFunctions === true);
+export async function updateDatasetsSmooth(
+    chartId: string,
+    setupOptionsOrDatasets: ChartSetupOptionsPayload | DatasetListPayload,
+    datasetsOrHasChartJsFunctions?: DatasetListOrCallbackFlag,
+    hasChartJsFunctions?: boolean
+) {
+    const resolvedArguments = resolveDatasetListArguments(setupOptionsOrDatasets, datasetsOrHasChartJsFunctions, hasChartJsFunctions);
+    await resolveChartJsFunctions(
+        resolvedArguments.setupOptions,
+        { data: { datasets: resolvedArguments.datasets } },
+        resolvedArguments.hasChartJsFunctions);
 
     const chart = getLiveChart(chartId);
-    if (!chart || !resolvedDatasets) {
+    if (!chart || !resolvedArguments.datasets) {
         return;
     }
 
-    updateDatasetsSmoothCore(chart, resolvedDatasets);
+    updateDatasetsSmoothCore(chart, resolvedArguments.datasets);
 }
 
 function updateDatasetsCore(chart: ChartInstance, datasets: ChartJsDatasetPayload[]) {
@@ -361,27 +470,34 @@ function updateDatasetsCore(chart: ChartInstance, datasets: ChartJsDatasetPayloa
         }
     }
 
-    datasets.forEach((dataset) => {
+    for (let i = 0; i < datasets.length; i++) {
+        const dataset = datasets[i];
         const datasetIndex = datasetIndexesById.get(dataset.id);
         if (datasetIndex != undefined) {
             chart.data.datasets[datasetIndex] = dataset;
         }
-    });
+    }
     chart.update();
 }
 
-export async function updateDatasets(chartId: string, setupOptionsOrDatasets: any, datasets?: ChartJsDatasetPayload[], hasChartJsFunctions?: boolean) {
-    const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
-    const resolvedDatasets = parseArrayPayload<ChartJsDatasetPayload>(Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets);
-    const resolvedHasChartJsFunctions = Array.isArray(setupOptionsOrDatasets) ? datasets : hasChartJsFunctions;
-    await resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } }, resolvedHasChartJsFunctions === true);
+export async function updateDatasets(
+    chartId: string,
+    setupOptionsOrDatasets: ChartSetupOptionsPayload | DatasetListPayload,
+    datasetsOrHasChartJsFunctions?: DatasetListOrCallbackFlag,
+    hasChartJsFunctions?: boolean
+) {
+    const resolvedArguments = resolveDatasetListArguments(setupOptionsOrDatasets, datasetsOrHasChartJsFunctions, hasChartJsFunctions);
+    await resolveChartJsFunctions(
+        resolvedArguments.setupOptions,
+        { data: { datasets: resolvedArguments.datasets } },
+        resolvedArguments.hasChartJsFunctions);
 
     const chart = getLiveChart(chartId);
-    if (!chart || !resolvedDatasets) {
+    if (!chart || !resolvedArguments.datasets) {
         return;
     }
 
-    updateDatasetsCore(chart, resolvedDatasets);
+    updateDatasetsCore(chart, resolvedArguments.datasets);
 }
 
 function setDatasetsCore(chart: ChartInstance, datasets: ChartJsDatasetPayload[]) {
@@ -393,18 +509,24 @@ function setDatasetsCore(chart: ChartInstance, datasets: ChartJsDatasetPayload[]
     chart.update();
 }
 
-export async function setDatasets(chartId: string, setupOptionsOrDatasets: any, datasets?: ChartJsDatasetPayload[], hasChartJsFunctions?: boolean) {
-    const setupOptions = Array.isArray(setupOptionsOrDatasets) ? undefined : setupOptionsOrDatasets;
-    const resolvedDatasets = parseArrayPayload<ChartJsDatasetPayload>(Array.isArray(setupOptionsOrDatasets) ? setupOptionsOrDatasets : datasets);
-    const resolvedHasChartJsFunctions = Array.isArray(setupOptionsOrDatasets) ? datasets : hasChartJsFunctions;
-    await resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasets } }, resolvedHasChartJsFunctions === true);
+export async function setDatasets(
+    chartId: string,
+    setupOptionsOrDatasets: ChartSetupOptionsPayload | DatasetListPayload,
+    datasetsOrHasChartJsFunctions?: DatasetListOrCallbackFlag,
+    hasChartJsFunctions?: boolean
+) {
+    const resolvedArguments = resolveDatasetListArguments(setupOptionsOrDatasets, datasetsOrHasChartJsFunctions, hasChartJsFunctions);
+    await resolveChartJsFunctions(
+        resolvedArguments.setupOptions,
+        { data: { datasets: resolvedArguments.datasets } },
+        resolvedArguments.hasChartJsFunctions);
 
     const chart = getLiveChart(chartId);
-    if (!chart || !resolvedDatasets) {
+    if (!chart || !resolvedArguments.datasets) {
         return;
     }
 
-    setDatasetsCore(chart, resolvedDatasets);
+    setDatasetsCore(chart, resolvedArguments.datasets);
 }
 
 function applyDatasetChangesSmoothCore(
@@ -414,7 +536,7 @@ function applyDatasetChangesSmoothCore(
     datasetsToUpdateSmooth: ChartJsDatasetPayload[],
     datasetIdsToRemove: string[],
     labels: string[] | null | undefined,
-    options: any,
+    options: ChartJsOptionsPayload | null | undefined,
     beforeUpdate?: () => void) {
     if (!chart || !chart.data) {
         return;
@@ -464,30 +586,31 @@ function applyDatasetChangesSmoothCore(
 
 export async function applyDatasetChangesSmooth(
     chartId: string,
-    setupOptions: any,
+    setupOptions: ChartSetupOptionsPayload | null | undefined,
     desiredDatasetIds: string[],
     datasetsToAdd: ChartJsDatasetPayload[],
     datasetsToUpdateSmooth: ChartJsDatasetPayload[],
     datasetIdsToRemove: string[],
     labels?: string[] | null,
-    options?: any,
+    options?: ChartJsOptionsPayload | string | null,
     hasChartJsFunctions?: boolean) {
     const resolvedDatasetsToAdd = parseArrayPayload<ChartJsDatasetPayload>(datasetsToAdd) ?? [];
     const resolvedDatasetsToUpdateSmooth = parseArrayPayload<ChartJsDatasetPayload>(datasetsToUpdateSmooth) ?? [];
     const resolvedDatasetIdsToRemove = datasetIdsToRemove ?? [];
-    const resolvedOptions = parsePayload(options);
+    const resolvedOptions = parsePayload<ChartJsOptionsPayload>(options);
 
     if (hasChartJsFunctions === true) {
-        const config: any = {};
-        if (resolvedDatasetsToAdd.length > 0 || resolvedDatasetsToUpdateSmooth.length > 0) {
-            config.data = { datasets: resolvedDatasetsToAdd.concat(resolvedDatasetsToUpdateSmooth) };
+        if (resolvedDatasetsToAdd.length > 0) {
+            await resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasetsToAdd } }, true);
+        }
+
+        if (resolvedDatasetsToUpdateSmooth.length > 0) {
+            await resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasetsToUpdateSmooth } }, true);
         }
 
         if (resolvedOptions != undefined) {
-            config.options = resolvedOptions;
+            await resolveChartJsFunctions(setupOptions, { options: resolvedOptions }, true);
         }
-
-        await resolveChartJsFunctions(setupOptions, config, true);
     }
 
     const chart = getLiveChart(chartId);
@@ -520,10 +643,19 @@ export function assignDatasetSmooth(existingDataset: InteropChartDataset, newDat
     }
 }
 
-export async function addChartDataset(chartId: string, setupOptionsOrDataset: any, datasetOrHasChartJsFunctions?: any, hasChartJsFunctionsOrAfterDatasetId?: boolean | string | null, afterDatasetId?: string | null) {
+export async function addChartDataset(
+    chartId: string,
+    setupOptionsOrDataset: ChartSetupOptionsPayload | DatasetPayload,
+    datasetOrHasChartJsFunctions?: DatasetOrCallbackFlag,
+    hasChartJsFunctionsOrAfterDatasetId?: boolean | string | null,
+    afterDatasetId?: string | null
+) {
     const hasSetupOptions = arguments.length >= 5 || isSetupOptions(setupOptionsOrDataset);
-    const setupOptions = hasSetupOptions ? setupOptionsOrDataset : undefined;
-    const dataset = parsePayload<ChartJsDatasetPayload>(hasSetupOptions ? datasetOrHasChartJsFunctions : setupOptionsOrDataset);
+    const setupOptions = hasSetupOptions ? setupOptionsOrDataset as ChartSetupOptionsPayload | null | undefined : undefined;
+    const datasetPayload = hasSetupOptions && typeof datasetOrHasChartJsFunctions !== "boolean"
+        ? datasetOrHasChartJsFunctions
+        : setupOptionsOrDataset as DatasetPayload;
+    const dataset = parsePayload<ChartJsDatasetPayload>(datasetPayload);
     const resolvedHasChartJsFunctions = hasSetupOptions ? hasChartJsFunctionsOrAfterDatasetId : datasetOrHasChartJsFunctions;
     const resolvedAfterDatasetId = hasSetupOptions
         ? afterDatasetId

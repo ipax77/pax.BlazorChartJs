@@ -87,6 +87,11 @@ export type SetDataPayload = {
 
 export type SetDataPayloadMap = Record<string, SetDataPayload>;
 
+export type DatasetDataPayload = {
+    datasetId: string;
+    data: unknown[];
+};
+
 export type BinaryDataFormat =
     | "Float64XY"
     | "Float32XY"

@@ -28,9 +28,12 @@ export {
 } from "./chartCommands";
 
 export {
+    addChartDataToDatasets,
     addData,
     removeData,
+    removeDataset,
     setData,
+    setDatasetsData,
     setDatasetBinaryData,
     setDatasetsBinaryData,
     addDatasets,
@@ -42,6 +45,17 @@ export {
     setDatasets
 } from "./chartDatasets";
 
-(chartJsInterop as any).resolveChartJsFunctions = resolveChartJsFunctions;
-(window as any).ChartJsInterop = chartJsInterop;
-(window as any).chartJsInteropVersion = chartJsInteropVersion;
+type ChartJsInteropGlobal = typeof chartJsInterop & {
+    resolveChartJsFunctions: typeof resolveChartJsFunctions;
+};
+
+declare global {
+    interface Window {
+        ChartJsInterop: ChartJsInteropGlobal;
+        chartJsInteropVersion: string;
+    }
+}
+
+const chartJsInteropGlobal = Object.assign(chartJsInterop, { resolveChartJsFunctions });
+window.ChartJsInterop = chartJsInteropGlobal;
+window.chartJsInteropVersion = chartJsInteropVersion;
