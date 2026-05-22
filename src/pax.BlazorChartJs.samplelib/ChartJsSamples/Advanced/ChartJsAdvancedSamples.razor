@@ -5,6 +5,9 @@
     case "derived-axis-type":
         <ChartJsAdvancedDerivedAxisTypeSample />
         break;
+    case "derived-chart-type":
+        <ChartJsAdvancedDerivedChartTypeSample />
+        break;
     default:
         <ChartJsAdvancedDataDecimationSample />
         break;
@@ -16,7 +19,7 @@
 
     private string ResolvedSampleId => SampleId switch
     {
-        "data-decimation" or "derived-axis-type" => SampleId,
+        "data-decimation" or "derived-axis-type" or "derived-chart-type" => SampleId,
         _ => "data-decimation",
     };
 }

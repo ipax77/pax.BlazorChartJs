@@ -193,7 +193,7 @@ Re-check the docs section sidebar before implementing each group because the `la
 - [ ] Advanced
   - [x] Data Decimation (`samples/advanced/data-decimation.html`)
   - [x] Derived Axis Type (`samples/advanced/derived-axis-type.html`)
-  - [ ] Derived Chart Type (`samples/advanced/derived-chart-type.html`)
+  - [x] Derived Chart Type (`samples/advanced/derived-chart-type.html`)
   - [ ] Linear Gradient (`samples/advanced/linear-gradient.html`)
   - [ ] Programmatic Event Triggers (`samples/advanced/programmatic-events.html`)
   - [ ] Animation Progress Bar (`samples/advanced/progress-bar.html`)
