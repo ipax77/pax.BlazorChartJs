@@ -20,6 +20,7 @@ The core package lives in `src/pax.BlazorChartJs`. The most important runtime pi
 - `tests/pax.BlazorChartJs.tests`: MSTest serialization and model behavior tests.
 - `tests/pax.BlazorChartJs.pwtests`: Playwright/NUnit browser behavior tests against the Blazor test app.
 - `.github/workflows`: CI definitions for serialization tests, Playwright tests, and GitHub Pages publishing.
+- The public GitHub wiki is maintained in its own repository checkout. In this workspace it is usually available as the sibling directory `../pax.BlazorChartJs.wiki`.
 
 ## Development Guidance
 
@@ -29,6 +30,15 @@ The core package lives in `src/pax.BlazorChartJs`. The most important runtime pi
 - Preserve nullable annotations and analyzer expectations. The core project treats nullable warnings as errors.
 - When adding Chart.js options or datasets, update the source-generated JSON context and converters as needed so serialization remains predictable and AOT-friendly.
 - Use the sample library as the source of practical examples. Add or update samples when a user-facing feature benefits from a visible chart scenario.
+- Treat public documentation as part of user-facing changes. Review the README, samples, and wiki when APIs, setup steps, sample routes, callbacks, plugins, events, legends, or helper methods change.
+
+## Documentation Guidance
+
+- The GitHub wiki is a separate git repository from the library checkout. Keep wiki edits in `../pax.BlazorChartJs.wiki` when that sibling checkout is available.
+- The wiki explains basic and advanced usage from the public sample app, including screenshots and links back to sample or library source files.
+- Update or review the wiki when a change adds a useful visible sample, changes an API that a guide demonstrates, moves linked source files or sample routes, or changes chart output shown by a screenshot.
+- Prefer sample-library examples for wiki snippets so documentation stays close to executable chart scenarios.
+- For wiki image updates, store assets in the wiki-local `images` folder and keep Markdown image links relative.
 
 ## Performance Guidance
 
@@ -43,7 +53,7 @@ The library surface has no database interactions, so database performance is gen
 
 ## Verification
 
-For documentation-only changes, a manual review is usually enough. For code changes, choose the smallest test set that covers the risk:
+For documentation-only changes, a manual review is usually enough. Check wiki navigation, relative image links, and source links when the wiki changes. For code changes, choose the smallest test set that covers the risk:
 
 - Build core library: `dotnet build src\pax.BlazorChartJs\pax.BlazorChartJs.csproj`
 - Run serialization tests: `dotnet test tests\pax.BlazorChartJs.tests\pax.BlazorChartJs.tests.csproj`
