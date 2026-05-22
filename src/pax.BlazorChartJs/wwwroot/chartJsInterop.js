@@ -624,7 +624,8 @@ function setDatasetPointsActive(chartId, datasetIndex) {
   }
   const dataset = chart.data.datasets[datasetIndex];
   const elements = [];
-  for (let i = 0; i < dataset.data.length; i++) {
+  const datasetData = dataset.data;
+  for (let i = 0; i < datasetData.length; i++) {
     elements.push({ datasetIndex, index: i });
   }
   chart.setActiveElements(elements);
@@ -761,18 +762,20 @@ function decodeBinaryInt32Y(bytes, payload) {
 // TypeScript/chartDatasets.ts
 function addLabel(chart, label, pos) {
   if (label != void 0) {
+    const labels = chart.data.labels;
     if (pos == void 0) {
-      chart.data.labels.push(label);
+      labels.push(label);
     } else {
-      chart.data.labels.splice(pos, 0, label);
+      labels.splice(pos, 0, label);
     }
   }
 }
 function addDatasetData(dataset, data, pos) {
+  const datasetData = dataset.data;
   if (pos == void 0) {
-    dataset.data.push(data);
+    datasetData.push(data);
   } else {
-    dataset.data.splice(pos, 0, data);
+    datasetData.splice(pos, 0, data);
   }
 }
 function addBackgroundColor(dataset, backgroundColor, pos) {
@@ -800,14 +803,18 @@ function addData(chartId, label, pos, datas) {
   }
   addLabel(chart, label, pos);
   chart.data.datasets.forEach((dataset) => {
-    if (datas[dataset["id"]] != void 0) {
-      const addData2 = datas[dataset["id"]];
-      addDatasetData(dataset, addData2["data"], addData2["atPosition"]);
-      if (addData2["backgroundColor"] != void 0) {
-        addBackgroundColor(dataset, addData2["backgroundColor"], addData2["atPosition"]);
+    const datasetId = dataset.id;
+    if (datasetId == void 0) {
+      return;
+    }
+    const addData2 = datas[datasetId];
+    if (addData2 != void 0) {
+      addDatasetData(dataset, addData2.data, addData2.atPosition);
+      if (addData2.backgroundColor != void 0) {
+        addBackgroundColor(dataset, addData2.backgroundColor, addData2.atPosition);
       }
-      if (addData2["borderColor"] != void 0) {
-        addBorderColor(dataset, addData2["borderColor"], addData2["atPosition"]);
+      if (addData2.borderColor != void 0) {
+        addBorderColor(dataset, addData2.borderColor, addData2.atPosition);
       }
     }
   });
@@ -817,12 +824,14 @@ function removeDataCore(chart) {
   if (!chart || !chart.data) {
     return;
   }
-  if (!(chart.data.labels.length == 0)) {
-    chart.data.labels.pop();
+  const labels = chart.data.labels;
+  if (!(labels.length == 0)) {
+    labels.pop();
   }
   chart.data.datasets.forEach((dataset) => {
-    if (!(dataset.data.length == 0)) {
-      dataset.data.pop();
+    const datasetData = dataset.data;
+    if (!(datasetData.length == 0)) {
+      datasetData.pop();
     }
     if (Array.isArray(dataset.backgroundColor) && !(dataset.backgroundColor.length == 0)) {
       dataset.backgroundColor.pop();
@@ -848,14 +857,18 @@ function setDataCore(chart, labels, datas) {
     chart.data.labels = labels;
   }
   chart.data.datasets.forEach((dataset) => {
-    if (datas[dataset["id"]] != void 0) {
-      const addData2 = datas[dataset["id"]];
-      dataset.data = addData2["data"];
-      if (addData2["backgroundColor"] != void 0) {
-        dataset.backgroundColor = addData2["backgroundColor"];
+    const datasetId = dataset.id;
+    if (datasetId == void 0) {
+      return;
+    }
+    const addData2 = datas[datasetId];
+    if (addData2 != void 0) {
+      dataset.data = addData2.data;
+      if (addData2.backgroundColor != void 0) {
+        dataset.backgroundColor = addData2.backgroundColor;
       }
-      if (addData2["borderColor"] != void 0) {
-        dataset.borderColor = addData2["borderColor"];
+      if (addData2.borderColor != void 0) {
+        dataset.borderColor = addData2.borderColor;
       }
     }
   });
@@ -871,7 +884,10 @@ function setData(chartId, labels, datas) {
 function createDatasetMap(datasets) {
   const datasetsById = /* @__PURE__ */ new Map();
   for (let i = 0; i < datasets.length; i++) {
-    datasetsById.set(datasets[i]["id"], datasets[i]);
+    const dataset = datasets[i];
+    if (dataset.id != void 0) {
+      datasetsById.set(dataset.id, dataset);
+    }
   }
   return datasetsById;
 }
@@ -942,7 +958,7 @@ function addDatasetCore(chart, dataset, afterDatasetId) {
   if (afterDatasetId == void 0) {
     chart.data.datasets.push(dataset);
   } else {
-    const datasetIndex = chart.data.datasets.findIndex((existingDataset) => existingDataset["id"] === afterDatasetId);
+    const datasetIndex = chart.data.datasets.findIndex((existingDataset) => existingDataset.id === afterDatasetId);
     if (datasetIndex >= 0) {
       chart.data.datasets.splice(datasetIndex + 1, 0, dataset);
     } else {
@@ -965,7 +981,7 @@ function removeDatasetsCore(chart, datasetIds) {
   const datasetIdSet = new Set(datasetIds);
   for (const index of reverseKeys(chart.data.datasets)) {
     const dataset = chart.data.datasets[index];
-    if (datasetIdSet.has(dataset["id"])) {
+    if (dataset.id != void 0 && datasetIdSet.has(dataset.id)) {
       chart.data.datasets.splice(index, 1);
     }
   }
@@ -984,7 +1000,7 @@ function updateDatasetsSmoothCore(chart, datasets) {
   }
   const existingDatasetsById = createDatasetMap(chart.data.datasets);
   datasets.forEach((newDataset) => {
-    const existingDataset = existingDatasetsById.get(newDataset["id"]);
+    const existingDataset = existingDatasetsById.get(newDataset.id);
     if (existingDataset != void 0) {
       assignDatasetSmooth(existingDataset, newDataset);
     }
@@ -1008,10 +1024,13 @@ function updateDatasetsCore(chart, datasets) {
   }
   const datasetIndexesById = /* @__PURE__ */ new Map();
   for (let i = 0; i < chart.data.datasets.length; i++) {
-    datasetIndexesById.set(chart.data.datasets[i]["id"], i);
+    const datasetId = chart.data.datasets[i].id;
+    if (datasetId != void 0) {
+      datasetIndexesById.set(datasetId, i);
+    }
   }
   datasets.forEach((dataset) => {
-    const datasetIndex = datasetIndexesById.get(dataset["id"]);
+    const datasetIndex = datasetIndexesById.get(dataset.id);
     if (datasetIndex != void 0) {
       chart.data.datasets[datasetIndex] = dataset;
     }
@@ -1061,14 +1080,14 @@ function applyDatasetChangesSmoothCore(chart, desiredDatasetIds, datasetsToAdd, 
   const candidateDatasetsById = createDatasetMap(chart.data.datasets);
   for (let i = 0; i < datasetsToAdd.length; i++) {
     const dataset = datasetsToAdd[i];
-    const datasetId = dataset["id"];
+    const datasetId = dataset.id;
     if (!removeDatasetIdSet.has(datasetId)) {
       candidateDatasetsById.set(datasetId, dataset);
     }
   }
   for (let i = 0; i < datasetsToUpdateSmooth.length; i++) {
     const newDataset = datasetsToUpdateSmooth[i];
-    const datasetId = newDataset["id"];
+    const datasetId = newDataset.id;
     const existingDataset = candidateDatasetsById.get(datasetId);
     if (!removeDatasetIdSet.has(datasetId) && existingDataset != void 0) {
       assignDatasetSmooth(existingDataset, newDataset);

@@ -1,5 +1,5 @@
 import { chartJsInterop } from "./chartInteropState";
-import { ChartJsCallback, ChartJsCallbackRegistry } from "./types";
+import type { ChartJsCallback, ChartJsCallbackRegistry } from "./types";
 
 const chartJsFunctionMarker = "__chartJsFunction";
 const chartJsFunctionNamePattern = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
