@@ -1,5 +1,6 @@
 const fillPatternCache = new WeakMap();
 const externalTooltipCache = new WeakMap();
+const linearGradientCache = new WeakMap();
 const latestLabelPaddingSmall = Object.freeze({ top: 20, left: 8, bottom: 8, right: 70 });
 const latestLabelPaddingLarge = Object.freeze({ top: 20, left: 8, bottom: 8, right: 30 });
 
@@ -24,6 +25,24 @@ function createFillPattern(chart) {
     fillPatternCache.set(chart, pattern);
 
     return pattern;
+}
+
+function getLinearGradient(chart, chartArea) {
+    const width = chartArea.right - chartArea.left;
+    const height = chartArea.bottom - chartArea.top;
+    const cached = linearGradientCache.get(chart);
+
+    if (cached && cached.width === width && cached.height === height) {
+        return cached.gradient;
+    }
+
+    const gradient = chart.ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+    gradient.addColorStop(0, '#36a2eb');
+    gradient.addColorStop(0.5, '#ffcd56');
+    gradient.addColorStop(1, '#ff6384');
+    linearGradientCache.set(chart, { width, height, gradient });
+
+    return gradient;
 }
 
 function getTooltipRawValue(item) {
@@ -275,6 +294,14 @@ const callbacks = Object.assign(Object.create(null), {
     },
     createRepeatFillPattern(context) {
         return createFillPattern(context.chart);
+    },
+    linearGradientBorderColor(context) {
+        const { chart } = context;
+        if (!chart.chartArea) {
+            return undefined;
+        }
+
+        return getLinearGradient(chart, chart.chartArea);
     },
     linePointStyleTitle(context) {
         return `Point Style: ${context.chart.data.datasets[0].pointStyle}`;

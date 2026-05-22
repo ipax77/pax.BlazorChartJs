@@ -990,6 +990,54 @@ public class ChartJsSamplesTests : PageTest
     }
 
     [Test]
+    public async Task AdvancedLinearGradientUsesCallbackAndOfficialDataActions()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/advanced/linear-gradient");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Linear Gradient", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var sample = Page.Locator("[data-chartjs-sample='linear-gradient']");
+        await Expect(sample).ToHaveCountAsync(1);
+        await Expect(sample.Locator("[data-sample-action]")).ToHaveCountAsync(3);
+        await Expect(sample.Locator("canvas"))
+            .ToHaveCountAsync(1, new LocatorAssertionsToHaveCountOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await sample.Locator("canvas").GetAttributeAsync("id");
+        var initialDataCount = await GetFirstDatasetDataCount(canvasId);
+        var beforeRandomize = await GetFirstDatasetDataJson(canvasId);
+
+        Assert.That(await GetChartOptionJson(canvasId, "typeof chart.config.data.datasets[0].borderColor"), Is.EqualTo("\"function\""));
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("Type = ChartType.line");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("getLinearGradient");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code")).ToContainTextAsync("linearGradientBorderColor");
+        await Expect(Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Linear Gradient", Exact = true })).ToBeVisibleAsync();
+
+        await Page.Locator("[data-sample-action='linear-gradient-randomize']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataJson(canvasId), Is.Not.EqualTo(beforeRandomize));
+
+        await Page.Locator("[data-sample-action='linear-gradient-add-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount + 1));
+        Assert.That(await GetLastLabel(canvasId), Is.EqualTo("August"));
+
+        await Page.Locator("[data-sample-action='linear-gradient-remove-data']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetFirstDatasetDataCount(canvasId), Is.EqualTo(initialDataCount));
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("Data = RandomNumbers(7)");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("ChartJsFunction.FromName(\"linearGradientBorderColor\")");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("getGradient");
+
+        await Page.Locator("[data-code-tab='actions']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("config.SetData");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("config.AddData");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("Remove Data");
+    }
+
+    [Test]
     public async Task BacklogTitleAlignmentActionUpdatesOptions()
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/title/alignment");
