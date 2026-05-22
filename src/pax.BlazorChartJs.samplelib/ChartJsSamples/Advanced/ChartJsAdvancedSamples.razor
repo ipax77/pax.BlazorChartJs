@@ -8,6 +8,9 @@
     case "derived-chart-type":
         <ChartJsAdvancedDerivedChartTypeSample />
         break;
+    case "linear-gradient":
+        <ChartJsAdvancedLinearGradientSample />
+        break;
     default:
         <ChartJsAdvancedDataDecimationSample />
         break;
@@ -19,7 +22,7 @@
 
     private string ResolvedSampleId => SampleId switch
     {
-        "data-decimation" or "derived-axis-type" or "derived-chart-type" => SampleId,
+        "data-decimation" or "derived-axis-type" or "derived-chart-type" or "linear-gradient" => SampleId,
         _ => "data-decimation",
     };
 }
