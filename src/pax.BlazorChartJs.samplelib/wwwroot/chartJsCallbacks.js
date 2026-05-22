@@ -1,6 +1,7 @@
 const fillPatternCache = new WeakMap();
 const externalTooltipCache = new WeakMap();
 const linearGradientCache = new WeakMap();
+const animationProgressBarCache = new WeakMap();
 const latestLabelPaddingSmall = Object.freeze({ top: 20, left: 8, bottom: 8, right: 70 });
 const latestLabelPaddingLarge = Object.freeze({ top: 20, left: 8, bottom: 8, right: 30 });
 
@@ -171,6 +172,22 @@ function progressiveDelay(context) {
     const dataLength = context.chart.data.datasets[0]?.data?.length || 1;
     const totalDuration = context.chart.options.animation?.duration ?? 10000;
     return getProgressiveEasing(context)(context.index / dataLength) * totalDuration;
+}
+
+function getAnimationProgressBars(chart) {
+    let progressBars = animationProgressBarCache.get(chart);
+    if (progressBars) {
+        return progressBars;
+    }
+
+    const sample = chart.canvas.closest('[data-chartjs-sample="progress-bar"]');
+    progressBars = {
+        initial: sample?.querySelector('#initialProgress') ?? null,
+        update: sample?.querySelector('#animationProgress') ?? null
+    };
+
+    animationProgressBarCache.set(chart, progressBars);
+    return progressBars;
 }
 
 const callbacks = Object.assign(Object.create(null), {
@@ -490,6 +507,16 @@ const callbacks = Object.assign(Object.create(null), {
 
         context.yStarted = true;
         return progressiveDelay(context);
+    },
+    animationProgressBarProgress(context) {
+        const progressBars = getAnimationProgressBars(context.chart);
+        const progress = context.initial ? progressBars.initial : progressBars.update;
+        if (progress instanceof HTMLProgressElement) {
+            progress.value = context.currentStep / context.numSteps;
+        }
+    },
+    animationProgressBarComplete(context) {
+        console.log(context.initial ? 'Initial animation finished' : 'animation finished');
     },
     multiSeriesPieGenerateLabels(chart) {
         const original = Chart.overrides.pie.plugins.legend.labels.generateLabels;

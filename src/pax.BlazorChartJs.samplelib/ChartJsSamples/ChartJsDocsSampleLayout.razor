@@ -23,6 +23,13 @@
     </div>
 
     <div class="chartjs-sample__chart">
+        @if (ChartContent is not null)
+        {
+            <div class="chartjs-sample__chart-content">
+                @ChartContent
+            </div>
+        }
+
         @if (RenderChart)
         {
             <ChartComponent @ref="chartComponent" ChartJsConfig="ChartJsConfig" OnEventTriggered="OnEventTriggered" />
@@ -111,6 +118,9 @@
 
     [Parameter]
     public RenderFragment? ChartPlaceholder { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChartContent { get; set; }
 
     [Parameter]
     public string? ChartPlaceholderText { get; set; }
