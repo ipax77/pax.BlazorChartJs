@@ -79,6 +79,50 @@ public class ChartJsSamplesTests : PageTest
         await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas")).ToHaveCountAsync(1);
     }
 
+    [TestCase("chart-area-border", "Chart Area Border")]
+    [TestCase("doughnut-empty-state", "Doughnut Empty State")]
+    [TestCase("quadrants", "Quadrants")]
+    public async Task PluginSamplePageRenders(string sampleId, string title)
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + $"/chartjs-samples/plugins/{sampleId}");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = title, Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}']")).ToHaveCountAsync(1);
+        await Expect(Page.Locator($"[data-chartjs-sample='{sampleId}'] canvas")).ToHaveCountAsync(1);
+    }
+
+    [Test]
+    public async Task PluginNavLinksSwitchSamples()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/plugins/chart-area-border");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Chart Area Border", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Doughnut Empty State", Exact = true }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Doughnut Empty State", Exact = true }))
+            .ToBeVisibleAsync();
+        await Expect(Page.Locator("[data-chartjs-sample='doughnut-empty-state'] canvas")).ToHaveCountAsync(1);
+        await Expect(Page.Locator("[data-chartjs-sample='chart-area-border']")).ToHaveCountAsync(0);
+
+        await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Quadrants", Exact = true }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Quadrants", Exact = true }))
+            .ToBeVisibleAsync();
+        await Expect(Page.Locator("[data-chartjs-sample='quadrants'] canvas")).ToHaveCountAsync(1);
+        await Expect(Page.Locator("[data-chartjs-sample='doughnut-empty-state']")).ToHaveCountAsync(0);
+
+        await Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Doughnut Empty State", Exact = true }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Doughnut Empty State", Exact = true }))
+            .ToBeVisibleAsync();
+
+        var doughnutCanvasId = await Page.Locator("[data-chartjs-sample='doughnut-empty-state'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+        Assert.That(await GetFirstDatasetDataCount(doughnutCanvasId), Is.Zero);
+        Assert.That(await GetChartOptionJson(doughnutCanvasId, "chart.config.type"), Is.EqualTo("\"doughnut\""));
+    }
+
     [TestCase("linear-min-max")]
     [TestCase("linear-min-max-suggested")]
     [TestCase("linear-step-size")]
@@ -908,6 +952,61 @@ public class ChartJsSamplesTests : PageTest
         await Page.Locator("[data-sample-action='data-decimation-no-decimation']").ClickAsync();
         await Task.Delay(Startup.ChartJsComputeDelay);
         Assert.That(await GetChartOptionJson(canvasId, "chart.options.plugins.decimation.enabled"), Is.EqualTo("false"));
+    }
+
+    [Test]
+    public async Task PluginSamplesRegisterCanvasPluginsAndSerializePluginOptions()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/plugins/chart-area-border");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Chart Area Border", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var borderCanvasId = await Page.Locator("[data-chartjs-sample='chart-area-border'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+        Assert.That(await GetChartOptionJson(borderCanvasId, "Boolean(Chart.registry.plugins.get('chartAreaBorder'))"), Is.EqualTo("true"));
+        Assert.That(await GetChartOptionJson(borderCanvasId, "`${chart.options.plugins.chartAreaBorder.borderColor}:${chart.options.plugins.chartAreaBorder.borderWidth}:${chart.options.plugins.chartAreaBorder.borderDash.join(',')}:${chart.options.plugins.chartAreaBorder.borderDashOffset}`"), Is.EqualTo("\"red:2:5,5:2\""));
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/plugins/doughnut-empty-state");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Doughnut Empty State", Exact = true }))
+            .ToBeVisibleAsync();
+
+        var doughnutCanvasId = await Page.Locator("[data-chartjs-sample='doughnut-empty-state'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+        Assert.That(await GetChartOptionJson(doughnutCanvasId, "Boolean(Chart.registry.plugins.get('emptyDoughnut'))"), Is.EqualTo("true"));
+        Assert.That(await GetFirstDatasetDataCount(doughnutCanvasId), Is.Zero);
+        Assert.That(await GetChartOptionJson(doughnutCanvasId, "`${chart.options.plugins.emptyDoughnut.color}:${chart.options.plugins.emptyDoughnut.width}:${chart.options.plugins.emptyDoughnut.radiusDecrease}`"), Is.EqualTo("\"rgba(255, 128, 0, 0.5):2:20\""));
+
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/plugins/quadrants");
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Quadrants", Exact = true }))
+            .ToBeVisibleAsync();
+
+        var quadrantsCanvasId = await Page.Locator("[data-chartjs-sample='quadrants'] canvas").GetAttributeAsync("id");
+        await Task.Delay(Startup.ChartJsLoadDelay);
+        Assert.That(await GetChartOptionJson(quadrantsCanvasId, "Boolean(Chart.registry.plugins.get('quadrants'))"), Is.EqualTo("true"));
+        Assert.That(await GetChartOptionJson(quadrantsCanvasId, "chart.config.type"), Is.EqualTo("\"scatter\""));
+        Assert.That(await GetDatasetCount(quadrantsCanvasId), Is.EqualTo(2));
+        Assert.That(await GetFirstDatasetDataCount(quadrantsCanvasId), Is.EqualTo(7));
+        Assert.That(await GetChartOptionJson(quadrantsCanvasId, "`${chart.options.plugins.quadrants.topLeft}|${chart.options.plugins.quadrants.topRight}|${chart.options.plugins.quadrants.bottomRight}|${chart.options.plugins.quadrants.bottomLeft}`"), Is.EqualTo("\"rgb(255, 99, 132)|rgb(54, 162, 235)|rgb(75, 192, 192)|rgb(255, 205, 86)\""));
+    }
+
+    [Test]
+    public async Task PluginSamplesExposePluginAndDataCodeTabs()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/plugins/quadrants");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Quadrants", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Page.Locator("[data-code-tab='plugin']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='plugin']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("registerPlugin");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("const quadrants");
+        await Expect(Page.Locator("[aria-label='Chart.js callback module code'] code.language-javascript")).ToContainTextAsync("chartJsSamplePlugins.js");
+
+        await Page.Locator("[data-code-tab='data']").ClickAsync();
+        await Expect(Page.Locator("[data-code-tab='data']")).ToHaveAttributeAsync("aria-selected", "true");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("new ScatterDataset");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("Utils.points");
     }
 
     [Test]

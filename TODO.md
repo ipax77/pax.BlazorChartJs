@@ -199,7 +199,7 @@ Re-check the docs section sidebar before implementing each group because the `la
   - [x] Animation Progress Bar (`samples/advanced/progress-bar.html`)
   - [x] Radial Gradient (`samples/advanced/radial-gradient.html`)
 
-- [ ] Plugins
-  - [ ] Chart Area Border (`samples/plugins/chart-area-border.html`)
-  - [ ] Doughnut Empty State (`samples/plugins/doughnut-empty-state.html`)
-  - [ ] Quadrants (`samples/plugins/quadrants.html`)
+- [x] Plugins
+  - [x] Chart Area Border (`samples/plugins/chart-area-border.html`)
+  - [x] Doughnut Empty State (`samples/plugins/doughnut-empty-state.html`)
+  - [x] Quadrants (`samples/plugins/quadrants.html`)
