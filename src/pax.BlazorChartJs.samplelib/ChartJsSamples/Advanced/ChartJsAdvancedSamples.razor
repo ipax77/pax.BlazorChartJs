@@ -1,0 +1,22 @@
+@namespace pax.BlazorChartJs.samplelib.ChartJsSamples.Advanced
+
+@switch (ResolvedSampleId)
+{
+    case "derived-axis-type":
+        <ChartJsAdvancedDerivedAxisTypeSample />
+        break;
+    default:
+        <ChartJsAdvancedDataDecimationSample />
+        break;
+}
+
+@code {
+    [Parameter]
+    public string SampleId { get; set; } = "data-decimation";
+
+    private string ResolvedSampleId => SampleId switch
+    {
+        "data-decimation" or "derived-axis-type" => SampleId,
+        _ => "data-decimation",
+    };
+}
