@@ -143,7 +143,7 @@ function isChartJsFunctionMarker(value, path) {
 }
 
 // TypeScript/version.ts
-var chartJsInteropVersion = "0.9.0-preview";
+var chartJsInteropVersion = "0.9.0-preview2";
 
 // TypeScript/chartEvents.ts
 async function triggerEvent(chartId, event, source, data) {

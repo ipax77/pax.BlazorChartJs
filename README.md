@@ -1,18 +1,41 @@
 ![Nuget](https://img.shields.io/nuget/v/pax.BlazorChartJs)
 [![Playwright Tests](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml/badge.svg)](https://github.com/ipax77/pax.BlazorChartJs/actions/workflows/pwtests.yml) [TestPage](https://ipax77.github.io/pax.BlazorChartJs/)
 
-# Blazor dotnet wrapper library for [ChartJs](https://github.com/chartjs/Chart.js)
- 
- The current release is compatible with the following ChartJs versions
- Release | ChartJs | Tests
- ---|---|---
- &gt;= 0.5.0 | **4.x** | 4.5.1
- 
- 
-## Getting started
-This library is using [JavaScript isolation](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/?view=aspnetcore-6.0#javascript-isolation-in-javascript-modules-1). JS isolation provides the following benefits:
-* Imported JS no longer pollutes the global namespace.
-* Consumers of a library and components aren't required to import the related JS.
+# pax.BlazorChartJs
+
+`pax.BlazorChartJs` is a Blazor wrapper for [Chart.js](https://github.com/chartjs/Chart.js). It renders charts from typed .NET configuration models through a reusable `ChartComponent` and a JavaScript isolation module.
+
+`v0.9.0-preview2` brings the wrapper close to feature complete for the current Chart.js 4.x surface. The live [TestPage](https://ipax77.github.io/pax.BlazorChartJs/) includes runnable Blazor versions of the official Chart.js sample set plus focused library demos for events, updates, legends, callbacks, and plugins.
+
+## Compatibility
+
+Release | Chart.js | Tested Chart.js
+---|---|---
+&gt;= 0.5.0 | **4.x** | 4.5.1
+
+## Highlights
+
+- Typed chart configuration models for common Chart.js charts, datasets, scales, plugins, callbacks, and scriptable/indexable options.
+- A Blazor `ChartComponent` that owns chart lifecycle, event forwarding, image capture, resizing, visibility, and legend helpers.
+- Targeted chart updates for labels, data, datasets, and options, including one batched smooth dataset synchronization path.
+- Registered JavaScript callbacks referenced from C# through `ChartJsFunction` instead of raw JavaScript in serialized chart configs.
+- App-wide Chart.js defaults through `AddChartJs(...)` and per-chart options when a project needs shared styling or callbacks.
+- Browser-tested sample pages that show runnable charts together with the C# and JavaScript needed for the Chart.js sample behavior.
+
+## New in v0.9
+
+- `ChartJsFunction` and callback module support for tooltip, legend, tick, datalabel, dataset, padding, and other scriptable option paths.
+- Expanded typed coverage for Chart.js core options, element options, dataset defaults, tooltip callbacks, decimation, and remaining v4.5.1 option gaps.
+- `ChartJsSetupOptions.Defaults`, `ChartJsDefaultsOptions`, and `ChartJsOptionsDatasets` for app-wide `Chart.defaults` configuration.
+- `ChartJsConfig.SetDatasetsSmooth(...)` to add, update, remove, reorder, and optionally relabel datasets in one smooth update.
+- `ChartJsConfig.SetDatasetBinaryData(...)` and `ChartJsBinaryPayload` helpers for large Y and XY dataset updates without JSON-serializing the data arrays.
+- A Chart.js sample gallery with official sample sections, sample actions, visible C#/JavaScript code, and Playwright coverage.
+
+## Samples
+
+Start with the live [TestPage](https://ipax77.github.io/pax.BlazorChartJs/) or the reusable [sample library](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.samplelib).
+
+The Chart.js sample gallery mirrors the official sample set as runnable Blazor components. It covers bar, line, area, other chart types, scales, scale options, legends, titles, subtitles, tooltips, scriptable options, animations, advanced samples, and plugin samples. Library-specific demos cover events, HTML legends, datalabels, callback modules, plugin registration, update flows, and multiple-chart scenarios.
 
 ## Installation
 
@@ -39,93 +62,51 @@ If you want to serve Chart.js locally, you can provide your own URLs:
     });
 ```
 
-## Usage
+The wrapper uses [Blazor JavaScript isolation](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/?view=aspnetcore-6.0#javascript-isolation-in-javascript-modules-1), so consumers do not need to add a global interop script to the page and the module does not pollute the global JavaScript namespace.
 
-Sample Project [pax.BlazorChartJs.samplelib](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.samplelib) with
-[Sample Chart](https://ipax77.github.io/pax.BlazorChartJs/minchart)
+## Minimal chart
+
 ```razor
 @using pax.BlazorChartJs
 
-<div class="btn-group">
-    <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
-</div>
 <div class="chart-container w-75">
-    <ChartComponent @ref="chartComponent"
-                    ChartJsConfig="chartJsConfig"
-                    OnEventTriggered="ChartEventTriggered">
-    </ChartComponent>
+    <ChartComponent ChartJsConfig="chartJsConfig" />
 </div>
 
 @code {
-    ChartJsConfig chartJsConfig = null!;
-    ChartComponent? chartComponent;
-    private bool chartReady;
-
-    protected override void OnInitialized()
+    private readonly ChartJsConfig chartJsConfig = new()
     {
-        chartJsConfig = new ChartJsConfig()
-            {
-                Type = ChartType.bar,
-                Data = new ChartJsData()
+        Type = ChartType.bar,
+        Data = new ChartJsData()
+        {
+            Labels = ["Jan", "Feb", "Mar"],
+            Datasets =
+            [
+                new BarDataset()
                 {
-                    Labels = ["Jan", "Feb", "Mar"],
-                    Datasets = new List<ChartJsDataset>()
-                    {
-                        new BarDataset()
-                        {
-                            Label = "Dataset 1",
-                            Data = [ 1, 2, 3 ]
-                        }
-                    }
+                    Label = "Dataset 1",
+                    Data = [1, 2, 3]
                 }
-            };
-        base.OnInitialized();
-    }
-
-    private void ChartEventTriggered(ChartJsEvent chartJsEvent)
-    {
-        if (chartJsEvent is ChartJsInitEvent initEvent)
-        {
-            chartReady = true;
+            ]
         }
-    }
-
-    private void Randomize()
-    {
-        if (!chartReady)
-        {
-            return;
-        }
-
-        Dictionary<string, IList<object>> dataByDatasetId = [];
-        
-        foreach (var dataset in chartJsConfig.Data.Datasets)
-        {
-            if (dataset is BarDataset barDataset)
-            {
-                List<object> newData = new();
-                foreach (var data in barDataset.Data)
-                {
-                    newData.Add(Random.Shared.Next(1, 10));
-                }
-                dataByDatasetId[barDataset.Id] = newData;
-            }
-        }
-        chartJsConfig.UpdateDatasetsDataSmooth(dataByDatasetId);
-    }
+    };
 }
 ```
 
-## Update Chart
-* To update the chart with the current ChartJsConfig call ```ChartJsConfig.ReinitializeChart()```
-* To update the chart with smooth animations there are several helper functions available, e.g.:
-    - ```ChartJsConfig.SetLabels(...)```
-    - ```ChartJsConfig.AddData(...)```
-    - ```ChartJsConfig.AddDatasetSmooth(...)```
-    - ```ChartJsConfig.SetData(...)```
-    - ```ChartJsConfig.SetDatasetsSmooth(...)```
-* use ```ChartJsConfig.UpdateChartOptions()``` to update the chart options, only (e.g. [StepSize](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/StackedChartComp.razor#L106))
-* use ```ChartJsConfig.SetDatasetsSmooth(...)``` to add, update, remove, and reorder datasets by id in one batched smooth update. Optional labels and current chart options can be applied in the same chart update:
+See the sample [minimal chart](https://ipax77.github.io/pax.BlazorChartJs/minchart) for a complete component and the rest of the sample library for chart-type examples.
+
+## Updates and performance
+
+Prefer targeted updates when an existing chart can be changed safely:
+
+- `ChartJsConfig.SetLabels(...)`
+- `ChartJsConfig.AddData(...)` and `ChartJsConfig.SetData(...)`
+- `ChartJsConfig.AddDatasetSmooth(...)` and `ChartJsConfig.SetDatasetsSmooth(...)`
+- `ChartJsConfig.UpdateChartOptions()` for options-only changes
+- `ChartJsConfig.ReinitializeChart()` when a full chart reinitialization is actually needed
+
+`SetDatasetsSmooth(...)` adds, updates, removes, and reorders datasets by id in one smooth chart update. Optional labels and current options can be applied in the same pass:
+
 ```csharp
 chartJsConfig.Options ??= new ChartJsOptions();
 chartJsConfig.Options.Responsive = false;
@@ -150,7 +131,8 @@ chartJsConfig.SetDatasetsSmooth(
     updateOptions: true);
 ```
 
-## Binary dataset updates
+### Binary dataset updates
+
 Use `ChartJsConfig.SetDatasetBinaryData(...)` to update a dataset by id from a packed binary payload without serializing large data arrays as JSON. `ChartJsBinaryPayload` creates compact payloads for common Y and XY layouts:
 
 ```csharp
@@ -170,16 +152,8 @@ chartJsConfig.SetDatasetBinaryData(
 
 `FromY(...)` accepts `int`, `float`, or `double` spans. `FromXY(...)` accepts `ChartJsPoint` spans or interleaved `double` values. Custom strided binary layouts can still be passed with `ChartJsBinaryDatasetPayload` directly.
 
-## Chart Events
-Several chart events are available, by default only the Init event is fired. The others can be activated in the ChartJsConfig.Options [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventsComp.razor)
-*  click
-*  hover
-*  leave
-*  progress
-*  complete
-*  resize
+## ChartJsFunction callbacks
 
-## ChartJsFunction Callbacks
 `ChartJsFunction.FromName(...)` can be used to reference JavaScript callbacks from C# chart configuration without serializing raw JavaScript into the config. Configure a callback module that exports a `chartJsCallbacks` object:
 
 ```csharp
@@ -215,9 +189,9 @@ new LinearAxisTick()
 
 Callback names are validated and resolved from the configured module, which avoids raw JavaScript serialization in the chart config. See the full [ChartJsFunction callback sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventcallbackChartComp.razor).
 
-## Additional AddChartJs options
+## Global defaults
 
-Beyond the basic script locations shown in the installation section, `AddChartJs(...)` can configure callback modules and app-wide Chart.js defaults.
+Beyond script locations and callback modules, `AddChartJs(...)` can configure app-wide Chart.js defaults.
 
 ```csharp
 builder.Services.AddChartJs(options =>
@@ -228,7 +202,7 @@ builder.Services.AddChartJs(options =>
     {
         Color = "#1f2937",
         BorderColor = "#d1d5db",
-        Font = new Font()
+        Font = new Font
         {
             Family = "Inter, system-ui, sans-serif",
             Size = 12
@@ -252,16 +226,30 @@ builder.Services.AddChartJs(options =>
 
 `Defaults` maps to `Chart.defaults` and is applied after Chart.js is loaded and before the first chart is constructed. Per-chart `ChartJsConfig.Options` still override the global defaults. `ChartJsFunction` values in defaults use the same callback registry configured by `ChartJsCallbacksModuleLocation`.
 
+## Chart events
+
+Several chart events are available. By default only the init event is emitted; enable the others in `ChartJsConfig.Options`. See the [events sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventsComp.razor).
+
+- click
+- hover
+- leave
+- progress
+- complete
+- resize
+
 ## Supported Plugins
-* [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
-* [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
-* Custom Plugins [Sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor)
+
+- [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
+- [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
+- Custom plugins through the [custom plugin sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor)
 
 ## ChartComponent
+
 Several chart functions are available in the ChartComponent, e.g.:
-* ```ChartComponent.ResizeChart(...)```
-* ```ChartComponent.GetChartImage(...)```
-* ```ChartComponent.ToggleDataVisibility(...)```
+
+- `ChartComponent.ResizeChart(...)`
+- `ChartComponent.GetChartImage(...)`
+- `ChartComponent.ToggleDataVisibility(...)`
 
 ## Contributing
 
@@ -286,8 +274,9 @@ The bundle command writes the single shipped module to `wwwroot/chartJsInterop.j
 
 ## Changelog
 
-<details open="open"><summary>v0.9.0-preview</summary>
+<details open="open"><summary>v0.9.0-preview2</summary>
 
+>- **Breaking change:** font option properties that now support scriptable values use `IndexableOption<Font>` in those contexts. Target-typed `Font = new()` no longer binds there; use `Font = new Font { ... }` or a `ChartJsFunction` callback.
 >- Added `ChartJsFunction` to reference registered JavaScript callbacks from C# chart configuration without serializing raw JavaScript.
 >- Added callback module configuration and marker revival for chart initialization, option updates, and dataset add/update/set interop calls.
 >- Added scriptable callback support for datalabel formatters, axis ticks, tooltip callbacks, legend callbacks, and indexable color options.
@@ -296,12 +285,14 @@ The bundle command writes the single shipped module to `wwwroot/chartJsInterop.j
 >- Added a scriptable padding sample with a sample-only `Latest` label plugin.
 >- Hardened callback resolution with flat JavaScript identifier validation and reserved-name checks.
 >- Updated sample callback charts to use a shared `chartJsCallbacks.js` callback registry.
+>- Completed the Chart.js v4.5.1 option coverage pass with expanded core, element, dataset, tooltip, label, scale, and decimation option support.
 >- Added missing global/core Chart.js options to `ChartJsOptions`: `BackgroundColor`, `BorderColor`, `Clip`, `Color`, `Datasets`, `Font`, `Hover`, `HoverBackgroundColor`, `HoverBorderColor`, `Normalized`, `OnClick`, `OnHover`, and `OnResize`.
 >- Added `ChartJsSetupOptions.Defaults` / `ChartJsDefaultsOptions` to configure app-wide `Chart.defaults` values through `AddChartJs(...)`.
 >- Added `ChartJsOptionsDatasets` for `options.datasets` and `Chart.defaults.datasets` chart-type defaults.
 >- Chart.js native `OnClick`, `OnHover`, and `OnResize` callbacks are preserved when the Blazor/C# event bridge flags are enabled.
 >- Added `ChartJsConfig.SetDatasetsSmooth(...)` to add, update, remove, and reorder datasets by id in one smooth batched chart update, with optional labels and current options update.
 >- Added binary dataset updates through `ChartJsConfig.SetDatasetBinaryData(...)` and compact `ChartJsBinaryPayload` helper factories for large Y and XY data updates.
+>- Added the official Chart.js sample gallery as runnable Blazor sample pages with visible C#/JavaScript code, sample actions, and Playwright coverage.
 
 </details>
 

@@ -12,9 +12,9 @@
     <AssemblyVersion>0.9.0.0</AssemblyVersion>
     <Owners>Philipp Hetzner</Owners>
     <Authors>Philipp Hetzner</Authors>
-    <Version>0.9.0-preview</Version>
+    <Version>0.9.0-preview2</Version>
 	  <FileVersion>0.9.0.0</FileVersion>
-    <PackageVersion>0.9.0-preview</PackageVersion>
+    <PackageVersion>0.9.0-preview2</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>    
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>

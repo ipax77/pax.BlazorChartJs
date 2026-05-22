@@ -123,7 +123,7 @@ public class ChartOptionsTests : ChartPageTest
 
         var formattedValue = await Page.EvaluateAsync<string>(
             @"async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
                 const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
 
                 await chartInterop.updateChartOptions(
@@ -157,7 +157,7 @@ public class ChartOptionsTests : ChartPageTest
 
         var formattedValue = await Page.EvaluateAsync<string>(
             @"async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
                 const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
 
                 await chartInterop.updateChartOptions(
@@ -198,7 +198,7 @@ public class ChartOptionsTests : ChartPageTest
 
         var markerName = await Page.EvaluateAsync<string>(
             @"async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
                 const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
 
                 await chartInterop.updateChartOptions(
@@ -230,7 +230,7 @@ public class ChartOptionsTests : ChartPageTest
 
         var errorMessage = await Page.EvaluateAsync<string>(
             @"async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
                 const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
 
                 try {
@@ -269,7 +269,7 @@ public class ChartOptionsTests : ChartPageTest
 
         var errorMessage = await Page.EvaluateAsync<string>(
             @"async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
 
                 try {
                     await chartInterop.updateChartOptions(
