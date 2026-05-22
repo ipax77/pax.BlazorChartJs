@@ -961,6 +961,35 @@ public class ChartJsSamplesTests : PageTest
     }
 
     [Test]
+    public async Task AdvancedDerivedChartTypeRegistersSampleLocalControllerAndShowsSetup()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/advanced/derived-chart-type");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Derived Chart Type", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var sample = Page.Locator("[data-chartjs-sample='derived-chart-type']");
+        await Expect(sample).ToHaveCountAsync(1);
+        await Expect(sample.Locator("[data-sample-action]")).ToHaveCountAsync(0);
+        await Expect(sample.Locator("canvas"))
+            .ToHaveCountAsync(1, new LocatorAssertionsToHaveCountOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await sample.Locator("canvas").GetAttributeAsync("id");
+        Assert.That(await GetChartOptionJson(canvasId, "chart.config.type"), Is.EqualTo("\"derivedBubble\""));
+        Assert.That(await GetChartOptionJson(canvasId, "Chart.registry.getController('derivedBubble').id"), Is.EqualTo("\"derivedBubble\""));
+        Assert.That(await GetChartOptionJson(canvasId, "chart.config.data.datasets[0].boxStrokeStyle"), Is.EqualTo("\"red\""));
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("new DerivedBubbleChartJsConfig");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("BoxStrokeStyle = \"red\"");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("type: 'derivedBubble'");
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("public sealed record DerivedBubbleDataset : BubbleDataset");
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("registerController");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("class DerivedBubbleController extends BubbleController");
+        await Expect(Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Derived Chart Type", Exact = true })).ToBeVisibleAsync();
+    }
+
+    [Test]
     public async Task BacklogTitleAlignmentActionUpdatesOptions()
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/title/alignment");
