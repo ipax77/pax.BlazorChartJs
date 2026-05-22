@@ -153,20 +153,21 @@ async function triggerEvent(chartId, event, source, data) {
   }
 }
 function getChartPointEventArgs(e, chart) {
-  const points = chart.getElementsAtEventForMode(e, "nearest", { intersect: true }, true);
+  const nativeEvent = e.native;
+  const points = nativeEvent == void 0 ? [] : chart.getElementsAtEventForMode(nativeEvent, "nearest", { intersect: true }, true);
   let label = "";
   let value = 0;
   let dataX = 0;
   let dataY = 0;
   let datasetLabel = null;
   let datasetIndex = null;
-  const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+  const canvasPosition = nativeEvent == void 0 ? { x: e.x ?? 0, y: e.y ?? 0 } : Chart.helpers.getRelativePosition(nativeEvent, chart);
   try {
-    dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+    dataX = chart.scales.x.getValueForPixel(canvasPosition.x) ?? 0;
   } catch {
   }
   try {
-    dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
+    dataY = chart.scales.y.getValueForPixel(canvasPosition.y) ?? 0;
   } catch {
   }
   if (points.length) {
@@ -175,7 +176,7 @@ function getChartPointEventArgs(e, chart) {
     const currentDataset = chart.data.datasets[currentDatasetIndex];
     label = chart.data.labels?.[firstPoint.index] ?? "";
     datasetIndex = currentDatasetIndex;
-    value = currentDataset.data[firstPoint.index];
+    value = currentDataset.data?.[firstPoint.index] ?? 0;
     datasetLabel = currentDataset.label ?? null;
   }
   return {
@@ -192,6 +193,17 @@ function registerChartPointEvent(chart, chartId, eventName, optionName) {
   chart.options[optionName] = (e, elements, chartInstance) => {
     nativeCallback?.call(chart, e, elements, chartInstance ?? chart);
     triggerEvent(chartId, eventName, "label", getChartPointEventArgs(e, chart));
+  };
+}
+function registerLegendEvent(chart, chartId, eventName, optionName) {
+  const legendOptions = chart.options.plugins?.legend;
+  if (legendOptions == void 0) {
+    return;
+  }
+  const nativeCallback = typeof legendOptions[optionName] === "function" ? legendOptions[optionName] : void 0;
+  legendOptions[optionName] = function(event, legendItem, legend) {
+    nativeCallback?.call(this, event, legendItem, legend);
+    triggerEvent(chartId, eventName, "legend", { Label: legendItem.text });
   };
 }
 function registerEvents(dotnetConfigOptions, chartId, chart) {
@@ -214,34 +226,34 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
     };
   }
   if (dotnetConfigOptions.plugins?.legend?.onClickEvent == true) {
-    chart.options.plugins.legend.onClick = (_event, legendItem, _legend) => {
-      triggerEvent(chartId, "click", "legend", { Label: legendItem.text });
-    };
+    registerLegendEvent(chart, chartId, "click", "onClick");
   }
   if (dotnetConfigOptions.plugins?.legend?.onHoverEvent == true) {
-    chart.options.plugins.legend.onHover = (_event, legendItem, _legend) => {
-      triggerEvent(chartId, "hover", "legend", { Label: legendItem.text });
-    };
+    registerLegendEvent(chart, chartId, "hover", "onHover");
   }
   if (dotnetConfigOptions.plugins?.legend?.onLeaveEvent == true) {
-    chart.options.plugins.legend.onLeave = (_event, legendItem, _legend) => {
-      triggerEvent(chartId, "leave", "legend", { Label: legendItem.text });
-    };
+    registerLegendEvent(chart, chartId, "leave", "onLeave");
   }
   if (dotnetConfigOptions.animation?.onProgressEvent == true) {
-    chart.options.animation.onProgress = (context) => {
-      triggerEvent(chartId, "progress", "animation", {
-        CurrentStep: context.currentStep,
-        NumSteps: context.numSteps
-      });
-    };
+    const animation = chart.options.animation;
+    if (animation && typeof animation === "object") {
+      animation.onProgress = (context) => {
+        triggerEvent(chartId, "progress", "animation", {
+          CurrentStep: context.currentStep,
+          NumSteps: context.numSteps
+        });
+      };
+    }
   }
   if (dotnetConfigOptions.animation?.onCompleteEvent == true) {
-    chart.options.animation.onComplete = (context) => {
-      triggerEvent(chartId, "complete", "animation", {
-        Initial: context.initial
-      });
-    };
+    const animation = chart.options.animation;
+    if (animation && typeof animation === "object") {
+      animation.onComplete = (context) => {
+        triggerEvent(chartId, "complete", "animation", {
+          Initial: context.initial
+        });
+      };
+    }
   }
 }
 
@@ -271,8 +283,8 @@ function arbitraryLinesPlugin() {
   return {
     id: "arbitraryLines",
     // beforeDraw(chart, args, options) {
-    afterDraw(chart, args, options) {
-      const { ctx, chartArea: { top, right, bottom, left, width, height }, scales: { x, y } } = chart;
+    afterDraw(chart, _args, options) {
+      const { ctx, chartArea: { top, height }, scales: { x } } = chart;
       ctx.save();
       for (let i = 0; i < options.length; i++) {
         const option = options[i];
@@ -290,8 +302,6 @@ function arbitraryLinesPlugin() {
         const xWidth = option.xWidth;
         const x0 = x.getPixelForValue(option.xPosition) - xWidth / 2;
         const y0 = top;
-        const x1 = xWidth;
-        const y1 = height;
         ctx.fillStyle = "white";
         ctx.font = "14px arial";
         ctx.fillText(option.text, x0 + 4, y0 + 10 * (i + 1));
@@ -472,37 +482,31 @@ function resizeChart(chartId, width, height) {
   } else {
     chart.resize(width, height);
   }
-  chart.options.onResize?.(chart, { height: chart.height, width: chart.width });
 }
 function getChartImage(chartId, type, quality, width, height) {
   const chart = getLiveChart(chartId);
   if (!chart) {
     return "";
   }
-  let currentWidth = 0;
-  let currentHeight = 0;
-  if (!(width == void 0 || height == void 0)) {
-    const ctx = document.getElementById(chartId);
-    if (ctx.parentNode) {
-      currentHeight = ctx.width;
-      currentHeight = ctx.height;
-      ctx.width = width;
-      ctx.height = height;
+  const canvas = chart.canvas;
+  const shouldResize = width != void 0 && height != void 0 && canvas.parentNode != void 0;
+  const currentWidth = canvas.width;
+  const currentHeight = canvas.height;
+  const currentAnimation = chart.options.animation;
+  try {
+    if (shouldResize) {
       chart.options.animation = false;
       chart.resize(width, height);
     }
+    return type != void 0 && quality != void 0 ? chart.toBase64Image(type, quality) : chart.toBase64Image();
+  } finally {
+    if (shouldResize) {
+      canvas.width = currentWidth;
+      canvas.height = currentHeight;
+      chart.options.animation = currentAnimation;
+      chart.resize();
+    }
   }
-  let chartImg;
-  if (!(type == void 0 || quality == void 0)) {
-    chartImg = chart.toBase64Image(type, quality);
-  } else {
-    chartImg = chart.toBase64Image();
-  }
-  if (currentWidth > 0 && currentHeight > 0) {
-    chart.resize();
-  }
-  chart.options.animation = true;
-  return chartImg;
 }
 function resetChart(chartId) {
   const chart = getLiveChart(chartId);
@@ -567,7 +571,12 @@ function resolveDatasetIndex(chart, datasetIdOrIndex) {
   if (typeof datasetIdOrIndex === "number") {
     return datasetIdOrIndex;
   }
-  return chart.data.datasets.findIndex((dataset) => dataset.id === datasetIdOrIndex);
+  for (let i = 0; i < chart.data.datasets.length; i++) {
+    if (chart.data.datasets[i].id === datasetIdOrIndex) {
+      return i;
+    }
+  }
+  return -1;
 }
 function hasDatasetElement(chart, datasetIndex, dataIndex) {
   if (datasetIndex < 0 || datasetIndex >= chart.data.datasets.length) {
@@ -577,7 +586,8 @@ function hasDatasetElement(chart, datasetIndex, dataIndex) {
     return true;
   }
   const dataset = chart.data.datasets[datasetIndex];
-  return dataIndex >= 0 && dataIndex < (dataset.data?.length ?? 0);
+  const datasetData = dataset.data;
+  return dataIndex >= 0 && dataIndex < (datasetData?.length ?? 0);
 }
 function showDataset(chartId, datasetIdOrIndex, dataIndex) {
   const chart = getLiveChart(chartId);

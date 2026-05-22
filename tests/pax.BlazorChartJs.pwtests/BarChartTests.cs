@@ -126,4 +126,39 @@ public class BarChartTests : ChartPageTest
 
         Assert.That(countAfter, Is.EqualTo(countPrev - 1));
     }
+
+    [Test]
+    public async Task CustomSizeImageExportRestoresChartState()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/barchart");
+
+        await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"),
+            new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
+        var snapshot = await Page.EvaluateAsync<string>(
+            """
+            async (chartId) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
+                const chart = Chart.getChart(chartId);
+                chart.stop();
+                chart.resize();
+                chart.options.animation = false;
+
+                const canvas = chart.canvas;
+                const before = [chart.width, chart.height, canvas.width, canvas.height].join(',');
+                const image = chartInterop.getChartImage(chartId, 'image/png', 1, 420, 210);
+                const after = [chart.width, chart.height, canvas.width, canvas.height].join(',');
+
+                return [
+                    image.startsWith('data:image/png'),
+                    before === after,
+                    chart.options.animation === false
+                ].join('|');
+            }
+            """,
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("true|true|true"));
+    }
 }

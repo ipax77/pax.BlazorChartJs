@@ -190,6 +190,30 @@ const callbacks = Object.assign(Object.create(null), {
             height: size?.height ?? null
         };
     },
+    chartEventBridgeLegendClick(event, item, legend) {
+        window.chartJsNativeLegendClickCount = (window.chartJsNativeLegendClickCount ?? 0) + 1;
+        window.chartJsNativeLegendClickArgs = {
+            chartId: legend?.chart?.canvas?.id ?? null,
+            eventType: event?.type ?? null,
+            label: item?.text ?? null
+        };
+    },
+    chartEventBridgeLegendHover(event, item, legend) {
+        window.chartJsNativeLegendHoverCount = (window.chartJsNativeLegendHoverCount ?? 0) + 1;
+        window.chartJsNativeLegendHoverArgs = {
+            chartId: legend?.chart?.canvas?.id ?? null,
+            eventType: event?.type ?? null,
+            label: item?.text ?? null
+        };
+    },
+    chartEventBridgeLegendLeave(event, item, legend) {
+        window.chartJsNativeLegendLeaveCount = (window.chartJsNativeLegendLeaveCount ?? 0) + 1;
+        window.chartJsNativeLegendLeaveArgs = {
+            chartId: legend?.chart?.canvas?.id ?? null,
+            eventType: event?.type ?? null,
+            label: item?.text ?? null
+        };
+    },
     showLegendItem() {
         return true;
     },

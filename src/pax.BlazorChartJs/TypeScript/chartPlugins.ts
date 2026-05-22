@@ -34,8 +34,8 @@ function arbitraryLinesPlugin(): ChartJsPlugin {
     return {
         id: 'arbitraryLines',
         // beforeDraw(chart, args, options) {
-        afterDraw(chart: any, args: any, options: any) {
-            const { ctx, chartArea: { top, right, bottom, left, width, height }, scales: { x, y } } = chart;
+        afterDraw(chart: any, _args: any, options: any) {
+            const { ctx, chartArea: { top, height }, scales: { x } } = chart;
 
             ctx.save();
 
@@ -56,9 +56,6 @@ function arbitraryLinesPlugin(): ChartJsPlugin {
                 const xWidth = option.xWidth;
                 const x0 = x.getPixelForValue(option.xPosition) - (xWidth / 2);
                 const y0 = top;
-                const x1 = xWidth;
-                const y1 = height;
-
                 ctx.fillStyle = 'white';
                 ctx.font = '14px arial';
                 ctx.fillText(option.text, x0 + 4, y0 + 10 * (i + 1));
