@@ -1038,6 +1038,55 @@ public class ChartJsSamplesTests : PageTest
     }
 
     [Test]
+    public async Task AdvancedProgrammaticEventTriggersToggleHoverAndTooltipState()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/advanced/programmatic-events");
+
+        await Expect(Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Name = "Programmatic Event Triggers", Exact = true }))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var sample = Page.Locator("[data-chartjs-sample='programmatic-events']");
+        await Expect(sample).ToHaveCountAsync(1);
+        await Expect(sample.Locator("[data-sample-action]")).ToHaveCountAsync(2);
+        await Expect(sample.Locator("canvas"))
+            .ToHaveCountAsync(1, new LocatorAssertionsToHaveCountOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await sample.Locator("canvas").GetAttributeAsync("id");
+        Assert.That(await GetChartOptionJson(canvasId, "chart.config.type"), Is.EqualTo("\"bar\""));
+        Assert.That(await GetChartOptionJson(canvasId, "`${chart.config.data.datasets[0].hoverBorderWidth}:${chart.config.data.datasets[0].hoverBorderColor}`"), Is.EqualTo("\"5:green\""));
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("Type = ChartType.bar");
+        await Expect(Page.GetByRole(AriaRole.Link, new PageGetByRoleOptions { Name = "Chart.js docs", Exact = true })).ToBeVisibleAsync();
+
+        await Page.Locator("[data-code-tab='hover']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("TriggerHover");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("chart.setActiveElements");
+
+        await Page.Locator("[data-sample-action='programmatic-events-trigger-hover']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "chart.getActiveElements().map(item => `${item.datasetIndex}:${item.index}`).join('|')"), Is.EqualTo("\"0:0|1:0\""));
+
+        await Page.Locator("[data-sample-action='programmatic-events-trigger-hover']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "chart.getActiveElements().length"), Is.EqualTo("0"));
+
+        await Page.Locator("[data-sample-action='programmatic-events-trigger-tooltip']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "chart.tooltip.getActiveElements().map(item => `${item.datasetIndex}:${item.index}`).join('|')"), Is.EqualTo("\"0:2|1:2\""));
+
+        await Page.Locator("[data-sample-action='programmatic-events-trigger-tooltip']").ClickAsync();
+        await Task.Delay(Startup.ChartJsComputeDelay);
+        Assert.That(await GetChartOptionJson(canvasId, "chart.tooltip.getActiveElements().length"), Is.EqualTo("0"));
+
+        await Page.Locator("[data-code-tab='tooltip']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("TriggerTooltip");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("tooltip.setActiveElements");
+
+        await Page.Locator("[data-code-tab='setup']").ClickAsync();
+        await Expect(Page.Locator("[aria-label='C# code'] code.language-csharp")).ToContainTextAsync("programmaticEvents.js");
+        await Expect(Page.Locator("[aria-label='JavaScript code'] code.language-javascript")).ToContainTextAsync("hoverBorderColor: 'green'");
+    }
+
+    [Test]
     public async Task BacklogTitleAlignmentActionUpdatesOptions()
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/chartjs-samples/title/alignment");
