@@ -17,6 +17,9 @@
     case "progress-bar":
         <ChartJsAdvancedProgressBarSample />
         break;
+    case "radial-gradient":
+        <ChartJsAdvancedRadialGradientSample />
+        break;
     default:
         <ChartJsAdvancedDataDecimationSample />
         break;
@@ -28,7 +31,7 @@
 
     private string ResolvedSampleId => SampleId switch
     {
-        "data-decimation" or "derived-axis-type" or "derived-chart-type" or "linear-gradient" or "programmatic-events" or "progress-bar" => SampleId,
+        "data-decimation" or "derived-axis-type" or "derived-chart-type" or "linear-gradient" or "programmatic-events" or "progress-bar" or "radial-gradient" => SampleId,
         _ => "data-decimation",
     };
 }

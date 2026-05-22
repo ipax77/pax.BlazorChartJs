@@ -1,9 +1,11 @@
 const fillPatternCache = new WeakMap();
 const externalTooltipCache = new WeakMap();
 const linearGradientCache = new WeakMap();
+const radialGradientCache = new WeakMap();
 const animationProgressBarCache = new WeakMap();
 const latestLabelPaddingSmall = Object.freeze({ top: 20, left: 8, bottom: 8, right: 70 });
 const latestLabelPaddingLarge = Object.freeze({ top: 20, left: 8, bottom: 8, right: 30 });
+const radialGradientColors = ['#ff6384', '#ff9f40', '#ffcd56', '#4bc0c0', '#36a2eb'];
 
 function createFillPattern(chart) {
     let pattern = fillPatternCache.get(chart);
@@ -42,6 +44,40 @@ function getLinearGradient(chart, chartArea) {
     gradient.addColorStop(0.5, '#ffcd56');
     gradient.addColorStop(1, '#ff6384');
     linearGradientCache.set(chart, { width, height, gradient });
+
+    return gradient;
+}
+
+function createRadialGradient3(context, c1, c2, c3) {
+    const { chart } = context;
+    const { chartArea } = chart;
+    if (!chartArea) {
+        return undefined;
+    }
+
+    const width = chartArea.right - chartArea.left;
+    const height = chartArea.bottom - chartArea.top;
+    let cached = radialGradientCache.get(chart);
+
+    if (!cached || cached.width !== width || cached.height !== height) {
+        cached = { width, height, gradients: new Map() };
+        radialGradientCache.set(chart, cached);
+    }
+
+    const cacheKey = `${c1}|${c2}|${c3}`;
+    let gradient = cached.gradients.get(cacheKey);
+    if (gradient) {
+        return gradient;
+    }
+
+    const centerX = (chartArea.left + chartArea.right) / 2;
+    const centerY = (chartArea.top + chartArea.bottom) / 2;
+    const radius = Math.min(width / 2, height / 2);
+    gradient = chart.ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+    gradient.addColorStop(0, c1);
+    gradient.addColorStop(0.5, c2);
+    gradient.addColorStop(1, c3);
+    cached.gradients.set(cacheKey, gradient);
 
     return gradient;
 }
@@ -440,6 +476,22 @@ const callbacks = Object.assign(Object.create(null), {
     },
     scriptableArcColor(context) {
         return colorByDataset(context.dataIndex ?? 0);
+    },
+    radialGradientArcBackgroundColor(context) {
+        const helpers = Chart.helpers;
+        let color = radialGradientColors[context.dataIndex];
+        if (!color || !helpers?.color) {
+            return undefined;
+        }
+
+        if (context.active && helpers.getHoverColor) {
+            color = helpers.getHoverColor(color);
+        }
+
+        const mid = helpers.color(color).desaturate(0.2).darken(0.2).rgbString();
+        const start = helpers.color(color).lighten(0.2).rotate(270).rgbString();
+        const end = helpers.color(color).lighten(0.1).rgbString();
+        return createRadialGradient3(context, start, mid, end);
     },
     animationDelay(context) {
         let delay = 0;
