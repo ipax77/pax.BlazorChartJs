@@ -1,0 +1,11 @@
+{
+  "name": "pax-blazor-chartjs-interop",
+  "private": true,
+  "scripts": {
+    "bundle": "esbuild ./TypeScript/index.ts --bundle --format=esm --target=es2020 --outfile=wwwroot/chartJsInterop.js",
+    "build": "npm run bundle"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.11"
+  }
+}
