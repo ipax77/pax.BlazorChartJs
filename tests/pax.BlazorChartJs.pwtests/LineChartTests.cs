@@ -128,4 +128,48 @@ public class LineChartTests : ChartPageTest
 
         Assert.That(countAfter, Is.EqualTo(countPrev - 1));
     }
+
+    [Test]
+    public async Task LegacyDatasetInteropExportsUpdateLiveChart()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/linechart");
+
+        await Expect(Page).ToHaveTitleAsync(new Regex("LineChart"),
+            new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
+
+        var snapshot = await Page.EvaluateAsync<string>(
+            @"async (chartId) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
+                const chart = Chart.getChart(chartId);
+                let updateCount = 0;
+                const originalUpdate = chart.update.bind(chart);
+                chart.update = (...args) => {
+                    updateCount++;
+                    return originalUpdate(...args);
+                };
+
+                const firstDataset = chart.data.datasets[0];
+                chartInterop.setDatasetsData(chartId, [{ datasetId: firstDataset.id, data: [710, 711] }]);
+                chartInterop.addChartDataToDatasets(chartId, 'Legacy Export', [712]);
+
+                const datasetCountBeforeRemove = chart.data.datasets.length;
+                chart.data.datasets.push({ id: 'legacy-remove', label: 'Legacy Remove', data: [1, 2, 3] });
+                chartInterop.removeDataset(chartId, 'legacy-remove');
+
+                return [
+                    typeof chartInterop.addChartDataToDatasets,
+                    typeof chartInterop.setDatasetsData,
+                    typeof chartInterop.removeDataset,
+                    chart.data.datasets[0].data.join(','),
+                    chart.data.labels[chart.data.labels.length - 1],
+                    chart.data.datasets.length === datasetCountBeforeRemove,
+                    updateCount
+                ].join('|');
+            }",
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("function|function|function|710,711,712|Legacy Export|true|3"));
+    }
 }
