@@ -267,6 +267,23 @@ Several chart functions are available in the ChartComponent, e.g.:
 
 We really like people helping us with the project. Nevertheless, take your time to read our contributing guidelines [here](https://github.com/ipax77/pax.BlazorChartJs/blob/master/CONTRIBUTING.md).
 
+### TypeScript interop
+
+The TypeScript source for the packaged JavaScript isolation module lives in `src/pax.BlazorChartJs/TypeScript`.
+When those sources are newer than the tracked bundle, `dotnet build` restores the local Node packages and regenerates
+`wwwroot/chartJsInterop.js` before the library static web assets are resolved. Node and npm are required for that
+regeneration path.
+
+To regenerate the bundled browser asset directly:
+
+```powershell
+cd src\pax.BlazorChartJs
+npm install
+npm run bundle
+```
+
+The bundle command writes the single shipped module to `wwwroot/chartJsInterop.js`.
+
 ## Changelog
 
 <details open="open"><summary>v0.9.0-preview</summary>
