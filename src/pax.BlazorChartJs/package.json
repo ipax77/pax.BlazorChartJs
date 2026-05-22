@@ -3,9 +3,12 @@
   "private": true,
   "scripts": {
     "bundle": "esbuild ./TypeScript/index.ts --bundle --format=esm --target=es2020 --outfile=wwwroot/chartJsInterop.js",
-    "build": "npm run bundle"
+    "build": "npm run bundle",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "esbuild": "^0.25.11"
+    "chart.js": "^4.5.1",
+    "esbuild": "^0.25.11",
+    "typescript": "^6.0.3"
   }
 }

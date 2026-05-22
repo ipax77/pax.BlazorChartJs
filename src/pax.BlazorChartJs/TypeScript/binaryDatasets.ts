@@ -1,4 +1,4 @@
-import { BinaryDatasetPayloadMetadata } from "./types";
+import type { BinaryDatasetPayloadMetadata } from "./types";
 
 type BinaryFloatArray = Float64Array | Float32Array;
 

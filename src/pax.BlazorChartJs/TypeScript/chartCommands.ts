@@ -37,7 +37,7 @@ export function resizeChart(chartId: string, width?: number, height?: number) {
     } else {
         chart.resize(width, height);
     }
-    chart.options.onResize?.(chart, { height: chart.height, width: chart.width });
+    (chart.options.onResize as any)?.(chart, { height: chart.height, width: chart.width });
 }
 
 export function getChartImage(chartId: string, type?: string, quality?: number, width?: number, height?: number) {
@@ -70,7 +70,7 @@ export function getChartImage(chartId: string, type?: string, quality?: number, 
     if (currentWidth > 0 && currentHeight > 0) {
         chart.resize();
     }
-    chart.options.animation = true;
+    chart.options.animation = true as any;
     return chartImg;
 }
 
@@ -184,7 +184,7 @@ export function getLabels(chartId: string) {
     if (!chart) {
         return [];
     }
-    const items = chart.options.plugins.legend.labels.generateLabels(chart);
+    const items = (chart.options as any).plugins.legend.labels.generateLabels(chart);
     return items;
 }
 
@@ -215,7 +215,8 @@ export function setDatasetPointsActive(chartId: string, datasetIndex: number) {
     const dataset = chart.data.datasets[datasetIndex];
 
     const elements = [];
-    for (let i = 0; i < dataset.data.length; i++) {
+    const datasetData = dataset.data as ArrayLike<unknown>;
+    for (let i = 0; i < datasetData.length; i++) {
         elements.push({ datasetIndex: datasetIndex, index: i });
     }
 

@@ -1,3 +1,5 @@
+import type { ChartSetupOptionsPayload } from "./types";
+
 export function parsePayload<T = any>(value: T | string | null | undefined): T | null | undefined {
     if (value == undefined || typeof value !== "string") {
         return value as T | null | undefined;
@@ -10,7 +12,7 @@ export function parseArrayPayload<T = any>(value: T[] | string | null | undefine
     return parsePayload<T[]>(value);
 }
 
-export function isSetupOptions(value: any): boolean {
+export function isSetupOptions(value: any): value is ChartSetupOptionsPayload {
     return value != undefined
         && typeof value === "object"
         && !Array.isArray(value)

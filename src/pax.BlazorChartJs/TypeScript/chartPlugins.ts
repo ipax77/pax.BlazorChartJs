@@ -1,7 +1,9 @@
+import type { ChartJsPlugin } from "./types";
+
 declare const ChartDataLabels: any;
 
-export async function loadPlugins(setupOptions: any, dotnetConfig: any): Promise<any[]> {
-    const plugins: any[] = [];
+export async function loadPlugins(setupOptions: any, dotnetConfig: any): Promise<ChartJsPlugin[]> {
+    const plugins: ChartJsPlugin[] = [];
 
     if (dotnetConfig['options'] != undefined
         && dotnetConfig['options'].plugins != undefined) {
@@ -28,7 +30,7 @@ export async function loadPlugins(setupOptions: any, dotnetConfig: any): Promise
     return plugins;
 }
 
-function arbitraryLinesPlugin(): any {
+function arbitraryLinesPlugin(): ChartJsPlugin {
     return {
         id: 'arbitraryLines',
         // beforeDraw(chart, args, options) {

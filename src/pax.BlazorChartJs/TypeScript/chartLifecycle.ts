@@ -3,14 +3,14 @@ import { registerEvents } from "./chartEvents";
 import { chartJsInterop } from "./chartInteropState";
 import { loadPlugins } from "./chartPlugins";
 import { parsePayload } from "./payload";
-import { ChartInitResult } from "./types";
+import type { ChartInitResult, ChartInstance, ChartJsRuntimeConfiguration } from "./types";
 
 declare const Chart: any;
 
 
 let chartJsLoadPromise: Promise<void> | null = null;
 
-export function getLiveChart(chartId: string): any | undefined {
+export function getLiveChart(chartId: string): ChartInstance | undefined {
     const mappedChart = chartJsInterop.charts.get(chartId);
     if (mappedChart && mappedChart.data) {
         return mappedChart;
@@ -70,7 +70,7 @@ export async function initChart(
     }
 }
 
-function buildChartConfig(dotnetConfig: any): any {
+function buildChartConfig(dotnetConfig: any): ChartJsRuntimeConfiguration {
     return {
         type: dotnetConfig.type,
         data: dotnetConfig.data,
