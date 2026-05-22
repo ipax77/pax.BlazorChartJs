@@ -141,7 +141,7 @@ public class LineChartTests : ChartPageTest
 
         var snapshot = await Page.EvaluateAsync<string>(
             @"async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
                 const chart = Chart.getChart(chartId);
                 let updateCount = 0;
                 const originalUpdate = chart.update.bind(chart);
