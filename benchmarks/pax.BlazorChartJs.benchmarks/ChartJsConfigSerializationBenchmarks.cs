@@ -34,7 +34,7 @@ public class ChartJsConfigSerializationBenchmarks
     [Benchmark]
     public int SourceGeneratedContextPath()
     {
-        var json = JsonSerializer.Serialize(config, ChartJsJsonContext.Default.ChartJsConfig);
+        var json = JsonSerializer.Serialize(config, BenchmarkChartJsJsonContext.Default.ChartJsConfig);
         return GetPayloadLengthWithMarkerScan(json);
     }
 

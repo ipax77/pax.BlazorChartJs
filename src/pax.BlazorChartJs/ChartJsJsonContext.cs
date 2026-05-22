@@ -6,7 +6,7 @@ namespace pax.BlazorChartJs;
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    GenerationMode = JsonSourceGenerationMode.Metadata | JsonSourceGenerationMode.Serialization,
+    GenerationMode = JsonSourceGenerationMode.Serialization,
     Converters = new[]
     {
         typeof(JsonStringEnumConverter<ChartType>),
