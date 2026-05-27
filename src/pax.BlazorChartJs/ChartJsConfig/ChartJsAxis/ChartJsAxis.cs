@@ -9,12 +9,13 @@ public record ChartJsAxis
     /// Which type of axis this is. Possible values are: 'x', 'y', 'r'. If not set, this is inferred from the first character of the ID which should be 'x' or 'y'
     /// </summary>        
     public string? Axis { get; set; }
-    public string? BackgroundColor { get; set; }
+    public IndexableOption<string>? BackgroundColor { get; set; }
     public ChartJsAxisBorder? Border { get; set; }
     /// <summary>
     /// Controls the axis global visibility (visible when true, hidden when false). When display: 'auto', the axis is visible only if at least one associated dataset is visible.
     /// </summary>   
     public object? Display { get; set; }
+    public bool? Clip { get; set; }
     public ChartJsGrid? Grid { get; set; }
     public double? Min { get; set; }
     public double? Max { get; set; }
@@ -36,18 +37,18 @@ public record ChartJsAxis
 public record ChartJsAxisBorder
 {
     public bool? Display { get; set; }
-    public string? Color { get; set; }
+    public IndexableOption<string>? Color { get; set; }
     public double? Width { get; set; }
 #pragma warning disable CA2227
     /// <summary>
     /// Length and spacing of dashes on grid lines. <see  href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash">MDN</see>
     /// </summary>   
-    public ICollection<double>? Dash { get; set; }
+    public IndexableOption<object>? Dash { get; set; }
 #pragma warning restore CA2227
     /// <summary>
     /// Offset for line dashes. <see  href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset">MDN</see>
     /// </summary>   
-    public double? DashOffset { get; set; }
+    public IndexableOption<double>? DashOffset { get; set; }
     /// <summary>
     /// z-index of the border layer. Values &lt;= 0 are drawn under datasets, &gt; 0 on top.
     /// </summary>   

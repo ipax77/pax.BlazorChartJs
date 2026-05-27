@@ -68,7 +68,7 @@ public partial class LineChartComp : ComponentBase
                             Display = true,
                             Text = "GameTime",
                             Color = "black",
-                            Font = new()
+                            Font = new Font
                             {
                                 Size = 16
                             },
@@ -87,7 +87,7 @@ public partial class LineChartComp : ComponentBase
                             Align = "center",
                             CrossAlign = "near",
                             ShowLabelBackdrop = false,
-                            BackdropPadding = new Padding(2)
+                            BackdropPadding = 2
                         },
                         Grid = new ChartJsGrid()
                         {
@@ -116,7 +116,7 @@ public partial class LineChartComp : ComponentBase
                             Display = true,
                             Text = new IndexableOption<string>("%"),
                             Color = "red",
-                            Font = new()
+                            Font = new Font
                             {
                                 Size = 16
                             },
@@ -135,7 +135,7 @@ public partial class LineChartComp : ComponentBase
                             Align = "center",
                             CrossAlign = "near",
                             ShowLabelBackdrop = false,
-                            BackdropPadding = new Padding(2)
+                            BackdropPadding = 2
                         },
                         Grid = new ChartJsGrid()
                         {

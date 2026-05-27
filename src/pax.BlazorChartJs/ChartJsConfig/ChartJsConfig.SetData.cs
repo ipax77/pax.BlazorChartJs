@@ -38,17 +38,17 @@ public partial class ChartJsConfig
     {
         if (dataset is LineDataset lineDataset)
         {
-            lineDataset.BorderColor = borderColor.SingleValue;
+            lineDataset.BorderColor = borderColor;
         }
 
         else if (dataset is RadarDataset radarDataset)
         {
-            radarDataset.BorderColor = borderColor.SingleValue;
+            radarDataset.BorderColor = borderColor;
         }
 
         else if (dataset is ScatterDataset scatterDataset)
         {
-            scatterDataset.BorderColor = borderColor.SingleValue;
+            scatterDataset.BorderColor = borderColor;
         }
 
         else if (dataset is BarDataset barDataset)
@@ -77,17 +77,17 @@ public partial class ChartJsConfig
     {
         if (dataset is LineDataset lineDataset)
         {
-            lineDataset.BackgroundColor = backgroundColor.SingleValue;
+            lineDataset.BackgroundColor = backgroundColor;
         }
 
         else if (dataset is RadarDataset radarDataset)
         {
-            radarDataset.BackgroundColor = backgroundColor.SingleValue;
+            radarDataset.BackgroundColor = backgroundColor;
         }
 
         else if (dataset is ScatterDataset scatterDataset)
         {
-            scatterDataset.BackgroundColor = backgroundColor.SingleValue;
+            scatterDataset.BackgroundColor = backgroundColor;
         }
 
         else if (dataset is BarDataset barDataset)

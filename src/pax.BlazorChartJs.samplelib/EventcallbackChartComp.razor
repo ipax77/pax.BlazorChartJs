@@ -1,11 +1,10 @@
 @using pax.BlazorChartJs
-@using Microsoft.JSInterop
-
-@inject IJSRuntime jsRuntime
-@implements IAsyncDisposable
 
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetColorCallback">UpdateDataset Color Callback</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetsColorCallback">UpdateDatasets Color Callback</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetSmoothColorCallback">UpdateDatasetSmooth Color Callback</button>
 </div>
 <div class="chart-container w-75">
     <ChartComponent @ref="chartComponent" ChartJsConfig="chartJsConfig" OnEventTriggered="ChartEventTriggered">
@@ -16,12 +15,15 @@
     ChartJsConfig chartJsConfig = null!;
     ChartComponent? chartComponent;
     private bool chartReady;
-    private Lazy<Task<IJSObjectReference>>? moduleTask;
+    private enum DatasetUpdateMode
+    {
+        Dataset,
+        Datasets,
+        Smooth
+    }
+
     protected override void OnInitialized()
     {
-        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-        "import", "./_content/pax.BlazorChartJs.samplelib/callbackChart.js").AsTask());
-
         chartJsConfig = new ChartJsConfig()
             {
                 Type = ChartType.bar,
@@ -33,7 +35,8 @@
                         new BarDataset()
                         {
                         Label = "Dataset 1",
-                        Data = new List<object>() { 1, 2, 3 }
+                        Data = new List<object>() { 1, 2, 3 },
+                        BackgroundColor = ChartJsFunction.FromName("createRepeatFillPattern")
                         }
                     }
                 },
@@ -41,10 +44,27 @@
                 {
                     Plugins = new Plugins()
                     {
+                        Legend = new Legend()
+                        {
+                            Labels = new Labels()
+                            {
+                                Filter = ChartJsFunction.FromName("showLegendItem")
+                            }
+                        },
                         Title = new Title() 
                         {
                             Display = true,
                             Text = new IndexableOption<string>("Add \"$\" to y-axis ticks")
+                        }
+                    },
+                    Scales = new ChartJsOptionsScales()
+                    {
+                        Y = new LinearAxis()
+                        {
+                            Ticks = new LinearAxisTick()
+                            {
+                                Callback = ChartJsFunction.FromName("formatCurrency")
+                            }
                         }
                     }
                 }
@@ -57,19 +77,7 @@
         if (chartJsEvent is ChartJsInitEvent initEvent)
         {
             chartReady = true;
-            _ = SetTickCallback();
         }
-    }
-
-    private async Task SetTickCallback()
-    {
-        if (moduleTask is null)
-        {
-            return;
-        }
-        var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("setTickCallback", chartJsConfig.ChartJsConfigGuid)
-            .ConfigureAwait(false);
     }
 
     private void Randomize()
@@ -96,12 +104,41 @@
         chartJsConfig.SetData(chartData);
     }
 
-    public async ValueTask DisposeAsync()
+    private void UpdateDatasetColorCallback()
     {
-        if (moduleTask is not null && moduleTask.IsValueCreated)
+        UpdateBackgroundColorCallback("updateDatasetColor", DatasetUpdateMode.Dataset);
+    }
+
+    private void UpdateDatasetsColorCallback()
+    {
+        UpdateBackgroundColorCallback("updateDatasetsColor", DatasetUpdateMode.Datasets);
+    }
+
+    private void UpdateDatasetSmoothColorCallback()
+    {
+        UpdateBackgroundColorCallback("updateDatasetSmoothColor", DatasetUpdateMode.Smooth);
+    }
+
+    private void UpdateBackgroundColorCallback(string callbackName, DatasetUpdateMode updateMode)
+    {
+        if (!chartReady || chartJsConfig.Data.Datasets.Count == 0 || chartJsConfig.Data.Datasets[0] is not BarDataset barDataset)
         {
-            var module = await moduleTask.Value.ConfigureAwait(false);
-            await module.DisposeAsync().ConfigureAwait(false);
+            return;
+        }
+
+        barDataset.BackgroundColor = ChartJsFunction.FromName(callbackName);
+
+        switch (updateMode)
+        {
+            case DatasetUpdateMode.Dataset:
+                chartJsConfig.UpdateDataset(barDataset);
+                break;
+            case DatasetUpdateMode.Datasets:
+                chartJsConfig.UpdateDatasets([barDataset]);
+                break;
+            case DatasetUpdateMode.Smooth:
+                chartJsConfig.UpdateDatasetSmooth(barDataset);
+                break;
         }
     }
 }

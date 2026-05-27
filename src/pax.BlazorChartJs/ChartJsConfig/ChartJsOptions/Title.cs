@@ -11,7 +11,7 @@ public record Title
     /// 'end'    
     /// </summary>
     public string? Align { get; set; }
-    public object? Color { get; set; }
+    public IndexableOption<string>? Color { get; set; }
     public bool? Display { get; set; }
     public bool? FullSize { get; set; }
     /// <summary>
@@ -24,7 +24,7 @@ public record Title
     /// 'right'
     /// </summary>    
     public string? Position { get; set; }
-    public Font? Font { get; set; }
+    public IndexableOption<Font>? Font { get; set; }
     public Padding? Padding { get; set; }
     public IndexableOption<string>? Text { get; set; }
 }

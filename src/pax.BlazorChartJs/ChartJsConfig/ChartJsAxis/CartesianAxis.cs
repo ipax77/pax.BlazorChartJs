@@ -1,6 +1,8 @@
 
 namespace pax.BlazorChartJs;
 
+#pragma warning disable CA2227
+
 /// <summary>
 /// Cartesian Axes
 /// Axes that follow a cartesian grid are known as 'Cartesian Axes'. Cartesian axes are used for line, bar, and bubble charts. Four cartesian axes are included in Chart.js by default.
@@ -22,6 +24,10 @@ public record CartesianAxis : ChartJsAxis
     /// </summary>
     public string? Bounds { get; set; }
     /// <summary>
+    /// Category labels to use when this cartesian scale is configured as a category axis.
+    /// </summary>
+    public IList<string>? Labels { get; set; }
+    /// <summary>
     /// Axis Position
     /// An axis can either be positioned at the edge of the chart, at the center of the chart area, or dynamically with respect to a data value.
     ///
@@ -39,3 +45,5 @@ public record CartesianAxis : ChartJsAxis
     public int? StackWeight { get; set; }
     public bool? Offset { get; set; }
 }
+
+#pragma warning restore CA2227

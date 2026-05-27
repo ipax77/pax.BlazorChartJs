@@ -3,88 +3,78 @@ using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 
 namespace pax.BlazorChartJs;
+
 /// <summary>
-/// Represents an object that can be either a single value or an IList of values. This is used for type safe js-interop.
+/// Represents a Chart.js option that can be a single value, an indexed list of values,
+/// or a scriptable JavaScript callback reference.
 /// </summary>
-/// <typeparam name="T">The type of data this <see cref="IndexableOption{T}"/> is supposed to hold.</typeparam>
 [CollectionBuilder(typeof(IndexableOptionBuilder), "Create")]
 public class IndexableOption<T> : IEnumerable<T>
 {
     private readonly List<T>? _indexedValues;
 
-    /// <summary>
-    /// The indexed values represented by this instance.
-    /// </summary>
     public IList<T>? IndexedValues => _indexedValues;
 
-    /// <summary>
-    /// The single value represented by this instance.
-    /// </summary>
     public T? SingleValue { get; }
 
-    /// <summary>
-    /// Gets the value indicating whether the option wrapped in this <see cref="IndexableOption{T}"/> is indexed.
-    /// <para>True if the wrapped value represents an IList of <typeparamref name="T"/>, false if it represents a single value of <typeparamref name="T"/>.</para>
-    /// </summary>
-    public bool IsIndexed { get; private set; }
+    public ChartJsFunction? FunctionValue { get; }
 
-    /// <summary>
-    /// Creates a new instance of <see cref="IndexableOption{T}"/> which represents a single value.
-    /// </summary>
-    /// <param name="singleValue">The single value this <see cref="IndexableOption{T}"/> should represent.</param>
+    public IndexableOptionKind Kind { get; }
+
+    public bool IsIndexed => Kind == IndexableOptionKind.Indexed;
+
+    public bool IsFunction => Kind == IndexableOptionKind.Function;
+
     public IndexableOption(T singleValue)
     {
         SingleValue = singleValue;
-        IsIndexed = false;
+        Kind = IndexableOptionKind.SingleValue;
     }
 
-    /// <summary>
-    /// Creates a new instance of <see cref="IndexableOption{T}"/> which represents an IList of values.
-    /// </summary>
-    /// <param name="indexedValues">The IList of values this <see cref="IndexableOption{T}"/> should represent.</param>
     public IndexableOption(IList<T> indexedValues)
     {
         _indexedValues = [.. indexedValues];
-        IsIndexed = true;
+        Kind = IndexableOptionKind.Indexed;
     }
 
     public IndexableOption(ICollection<T> values)
     {
         _indexedValues = [.. values];
-        IsIndexed = true;
+        Kind = IndexableOptionKind.Indexed;
     }
 
     public IndexableOption(ReadOnlySpan<T> values)
     {
         _indexedValues = [.. values];
-        IsIndexed = true;
+        Kind = IndexableOptionKind.Indexed;
     }
 
-    public int Count => _indexedValues == null ? 0 : _indexedValues.Count;
+    public IndexableOption(ChartJsFunction function)
+    {
+        FunctionValue = function ?? throw new ArgumentNullException(nameof(function));
+        Kind = IndexableOptionKind.Function;
+    }
+
+    public int Count => _indexedValues?.Count ?? 0;
 
     public void Insert(int index, T item)
     {
-        _indexedValues?.Insert(index, item);
+        EnsureIndexed().Insert(index, item);
     }
 
     public void Add(T item)
     {
-        _indexedValues?.Add(item);
+        EnsureIndexed().Add(item);
     }
 
     public void RemoveAt(int index)
     {
-        _indexedValues?.RemoveAt(index);
+        EnsureIndexed().RemoveAt(index);
     }
 
     public void Remove(T item)
     {
-        _ = _indexedValues?.Remove(item);
-    }
-
-    public IndexableOption<T> FromT(T value)
-    {
-        return new(value);
+        _ = EnsureIndexed().Remove(item);
     }
 
     public static implicit operator IndexableOption<T>(T value)
@@ -92,22 +82,17 @@ public class IndexableOption<T> : IEnumerable<T>
         return new(value);
     }
 
-#pragma warning disable CA1002 // Do not expose generic lists
-    public IndexableOption<T> FromList(List<T> value)
+    public static implicit operator IndexableOption<T>(ChartJsFunction function)
     {
-        return [.. value];
+        return new(function);
     }
 
+#pragma warning disable CA1002
     public static implicit operator IndexableOption<T>(List<T> value)
     {
         return [.. value];
     }
-#pragma warning restore CA1002 // Do not expose generic lists
-
-    public IndexableOption<T> FromCollection(Collection<T> value)
-    {
-        return [.. value];
-    }
+#pragma warning restore CA1002
 
     public static implicit operator IndexableOption<T>(Collection<T> value)
     {
@@ -116,26 +101,63 @@ public class IndexableOption<T> : IEnumerable<T>
 
     internal object GetJsonObject()
     {
-        return IsIndexed ?
-              IndexedValues ?? throw new ArgumentNullException()
-            : SingleValue ?? throw new ArgumentNullException();
+        return Kind switch
+        {
+            IndexableOptionKind.SingleValue =>
+                SingleValue ?? throw new InvalidOperationException("Single value is null."),
+
+            IndexableOptionKind.Indexed =>
+                IndexedValues ?? throw new InvalidOperationException("Indexed values are null."),
+
+            IndexableOptionKind.Function =>
+                FunctionValue ?? throw new InvalidOperationException("Function value is null."),
+
+            _ => throw new InvalidOperationException($"Unsupported {nameof(IndexableOptionKind)}: {Kind}.")
+        };
     }
 
     public IEnumerator<T> GetEnumerator()
     {
-        return _indexedValues is not null
-            ? _indexedValues.GetEnumerator()
-            : SingleValue is not null
-                ? (IEnumerator<T>)new List<T>() { SingleValue }.GetEnumerator()
-                : throw new ArgumentNullException(nameof(IndexedValues));
+        return Kind switch
+        {
+            IndexableOptionKind.Indexed when _indexedValues is not null =>
+                _indexedValues.GetEnumerator(),
+
+            IndexableOptionKind.SingleValue when SingleValue is not null =>
+                new[] { SingleValue }.AsEnumerable().GetEnumerator(),
+
+            IndexableOptionKind.Function =>
+                Enumerable.Empty<T>().GetEnumerator(),
+
+            _ => throw new InvalidOperationException("IndexableOption is not initialized correctly.")
+        };
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
+
+    private List<T> EnsureIndexed()
+    {
+        return _indexedValues is null
+            ? throw new InvalidOperationException(
+                "This IndexableOption does not contain indexed values.")
+            : _indexedValues;
+    }
+
+    public IndexableOption<T> ToIndexableOption()
+    {
+        throw new NotImplementedException();
+    }
 }
 
+public enum IndexableOptionKind
+{
+    SingleValue,
+    Indexed,
+    Function
+}
 
 public static class IndexableOptionBuilder
 {
@@ -144,4 +166,3 @@ public static class IndexableOptionBuilder
         return new IndexableOption<T>(values);
     }
 }
-

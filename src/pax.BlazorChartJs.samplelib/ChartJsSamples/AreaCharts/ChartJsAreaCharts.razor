@@ -1,0 +1,29 @@
+@namespace pax.BlazorChartJs.samplelib.ChartJsSamples.AreaCharts
+
+@switch (ResolvedSampleId)
+{
+    case "line-datasets":
+        <ChartJsAreaLineDatasetsSample />
+        break;
+    case "line-drawtime":
+        <ChartJsAreaLineDrawTimeSample />
+        break;
+    case "line-stacked":
+        <ChartJsAreaLineStackedSample />
+        break;
+    case "radar-stacked":
+        <ChartJsAreaRadarStackedSample />
+        break;
+    default:
+        <ChartJsAreaLineBoundariesSample />
+        break;
+}
+
+@code {
+    [Parameter]
+    public string SampleId { get; set; } = "line-boundaries";
+
+    private string ResolvedSampleId => ChartJsAreaChartSampleBase.IsKnownSample(SampleId)
+        ? SampleId
+        : "line-boundaries";
+}

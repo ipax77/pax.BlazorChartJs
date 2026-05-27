@@ -27,6 +27,8 @@ public partial class ChartJsConfig
     internal event EventHandler<DatasetsRemoveEventArgs>? DatasetsRemove;
     internal event EventHandler<DatasetsUpdateEventArgs>? DatasetsUpdate;
     internal event EventHandler<DatasetsSetEventArgs>? DatasetsSet;
+    internal event EventHandler<DatasetsBinaryDataSetEventArgs>? DatasetsBinaryDataSet;
+    internal event EventHandler<DatasetsSmoothChangeSet>? DatasetChangesSmooth;
     internal event EventHandler<DataAddEventArgs>? DataAdd;
     internal event EventHandler<DataRemoveEventArgs>? DataRemove;
     internal event EventHandler<DataSetEventArgs>? DataSet;
@@ -80,6 +82,18 @@ public partial class ChartJsConfig
     internal virtual void OnDatasetsSet(DatasetsSetEventArgs e)
     {
         EventHandler<DatasetsSetEventArgs>? handler = DatasetsSet;
+        handler?.Invoke(this, e);
+    }
+
+    internal virtual void OnDatasetsBinaryDataSet(DatasetsBinaryDataSetEventArgs e)
+    {
+        EventHandler<DatasetsBinaryDataSetEventArgs>? handler = DatasetsBinaryDataSet;
+        handler?.Invoke(this, e);
+    }
+
+    internal virtual void OnDatasetChangesSmooth(DatasetsSmoothChangeSet e)
+    {
+        EventHandler<DatasetsSmoothChangeSet>? handler = DatasetChangesSmooth;
         handler?.Invoke(this, e);
     }
 

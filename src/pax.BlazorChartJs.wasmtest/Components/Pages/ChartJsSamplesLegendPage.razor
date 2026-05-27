@@ -1,0 +1,33 @@
+@page "/chartjs-samples/legend"
+@page "/chartjs-samples/legend/{SampleId}"
+@using pax.BlazorChartJs.samplelib.ChartJsSamples.Backlog
+
+<PageTitle>Chart.js Legend</PageTitle>
+
+@switch (ResolvedSampleId)
+{
+    case "html":
+        <LegendHtmlSample />
+        break;
+    case "point-style":
+        <LegendPointStyleSample />
+        break;
+    case "position":
+        <LegendPositionSample />
+        break;
+    case "title":
+        <LegendTitleSample />
+        break;
+    default:
+        <LegendEventsSample />
+        break;
+}
+
+@code {
+    [Parameter]
+    public string? SampleId { get; set; }
+
+    private string ResolvedSampleId => string.IsNullOrWhiteSpace(SampleId)
+        ? ChartJsBacklogSamples.ResolveDefaultSample("legend")
+        : SampleId;
+}

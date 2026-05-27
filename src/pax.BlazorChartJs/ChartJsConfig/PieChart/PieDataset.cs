@@ -14,6 +14,8 @@ public record PieDataset : ChartJsDataset
     /// BorderAlign - 'center'|'inner'
     /// </summary>      
     public IndexableOption<string>? BorderAlign { get; set; }
+    public IndexableOption<object>? BorderDash { get; set; }
+    public IndexableOption<double>? BorderDashOffset { get; set; }
     /// <summary>
     /// BorderJoinStyle - 'round'|'bevel'|'miter'
     /// </summary>
@@ -23,7 +25,7 @@ public record PieDataset : ChartJsDataset
     /// If this value is a number, it is applied to all corners of the arc (outerStart, outerEnd, innerStart, innerRight). If this value is an object, the outerStart property defines the outer-start corner's border radius. Similarly, the outerEnd, innerStart, and innerEnd properties can also be specified    
     /// <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>           
-    public object? BorderRadius { get; set; }
+    public IndexableOption<object>? BorderRadius { get; set; }
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/charts/doughnut.html#border-radius">ChartJs docs</see>
     /// </summary>
@@ -50,6 +52,7 @@ public record PieDataset : ChartJsDataset
     /// </summary>        
     // todo: can be object
     public IndexableOption<double>? BorderWidth { get; set; }
+    public IndexableOption<bool>? Circular { get; set; }
     public double? Circumference { get; set; }
     // todo: can be object
     /// <summary>
@@ -62,6 +65,9 @@ public record PieDataset : ChartJsDataset
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>      
     public IndexableOption<string>? HoverBackgroundColor { get; set; }
+    public IndexableOption<string>? HoverBorderColor { get; set; }
+    public IndexableOption<object>? HoverBorderDash { get; set; }
+    public IndexableOption<double>? HoverBorderDashOffset { get; set; }
     /// <summary>
     /// HoverBorderJoinStyle - 'round'|'bevel'|'miter'
     /// </summary>          
@@ -71,9 +77,14 @@ public record PieDataset : ChartJsDataset
     /// </summary>      
     public IndexableOption<double>? HoverBorderWidth { get; set; }
     public IndexableOption<double>? HoverOffset { get; set; }
+    public string? IndexAxis { get; set; }
+    public string? Label { get; set; }
     public IndexableOption<double>? Offset { get; set; }
+    public int? Order { get; set; }
     public double? Rotation { get; set; }
+    public IndexableOption<bool>? SelfJoin { get; set; }
     public double? Spacing { get; set; }
+    public string? Stack { get; set; }
     public double? Weight { get; set; }
     /// <summary>
     /// The portion of the chart that is cut out of the middle. If string and ending with '%', percentage of the chart radius. number is considered to be pixels.
@@ -83,7 +94,7 @@ public record PieDataset : ChartJsDataset
     /// The outer radius of the chart. If string and ending with '%', percentage of the maximum radius. number is considered to be pixels.
     /// </summary>  
     public StringOrDoubleValue? Radius { get; set; }
-    public PieDatasetAnimation? Animation { get; set; }
+    public new PieDatasetAnimation? Animation { get; set; }
 }
 
 public record PieDatasetAnimation

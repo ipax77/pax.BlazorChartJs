@@ -158,7 +158,8 @@
                 BorderWidth = 1,
                 Anchor = "end",
                 Align = "start",
-                Clip = true
+                Clip = true,
+                Formatter = ChartJsFunction.FromName("formatPercent")
             };
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
@@ -192,7 +193,8 @@
                 BorderWidth = 1,
                 Anchor = "end",
                 Align = "start",
-                Clip = true
+                Clip = true,
+                Formatter = ChartJsFunction.FromName("formatPercent")
             };
 
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
@@ -213,7 +215,8 @@
                 BorderWidth = 1,
                 Anchor = "end",
                 Align = "start",
-                Clip = true
+                Clip = true,
+                Formatter = ChartJsFunction.FromName("formatPercent")
             };
 
         string[] colors = new string[] { "#0000ff", "#e61234", "#71ac49", "#003030", "#d47fff" };

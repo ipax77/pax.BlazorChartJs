@@ -9,12 +9,12 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ipax77/pax.BlazorChartJs</RepositoryUrl>
     <PackageTags>blazor;dotnet;wrapper;chartjs</PackageTags>
-    <AssemblyVersion>0.8.8.0</AssemblyVersion>
+    <AssemblyVersion>0.9.0.0</AssemblyVersion>
     <Owners>Philipp Hetzner</Owners>
     <Authors>Philipp Hetzner</Authors>
-    <Version>0.8.8</Version>
-	  <FileVersion>0.8.8.0</FileVersion>
-    <PackageVersion>0.8.8</PackageVersion>
+    <Version>0.9.0</Version>
+	  <FileVersion>0.9.0.0</FileVersion>
+    <PackageVersion>0.9.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>    
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -38,11 +38,25 @@
       <Pack>True</Pack>
       <PackagePath>.</PackagePath>
     </None>
+    <None Update="package.json;package-lock.json;tsconfig.json">
+      <Pack>False</Pack>
+    </None>
+    <Content Update="package.json;package-lock.json;tsconfig.json">
+      <Pack>False</Pack>
+    </Content>
   </ItemGroup>
   
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ChartJsInteropSources Include="TypeScript/**/*.ts" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <ChartJsInteropOutput>wwwroot/chartJsInterop.js</ChartJsInteropOutput>
+  </PropertyGroup>
 
   <ItemGroup>
     <AssemblyAttribute Include="System.CLSCompliantAttribute">
@@ -57,4 +71,16 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <Target Name="RestoreChartJsInteropNodePackages"
+          BeforeTargets="CompileTypeScript"
+          Inputs="$(MSBuildProjectDirectory)/package.json;$(MSBuildProjectDirectory)/package-lock.json"
+          Outputs="$(MSBuildProjectDirectory)/node_modules/.package-lock.json">
+    <Exec Command="npm ci"
+          WorkingDirectory="$(MSBuildProjectDirectory)"
+          Condition="Exists('$(MSBuildProjectDirectory)/package-lock.json')" />
+    <Exec Command="npm install"
+          WorkingDirectory="$(MSBuildProjectDirectory)"
+          Condition="!Exists('$(MSBuildProjectDirectory)/package-lock.json')" />
+  </Target>
 </Project>

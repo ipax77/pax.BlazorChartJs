@@ -7,7 +7,7 @@ namespace pax.BlazorChartJs;
 public record AngleLines
 {
     public bool? Display { get; set; }
-    public object? Color { get; set; }
+    public IndexableOption<string>? Color { get; set; }
     public double? LineWidth { get; set; }
 #pragma warning disable CA2227    
     public IList<double>? BorderDash { get; set; }

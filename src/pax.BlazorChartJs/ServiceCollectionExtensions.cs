@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json.Serialization;
 
 namespace pax.BlazorChartJs;
 
@@ -37,4 +38,15 @@ public record ChartJsSetupOptions
     /// It can also be a local path to wwwroot folder e.g. "/_content/myrazorclasslib/js/chartjs-plugin-annotation.min.js".
     /// </summary>
     public string ChartJsPluginDatalabelsLocation { get; set; } = "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2";
+
+    /// <summary>
+    /// JavaScript module location exporting a chartJsCallbacks object for no-eval callback resolution.
+    /// </summary>
+    public string? ChartJsCallbacksModuleLocation { get; set; }
+
+    /// <summary>
+    /// Global Chart.js defaults applied to Chart.defaults after Chart.js is loaded.
+    /// </summary>
+    [JsonIgnore]
+    public ChartJsDefaultsOptions? Defaults { get; set; }
 }

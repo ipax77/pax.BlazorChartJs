@@ -3,7 +3,6 @@ using Microsoft.JSInterop;
 using pax.BlazorChartJs.BlazorLegend;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace pax.BlazorChartJs;
@@ -14,32 +13,19 @@ namespace pax.BlazorChartJs;
 /// <remarks>
 /// ChartJsInterop
 /// </remarks>
-public class ChartJsInterop(IJSRuntime jsRuntime,
-                      // ILogger<ChartJsInterop> logger,
+public partial class ChartJsInterop(IJSRuntime jsRuntime,
+                      //   ILogger<ChartJsInterop> logger,
                       IOptions<ChartJsSetupOptions>? options) : IAsyncDisposable
 {
-    private const string ChartJsInteropVersion = "0.8.8";
+    private const string ChartJsInteropVersion = "0.9.0-preview2";
+    private const string ChartJsFunctionMarkerProperty = "\"__chartJsFunction\"";
     private readonly ChartJsSetupOptions? setupOptions = options?.Value;
     private readonly Lazy<Task<IJSObjectReference>> moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
             "import", $"./_content/pax.BlazorChartJs/chartJsInterop.js?v={ChartJsInteropVersion}").AsTask());
     // private readonly ILogger<ChartJsInterop> logger;
-    private readonly JsonSerializerOptions jsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Converters =
-            {
-                new JsonStringEnumConverter(),
-                new IndexableOptionStringConverter(),
-                new IndexableOptionDoubleConverter(),
-                new IndexableOptionIntConverter(),
-                new IndexableOptionBoolConverter(),
-                new IndexableOptionObjectConverter(),
-                new ChartJsDatasetJsonConverter(),
-                new ChartJsAxisJsonConverter(),
-                new ChartJsAxisTickJsonConverter(),
-            }
-    };
+    private readonly JsonSerializerOptions jsonOptions = CreateJsonSerializerOptions();
+    private bool setupDefaultsSerialized;
+    private SerializedChartJsPayload serializedSetupDefaults;
 
     public IJSRuntime JsRuntime { get; } = jsRuntime;
 
@@ -57,7 +43,17 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         {
             var module = await moduleTask.Value.ConfigureAwait(false);
             var serializedConfig = SerializeConfig(config);
-            return await module.InvokeAsync<ChartJsInitResult>("initChart", setupOptions, config.ChartJsConfigGuid, serializedConfig, dotnetRef)
+            var serializedDefaults = SerializeSetupDefaults();
+            return await module.InvokeAsync<ChartJsInitResult>(
+                "initChart",
+                setupOptions,
+                config.ChartJsConfigGuid,
+                serializedConfig.Json,
+                serializedConfig.HasChartJsFunctions,
+                dotnetRef,
+                serializedDefaults.Json,
+                serializedDefaults.HasChartJsFunctions,
+                serializedDefaults.Key)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException)
@@ -79,7 +75,8 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         ArgumentNullException.ThrowIfNull(dotnetRef);
 
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("updateChartOptions", config.ChartJsConfigGuid, SerializeConfigOptions(config))
+        var serializedOptions = SerializeConfigOptions(config);
+        await module.InvokeVoidAsync("updateChartOptions", config.ChartJsConfigGuid, setupOptions, serializedOptions.Json, serializedOptions.HasChartJsFunctions)
             .ConfigureAwait(false);
     }
 
@@ -106,6 +103,50 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
             .ConfigureAwait(false);
     }
 
+    public async ValueTask SetDatasetBinaryData(Guid configGuid, ChartJsBinaryDatasetPayload payload, string updateMode = "none")
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+
+        await SetDatasetsBinaryData(configGuid, [payload], updateMode).ConfigureAwait(false);
+    }
+
+    public async ValueTask SetDatasetsBinaryData(Guid configGuid, IReadOnlyList<ChartJsBinaryDatasetPayload> payloads, string updateMode = "none")
+    {
+        ArgumentNullException.ThrowIfNull(payloads);
+        ArgumentNullException.ThrowIfNull(updateMode);
+
+        if (payloads.Count == 0)
+        {
+            return;
+        }
+
+        ChartJsConfig.ValidateBinaryDatasetPayloads(payloads);
+
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        object[] metadata = new object[payloads.Count];
+        object?[] args = new object?[3 + payloads.Count];
+        args[0] = configGuid;
+        args[1] = metadata;
+        args[2] = updateMode;
+
+        for (int i = 0; i < payloads.Count; i++)
+        {
+            var payload = payloads[i];
+            metadata[i] = new
+            {
+                datasetId = payload.DatasetId,
+                count = payload.Count,
+                format = payload.Format.ToString(),
+                xOffset = payload.XOffset,
+                yOffset = ChartJsConfig.GetEffectiveYOffset(payload),
+                byteStride = payload.ByteStride
+            };
+            args[3 + i] = payload.Bytes;
+        }
+
+        await module.InvokeVoidAsync("setDatasetsBinaryData", args).ConfigureAwait(false);
+    }
+
     /// <summary>
     /// Add last data to all datasets
     /// </summary>
@@ -124,7 +165,8 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     public async ValueTask AddDataset(Guid configGuid, object dataset, string? afterDatasetId)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("addChartDataset", configGuid, SerializeConfigDataset(dataset), afterDatasetId)
+        var serializedDataset = SerializeConfigDataset(dataset);
+        await module.InvokeVoidAsync("addChartDataset", configGuid, setupOptions, serializedDataset.Json, serializedDataset.HasChartJsFunctions, afterDatasetId)
                 .ConfigureAwait(false);
     }
 
@@ -285,13 +327,15 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     /// If dataIndex is specified, sets the hidden flag of that element to false and updates the chart.
     /// </summary>
     /// <param name="configGuid"></param>
-    /// <param name="datasetIndex"></param>
+    /// <param name="dataset"></param>
     /// <param name="index"></param>
     /// <returns></returns>
-    public async ValueTask ShowDataset(Guid configGuid, int datasetIndex, int? index)
+    public async ValueTask ShowDataset(Guid configGuid, ChartJsDataset dataset, int? index)
     {
+        ArgumentNullException.ThrowIfNull(dataset);
+
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("showDataset", configGuid, datasetIndex, index)
+        await module.InvokeVoidAsync("showDataset", configGuid, dataset.Id, index)
             .ConfigureAwait(false);
     }
 
@@ -316,7 +360,8 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     internal async ValueTask AddDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("addDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+        var serializedDatasets = SerializeDatasets(datasets);
+        await module.InvokeVoidAsync("addDatasets", configGuid, setupOptions, serializedDatasets.Json, serializedDatasets.HasChartJsFunctions).ConfigureAwait(false);
     }
 
     internal async ValueTask RemoveDatasets(Guid configGuid, IList<string> datasetIds)
@@ -328,23 +373,54 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
     internal async ValueTask UpdateDatasets(Guid configGuid, IList<ChartJsDataset> datasets, bool smooth = false)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
+        var serializedDatasets = SerializeDatasets(datasets);
         if (smooth)
         {
-            await module.InvokeVoidAsync("updateDatasetsSmooth", configGuid, SerializeDatasets(datasets))
+            await module.InvokeVoidAsync("updateDatasetsSmooth", configGuid, setupOptions, serializedDatasets.Json, serializedDatasets.HasChartJsFunctions)
                 .ConfigureAwait(false);
         }
         else
         {
-            await module.InvokeVoidAsync("updateDatasets", configGuid, SerializeDatasets(datasets))
+            await module.InvokeVoidAsync("updateDatasets", configGuid, setupOptions, serializedDatasets.Json, serializedDatasets.HasChartJsFunctions)
                 .ConfigureAwait(false);
 
         }
     }
 
+    internal async ValueTask ApplyDatasetChangesSmooth(ChartJsConfig config, DatasetsSmoothChangeSet changeSet)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(changeSet);
+
+        var module = await moduleTask.Value.ConfigureAwait(false);
+        var datasetsToAdd = changeSet.DatasetsToAdd ?? [];
+        var datasetsToUpdateSmooth = changeSet.DatasetsToUpdateSmooth ?? [];
+        var datasetIdsToRemove = changeSet.DatasetIdsToRemove ?? [];
+        var serializedDatasetsToAdd = SerializeDatasets(datasetsToAdd);
+        var serializedDatasetsToUpdateSmooth = SerializeDatasets(datasetsToUpdateSmooth);
+        var serializedOptions = changeSet.UpdateOptions
+            ? SerializeConfigOptions(config)
+            : new SerializedChartJsPayload(null, false, String.Empty);
+
+        await module.InvokeVoidAsync(
+            "applyDatasetChangesSmooth",
+            config.ChartJsConfigGuid,
+            setupOptions,
+            changeSet.DesiredDatasetIds,
+            serializedDatasetsToAdd.Json,
+            serializedDatasetsToUpdateSmooth.Json,
+            datasetIdsToRemove,
+            changeSet.Labels,
+            serializedOptions.Json,
+            serializedDatasetsToAdd.HasChartJsFunctions || serializedDatasetsToUpdateSmooth.HasChartJsFunctions || serializedOptions.HasChartJsFunctions)
+            .ConfigureAwait(false);
+    }
+
     internal async ValueTask SetDatasets(Guid configGuid, IList<ChartJsDataset> datasets)
     {
         var module = await moduleTask.Value.ConfigureAwait(false);
-        await module.InvokeVoidAsync("setDatasets", configGuid, SerializeDatasets(datasets)).ConfigureAwait(false);
+        var serializedDatasets = SerializeDatasets(datasets);
+        await module.InvokeVoidAsync("setDatasets", configGuid, setupOptions, serializedDatasets.Json, serializedDatasets.HasChartJsFunctions).ConfigureAwait(false);
     }
 
     internal async ValueTask<List<ChartJsLegendItem>> GetLegendItems(Guid configGuid)
@@ -393,42 +469,98 @@ public class ChartJsInterop(IJSRuntime jsRuntime,
         }
     }
 
-    private JsonObject? SerializeConfig(ChartJsConfig config)
+    private SerializedChartJsPayload SerializeConfig(ChartJsConfig config)
     {
-        var json = JsonSerializer.Serialize<object>(config, jsonOptions) ?? throw new ArgumentNullException(nameof(config));
-        return JsonSerializer.Deserialize<JsonObject>(json);
+        return SerializeConfig(config, jsonOptions);
     }
 
-    private JsonObject? SerializeConfigOptions(ChartJsConfig config)
+    private SerializedChartJsPayload SerializeConfigOptions(ChartJsConfig config)
     {
         Type configType = config.GetType();
         var options = GetLowestProperty(configType, "Options")?.GetValue(config);
 
         if (options == null)
         {
-            return null;
+            return new(null, false, String.Empty);
         }
 
         var json = JsonSerializer.Serialize<object>(options, jsonOptions) ?? throw new ArgumentNullException(nameof(config));
-        return JsonSerializer.Deserialize<JsonObject>(json);
+        return new(json, ContainsChartJsFunctionMarker(json), json);
     }
 
-    private JsonObject? SerializeConfigDataset(object dataset)
+    private SerializedChartJsPayload SerializeConfigDataset(object dataset)
     {
-        var json = JsonSerializer.Serialize(dataset, jsonOptions);
-        return JsonSerializer.Deserialize<JsonObject>(json);
+        var json = JsonSerializer.Serialize(dataset, jsonOptions) ?? throw new ArgumentNullException(nameof(dataset));
+        return new(json, ContainsChartJsFunctionMarker(json), json);
     }
 
-    private List<JsonObject?> SerializeDatasets(IList<ChartJsDataset> datasets)
+    private SerializedChartJsPayload SerializeDatasets(IList<ChartJsDataset> datasets)
     {
-        List<JsonObject?> jsonObjects = [];
-        for (int i = 0; i < datasets.Count; i++)
+        var json = JsonSerializer.Serialize(datasets, jsonOptions) ?? throw new ArgumentNullException(nameof(datasets));
+        return new(json, ContainsChartJsFunctionMarker(json), String.Empty);
+    }
+
+    private SerializedChartJsPayload SerializeSetupDefaults()
+    {
+        if (setupDefaultsSerialized)
         {
-            var json = JsonSerializer.Serialize(datasets[i], jsonOptions);
-            jsonObjects.Add(JsonSerializer.Deserialize<JsonObject>(json));
+            return serializedSetupDefaults;
         }
-        return jsonObjects;
+
+        setupDefaultsSerialized = true;
+        if (setupOptions?.Defaults == null)
+        {
+            serializedSetupDefaults = new(null, false, String.Empty);
+            return serializedSetupDefaults;
+        }
+
+        var json = JsonSerializer.Serialize<object>(setupOptions.Defaults, jsonOptions)
+            ?? throw new ArgumentNullException(nameof(setupOptions));
+
+        serializedSetupDefaults = new(json, ContainsChartJsFunctionMarker(json), json);
+
+        return serializedSetupDefaults;
     }
+
+    private static bool ContainsChartJsFunctionMarker(string json)
+    {
+        return json.Contains(ChartJsFunctionMarkerProperty, StringComparison.Ordinal);
+    }
+
+    private static SerializedChartJsPayload SerializeConfig(ChartJsConfig config, JsonSerializerOptions options)
+    {
+        var json = JsonSerializer.Serialize<object>(config, options) ?? throw new ArgumentNullException(nameof(config));
+        // logger.LogWarning("{date} - serialized json", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+        var contains = ContainsChartJsFunctionMarker(json);
+        // logger.LogWarning("{date} - serialized contains", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+        return new(json, contains, json);
+    }
+
+    private static JsonSerializerOptions CreateJsonSerializerOptions()
+    {
+        return new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters =
+                {
+                    new JsonStringEnumConverter(),
+                    new IndexableOptionStringConverter(),
+                    new IndexableOptionDoubleConverter(),
+                    new IndexableOptionIntConverter(),
+                    new IndexableOptionBoolConverter(),
+                    new IndexableOptionObjectConverter(),
+                    new IndexableOptionFontConverter(),
+                    new PaddingJsonConverter(),
+                    new StringOrDoubleValueConverter(),
+                    new ChartJsDatasetJsonConverter(),
+                    new ChartJsAxisJsonConverter(),
+                    new ChartJsAxisTickJsonConverter(),
+                }
+        };
+    }
+
+    private readonly record struct SerializedChartJsPayload(string? Json, bool HasChartJsFunctions, string Key);
 
     private static PropertyInfo? GetLowestProperty(Type type, string name)
     {

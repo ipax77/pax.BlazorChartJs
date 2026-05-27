@@ -1,0 +1,37 @@
+@namespace pax.BlazorChartJs.samplelib.ChartJsSamples.LineCharts
+
+@switch (ResolvedSampleId)
+{
+    case "interpolation":
+        <ChartJsLineInterpolationSample />
+        break;
+    case "multi-axis":
+        <ChartJsLineMultiAxisSample />
+        break;
+    case "point-styling":
+        <ChartJsLinePointStylingSample />
+        break;
+    case "segments":
+        <ChartJsLineSegmentsSample />
+        break;
+    case "stepped":
+        <ChartJsLineSteppedSample />
+        break;
+    case "styling":
+        <ChartJsLineStylingSample />
+        break;
+    default:
+        <ChartJsLineSample />
+        break;
+}
+
+@code {
+    [Parameter]
+    public string SampleId { get; set; } = "line";
+
+    private string ResolvedSampleId => SampleId switch
+    {
+        "interpolation" or "line" or "multi-axis" or "point-styling" or "segments" or "stepped" or "styling" => SampleId,
+        _ => "line",
+    };
+}

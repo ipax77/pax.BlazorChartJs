@@ -5,7 +5,7 @@ namespace PlaywrightTests;
 
 [Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class BarChartTests : PageTest
+public class BarChartTests : ChartPageTest
 {
     [Test]
     public async Task AddDataTest()
@@ -15,17 +15,10 @@ public class BarChartTests : PageTest
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
-        // GetCanvasId
-        var canvas = Page.Locator("canvas");
-
-        var canvasId = await canvas.GetAttributeAsync("id");
-        Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
-
-        // wait for ChartJs to load
-        await Task.Delay(Startup.ChartJsLoadDelay);
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
 
         // Current data count
-        int countPrev = await GetDatasetDataCount(canvasId);
+        int countPrev = await GetDatasetDataCountAsync(canvasId);
 
         Assert.That(countPrev, Is.Not.Zero);
 
@@ -38,10 +31,8 @@ public class BarChartTests : PageTest
         // Click the button.
         await addData.ClickAsync();
 
-        // wait for Chartjs
-        await Task.Delay(Startup.ChartJsComputeDelay);
-
-        int countAfter = await GetDatasetDataCount(canvasId);
+        await WaitForDatasetDataCountAsync(canvasId, 0, countPrev + 1);
+        int countAfter = await GetDatasetDataCountAsync(canvasId);
 
         Assert.That(countAfter, Is.EqualTo(countPrev + 1));
     }
@@ -54,17 +45,10 @@ public class BarChartTests : PageTest
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
-        // GetCanvasId
-        var canvas = Page.Locator("canvas");
-
-        var canvasId = await canvas.GetAttributeAsync("id");
-        Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
-
-        // wait for ChartJs to load
-        await Task.Delay(Startup.ChartJsLoadDelay);
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
 
         // Current data count
-        int countPrev = await GetDatasetDataCount(canvasId);
+        int countPrev = await GetDatasetDataCountAsync(canvasId);
 
         Assert.That(countPrev, Is.Not.Zero);
 
@@ -77,7 +61,8 @@ public class BarChartTests : PageTest
         // Click the button.
         await removeData.ClickAsync();
 
-        int countAfter = await GetDatasetDataCount(canvasId);
+        await WaitForDatasetDataCountAsync(canvasId, 0, countPrev - 1);
+        int countAfter = await GetDatasetDataCountAsync(canvasId);
 
         Assert.That(countAfter, Is.EqualTo(countPrev - 1));
     }
@@ -90,17 +75,10 @@ public class BarChartTests : PageTest
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
-        // GetCanvasId
-        var canvas = Page.Locator("canvas");
-
-        var canvasId = await canvas.GetAttributeAsync("id");
-        Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
-
-        // wait for ChartJs to load
-        await Task.Delay(Startup.ChartJsLoadDelay);
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
 
         // Current data count
-        int countPrev = await GetDatasetCount(canvasId);
+        int countPrev = await GetDatasetCountAsync(canvasId);
 
         Assert.That(countPrev, Is.Not.Zero);
 
@@ -113,9 +91,8 @@ public class BarChartTests : PageTest
         // Click the button.
         await addDataset.ClickAsync();
 
-        await Task.Delay(Startup.ChartJsComputeDelay);
-
-        int countAfter = await GetDatasetCount(canvasId);
+        await WaitForDatasetCountAsync(canvasId, countPrev + 1);
+        int countAfter = await GetDatasetCountAsync(canvasId);
 
         Assert.That(countAfter, Is.EqualTo(countPrev + 1));
     }
@@ -128,17 +105,10 @@ public class BarChartTests : PageTest
         // Expect a title "to contain" a substring.
         await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"), new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
 
-        // GetCanvasId
-        var canvas = Page.Locator("canvas");
-
-        var canvasId = await canvas.GetAttributeAsync("id");
-        Assert.That(Guid.TryParse(canvasId, out Guid canvasGuid), Is.True);
-
-        // wait for ChartJs to load
-        await Task.Delay(Startup.ChartJsLoadDelay);
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
 
         // Current data count
-        int countPrev = await GetDatasetCount(canvasId);
+        int countPrev = await GetDatasetCountAsync(canvasId);
 
         Assert.That(countPrev, Is.Not.Zero);
 
@@ -151,24 +121,44 @@ public class BarChartTests : PageTest
         // Click the button.
         await removeDataset.ClickAsync();
 
-        int countAfter = await GetDatasetCount(canvasId);
+        await WaitForDatasetCountAsync(canvasId, countPrev - 1);
+        int countAfter = await GetDatasetCountAsync(canvasId);
 
         Assert.That(countAfter, Is.EqualTo(countPrev - 1));
     }
 
-    private async Task<int> GetDatasetCount(string? canvasId)
+    [Test]
+    public async Task CustomSizeImageExportRestoresChartState()
     {
-        return await Page.EvaluateAsync<int>(@"() => {
-                const chart = Chart.getChart(""" + canvasId + @""");
-                return chart.data.datasets.length;
-            }");
-    }
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/barchart");
 
-    private async Task<int> GetDatasetDataCount(string? canvasId, int dataset = 0)
-    {
-        return await Page.EvaluateAsync<int>(@"() => {
-                const chart = Chart.getChart(""" + canvasId + @""");
-                return chart.data.datasets[" + dataset + @"].data.length;
-            }");
+        await Expect(Page).ToHaveTitleAsync(new Regex("BarChart"),
+            new Microsoft.Playwright.PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
+        var snapshot = await Page.EvaluateAsync<string>(
+            """
+            async (chartId) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
+                const chart = Chart.getChart(chartId);
+                chart.stop();
+                chart.resize();
+                chart.options.animation = false;
+
+                const canvas = chart.canvas;
+                const before = [chart.width, chart.height, canvas.width, canvas.height].join(',');
+                const image = chartInterop.getChartImage(chartId, 'image/png', 1, 420, 210);
+                const after = [chart.width, chart.height, canvas.width, canvas.height].join(',');
+
+                return [
+                    image.startsWith('data:image/png'),
+                    before === after,
+                    chart.options.animation === false
+                ].join('|');
+            }
+            """,
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("true|true|true"));
     }
 }

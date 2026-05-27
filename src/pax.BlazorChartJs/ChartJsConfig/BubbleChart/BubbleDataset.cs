@@ -25,6 +25,7 @@ public record BubbleDataset : ChartJsDataset
     public IndexableOption<double>? HoverBorderWidth { get; set; }
     public IndexableOption<double>? HoverRadius { get; set; }
     public IndexableOption<double>? HitRadius { get; set; }
+    public string? IndexAxis { get; set; }
     public string? Label { get; set; }
     public int? Order { get; set; }
     /// <summary>
@@ -49,6 +50,9 @@ public record BubbleDataset : ChartJsDataset
     public IndexableOption<string>? PointStyle { get; set; }
     public IndexableOption<double>? Rotation { get; set; }
     public IndexableOption<double>? Radius { get; set; }
+    public string? Stack { get; set; }
+    public string? XAxisID { get; set; }
+    public string? YAxisID { get; set; }
 
 }
 

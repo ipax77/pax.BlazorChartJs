@@ -2,17 +2,18 @@ namespace pax.BlazorChartJs;
 
 public record Labels
 {
+    public double? BorderRadius { get; set; }
     public double? BoxWidth { get; set; }
     public double? BoxHeight { get; set; }
     /// <summary>
     /// Color can either be a single string (css Color) or a list <see href="https://www.chartjs.org/docs/latest/general/colors.html">ChartJs docs</see>
     /// </summary>         
-    public string? Color { get; set; }
-    public Font? Font { get; set; }
+    public IndexableOption<string>? Color { get; set; }
+    public IndexableOption<Font>? Font { get; set; }
     public double? Padding { get; set; }
-    // public object? GenerateLabels { get; set; }
-    // public object? Filter { get; set; }
-    // public object? Sort { get; set; }
+    public ChartJsFunction? GenerateLabels { get; set; }
+    public ChartJsFunction? Filter { get; set; }
+    public ChartJsFunction? Sort { get; set; }
     /// <summary>
     /// Types
     /// The pointStyle argument accepts the following type of inputs: string, Image and HTMLCanvasElement
@@ -44,6 +45,7 @@ public record Labels
     /// This disables segmentation of the line, which can be an unneeded step.
     /// </summary>  
     public bool? SpanGaps { get; set; }
+    public bool? UseBorderRadius { get; set; }
 }
 
 

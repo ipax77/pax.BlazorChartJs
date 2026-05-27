@@ -5,6 +5,14 @@
     <button type="button" class="btn btn-primary" @onclick="UpdateDataset">UpdateDataset</button>
     <button type="button" class="btn btn-primary" @onclick="ResetDataset">ResetDataset</button>
     <button type="button" class="btn btn-primary" @onclick="UpdateDataset2">UpdateDataset2</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetDataSmooth">UpdateDatasetDataSmooth</button>
+    <button type="button" class="btn btn-primary" @onclick="UpdateDatasetsDataSmooth">UpdateDatasetsDataSmooth</button>
+    <button type="button" class="btn btn-primary" @onclick="SetBinaryFloat64XY">SetBinaryFloat64XY</button>
+    <button type="button" class="btn btn-primary" @onclick="SetBinaryFloat32Y">SetBinaryFloat32Y</button>
+    <button type="button" class="btn btn-primary" @onclick="SetBinaryInt32Y">SetBinaryInt32Y</button>
+    <button type="button" class="btn btn-primary" @onclick="SetBinaryBatch">SetBinaryBatch</button>
+    <button type="button" class="btn btn-primary" @onclick="ApplyDatasetChangesSmooth">ApplyDatasetChangesSmooth</button>
+    <button type="button" class="btn btn-primary" @onclick="SetDatasetsSmooth">SetDatasetsSmooth</button>
 </div>
 <div class="chart-container w-75">
     <ChartComponent @ref="chartComponent"
@@ -14,6 +22,10 @@
 </div>
 
 @code {
+    private const string PrimaryDatasetId = "upsert-primary";
+    private const string RemovedDatasetId = "upsert-remove";
+    private const string AddedDatasetId = "upsert-added";
+
     ChartJsConfig chartJsConfig = null!;
     ChartComponent? chartComponent;
     private bool chartReady;
@@ -30,13 +42,28 @@
                     {
                         new BarDataset()
                         {
+                            Id = PrimaryDatasetId,
                             Label = "Dataset 1",
                             Data = [ 1, 2, 3 ],
                             BorderColor = "slateblue",
                             BackgroundColor = "dodgerblue",
                             BorderWidth = 1
+                        },
+                        new BarDataset()
+                        {
+                            Id = RemovedDatasetId,
+                            Label = "Dataset 2",
+                            Data = [ 3, 2, 1 ],
+                            BorderColor = "darkgray",
+                            BackgroundColor = "lightgray",
+                            BorderWidth = 1
                         }
                     }
+                },
+                Options = new ChartJsOptions
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = true
                 }
             };
         base.OnInitialized();
@@ -141,4 +168,167 @@
             chartJsConfig.UpdateDatasetSmooth(dataset);
         }
     }
+
+    private void ApplyDatasetChangesSmooth()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        BarDataset addedDataset = new()
+        {
+            Id = AddedDatasetId,
+            Label = "Dataset 3",
+            Data = [ 4, 5, 6, 7 ],
+            BorderColor = "darkgreen",
+            BackgroundColor = "lightgreen",
+            BorderWidth = 2
+        };
+
+        BarDataset updatedDataset = new()
+        {
+            Id = PrimaryDatasetId,
+            Label = "Dataset 1 Upserted",
+            Data = [ 9, 8, 7, 6 ],
+            BorderColor = [ "purple", "navy", "teal", "maroon" ],
+            BackgroundColor = [ "plum", "lightblue", "lightseagreen", "salmon" ],
+            BorderWidth = 5,
+            BarThickness = 18
+        };
+
+        if (chartJsConfig.Options != null)
+        {
+            chartJsConfig.Options.Responsive = false;
+            chartJsConfig.Options.MaintainAspectRatio = false;
+        }
+
+        chartJsConfig.ApplyDatasetChangesSmooth(new DatasetsSmoothChangeSet([AddedDatasetId, PrimaryDatasetId, RemovedDatasetId])
+        {
+            DatasetsToAdd = [addedDataset],
+            DatasetsToUpdateSmooth = [updatedDataset],
+            DatasetIdsToRemove = [RemovedDatasetId],
+            Labels = ["Apr", "May", "Jun", "Jul"],
+            UpdateOptions = true
+        });
+    }
+
+    private void UpdateDatasetDataSmooth()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        chartJsConfig.UpdateDatasetDataSmooth(PrimaryDatasetId, [10, 11, 12]);
+    }
+
+    private void UpdateDatasetsDataSmooth()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        chartJsConfig.UpdateDatasetsDataSmooth(new Dictionary<string, IList<object>>
+        {
+            [PrimaryDatasetId] = [10, 11, 12],
+            [RemovedDatasetId] = [13, 14, 15]
+        });
+    }
+
+    private void SetBinaryFloat64XY()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        chartJsConfig.SetDatasetBinaryData(ChartJsBinaryPayload.FromXY(
+            PrimaryDatasetId,
+            [
+                new ChartJsPoint(1, 20),
+                new ChartJsPoint(2, 21),
+                new ChartJsPoint(3, 22)
+            ]));
+    }
+
+    private void SetBinaryFloat32Y()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        chartJsConfig.SetDatasetBinaryData(ChartJsBinaryPayload.FromY(
+            PrimaryDatasetId,
+            new float[] { 30, 31, 32 }));
+    }
+
+    private void SetBinaryInt32Y()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        chartJsConfig.SetDatasetBinaryData(ChartJsBinaryPayload.FromY(
+            PrimaryDatasetId,
+            new int[] { -30, 31, -32 }));
+    }
+
+    private void SetBinaryBatch()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        chartJsConfig.SetDatasetsBinaryData(
+        [
+            ChartJsBinaryPayload.FromY(PrimaryDatasetId, new float[] { 40, 41, 42 }),
+            ChartJsBinaryPayload.FromY(RemovedDatasetId, new float[] { 50, 51, 52 })
+        ]);
+    }
+
+    private void SetDatasetsSmooth()
+    {
+        if (!chartReady)
+        {
+            return;
+        }
+
+        BarDataset addedDataset = new()
+        {
+            Id = AddedDatasetId,
+            Label = "Dataset 3",
+            Data = [ 4, 5, 6, 7 ],
+            BorderColor = "darkgreen",
+            BackgroundColor = "lightgreen",
+            BorderWidth = 2
+        };
+
+        BarDataset updatedDataset = new()
+        {
+            Id = PrimaryDatasetId,
+            Label = "Dataset 1 Set Smooth",
+            Data = [ 6, 7, 8, 9 ],
+            BorderColor = [ "orange", "navy", "teal", "maroon" ],
+            BackgroundColor = [ "moccasin", "lightblue", "lightseagreen", "salmon" ],
+            BorderWidth = 6,
+            BarThickness = 19
+        };
+
+        if (chartJsConfig.Options != null)
+        {
+            chartJsConfig.Options.Responsive = false;
+            chartJsConfig.Options.MaintainAspectRatio = false;
+        }
+
+        chartJsConfig.SetDatasetsSmooth(
+            datasets: [addedDataset, updatedDataset],
+            labels: ["Apr", "May", "Jun", "Jul"],
+            updateOptions: true);
+    }
+
 }

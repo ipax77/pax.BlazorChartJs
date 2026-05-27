@@ -30,14 +30,17 @@ public record Legend
     public double? MaxHeight { get; set; }
     public double? MaxWidth { get; set; }
     public bool? FullSize { get; set; }
+    public ChartJsFunction? OnClick { get; set; }
     /// <summary>
     /// Registers OnClick Event - ChartJsEvent type = ChartJsLegendClickEvent
     /// </summary>   
     public bool? OnClickEvent { get; set; }
+    public ChartJsFunction? OnHover { get; set; }
     /// <summary>
     /// Registers OnHover Event - ChartJsEvent type = ChartJsLegendHoverEvent
     /// </summary>   
     public bool? OnHoverEvent { get; set; }
+    public ChartJsFunction? OnLeave { get; set; }
     /// <summary>
     /// Registers OnLeave Event - ChartJsEvent type = ChartJsLegendLeaveEvent
     /// </summary>       

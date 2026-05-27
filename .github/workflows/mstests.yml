@@ -1,0 +1,32 @@
+name: MSTest JSON Serialization Tests
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  test:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: src/pax.BlazorChartJs/package-lock.json
+      
+      - name: Restore npm packages
+        working-directory: src/pax.BlazorChartJs
+        run: npm ci
+
+      - name: Run MSTest JSON serialization tests
+        run: dotnet test ./tests/pax.BlazorChartJs.tests/pax.BlazorChartJs.tests.csproj --configuration Release --nologo

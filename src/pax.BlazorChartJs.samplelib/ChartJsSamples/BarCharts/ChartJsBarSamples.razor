@@ -1,0 +1,34 @@
+@namespace pax.BlazorChartJs.samplelib.ChartJsSamples.BarCharts
+
+@switch (ResolvedSampleId)
+{
+    case "border-radius":
+        <ChartJsBarBorderRadiusSample />
+        break;
+    case "floating":
+        <ChartJsBarFloatingSample />
+        break;
+    case "horizontal":
+        <ChartJsBarHorizontalSample />
+        break;
+    case "stacked":
+        <ChartJsBarStackedSample />
+        break;
+    case "stacked-groups":
+        <ChartJsBarStackedGroupsSample />
+        break;
+    default:
+        <ChartJsBarVerticalSample />
+        break;
+}
+
+@code {
+    [Parameter]
+    public string SampleId { get; set; } = "vertical";
+
+    private string ResolvedSampleId => SampleId switch
+    {
+        "border-radius" or "floating" or "horizontal" or "stacked" or "stacked-groups" or "vertical" => SampleId,
+        _ => "vertical",
+    };
+}

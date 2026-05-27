@@ -21,6 +21,10 @@ public record Animations
     /// End value for the animation. Updated value is used when undefined
     /// </summary>
     public object? To { get; set; }
+    public double? Duration { get; set; }
+    public string? Easing { get; set; }
+    public IndexableOption<double>? Delay { get; set; }
+    public IndexableOption<bool>? Loop { get; set; }
     /// <summary>
     /// disables animation defined by the collection of 'colors' properties
     /// </summary>
@@ -28,5 +32,7 @@ public record Animations
     /// <summary>
     /// disables animation defined by the 'x' property 
     /// </summary>
-    public bool? X { get; set; }
+    public object? X { get; set; }
+    public object? Y { get; set; }
+    public object? Radius { get; set; }
 }
