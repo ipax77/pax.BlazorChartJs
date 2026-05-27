@@ -1,3 +1,5 @@
+@import '_content/pax.BlazorChartJs.samplelib/pax.BlazorChartJs.samplelib.zno88f2tj3.bundle.scp.css';
+
 /* /Components/Layout/MainLayout.razor.rz.scp.css */
 .page[b-blv83gjxr5] {
     position: relative;
@@ -117,6 +119,63 @@ main[b-blv83gjxr5] {
     padding-bottom: 0.5rem;
 }
 
+.nav-section-toggle[b-vzomx2npzf] {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: rgba(255, 255, 255, 0.68);
+    display: flex;
+    font-size: 0.72rem;
+    font-weight: 700;
+    gap: 0.5rem;
+    letter-spacing: 0;
+    margin: 0.75rem 0 0.35rem;
+    text-align: left;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+.nav-section-toggle:hover[b-vzomx2npzf] {
+    color: white;
+}
+
+.nav-group-collapsed[b-vzomx2npzf] {
+    display: none;
+}
+
+.nav-sample-group[b-vzomx2npzf] {
+    margin-top: 0.15rem;
+}
+
+.nav-subsection-toggle[b-vzomx2npzf] {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: rgba(255, 255, 255, 0.82);
+    display: flex;
+    font-size: 0.82rem;
+    font-weight: 700;
+    gap: 0.5rem;
+    letter-spacing: 0;
+    margin: 0.25rem 0;
+    text-align: left;
+    width: 100%;
+}
+
+.nav-subsection-toggle:hover[b-vzomx2npzf] {
+    color: white;
+}
+
+.nav-item-nested[b-vzomx2npzf]  a {
+    height: 2.25rem;
+    line-height: 1.2;
+    overflow: hidden;
+    padding-left: 1.75rem;
+    padding-right: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
     .nav-item:first-of-type[b-vzomx2npzf] {
         padding-top: 1rem;
     }
@@ -159,4 +218,22 @@ main[b-blv83gjxr5] {
         height: calc(100vh - 3.5rem);
         overflow-y: auto;
     }
+}
+/* /Components/Pages/Home.razor.rz.scp.css */
+.sample-card[b-gbl8vfprbi] {
+    transition: transform 120ms ease-in-out, box-shadow 120ms ease-in-out;
+}
+
+.sample-card:hover[b-gbl8vfprbi],
+.sample-card:focus[b-gbl8vfprbi] {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .12);
+}
+
+pre[b-gbl8vfprbi] {
+    overflow-x: auto;
+}
+
+code[b-gbl8vfprbi] {
+    font-size: .925rem;
 }
