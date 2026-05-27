@@ -5,8 +5,6 @@
 
 `pax.BlazorChartJs` is a Blazor wrapper for [Chart.js](https://github.com/chartjs/Chart.js). It renders charts from typed .NET configuration models through a reusable `ChartComponent` and a JavaScript isolation module.
 
-`v0.9.0-preview2` brings the wrapper close to feature complete for the current Chart.js 4.x surface. The live [TestPage](https://ipax77.github.io/pax.BlazorChartJs/) includes runnable Blazor versions of the official Chart.js sample set plus focused library demos for events, updates, legends, callbacks, and plugins.
-
 ## Compatibility
 
 Release | Chart.js | Tested Chart.js
