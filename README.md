@@ -274,7 +274,7 @@ The bundle command writes the single shipped module to `wwwroot/chartJsInterop.j
 
 ## Changelog
 
-<details open="open"><summary>v0.9.0-preview2</summary>
+<details open="open"><summary>v0.9.0</summary>
 
 >- **Breaking change:** font option properties that now support scriptable values use `IndexableOption<Font>` in those contexts. Target-typed `Font = new()` no longer binds there; use `Font = new Font { ... }` or a `ChartJsFunction` callback.
 >- Added `ChartJsFunction` to reference registered JavaScript callbacks from C# chart configuration without serializing raw JavaScript.
