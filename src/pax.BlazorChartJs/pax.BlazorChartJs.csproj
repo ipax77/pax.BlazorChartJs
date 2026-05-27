@@ -73,18 +73,14 @@
   </ItemGroup>
 
   <Target Name="RestoreChartJsInteropNodePackages"
-          BeforeTargets="BuildChartJsInterop"
-          Inputs="package.json;package-lock.json"
-          Outputs="node_modules/.package-lock.json">
-    <Exec Command="npm ci" Condition="Exists('package-lock.json')" />
-    <Exec Command="npm install" Condition="!Exists('package-lock.json')" />
-  </Target>
-
-  <Target Name="BuildChartJsInterop"
-          BeforeTargets="ResolveStaticWebAssetsInputs"
-          DependsOnTargets="RestoreChartJsInteropNodePackages"
-          Inputs="@(ChartJsInteropSources);package.json;package-lock.json"
-          Outputs="$(ChartJsInteropOutput)">
-    <Exec Command="npm run build" />
+          BeforeTargets="CompileTypeScript"
+          Inputs="$(MSBuildProjectDirectory)/package.json;$(MSBuildProjectDirectory)/package-lock.json"
+          Outputs="$(MSBuildProjectDirectory)/node_modules/.package-lock.json">
+    <Exec Command="npm ci"
+          WorkingDirectory="$(MSBuildProjectDirectory)"
+          Condition="Exists('$(MSBuildProjectDirectory)/package-lock.json')" />
+    <Exec Command="npm install"
+          WorkingDirectory="$(MSBuildProjectDirectory)"
+          Condition="!Exists('$(MSBuildProjectDirectory)/package-lock.json')" />
   </Target>
 </Project>

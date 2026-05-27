@@ -17,5 +17,16 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: src/pax.BlazorChartJs/package-lock.json
+      
+      - name: Restore npm packages
+        working-directory: src/pax.BlazorChartJs
+        run: npm ci
+
       - name: Run MSTest JSON serialization tests
         run: dotnet test ./tests/pax.BlazorChartJs.tests/pax.BlazorChartJs.tests.csproj --configuration Release --nologo
