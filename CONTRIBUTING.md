@@ -18,7 +18,7 @@ To get an overview of the project, read the [README](README.md). Here are some r
 
 ## Getting started
 
-- Run [local tests](https://github.com/ipax77/pax.BlazorChartJs/tree/master/tests)
+- Run [local tests](https://github.com/ipax77/pax.BlazorChartJs/tree/main/tests)
 - If appropriate, please write a new test for the change
 
 ## Pull requests (PR)

@@ -33,7 +33,7 @@ Release | Chart.js | Tested Chart.js
 
 ## Samples
 
-Start with the live [TestPage](https://ipax77.github.io/pax.BlazorChartJs/) or the reusable [sample library](https://github.com/ipax77/pax.BlazorChartJs/tree/master/src/pax.BlazorChartJs.samplelib).
+Start with the live [TestPage](https://ipax77.github.io/pax.BlazorChartJs/) or the reusable [sample library](https://github.com/ipax77/pax.BlazorChartJs/tree/main/src/pax.BlazorChartJs.samplelib).
 
 The Chart.js sample gallery mirrors the official sample set as runnable Blazor components. It covers bar, line, area, other chart types, scales, scale options, legends, titles, subtitles, tooltips, scriptable options, animations, advanced samples, and plugin samples. Library-specific demos cover events, HTML legends, datalabels, callback modules, plugin registration, update flows, and multiple-chart scenarios.
 
@@ -187,7 +187,7 @@ new LinearAxisTick()
 }
 ```
 
-Callback names are validated and resolved from the configured module, which avoids raw JavaScript serialization in the chart config. See the full [ChartJsFunction callback sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventcallbackChartComp.razor).
+Callback names are validated and resolved from the configured module, which avoids raw JavaScript serialization in the chart config. See the full [ChartJsFunction callback sample](https://github.com/ipax77/pax.BlazorChartJs/blob/main/src/pax.BlazorChartJs.samplelib/EventcallbackChartComp.razor).
 
 ## Global defaults
 
@@ -228,7 +228,7 @@ builder.Services.AddChartJs(options =>
 
 ## Chart events
 
-Several chart events are available. By default only the init event is emitted; enable the others in `ChartJsConfig.Options`. See the [events sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/EventsComp.razor).
+Several chart events are available. By default only the init event is emitted; enable the others in `ChartJsConfig.Options`. See the [events sample](https://github.com/ipax77/pax.BlazorChartJs/blob/main/src/pax.BlazorChartJs.samplelib/EventsComp.razor).
 
 - click
 - hover
@@ -241,7 +241,7 @@ Several chart events are available. By default only the init event is emitted; e
 
 - [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)
 - [ArbitraryLines](https://www.youtube.com/watch?v=7ZZ_XfaJQbM&t=379s) (YouTube)
-- Custom plugins through the [custom plugin sample](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor)
+- Custom plugins through the [custom plugin sample](https://github.com/ipax77/pax.BlazorChartJs/blob/main/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor)
 
 ## ChartComponent
 
@@ -253,7 +253,7 @@ Several chart functions are available in the ChartComponent, e.g.:
 
 ## Contributing
 
-We really like people helping us with the project. Nevertheless, take your time to read our contributing guidelines [here](https://github.com/ipax77/pax.BlazorChartJs/blob/master/CONTRIBUTING.md).
+We really like people helping us with the project. Nevertheless, take your time to read our contributing guidelines [here](https://github.com/ipax77/pax.BlazorChartJs/blob/main/CONTRIBUTING.md).
 
 ### TypeScript interop
 
@@ -465,7 +465,7 @@ BorderWidth = new IndexableOption<double>(1)
 >- **Breaking Changes**
 >- Update to [ChartJs v4.x](https://www.chartjs.org/docs/latest/migration/v4-migration.html)
 >- Removed ChartJs javascript files - defaults to cdn links, now. Use ``` options.ChartJsLocation = "mychart.js"``` to use a custom/local ChartJs version.
->- Removed chartjs-plugin-labels (you can still register it as [custom plugin](https://github.com/ipax77/pax.BlazorChartJs/blob/master/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor))
+>- Removed chartjs-plugin-labels (you can still register it as [custom plugin](https://github.com/ipax77/pax.BlazorChartJs/blob/main/src/pax.BlazorChartJs.samplelib/CustomPluginComp.razor))
 >- Microsoft.AspNetCore.Components.Web upgrade to v6.0.13
 >- Added ScaleAxis X1 and Y1 (override ChartJsOptionsScales for other names)
 >- ```ChartJsConfig.UpdateChartOptions()``` (will replace ```ChartComponent.UpdateChartOptions```)

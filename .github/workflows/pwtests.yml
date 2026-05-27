@@ -2,7 +2,7 @@ name: Playwright Tests
 on:
   pull_request:
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   test:
@@ -21,5 +21,5 @@ jobs:
       - name: Run fast Playwright tests
         run: dotnet test ./tests/pax.BlazorChartJs.pwtests --no-build
       - name: Run full Chart.js sample Playwright tests
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: dotnet test ./tests/pax.BlazorChartJs.pwtests --no-build -- NUnit.Where="cat == FullSamples"
