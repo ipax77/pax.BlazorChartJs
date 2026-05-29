@@ -328,6 +328,39 @@ public class UpdateDatasetTests : PageTest
             canvasId);
 
         Assert.That(snapshot, Is.EqualTo("bubble-primary|7|0|2|addFromLeft,none"));
+
+        await Page.EvaluateAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                chart.options.animation.duration = 5000;
+            }",
+            canvasId);
+
+        await addData.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.length === 8
+                    && chart.__bubbleSmoothUpdateCount === 3
+                    && chart.__bubbleSmoothUpdateArgs[2][0] === 'addFromLeft'
+                    && chart.data.datasets[0].data.some(point => point._new === true);
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var removeData = Page.GetByText("Remove Data", new PageGetByTextOptions() { Exact = true });
+        await Expect(removeData).ToHaveAttributeAsync("type", "button");
+        await removeData.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.length === 7
+                    && chart.data.datasets[0].data.every(point => point._new !== true);
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
     }
 
     [Test]
