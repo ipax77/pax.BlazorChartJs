@@ -312,13 +312,14 @@ public class UpdateDatasetTests : PageTest
                 return [
                     chart.data.datasets[0].id,
                     chart.data.datasets[0].data.length,
+                    chart.data.datasets[0].data.map(point => point.label).join(','),
                     chart.__bubbleSmoothUpdateCount,
                     chart.__bubbleSmoothUpdateArgs.map(args => args[0]).join(',')
                 ].join('|');
             }",
             canvasId);
 
-        Assert.That(snapshot, Is.EqualTo("bubble-primary|7|2|addFromLeft,none"));
+        Assert.That(snapshot, Is.EqualTo("bubble-primary|7|bubble-1,bubble-2,bubble-3,bubble-4,bubble-5,bubble-6,bubble-7|2|addFromLeft,none"));
     }
 
     [Test]

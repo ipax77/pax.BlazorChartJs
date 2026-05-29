@@ -188,6 +188,23 @@ public sealed class RealWorldChartSerializationTests
         JsonAssert.AreEquivalent(expected, actual);
     }
 
+    [TestMethod]
+    public void BubbleDataPointSerializesOptionalLabel()
+    {
+        BubbleDataPoint point = new()
+        {
+            Label = "bubble-1",
+            X = 20,
+            Y = 30,
+            R = 15
+        };
+
+        var actual = SerializeToNode(point);
+        var expected = ParseNode("""{ "label": "bubble-1", "x": 20, "y": 30, "r": 15 }""");
+
+        JsonAssert.AreEquivalent(expected, actual);
+    }
+
     private static ChartJsConfig CreateMixedDocsSampleConfig()
     {
         return new ChartJsConfig

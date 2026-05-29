@@ -94,6 +94,16 @@ function getCustomTooltipPoint(context) {
     return context?.dataset?.tooltipPoints?.[context.dataIndex];
 }
 
+function isLatestLabeledBubblePoint(context) {
+    const label = context?.raw?.label;
+    const data = context?.dataset?.data;
+    if (typeof label !== 'string' || !Array.isArray(data) || data.length === 0) {
+        return false;
+    }
+
+    return data[data.length - 1]?.label === label;
+}
+
 function getOrCreateExternalTooltip(chart) {
     let tooltipElement = externalTooltipCache.get(chart);
     if (tooltipElement) {
@@ -627,7 +637,14 @@ const callbacks = Object.assign(Object.create(null), {
             : latestLabelPaddingLarge;
     },
     bubbleAddFromLeftX(context) {
-        return context.chart.chartArea.left - 50;
+        return isLatestLabeledBubblePoint(context)
+            ? context.chart.chartArea.left - 50
+            : context.element?.x;
+    },
+    bubbleAddFromLeftRadius(context) {
+        return isLatestLabeledBubblePoint(context)
+            ? 0
+            : context.raw?.r;
     }
 });
 
