@@ -175,7 +175,7 @@ public class ChartEventsTests : PageTest
         await Page.EvaluateAsync(
             """
             async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
                 const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
                 await chartInterop.updateChartOptions(
                     chartId,
@@ -237,7 +237,7 @@ public class ChartEventsTests : PageTest
         await Page.EvaluateAsync(
             """
             async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
                 const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
                 await chartInterop.updateChartOptions(
                     chartId,
@@ -517,7 +517,7 @@ public class ChartEventsTests : PageTest
         await Page.EvaluateAsync(
             """
             async ([chartId, optionName, callbackName, eventFlagName, responsive]) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
                 const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
                 const options = {
                     responsive,

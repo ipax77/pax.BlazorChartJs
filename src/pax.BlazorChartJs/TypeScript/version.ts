@@ -1,1 +1,1 @@
-export const chartJsInteropVersion = "0.9.0-preview2";
+export const chartJsInteropVersion = "0.9.1";
