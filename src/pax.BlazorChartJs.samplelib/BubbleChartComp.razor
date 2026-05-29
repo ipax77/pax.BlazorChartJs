@@ -1,18 +1,24 @@
 ﻿@using pax.BlazorChartJs
 
+@using System.Text.Json.Serialization
+
 <h3>BubbleChartPage</h3>
 
 <div class="btn-group">
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
     <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
-    <button type="button" class="btn btn-primary" @onclick="AddData">Add Data</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataFromLeft">Add Data From Left</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataFromTop">Add Data From Top</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataFromRight">Add Data From Right</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataFromBottom">Add Data From Bottom</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataDefault">Add Data Default</button>
     <button type="button" class="btn btn-primary" @onclick="AddDataNoAnimation">Add Data No Animation</button>
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataset">Remove Dataset</button>
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
 </div>
 
 <div class="chart-container w-75">
-    <ChartComponent @ref="chartComponent" OnEventTriggered="LabelClicked" ChartJsConfig="chartJsConfig"></ChartComponent>
+    <ChartComponent @ref="chartComponent" OnEventTriggered="ChartEventTriggered" ChartJsConfig="chartJsConfig"></ChartComponent>
 </div>
 
 <div>
@@ -29,7 +35,6 @@
     ChartJsConfig chartJsConfig = null!;
     private string? labelClicked;
     private Random random = new();
-    private int nextBubblePointNumber = 1;
 
     protected override void OnInitialized()
     {
@@ -63,7 +68,9 @@
                     Animation = new Animation()
                     {
                         Duration = 600,
-                        Easing = "easeOutQuart"
+                        Easing = "easeOutQuart",
+                        OnComplete = ChartJsFunction.FromName("clearBubbleNewFlags"),
+                        OnCompleteEvent = true
                     },
                     Transitions = new Dictionary<string, object>()
                     {
@@ -78,6 +85,60 @@
                                 Y = new Animations()
                                 {
                                     Duration = 0
+                                },
+                                Radius = new Animations()
+                                {
+                                    From = ChartJsFunction.FromName("bubbleAddFromLeftRadius")
+                                }
+                            }
+                        },
+                        ["addFromTop"] = new
+                        {
+                            Animations = new
+                            {
+                                X = new Animations()
+                                {
+                                    Duration = 0
+                                },
+                                Y = new Animations()
+                                {
+                                    From = ChartJsFunction.FromName("bubbleAddFromTopY")
+                                },
+                                Radius = new Animations()
+                                {
+                                    From = ChartJsFunction.FromName("bubbleAddFromLeftRadius")
+                                }
+                            }
+                        },
+                        ["addFromRight"] = new
+                        {
+                            Animations = new
+                            {
+                                X = new Animations()
+                                {
+                                    From = ChartJsFunction.FromName("bubbleAddFromRightX")
+                                },
+                                Y = new Animations()
+                                {
+                                    Duration = 0
+                                },
+                                Radius = new Animations()
+                                {
+                                    From = ChartJsFunction.FromName("bubbleAddFromLeftRadius")
+                                }
+                            }
+                        },
+                        ["addFromBottom"] = new
+                        {
+                            Animations = new
+                            {
+                                X = new Animations()
+                                {
+                                    Duration = 0
+                                },
+                                Y = new Animations()
+                                {
+                                    From = ChartJsFunction.FromName("bubbleAddFromBottomY")
                                 },
                                 Radius = new Animations()
                                 {
@@ -107,7 +168,7 @@
         base.OnInitialized();
     }
 
-    private BubbleDataPoint GetRandomPoint(int min = -100, int max = 100)
+    private SampleBubblePoint GetRandomPoint(int min = -100, int max = 100)
     {
         return CreatePoint(
             random.Next(min, max),
@@ -115,11 +176,11 @@
             random.Next(1, 15));
     }
 
-    private BubbleDataPoint CreatePoint(double x, double y, double r)
+    private static SampleBubblePoint CreatePoint(double x, double y, double r, bool isNew = false)
     {
         return new()
         {
-            Label = $"bubble-{nextBubblePointNumber++}",
+            IsNew = isNew ? true : null,
             X = x,
             Y = y,
             R = r
@@ -132,17 +193,42 @@
         chartJsConfig.ReinitializeChart();
     }
 
-    private void LabelClicked(ChartJsEvent chartJsEvent)
+    private void ChartEventTriggered(ChartJsEvent chartJsEvent)
     {
         if (chartJsEvent is ChartJsLabelClickEvent labelClickEvent)
         {
             labelClicked = labelClickEvent.Label;
         }
+
+        if (chartJsEvent is ChartJsAnimationCompleteEvent { Initial: false })
+        {
+            ClearNewFlags();
+        }
     }
 
-    private void AddData()
+    private void AddDataFromLeft()
     {
         AddDataSmooth("addFromLeft");
+    }
+
+    private void AddDataFromTop()
+    {
+        AddDataSmooth("addFromTop");
+    }
+
+    private void AddDataFromRight()
+    {
+        AddDataSmooth("addFromRight");
+    }
+
+    private void AddDataFromBottom()
+    {
+        AddDataSmooth("addFromBottom");
+    }
+
+    private void AddDataDefault()
+    {
+        AddDataSmooth("default");
     }
 
     private void AddDataNoAnimation()
@@ -152,11 +238,12 @@
 
     private void AddDataSmooth(string updateAnimation)
     {
+        bool markNew = updateAnimation.StartsWith("addFrom", StringComparison.Ordinal);
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
             if (chartJsConfig.Data.Datasets[i] is BubbleDataset bubbleDataset)
             {
-                bubbleDataset.Data.Add(GetRandomPoint());
+                bubbleDataset.Data.Add(GetRandomPoint() with { IsNew = markNew ? true : null });
             }
         }
 
@@ -213,5 +300,22 @@
     private void RemoveLastDataFromDatasets()
     {
         chartJsConfig.RemoveData();
+    }
+
+    private void ClearNewFlags()
+    {
+        for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
+        {
+            foreach (var point in chartJsConfig.Data.Datasets[i].Data.OfType<SampleBubblePoint>())
+            {
+                point.IsNew = null;
+            }
+        }
+    }
+
+    private sealed record SampleBubblePoint : BubbleDataPoint
+    {
+        [JsonPropertyName("_new")]
+        public bool? IsNew { get; set; }
     }
 }

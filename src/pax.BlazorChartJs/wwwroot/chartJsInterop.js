@@ -237,7 +237,9 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
   if (dotnetConfigOptions.animation?.onProgressEvent == true) {
     const animation = chart.options.animation;
     if (animation && typeof animation === "object") {
+      const nativeOnProgress = typeof animation.onProgress === "function" ? animation.onProgress : void 0;
       animation.onProgress = (context) => {
+        nativeOnProgress?.call(chart, context);
         triggerEvent(chartId, "progress", "animation", {
           CurrentStep: context.currentStep,
           NumSteps: context.numSteps
@@ -248,7 +250,9 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
   if (dotnetConfigOptions.animation?.onCompleteEvent == true) {
     const animation = chart.options.animation;
     if (animation && typeof animation === "object") {
+      const nativeOnComplete = typeof animation.onComplete === "function" ? animation.onComplete : void 0;
       animation.onComplete = (context) => {
+        nativeOnComplete?.call(chart, context);
         triggerEvent(chartId, "complete", "animation", {
           Initial: context.initial
         });

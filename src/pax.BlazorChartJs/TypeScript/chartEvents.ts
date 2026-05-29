@@ -170,7 +170,12 @@ export function registerEvents(dotnetConfigOptions: ChartEventBridgeOptions, cha
     if (dotnetConfigOptions.animation?.onProgressEvent == true) {
         const animation = chart.options.animation;
         if (animation && typeof animation === "object") {
+            const nativeOnProgress = typeof animation.onProgress === "function"
+                ? animation.onProgress
+                : undefined;
+
             animation.onProgress = (context: AnimationEvent) => {
+                nativeOnProgress?.call(chart as unknown as ChartJsChart, context);
                 triggerEvent(chartId, "progress", "animation", {
                     CurrentStep: context.currentStep,
                     NumSteps: context.numSteps
@@ -182,7 +187,12 @@ export function registerEvents(dotnetConfigOptions: ChartEventBridgeOptions, cha
     if (dotnetConfigOptions.animation?.onCompleteEvent == true) {
         const animation = chart.options.animation;
         if (animation && typeof animation === "object") {
+            const nativeOnComplete = typeof animation.onComplete === "function"
+                ? animation.onComplete
+                : undefined;
+
             animation.onComplete = (context: AnimationEvent) => {
+                nativeOnComplete?.call(chart as unknown as ChartJsChart, context);
                 triggerEvent(chartId, "complete", "animation", {
                     Initial: context.initial
                 });

@@ -278,7 +278,7 @@ public class UpdateDatasetTests : PageTest
             }",
             canvasId);
 
-        var addData = Page.GetByText("Add Data", new PageGetByTextOptions() { Exact = true });
+        var addData = Page.GetByText("Add Data From Left", new PageGetByTextOptions() { Exact = true });
         await Expect(addData).ToHaveAttributeAsync("type", "button");
         await addData.ClickAsync();
 
@@ -288,6 +288,14 @@ public class UpdateDatasetTests : PageTest
                 return chart?.data?.datasets?.[0]?.data?.length === 6
                     && chart.__bubbleSmoothUpdateCount === 1
                     && chart.__bubbleSmoothUpdateArgs[0][0] === 'addFromLeft';
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.every(point => point._new !== true) === true;
             }",
             canvasId,
             new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
@@ -312,14 +320,14 @@ public class UpdateDatasetTests : PageTest
                 return [
                     chart.data.datasets[0].id,
                     chart.data.datasets[0].data.length,
-                    chart.data.datasets[0].data.map(point => point.label).join(','),
+                    chart.data.datasets[0].data.filter(point => point._new === true).length,
                     chart.__bubbleSmoothUpdateCount,
                     chart.__bubbleSmoothUpdateArgs.map(args => args[0]).join(',')
                 ].join('|');
             }",
             canvasId);
 
-        Assert.That(snapshot, Is.EqualTo("bubble-primary|7|bubble-1,bubble-2,bubble-3,bubble-4,bubble-5,bubble-6,bubble-7|2|addFromLeft,none"));
+        Assert.That(snapshot, Is.EqualTo("bubble-primary|7|0|2|addFromLeft,none"));
     }
 
     [Test]

@@ -94,14 +94,28 @@ function getCustomTooltipPoint(context) {
     return context?.dataset?.tooltipPoints?.[context.dataIndex];
 }
 
-function isLatestLabeledBubblePoint(context) {
-    const label = context?.raw?.label;
-    const data = context?.dataset?.data;
-    if (typeof label !== 'string' || !Array.isArray(data) || data.length === 0) {
-        return false;
+function isNewBubblePoint(context) {
+    return context?.raw?._new === true;
+}
+
+function clearBubbleNewFlagsCore(context) {
+    const datasets = context?.chart?.data?.datasets;
+    if (!Array.isArray(datasets)) {
+        return;
     }
 
-    return data[data.length - 1]?.label === label;
+    for (const dataset of datasets) {
+        const data = dataset?.data;
+        if (!Array.isArray(data)) {
+            continue;
+        }
+
+        for (const point of data) {
+            if (point && typeof point === 'object') {
+                delete point._new;
+            }
+        }
+    }
 }
 
 function getOrCreateExternalTooltip(chart) {
@@ -637,14 +651,32 @@ const callbacks = Object.assign(Object.create(null), {
             : latestLabelPaddingLarge;
     },
     bubbleAddFromLeftX(context) {
-        return isLatestLabeledBubblePoint(context)
+        return isNewBubblePoint(context)
             ? context.chart.chartArea.left - 50
             : context.element?.x;
     },
+    bubbleAddFromTopY(context) {
+        return isNewBubblePoint(context)
+            ? context.chart.chartArea.top - 50
+            : context.element?.y;
+    },
+    bubbleAddFromRightX(context) {
+        return isNewBubblePoint(context)
+            ? context.chart.chartArea.right + 50
+            : context.element?.x;
+    },
+    bubbleAddFromBottomY(context) {
+        return isNewBubblePoint(context)
+            ? context.chart.chartArea.bottom + 50
+            : context.element?.y;
+    },
     bubbleAddFromLeftRadius(context) {
-        return isLatestLabeledBubblePoint(context)
+        return isNewBubblePoint(context)
             ? 0
             : context.raw?.r;
+    },
+    clearBubbleNewFlags(context) {
+        clearBubbleNewFlagsCore(context);
     }
 });
 
