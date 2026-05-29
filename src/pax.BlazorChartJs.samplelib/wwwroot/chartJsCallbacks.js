@@ -310,6 +310,21 @@ const callbacks = Object.assign(Object.create(null), {
             label: item?.text ?? null
         };
     },
+    chartEventBridgeAnimationProgress(context) {
+        window.chartJsNativeAnimationProgressCount = (window.chartJsNativeAnimationProgressCount ?? 0) + 1;
+        window.chartJsNativeAnimationProgressArgs = {
+            chartId: context?.chart?.canvas?.id ?? null,
+            currentStep: context?.currentStep ?? null,
+            numSteps: context?.numSteps ?? null
+        };
+    },
+    chartEventBridgeAnimationComplete(context) {
+        window.chartJsNativeAnimationCompleteCount = (window.chartJsNativeAnimationCompleteCount ?? 0) + 1;
+        window.chartJsNativeAnimationCompleteArgs = {
+            chartId: context?.chart?.canvas?.id ?? null,
+            initial: context?.initial ?? null
+        };
+    },
     showLegendItem() {
         return true;
     },

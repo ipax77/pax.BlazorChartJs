@@ -230,6 +230,58 @@ public class ChartEventsTests : PageTest
     }
 
     [Test]
+    public async Task NativeAnimationCallbacksArePreservedWhenAnimationEventBridgeIsEnabled()
+    {
+        var canvasId = await OpenEventsChartAsync();
+
+        await Page.EvaluateAsync(
+            """
+            async (chartId) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
+                const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
+                await chartInterop.updateChartOptions(
+                    chartId,
+                    { chartJsCallbacksModuleLocation: callbacksUrl },
+                    {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        animation: {
+                            duration: 50,
+                            onProgress: { __chartJsFunction: 'chartEventBridgeAnimationProgress' },
+                            onComplete: { __chartJsFunction: 'chartEventBridgeAnimationComplete' },
+                            onProgressEvent: true,
+                            onCompleteEvent: true
+                        }
+                    },
+                    true);
+
+                window.chartJsNativeAnimationProgressCount = 0;
+                window.chartJsNativeAnimationCompleteCount = 0;
+
+                const chart = Chart.getChart(chartId);
+                chart.options.animation.onProgress({ chart, currentStep: 1, numSteps: 2 });
+                chart.options.animation.onComplete({ chart, initial: false });
+            }
+            """,
+            canvasId);
+
+        var animationText = await WaitForLatestEventTextAsync(new Regex(@"ChartJsAnimationCompleteEvent"));
+        var snapshot = await Page.EvaluateAsync<string>(
+            """
+            (chartId) => [
+                (window.chartJsNativeAnimationProgressCount ?? 0) > 0,
+                window.chartJsNativeAnimationCompleteCount ?? 0,
+                window.chartJsNativeAnimationProgressArgs?.chartId ?? '',
+                window.chartJsNativeAnimationCompleteArgs?.chartId ?? ''
+            ].join('|')
+            """,
+            canvasId);
+
+        Assert.That(animationText, Does.Contain("ChartJsAnimationCompleteEvent"));
+        Assert.That(snapshot, Is.EqualTo($"true|1|{canvasId}|{canvasId}"));
+    }
+
+    [Test]
     public async Task HoverEventTest()
     {
         await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/eventschart");
