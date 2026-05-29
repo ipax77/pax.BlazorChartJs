@@ -6,6 +6,7 @@
     <button type="button" class="btn btn-primary" @onclick="Randomize">Randomize</button>
     <button type="button" class="btn btn-primary" @onclick="AddDataset">Add Dataset</button>
     <button type="button" class="btn btn-primary" @onclick="AddData">Add Data</button>
+    <button type="button" class="btn btn-primary" @onclick="AddDataNoAnimation">Add Data No Animation</button>
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataset">Remove Dataset</button>
     <button type="button" class="btn btn-primary" @onclick="RemoveLastDataFromDatasets">Remove Data</button>
 </div>
@@ -40,6 +41,7 @@
                     {
                         new BubbleDataset()
                         {
+                            Id = "bubble-primary",
                             Label = "Bubble Dataset",
                             Data = new List<object>()
                             {
@@ -82,6 +84,32 @@
                 {
                     Responsive = true,
                     MaintainAspectRatio = true,
+                    Animation = new Animation()
+                    {
+                        Duration = 600,
+                        Easing = "easeOutQuart"
+                    },
+                    Transitions = new Dictionary<string, object>()
+                    {
+                        ["addFromLeft"] = new
+                        {
+                            Animations = new
+                            {
+                                X = new Animations()
+                                {
+                                    From = ChartJsFunction.FromName("bubbleAddFromLeftX")
+                                },
+                                Y = new Animations()
+                                {
+                                    Duration = 0
+                                },
+                                Radius = new Animations()
+                                {
+                                    From = 0
+                                }
+                            }
+                        }
+                    },
                     OnClickEvent = true,
                     Scales = new ChartJsOptionsScales()
                     {
@@ -129,16 +157,27 @@
 
     private void AddData()
     {
-        Dictionary<ChartJsDataset, AddDataObject> datas = new();
+        AddDataSmooth("addFromLeft");
+    }
+
+    private void AddDataNoAnimation()
+    {
+        AddDataSmooth("none");
+    }
+
+    private void AddDataSmooth(string updateAnimation)
+    {
         for (int i = 0; i < chartJsConfig.Data.Datasets.Count; i++)
         {
-            var bubbleDataset = chartJsConfig.Data.Datasets[i] as BubbleDataset;
-            if (bubbleDataset != null)
+            if (chartJsConfig.Data.Datasets[i] is BubbleDataset bubbleDataset)
             {
-                datas.Add(bubbleDataset, new AddDataObject(GetRandomPoint()));
+                bubbleDataset.Data.Add(GetRandomPoint());
             }
         }
-        chartJsConfig.AddData(null, null, datas);
+
+        chartJsConfig.SetDatasetsSmooth(
+            datasets: chartJsConfig.Data.Datasets,
+            updateAnimation: updateAnimation);
     }
 
     private void Randomize()

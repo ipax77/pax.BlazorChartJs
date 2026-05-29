@@ -625,6 +625,9 @@ const callbacks = Object.assign(Object.create(null), {
         return context.chart.width < 480
             ? latestLabelPaddingSmall
             : latestLabelPaddingLarge;
+    },
+    bubbleAddFromLeftX(context) {
+        return context.chart.chartArea.left - 50;
     }
 });
 
