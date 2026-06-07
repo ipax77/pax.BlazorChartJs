@@ -143,7 +143,7 @@ function isChartJsFunctionMarker(value, path) {
 }
 
 // TypeScript/version.ts
-var chartJsInteropVersion = "0.9.0-preview2";
+var chartJsInteropVersion = "0.9.1";
 
 // TypeScript/chartEvents.ts
 async function triggerEvent(chartId, event, source, data) {
@@ -1193,7 +1193,7 @@ async function setDatasets(chartId, setupOptionsOrDatasets, datasetsOrHasChartJs
   }
   setDatasetsCore(chart, resolvedArguments.datasets);
 }
-function applyDatasetChangesSmoothCore(chart, desiredDatasetIds, datasetsToAdd, datasetsToUpdateSmooth, datasetIdsToRemove, labels, options, updateAnimation, beforeUpdate) {
+function applyDatasetChangesSmoothCore(chart, desiredDatasetIds, datasetsToAdd, datasetsToUpdateSmooth, datasetIdsToRemove, labels, options, updateAnimation, afterUpdate) {
   if (!chart || !chart.data) {
     return;
   }
@@ -1229,9 +1229,9 @@ function applyDatasetChangesSmoothCore(chart, desiredDatasetIds, datasetsToAdd, 
     }
   }
   chart.data.datasets = finalDatasets;
-  beforeUpdate?.();
   const validatedUpdateAnimation = validateUpdateAnimation(chart, updateAnimation);
   chart.update(validatedUpdateAnimation);
+  afterUpdate?.();
 }
 async function applyDatasetChangesSmooth(chartId, setupOptions, desiredDatasetIds, datasetsToAdd, datasetsToUpdateSmooth, datasetIdsToRemove, labels, options, updateAnimationOrHasChartJsFunctions, hasChartJsFunctions) {
   const updateAnimation = typeof updateAnimationOrHasChartJsFunctions === "boolean" ? void 0 : updateAnimationOrHasChartJsFunctions;

@@ -140,6 +140,84 @@ public class ChartEventsTests : PageTest
     }
 
     [Test]
+    public async Task SmoothOptionsReplacementPreservesNativeClickCallbackWhenClickEventBridgeIsEnabled()
+    {
+        var canvasId = await OpenEventsChartAsync();
+
+        await Page.EvaluateAsync(
+            """
+            async (chartId) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
+                const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
+                const chart = Chart.getChart(chartId);
+                chart.data.datasets[0].id ??= 'smooth-event-primary';
+                chart.__smoothOptionsUpdateCount = 0;
+                const originalUpdate = chart.update.bind(chart);
+                chart.update = (...args) => {
+                    chart.__smoothOptionsUpdateCount++;
+                    return originalUpdate(...args);
+                };
+
+                window.chartJsNativeClickCount = 0;
+                window.chartJsNativeClickArgs = null;
+
+                await chartInterop.applyDatasetChangesSmooth(
+                    chartId,
+                    { chartJsCallbacksModuleLocation: callbacksUrl },
+                    chart.data.datasets.map(dataset => dataset.id),
+                    [],
+                    [],
+                    [],
+                    null,
+                    {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        onClick: { __chartJsFunction: 'chartEventBridgeClick' },
+                        onClickEvent: true
+                    },
+                    'none',
+                    true);
+            }
+            """,
+            canvasId);
+
+        var functionSnapshot = await Page.EvaluateAsync<string>(
+            """
+            (chartId) => {
+                const chart = Chart.getChart(chartId);
+                return [
+                    typeof chart.options.onClick,
+                    chart.__smoothOptionsUpdateCount
+                ].join('|');
+            }
+            """,
+            canvasId);
+
+        Assert.That(functionSnapshot, Is.EqualTo("function|1"));
+
+        var canvas = Page.Locator("canvas").First;
+        await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
+        {
+            Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
+        });
+
+        var clickText = await WaitForLatestEventTextAsync(new Regex(@"ChartJsLabelClickEvent"));
+        var callbackSnapshot = await Page.EvaluateAsync<string>(
+            """
+            (chartId) => [
+                window.chartJsNativeClickCount ?? 0,
+                window.chartJsNativeClickArgs?.chartId ?? '',
+                window.chartJsNativeClickArgs?.eventType ?? '',
+                Chart.getChart(chartId).__smoothOptionsUpdateCount
+            ].join('|')
+            """,
+            canvasId);
+
+        Assert.That(clickText, Does.Contain("ChartJsLabelClickEvent"));
+        Assert.That(callbackSnapshot, Is.EqualTo($"1|{canvasId}|click|1"));
+    }
+
+    [Test]
     public async Task NativeResizeCallbackIsPreservedWhenResizeEventBridgeIsEnabled()
     {
         var canvasId = await OpenEventsChartAsync();

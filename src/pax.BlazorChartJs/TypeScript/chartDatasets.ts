@@ -605,7 +605,7 @@ function applyDatasetChangesSmoothCore(
     labels: string[] | null | undefined,
     options: ChartJsOptionsPayload | null | undefined,
     updateAnimation: ChartUpdateAnimation,
-    beforeUpdate?: () => void) {
+    afterUpdate?: () => void) {
     if (!chart || !chart.data) {
         return;
     }
@@ -648,9 +648,9 @@ function applyDatasetChangesSmoothCore(
     }
 
     chart.data.datasets = finalDatasets;
-    beforeUpdate?.();
     const validatedUpdateAnimation = validateUpdateAnimation(chart, updateAnimation);
     chart.update(validatedUpdateAnimation as UpdateMode | undefined);
+    afterUpdate?.();
 }
 
 export async function applyDatasetChangesSmooth(
