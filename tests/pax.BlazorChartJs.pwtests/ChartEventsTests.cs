@@ -324,7 +324,7 @@ public class ChartEventsTests : PageTest
                         responsive: true,
                         maintainAspectRatio: true,
                         animation: {
-                            duration: 50,
+                            duration: 0,
                             onProgress: { __chartJsFunction: 'chartEventBridgeAnimationProgress' },
                             onComplete: { __chartJsFunction: 'chartEventBridgeAnimationComplete' },
                             onProgressEvent: true,
