@@ -143,7 +143,7 @@ function isChartJsFunctionMarker(value, path) {
 }
 
 // TypeScript/version.ts
-var chartJsInteropVersion = "0.9.0-preview2";
+var chartJsInteropVersion = "0.9.1";
 
 // TypeScript/chartEvents.ts
 async function triggerEvent(chartId, event, source, data) {
@@ -237,7 +237,9 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
   if (dotnetConfigOptions.animation?.onProgressEvent == true) {
     const animation = chart.options.animation;
     if (animation && typeof animation === "object") {
+      const nativeOnProgress = typeof animation.onProgress === "function" ? animation.onProgress : void 0;
       animation.onProgress = (context) => {
+        nativeOnProgress?.call(chart, context);
         triggerEvent(chartId, "progress", "animation", {
           CurrentStep: context.currentStep,
           NumSteps: context.numSteps
@@ -248,7 +250,9 @@ function registerEvents(dotnetConfigOptions, chartId, chart) {
   if (dotnetConfigOptions.animation?.onCompleteEvent == true) {
     const animation = chart.options.animation;
     if (animation && typeof animation === "object") {
+      const nativeOnComplete = typeof animation.onComplete === "function" ? animation.onComplete : void 0;
       animation.onComplete = (context) => {
+        nativeOnComplete?.call(chart, context);
         triggerEvent(chartId, "complete", "animation", {
           Initial: context.initial
         });
@@ -770,6 +774,7 @@ function decodeBinaryInt32Y(bytes, payload) {
 }
 
 // TypeScript/chartDatasets.ts
+var builtInUpdateAnimations = /* @__PURE__ */ new Set(["default", "active", "hide", "show", "reset", "resize", "none"]);
 function resolveDatasetListArguments(setupOptionsOrDatasets, datasetsOrHasChartJsFunctions, hasChartJsFunctions) {
   if (Array.isArray(setupOptionsOrDatasets) || typeof setupOptionsOrDatasets === "string") {
     return {
@@ -961,6 +966,52 @@ function createDatasetMap(datasets) {
   }
   return datasetsById;
 }
+function hasOwnProperty(value, propertyName) {
+  return value != void 0 && typeof value === "object" && Object.prototype.hasOwnProperty.call(value, propertyName);
+}
+function getStringProperty(value, propertyName) {
+  if (value == void 0 || typeof value !== "object") {
+    return void 0;
+  }
+  const propertyValue = value[propertyName];
+  return typeof propertyValue === "string" ? propertyValue : void 0;
+}
+function hasDatasetTypeTransition(chart, updateAnimation) {
+  const datasetOptions = chart.options?.datasets;
+  if (datasetOptions == void 0 || typeof datasetOptions !== "object") {
+    return false;
+  }
+  const checkedTypes = /* @__PURE__ */ new Set();
+  const chartType = getStringProperty(chart.config, "type");
+  if (chartType != void 0) {
+    checkedTypes.add(chartType);
+  }
+  for (let i = 0; i < chart.data.datasets.length; i++) {
+    const datasetType = getStringProperty(chart.data.datasets[i], "type");
+    if (datasetType != void 0) {
+      checkedTypes.add(datasetType);
+    }
+  }
+  for (const datasetType of checkedTypes) {
+    const typedDatasetOptions = datasetOptions[datasetType];
+    if (typedDatasetOptions != void 0 && typeof typedDatasetOptions === "object" && hasOwnProperty(typedDatasetOptions.transitions, updateAnimation)) {
+      return true;
+    }
+  }
+  return false;
+}
+function validateUpdateAnimation(chart, updateAnimation) {
+  if (updateAnimation == void 0) {
+    return void 0;
+  }
+  if (typeof updateAnimation !== "string" || updateAnimation.length === 0) {
+    throw new Error("Dataset smooth update animation must be a non-empty string.");
+  }
+  if (builtInUpdateAnimations.has(updateAnimation) || hasOwnProperty(chart.options?.transitions, updateAnimation) || hasDatasetTypeTransition(chart, updateAnimation)) {
+    return updateAnimation;
+  }
+  throw new Error(`Dataset smooth update animation '${updateAnimation}' is not a built-in update mode and was not found in chart transitions.`);
+}
 function setDatasetBinaryData(chartId, datasetId, bytes, pointCount, format, xOffset = 0, yOffset = 0, byteStride, updateMode = "none") {
   setDatasetsBinaryData(
     chartId,
@@ -1142,7 +1193,7 @@ async function setDatasets(chartId, setupOptionsOrDatasets, datasetsOrHasChartJs
   }
   setDatasetsCore(chart, resolvedArguments.datasets);
 }
-function applyDatasetChangesSmoothCore(chart, desiredDatasetIds, datasetsToAdd, datasetsToUpdateSmooth, datasetIdsToRemove, labels, options, beforeUpdate) {
+function applyDatasetChangesSmoothCore(chart, desiredDatasetIds, datasetsToAdd, datasetsToUpdateSmooth, datasetIdsToRemove, labels, options, updateAnimation, afterUpdate) {
   if (!chart || !chart.data) {
     return;
   }
@@ -1178,15 +1229,18 @@ function applyDatasetChangesSmoothCore(chart, desiredDatasetIds, datasetsToAdd, 
     }
   }
   chart.data.datasets = finalDatasets;
-  beforeUpdate?.();
-  chart.update();
+  const validatedUpdateAnimation = validateUpdateAnimation(chart, updateAnimation);
+  chart.update(validatedUpdateAnimation);
+  afterUpdate?.();
 }
-async function applyDatasetChangesSmooth(chartId, setupOptions, desiredDatasetIds, datasetsToAdd, datasetsToUpdateSmooth, datasetIdsToRemove, labels, options, hasChartJsFunctions) {
+async function applyDatasetChangesSmooth(chartId, setupOptions, desiredDatasetIds, datasetsToAdd, datasetsToUpdateSmooth, datasetIdsToRemove, labels, options, updateAnimationOrHasChartJsFunctions, hasChartJsFunctions) {
+  const updateAnimation = typeof updateAnimationOrHasChartJsFunctions === "boolean" ? void 0 : updateAnimationOrHasChartJsFunctions;
+  const resolvedHasChartJsFunctions = typeof updateAnimationOrHasChartJsFunctions === "boolean" ? updateAnimationOrHasChartJsFunctions : hasChartJsFunctions;
   const resolvedDatasetsToAdd = parseArrayPayload(datasetsToAdd) ?? [];
   const resolvedDatasetsToUpdateSmooth = parseArrayPayload(datasetsToUpdateSmooth) ?? [];
   const resolvedDatasetIdsToRemove = datasetIdsToRemove ?? [];
   const resolvedOptions = parsePayload(options);
-  if (hasChartJsFunctions === true) {
+  if (resolvedHasChartJsFunctions === true) {
     if (resolvedDatasetsToAdd.length > 0) {
       await resolveChartJsFunctions(setupOptions, { data: { datasets: resolvedDatasetsToAdd } }, true);
     }
@@ -1209,6 +1263,7 @@ async function applyDatasetChangesSmooth(chartId, setupOptions, desiredDatasetId
     resolvedDatasetIdsToRemove,
     labels,
     resolvedOptions,
+    updateAnimation,
     () => {
       if (resolvedOptions != void 0) {
         registerEvents(resolvedOptions, chartId, chart);

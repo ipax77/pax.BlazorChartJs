@@ -94,6 +94,30 @@ function getCustomTooltipPoint(context) {
     return context?.dataset?.tooltipPoints?.[context.dataIndex];
 }
 
+function isNewBubblePoint(context) {
+    return context?.raw?._new === true;
+}
+
+function clearBubbleNewFlagsCore(context) {
+    const datasets = context?.chart?.data?.datasets;
+    if (!Array.isArray(datasets)) {
+        return;
+    }
+
+    for (const dataset of datasets) {
+        const data = dataset?.data;
+        if (!Array.isArray(data)) {
+            continue;
+        }
+
+        for (const point of data) {
+            if (point && typeof point === 'object') {
+                delete point._new;
+            }
+        }
+    }
+}
+
 function getOrCreateExternalTooltip(chart) {
     let tooltipElement = externalTooltipCache.get(chart);
     if (tooltipElement) {
@@ -284,6 +308,21 @@ const callbacks = Object.assign(Object.create(null), {
             chartId: legend?.chart?.canvas?.id ?? null,
             eventType: event?.type ?? null,
             label: item?.text ?? null
+        };
+    },
+    chartEventBridgeAnimationProgress(context) {
+        window.chartJsNativeAnimationProgressCount = (window.chartJsNativeAnimationProgressCount ?? 0) + 1;
+        window.chartJsNativeAnimationProgressArgs = {
+            chartId: context?.chart?.canvas?.id ?? null,
+            currentStep: context?.currentStep ?? null,
+            numSteps: context?.numSteps ?? null
+        };
+    },
+    chartEventBridgeAnimationComplete(context) {
+        window.chartJsNativeAnimationCompleteCount = (window.chartJsNativeAnimationCompleteCount ?? 0) + 1;
+        window.chartJsNativeAnimationCompleteArgs = {
+            chartId: context?.chart?.canvas?.id ?? null,
+            initial: context?.initial ?? null
         };
     },
     showLegendItem() {
@@ -625,6 +664,34 @@ const callbacks = Object.assign(Object.create(null), {
         return context.chart.width < 480
             ? latestLabelPaddingSmall
             : latestLabelPaddingLarge;
+    },
+    bubbleAddFromLeftX(context) {
+        return isNewBubblePoint(context)
+            ? context.chart.chartArea.left - 50
+            : context.element?.x;
+    },
+    bubbleAddFromTopY(context) {
+        return isNewBubblePoint(context)
+            ? context.chart.chartArea.top - 50
+            : context.element?.y;
+    },
+    bubbleAddFromRightX(context) {
+        return isNewBubblePoint(context)
+            ? context.chart.chartArea.right + 50
+            : context.element?.x;
+    },
+    bubbleAddFromBottomY(context) {
+        return isNewBubblePoint(context)
+            ? context.chart.chartArea.bottom + 50
+            : context.element?.y;
+    },
+    bubbleAddFromLeftRadius(context) {
+        return isNewBubblePoint(context)
+            ? 0
+            : context.raw?.r;
+    },
+    clearBubbleNewFlags(context) {
+        clearBubbleNewFlagsCore(context);
     }
 });
 
