@@ -272,7 +272,16 @@ The bundle command writes the single shipped module to `wwwroot/chartJsInterop.j
 
 ## Changelog
 
-<details open="open"><summary>v0.9.0</summary>
+<details open="open"><summary>v0.9.1</summary>
+
+>- Added `UpdateAnimation` support for smooth dataset changes. `SetDatasetsSmooth(..., updateAnimation: "addFromLeft")` can now pass validated Chart.js update modes to `chart.update(...)`, including custom transitions and `"none"`. [sample](https://github.com/ipax77/pax.BlazorChartJs/blob/main/src/pax.BlazorChartJs.samplelib/BubbleChartComp.razor)
+>- Validated smooth update animation modes in the TypeScript interop. Built-in modes such as `default`, `active`, `hide`, `show`, `reset`, `resize`, and `none` are accepted, while custom modes must exist in chart transitions.
+>- Fixed `SetDatasetsSmooth(..., updateOptions: true)` so callback-backed options such as `onClick` are restored as callable JavaScript functions after smooth options replacement, preserving Blazor event bridge callbacks.
+>- Animation `onProgress` and `onComplete` callbacks now preserve existing native or custom JavaScript callbacks and also trigger the corresponding Blazor/C# animation events when enabled, matching the behavior of the other chart callbacks.
+
+</details>
+
+<details><summary>v0.9.0</summary>
 
 >- **Breaking change:** font option properties that now support scriptable values use `IndexableOption<Font>` in those contexts. Target-typed `Font = new()` no longer binds there; use `Font = new Font { ... }` or a `ChartJsFunction` callback.
 >- Added `ChartJsFunction` to reference registered JavaScript callbacks from C# chart configuration without serializing raw JavaScript.

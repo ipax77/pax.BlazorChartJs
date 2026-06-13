@@ -139,7 +139,7 @@ public class BarChartTests : ChartPageTest
         var snapshot = await Page.EvaluateAsync<string>(
             """
             async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
                 const chart = Chart.getChart(chartId);
                 chart.stop();
                 chart.resize();

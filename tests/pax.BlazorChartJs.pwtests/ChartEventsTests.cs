@@ -140,6 +140,84 @@ public class ChartEventsTests : PageTest
     }
 
     [Test]
+    public async Task SmoothOptionsReplacementPreservesNativeClickCallbackWhenClickEventBridgeIsEnabled()
+    {
+        var canvasId = await OpenEventsChartAsync();
+
+        await Page.EvaluateAsync(
+            """
+            async (chartId) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
+                const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
+                const chart = Chart.getChart(chartId);
+                chart.data.datasets[0].id ??= 'smooth-event-primary';
+                chart.__smoothOptionsUpdateCount = 0;
+                const originalUpdate = chart.update.bind(chart);
+                chart.update = (...args) => {
+                    chart.__smoothOptionsUpdateCount++;
+                    return originalUpdate(...args);
+                };
+
+                window.chartJsNativeClickCount = 0;
+                window.chartJsNativeClickArgs = null;
+
+                await chartInterop.applyDatasetChangesSmooth(
+                    chartId,
+                    { chartJsCallbacksModuleLocation: callbacksUrl },
+                    chart.data.datasets.map(dataset => dataset.id),
+                    [],
+                    [],
+                    [],
+                    null,
+                    {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        onClick: { __chartJsFunction: 'chartEventBridgeClick' },
+                        onClickEvent: true
+                    },
+                    'none',
+                    true);
+            }
+            """,
+            canvasId);
+
+        var functionSnapshot = await Page.EvaluateAsync<string>(
+            """
+            (chartId) => {
+                const chart = Chart.getChart(chartId);
+                return [
+                    typeof chart.options.onClick,
+                    chart.__smoothOptionsUpdateCount
+                ].join('|');
+            }
+            """,
+            canvasId);
+
+        Assert.That(functionSnapshot, Is.EqualTo("function|1"));
+
+        var canvas = Page.Locator("canvas").First;
+        await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
+        {
+            Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
+        });
+
+        var clickText = await WaitForLatestEventTextAsync(new Regex(@"ChartJsLabelClickEvent"));
+        var callbackSnapshot = await Page.EvaluateAsync<string>(
+            """
+            (chartId) => [
+                window.chartJsNativeClickCount ?? 0,
+                window.chartJsNativeClickArgs?.chartId ?? '',
+                window.chartJsNativeClickArgs?.eventType ?? '',
+                Chart.getChart(chartId).__smoothOptionsUpdateCount
+            ].join('|')
+            """,
+            canvasId);
+
+        Assert.That(clickText, Does.Contain("ChartJsLabelClickEvent"));
+        Assert.That(callbackSnapshot, Is.EqualTo($"1|{canvasId}|click|1"));
+    }
+
+    [Test]
     public async Task NativeResizeCallbackIsPreservedWhenResizeEventBridgeIsEnabled()
     {
         var canvasId = await OpenEventsChartAsync();
@@ -175,7 +253,7 @@ public class ChartEventsTests : PageTest
         await Page.EvaluateAsync(
             """
             async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
                 const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
                 await chartInterop.updateChartOptions(
                     chartId,
@@ -227,6 +305,58 @@ public class ChartEventsTests : PageTest
 
         Assert.That(legendText, Does.Contain("ChartJsLegendLeaveEvent"));
         Assert.That(snapshot, Is.EqualTo($"1|1|1|{canvasId}|{canvasId}|{canvasId}"));
+    }
+
+    [Test]
+    public async Task NativeAnimationCallbacksArePreservedWhenAnimationEventBridgeIsEnabled()
+    {
+        var canvasId = await OpenEventsChartAsync();
+
+        await Page.EvaluateAsync(
+            """
+            async (chartId) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
+                const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
+                await chartInterop.updateChartOptions(
+                    chartId,
+                    { chartJsCallbacksModuleLocation: callbacksUrl },
+                    {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        animation: {
+                            duration: 0,
+                            onProgress: { __chartJsFunction: 'chartEventBridgeAnimationProgress' },
+                            onComplete: { __chartJsFunction: 'chartEventBridgeAnimationComplete' },
+                            onProgressEvent: true,
+                            onCompleteEvent: true
+                        }
+                    },
+                    true);
+
+                window.chartJsNativeAnimationProgressCount = 0;
+                window.chartJsNativeAnimationCompleteCount = 0;
+
+                const chart = Chart.getChart(chartId);
+                chart.options.animation.onProgress({ chart, currentStep: 1, numSteps: 2 });
+                chart.options.animation.onComplete({ chart, initial: false });
+            }
+            """,
+            canvasId);
+
+        var animationText = await WaitForLatestEventTextAsync(new Regex(@"ChartJsAnimationCompleteEvent"));
+        var snapshot = await Page.EvaluateAsync<string>(
+            """
+            (chartId) => [
+                (window.chartJsNativeAnimationProgressCount ?? 0) > 0,
+                window.chartJsNativeAnimationCompleteCount ?? 0,
+                window.chartJsNativeAnimationProgressArgs?.chartId ?? '',
+                window.chartJsNativeAnimationCompleteArgs?.chartId ?? ''
+            ].join('|')
+            """,
+            canvasId);
+
+        Assert.That(animationText, Does.Contain("ChartJsAnimationCompleteEvent"));
+        Assert.That(snapshot, Is.EqualTo($"true|1|{canvasId}|{canvasId}"));
     }
 
     [Test]
@@ -465,7 +595,7 @@ public class ChartEventsTests : PageTest
         await Page.EvaluateAsync(
             """
             async ([chartId, optionName, callbackName, eventFlagName, responsive]) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
                 const callbacksUrl = new URL('./_content/pax.BlazorChartJs.samplelib/chartJsCallbacks.js', document.baseURI).href;
                 const options = {
                     responsive,

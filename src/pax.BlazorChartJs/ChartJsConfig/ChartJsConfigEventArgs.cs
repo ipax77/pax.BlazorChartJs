@@ -90,6 +90,15 @@ public class DatasetsSmoothChangeSet(IList<string> desiredDatasetIds)
     /// Gets a value indicating whether the chart options should be updated as part of this change set.
     /// </summary>
     public bool UpdateOptions { get; init; }
+
+    /// <summary>
+    /// Gets the Chart.js update mode to use for the consolidated chart update.
+    /// </summary>
+    /// <remarks>
+    /// Set to a built-in mode such as <c>none</c> or to a custom transition name defined
+    /// in chart options. When <see langword="null"/>, the default Chart.js update is used.
+    /// </remarks>
+    public string? UpdateAnimation { get; init; }
 }
 
 public class DataAddEventArgs(string? label,

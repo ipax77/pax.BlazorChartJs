@@ -198,9 +198,11 @@ public class UpdateDatasetTests : PageTest
             @"(chartId) => {
                 const chart = Chart.getChart(chartId);
                 chart.__setSmoothUpdateCount = 0;
+                chart.__setSmoothUpdateArgs = [];
                 const originalUpdate = chart.update.bind(chart);
                 chart.update = (...args) => {
                     chart.__setSmoothUpdateCount++;
+                    chart.__setSmoothUpdateArgs.push(args);
                     return originalUpdate(...args);
                 };
             }",
@@ -218,7 +220,8 @@ public class UpdateDatasetTests : PageTest
                     && chart.data.datasets[1].id === 'upsert-primary'
                     && chart.data.datasets[1].borderWidth === 6
                     && chart.options.responsive === false
-                    && chart.__setSmoothUpdateCount === 1;
+                    && chart.__setSmoothUpdateCount === 1
+                    && chart.__setSmoothUpdateArgs[0][0] === 'none';
             }",
             canvasId,
             new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
@@ -234,12 +237,166 @@ public class UpdateDatasetTests : PageTest
                     chart.data.datasets[1].barThickness,
                     chart.options.responsive,
                     chart.options.maintainAspectRatio,
-                    chart.__setSmoothUpdateCount
+                    chart.__setSmoothUpdateCount,
+                    chart.__setSmoothUpdateArgs[0][0]
                 ].join('|');
             }",
             canvasId);
 
-        Assert.That(snapshot, Is.EqualTo("upsert-added,upsert-primary|Apr,May,Jun,Jul|Dataset 1 Set Smooth|6|19|False|False|1").IgnoreCase);
+        Assert.That(snapshot, Is.EqualTo("upsert-added,upsert-primary|Apr,May,Jun,Jul|Dataset 1 Set Smooth|6|19|False|False|1|none").IgnoreCase);
+    }
+
+    [Test]
+    public async Task BubbleSetDatasetsSmoothUsesCustomAndNoneUpdateAnimations()
+    {
+        await Page.GotoAsync(Startup.GetSampleBaseUrl() + "/bubblechart");
+
+        await Expect(Page).ToHaveTitleAsync(new Regex("BubbleChart"),
+            new PageAssertionsToHaveTitleOptions() { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var canvasId = await Page.Locator("canvas").GetAttributeAsync("id");
+        Assert.That(Guid.TryParse(canvasId, out _), Is.True);
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => typeof Chart !== 'undefined' && Chart.getChart(chartId) != undefined",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Task.Delay(Startup.ChartJsLoadDelay);
+
+        await Page.EvaluateAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                chart.__bubbleSmoothUpdateCount = 0;
+                chart.__bubbleSmoothUpdateArgs = [];
+                const originalUpdate = chart.update.bind(chart);
+                chart.update = (...args) => {
+                    chart.__bubbleSmoothUpdateCount++;
+                    chart.__bubbleSmoothUpdateArgs.push(args);
+                    return originalUpdate(...args);
+                };
+            }",
+            canvasId);
+
+        var addData = Page.GetByText("Add Data From Left", new PageGetByTextOptions() { Exact = true });
+        await Expect(addData).ToHaveAttributeAsync("type", "button");
+        await addData.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.length === 6
+                    && chart.__bubbleSmoothUpdateCount === 1
+                    && chart.__bubbleSmoothUpdateArgs[0][0] === 'addFromLeft';
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.every(point => point._new !== true) === true;
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var addDataNoAnimation = Page.GetByText("Add Data No Animation", new PageGetByTextOptions() { Exact = true });
+        await Expect(addDataNoAnimation).ToHaveAttributeAsync("type", "button");
+        await addDataNoAnimation.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.length === 7
+                    && chart.__bubbleSmoothUpdateCount === 2
+                    && chart.__bubbleSmoothUpdateArgs[1][0] === 'none';
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var snapshot = await Page.EvaluateAsync<string>(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return [
+                    chart.data.datasets[0].id,
+                    chart.data.datasets[0].data.length,
+                    chart.data.datasets[0].data.filter(point => point._new === true).length,
+                    chart.__bubbleSmoothUpdateCount,
+                    chart.__bubbleSmoothUpdateArgs.map(args => args[0]).join(',')
+                ].join('|');
+            }",
+            canvasId);
+
+        Assert.That(snapshot, Is.EqualTo("bubble-primary|7|0|2|addFromLeft,none"));
+
+        await Page.EvaluateAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                chart.options.animation.duration = 5000;
+            }",
+            canvasId);
+
+        await addData.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.length === 8
+                    && chart.__bubbleSmoothUpdateCount === 3
+                    && chart.__bubbleSmoothUpdateArgs[2][0] === 'addFromLeft'
+                    && chart.data.datasets[0].data.some(point => point._new === true);
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        var removeData = Page.GetByText("Remove Data", new PageGetByTextOptions() { Exact = true });
+        await Expect(removeData).ToHaveAttributeAsync("type", "button");
+        await removeData.ClickAsync();
+
+        await Page.WaitForFunctionAsync(
+            @"(chartId) => {
+                const chart = Chart.getChart(chartId);
+                return chart?.data?.datasets?.[0]?.data?.length === 7
+                    && chart.data.datasets[0].data.every(point => point._new !== true);
+            }",
+            canvasId,
+            new PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+    }
+
+    [Test]
+    public async Task SetDatasetsSmoothRejectsUnknownCustomUpdateAnimation()
+    {
+        var canvasId = await OpenUpdateChartAndTrackUpdates("__invalidAnimationUpdateCount");
+
+        var errorMessage = await Page.EvaluateAsync<string>(
+            @"async (chartId) => {
+                const interop = await import('/_content/pax.BlazorChartJs/chartJsInterop.js');
+                try {
+                    await interop.applyDatasetChangesSmooth(
+                        chartId,
+                        null,
+                        ['upsert-primary', 'upsert-remove'],
+                        [],
+                        [],
+                        [],
+                        null,
+                        null,
+                        'missingTransition',
+                        false);
+                } catch (error) {
+                    return String(error?.message ?? error);
+                }
+
+                return '';
+            }",
+            canvasId);
+
+        var updateCount = await Page.EvaluateAsync<int>(
+            @"(chartId) => Chart.getChart(chartId).__invalidAnimationUpdateCount",
+            canvasId);
+
+        Assert.That(errorMessage, Does.Contain("missingTransition"));
+        Assert.That(updateCount, Is.EqualTo(0));
     }
 
     [Test]

@@ -76,7 +76,7 @@ public class DisposeTests : PageTest
 
         await Page.EvaluateAsync(
             @"async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.0-preview2');
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
                 const dataset = { id: 'disposed-test', label: 'Disposed Test', data: [1, 2, 3] };
                 chartInterop.addDatasets(chartId, [dataset]);
                 chartInterop.updateDatasets(chartId, [dataset]);

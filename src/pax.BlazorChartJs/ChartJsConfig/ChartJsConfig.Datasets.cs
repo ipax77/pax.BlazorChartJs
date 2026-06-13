@@ -261,7 +261,8 @@ public partial class ChartJsConfig
     public void SetDatasetsSmooth(
         IList<ChartJsDataset> datasets,
         IList<string>? labels = null,
-        bool updateOptions = false)
+        bool updateOptions = false,
+        string? updateAnimation = null)
     {
         ArgumentNullException.ThrowIfNull(datasets);
 
@@ -323,7 +324,8 @@ public partial class ChartJsConfig
             DatasetsToUpdateSmooth = datasetsToUpdateSmooth,
             DatasetIdsToRemove = datasetIdsToRemove,
             Labels = labels,
-            UpdateOptions = updateOptions
+            UpdateOptions = updateOptions,
+            UpdateAnimation = updateAnimation
         });
     }
 
@@ -445,7 +447,8 @@ public partial class ChartJsConfig
             DatasetsToUpdateSmooth = effectiveDatasetsToUpdateSmooth,
             DatasetIdsToRemove = effectiveDatasetIdsToRemove,
             Labels = changeSet.Labels,
-            UpdateOptions = changeSet.UpdateOptions
+            UpdateOptions = changeSet.UpdateOptions,
+            UpdateAnimation = changeSet.UpdateAnimation
         });
     }
 

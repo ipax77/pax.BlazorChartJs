@@ -17,7 +17,7 @@ public partial class ChartJsInterop(IJSRuntime jsRuntime,
                       //   ILogger<ChartJsInterop> logger,
                       IOptions<ChartJsSetupOptions>? options) : IAsyncDisposable
 {
-    private const string ChartJsInteropVersion = "0.9.0-preview2";
+    private const string ChartJsInteropVersion = "0.9.1";
     private const string ChartJsFunctionMarkerProperty = "\"__chartJsFunction\"";
     private readonly ChartJsSetupOptions? setupOptions = options?.Value;
     private readonly Lazy<Task<IJSObjectReference>> moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
@@ -412,6 +412,7 @@ public partial class ChartJsInterop(IJSRuntime jsRuntime,
             datasetIdsToRemove,
             changeSet.Labels,
             serializedOptions.Json,
+            changeSet.UpdateAnimation,
             serializedDatasetsToAdd.HasChartJsFunctions || serializedDatasetsToUpdateSmooth.HasChartJsFunctions || serializedOptions.HasChartJsFunctions)
             .ConfigureAwait(false);
     }
