@@ -27,6 +27,7 @@ public class TimeSeriesTests : ChartPageTest
 
         string startdateString = "2022-09-10";
         var canvasId = await WaitForChartAsync(Page.Locator("canvas"));
+        await WaitForChartXAxisTimeScaleAsync(canvasId);
         await Page.GetByLabel("StartDate").FillAsync(startdateString);
         await WaitForChartXAxisMinAsync(canvasId, startdateString);
         var minValue = await GetChartXAxisMin(canvasId);
@@ -50,6 +51,14 @@ public class TimeSeriesTests : ChartPageTest
         return Page.WaitForFunctionAsync(
             "args => Chart.getChart(args.canvasId)?.options?.scales?.x?.min === args.expected",
             new { canvasId, expected },
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+    }
+
+    private Task WaitForChartXAxisTimeScaleAsync(string canvasId)
+    {
+        return Page.WaitForFunctionAsync(
+            "canvasId => Chart.getChart(canvasId)?.options?.scales?.x?.type === 'time'",
+            canvasId,
             new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
     }
 }

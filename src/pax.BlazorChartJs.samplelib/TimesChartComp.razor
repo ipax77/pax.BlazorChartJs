@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Components.Forms;
 @using pax.BlazorChartJs
 @using Microsoft.JSInterop
+@using System.Globalization
 
 @inject IJSRuntime jsRuntime
 @implements IAsyncDisposable
@@ -82,9 +83,9 @@
         base.OnInitialized();
     }
 
-    private async void EventTriggered(ChartJsEvent chartJsEvent)
+    private async Task EventTriggered(ChartJsEvent chartJsEvent)
     {
-        if (chartJsEvent is ChartJsInitEvent initEvent)
+        if (chartJsEvent is ChartJsInitEvent)
         {
             await RegisterPlugin();
         }
@@ -100,18 +101,21 @@
 
             isRegistered = true;
 
+            var timeAxis = new TimeCartesianAxis()
+            {
+                Type = "time",
+                Time = new TimeCartesianAxisTime()
+                {
+                    Unit = "day"
+                }
+            };
+            ApplyTimeBounds(timeAxis);
+
             chartConfig.Options = new ChartJsOptions()
                 {
                     Scales = new ChartJsOptionsScales()
                     {
-                        X = new TimeCartesianAxis()
-                        {
-                            Type = "time",
-                            Time = new TimeCartesianAxisTime()
-                            {
-                                Unit = "day"
-                            }
-                        }
+                        X = timeAxis
                     }
                 };
             chartConfig.ReinitializeChart();
@@ -138,10 +142,20 @@
         if (chartConfig.Options?.Scales?.X != null
             && chartConfig.Options?.Scales?.X is TimeCartesianAxis timeAxis)
         {
-            timeAxis.Min = timeOptions.Start.ToString("yyyy-MM-dd");
-            timeAxis.Max = timeOptions.End.ToString("yyyy-MM-dd");
+            ApplyTimeBounds(timeAxis);
             chartConfig.UpdateChartOptions();
         }
+    }
+
+    private void ApplyTimeBounds(TimeCartesianAxis timeAxis)
+    {
+        timeAxis.Min = FormatChartDate(timeOptions.Start);
+        timeAxis.Max = FormatChartDate(timeOptions.End);
+    }
+
+    private static string FormatChartDate(DateTime value)
+    {
+        return value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
     }
 
     public async ValueTask DisposeAsync()
