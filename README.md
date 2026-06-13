@@ -278,6 +278,7 @@ The bundle command writes the single shipped module to `wwwroot/chartJsInterop.j
 >- Validated smooth update animation modes in the TypeScript interop. Built-in modes such as `default`, `active`, `hide`, `show`, `reset`, `resize`, and `none` are accepted, while custom modes must exist in chart transitions.
 >- Fixed `SetDatasetsSmooth(..., updateOptions: true)` so callback-backed options such as `onClick` are restored as callable JavaScript functions after smooth options replacement, preserving Blazor event bridge callbacks.
 >- Animation `onProgress` and `onComplete` callbacks now preserve existing native or custom JavaScript callbacks and also trigger the corresponding Blazor/C# animation events when enabled, matching the behavior of the other chart callbacks.
+>- update esbuild to v0.28.1
 
 </details>
 
