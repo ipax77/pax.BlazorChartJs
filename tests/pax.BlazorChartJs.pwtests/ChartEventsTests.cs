@@ -376,6 +376,13 @@ public class ChartEventsTests : PageTest
         // wait for ChartJs to load
         await Task.Delay(Startup.ChartJsLoadDelay);
 
+        await Expect(Page.GetByTestId("latest-chart-event")).ToHaveTextAsync(
+            new Regex(@"ChartJsAnimationCompleteEvent.*Initial = True"),
+            new Microsoft.Playwright.LocatorAssertionsToHaveTextOptions
+            {
+                Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds
+            });
+
         await canvas.HoverAsync(new Microsoft.Playwright.LocatorHoverOptions()
         {
             Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
