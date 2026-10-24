@@ -250,7 +250,7 @@ public partial class BarChartComp : ComponentBase
 
     private void RemoveLastDataset()
     {
-        if (chartJsConfig.Data.Datasets.Any())
+        if (chartJsConfig.Data.Datasets.Count != 0)
         {
             chartJsConfig.RemoveDataset(chartJsConfig.Data.Datasets.Last());
         }
