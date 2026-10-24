@@ -39,3 +39,18 @@ dotnet test .\tests\pax.BlazorChartJs.pwtests\pax.BlazorChartJs.pwtests.csproj
 ```
 
 Clear that environment variable to return to the self-hosted path.
+
+```powershell
+Remove-Item Env:PWTESTS_SampleBaseUrl -ErrorAction SilentlyContinue
+```
+
+## Readiness and intermittent failures
+
+Page-title and chart-readiness checks allow up to 30 seconds for cold WASM startup;
+they finish as soon as the expected state appears. A title timeout can indicate
+that the app has not finished starting, rather than a Chart.js failure.
+
+The event callback tests wait for the initial animation-complete event to reach
+Blazor before interacting with the chart. Chart registration alone is too early:
+animation events can overwrite a click event in the sample's shared latest-event
+display. Keep this readiness check when adding interaction tests.
