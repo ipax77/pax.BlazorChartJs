@@ -67,9 +67,9 @@ public class DisposeTests : PageTest
         Assert.That(Guid.TryParse(canvasId, out _), Is.True);
 
         var chartInteropVersion = await Page.EvaluateAsync<string>("() => window.chartJsInteropVersion ?? ''");
-        if (chartInteropVersion != "0.9.0-preview2")
+        if (chartInteropVersion != "0.9.1")
         {
-            Assert.Ignore($"The configured sample site is serving pax.BlazorChartJs {chartInteropVersion}; this regression requires 0.9.0-preview2.");
+            Assert.Ignore($"The configured sample site is serving pax.BlazorChartJs {chartInteropVersion}; this regression requires 0.9.1.");
         }
 
         await Page.GotoAsync(Startup.GetSampleBaseUrl());

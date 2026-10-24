@@ -9,7 +9,7 @@
 
 Release | Chart.js | Tested Chart.js
 ---|---|---
-&gt;= 0.5.0 | **4.x** | 4.5.1
+&gt;= 0.5.0 | **4.x** | 4.6.1
 
 ## Highlights
 
