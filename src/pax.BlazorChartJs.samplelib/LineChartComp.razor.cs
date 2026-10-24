@@ -231,7 +231,7 @@ public partial class LineChartComp : ComponentBase
 
     private void RemoveLastDataset()
     {
-        if (chartJsConfig.Data.Datasets.Any())
+        if (chartJsConfig.Data.Datasets.Count != 0)
         {
             chartJsConfig.RemoveDataset(chartJsConfig.Data.Datasets.Last());
         }
@@ -249,7 +249,7 @@ public partial class LineChartComp : ComponentBase
 
     private void Fill()
     {
-        if (chartJsConfig.Data.Datasets.Any())
+        if (chartJsConfig.Data.Datasets.Count != 0)
         {
             var lineDataset = chartJsConfig.Data.Datasets.First() as LineDataset;
             if (lineDataset != null)

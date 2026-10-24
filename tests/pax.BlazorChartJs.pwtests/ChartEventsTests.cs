@@ -376,6 +376,13 @@ public class ChartEventsTests : PageTest
         // wait for ChartJs to load
         await Task.Delay(Startup.ChartJsLoadDelay);
 
+        await Expect(Page.GetByTestId("latest-chart-event")).ToHaveTextAsync(
+            new Regex(@"ChartJsAnimationCompleteEvent.*Initial = True"),
+            new Microsoft.Playwright.LocatorAssertionsToHaveTextOptions
+            {
+                Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds
+            });
+
         await canvas.HoverAsync(new Microsoft.Playwright.LocatorHoverOptions()
         {
             Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
@@ -480,6 +487,15 @@ public class ChartEventsTests : PageTest
         var addEvents = Page.GetByText("AddEvents", new Microsoft.Playwright.PageGetByTextOptions() { Exact = true });
         await addEvents.ClickAsync();
 
+        // Replacing options starts a new animation. Wait for that update to
+        // finish before asserting a click in the shared latest-event display.
+        await Expect(clickResult).ToHaveTextAsync(
+            new Regex(@"ChartJsAnimationCompleteEvent.*Initial = False"),
+            new Microsoft.Playwright.LocatorAssertionsToHaveTextOptions
+            {
+                Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds
+            });
+
         await canvas.ClickAsync(new Microsoft.Playwright.LocatorClickOptions()
         {
             Position = new Microsoft.Playwright.Position() { X = 100, Y = 100 }
@@ -581,6 +597,16 @@ public class ChartEventsTests : PageTest
             "(chartId) => typeof Chart !== 'undefined' && Chart.getChart(chartId) != undefined",
             canvasId,
             new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        // Chart registration precedes its initial animation and Blazor event delivery.
+        // Wait for the rendered completion event so it cannot overwrite the interaction
+        // being asserted in the sample's shared latest-event display.
+        await Expect(Page.GetByTestId("latest-chart-event")).ToHaveTextAsync(
+            new Regex(@"ChartJsAnimationCompleteEvent.*Initial = True"),
+            new Microsoft.Playwright.LocatorAssertionsToHaveTextOptions
+            {
+                Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds
+            });
 
         return canvasId!;
     }

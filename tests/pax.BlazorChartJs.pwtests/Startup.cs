@@ -7,7 +7,9 @@ namespace PlaywrightTests;
 
 public static class Startup
 {
-    internal static readonly TimeSpan WasmLoadDelay = TimeSpan.FromSeconds(10);
+    // Cold WASM startup can take longer under parallel browser load. Assertions
+    // poll for readiness and return immediately once it is reached.
+    internal static readonly TimeSpan WasmLoadDelay = TimeSpan.FromSeconds(30);
     internal static readonly TimeSpan ChartJsLoadDelay = TimeSpan.FromMilliseconds(1500);
     internal static readonly TimeSpan ChartJsComputeDelay = TimeSpan.FromMilliseconds(10);
 

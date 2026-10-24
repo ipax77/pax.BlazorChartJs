@@ -21,7 +21,7 @@ public partial class ChartJsConfig
 
     private void RemoveLabel()
     {
-        if (!Data.Labels.Any())
+        if (Data.Labels.Count == 0)
         {
             return;
         }
@@ -31,7 +31,7 @@ public partial class ChartJsConfig
 
     private static void RemoveDatasetData(ChartJsDataset dataset)
     {
-        if (!dataset.Data.Any())
+        if (dataset.Data.Count == 0)
         {
             return;
         }

@@ -66,24 +66,28 @@ public class DisposeTests : PageTest
         var canvasId = await Page.Locator("canvas").GetAttributeAsync("id");
         Assert.That(Guid.TryParse(canvasId, out _), Is.True);
 
+        await Page.WaitForFunctionAsync(
+            "chartId => window.Chart !== undefined && Chart.getChart(chartId) !== undefined",
+            canvasId,
+            new Microsoft.Playwright.PageWaitForFunctionOptions { Timeout = (float)Startup.WasmLoadDelay.TotalMilliseconds });
+
+        // Use the running app's interop version, including for external targets.
+        // A version bump must not silently skip this regression.
         var chartInteropVersion = await Page.EvaluateAsync<string>("() => window.chartJsInteropVersion ?? ''");
-        if (chartInteropVersion != "0.9.0-preview2")
-        {
-            Assert.Ignore($"The configured sample site is serving pax.BlazorChartJs {chartInteropVersion}; this regression requires 0.9.0-preview2.");
-        }
+        Assert.That(chartInteropVersion, Is.Not.Empty, "The initialized app must expose its interop version.");
 
         await Page.GotoAsync(Startup.GetSampleBaseUrl());
 
         await Page.EvaluateAsync(
-            @"async (chartId) => {
-                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=0.9.1');
+            @"async ({ chartId, version }) => {
+                const chartInterop = await import('./_content/pax.BlazorChartJs/chartJsInterop.js?v=' + encodeURIComponent(version));
                 const dataset = { id: 'disposed-test', label: 'Disposed Test', data: [1, 2, 3] };
-                chartInterop.addDatasets(chartId, [dataset]);
-                chartInterop.updateDatasets(chartId, [dataset]);
-                chartInterop.removeDatasets(chartId, [dataset.id]);
-                chartInterop.setDatasets(chartId, [dataset]);
+                await chartInterop.addDatasets(chartId, [dataset]);
+                await chartInterop.updateDatasets(chartId, [dataset]);
+                await chartInterop.removeDatasets(chartId, [dataset.id]);
+                await chartInterop.setDatasets(chartId, [dataset]);
             }",
-            canvasId);
+            new { chartId = canvasId, version = chartInteropVersion });
 
         var error = Page.GetByText("An unhandled error has occurred.", new Microsoft.Playwright.PageGetByTextOptions() { Exact = false });
         await Expect(error).ToHaveCSSAsync("display", "none");
